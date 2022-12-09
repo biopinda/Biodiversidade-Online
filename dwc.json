@@ -1,0 +1,13 @@
+{
+  "taxon": {
+    "taxionID": 602728,
+    "scientificName": "Paubrasilia echinata (Lam.) Gagnon, H.C.Lima & G.P.Lewis",
+    "kingdom": "Plantae",
+    "family": "Fabaceae",
+    "genus": "Paubrasilia",
+    "specificEpithet": "echinata",
+    "scientificNameAuthorship": "(Lam.) Gagnon, H.C.Lima & G.P.Lewis",
+    "taxonRank": "specie",
+    "taxonomicStatus": "accepted name"
+  }
+}
