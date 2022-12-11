@@ -1,4 +1,3 @@
-
 {
   "taxon": {
     "taxionID": 602728,
@@ -13,136 +12,127 @@
   },
   "vernacularname": [
     {
-    "vernacularName": "pau-pernambuco",
-    "language": "PORTUGUES",
-    "locality": "Nordeste"
+      "vernacularName": "pau-pernambuco",
+      "language": "PORTUGUES",
+      "locality": "Nordeste"
     },
     {
-    "vernacularName": "arabutam",
-    "language": "PORTUGUES",
-    "locality": "Brasil"
-    },    
-    {
-    "vernacularName": "pau-brasil-mirim",
-    "language": "PORTUGUES",
-    "locality": "Brasil"
+      "vernacularName": "arabutam",
+      "language": "PORTUGUES",
+      "locality": "Brasil"
     },
     {
-    "vernacularName": "pau-brasil",
-    "language": "PORTUGUES",
-    "locality": "Brasil"
+      "vernacularName": "pau-brasil-mirim",
+      "language": "PORTUGUES",
+      "locality": "Brasil"
     },
     {
-    "vernacularName": "ibitapitanga",
-    "language": "PORTUGUES",
-    "locality": "Brasil"
+      "vernacularName": "pau-brasil",
+      "language": "PORTUGUES",
+      "locality": "Brasil"
     },
     {
-    "vernacularName": "pau-brasil-folha-de-arruda",
-    "language": "PORTUGUES",
-    "locality": "Brasil"
+      "vernacularName": "ibitapitanga",
+      "language": "PORTUGUES",
+      "locality": "Brasil"
     },
     {
-    "vernacularName": "pau-brasil-folha-de-café",
-    "language": "PORTUGUES",
-    "locality": "Brasil"
+      "vernacularName": "pau-brasil-folha-de-arruda",
+      "language": "PORTUGUES",
+      "locality": "Brasil"
     },
     {
-    "vernacularName": "pau-brasil-folha-de-laranja",
-    "language": "PORTUGUES",
-    "locality": "Brasil"
+      "vernacularName": "pau-brasil-folha-de-café",
+      "language": "PORTUGUES",
+      "locality": "Brasil"
+    },
+    {
+      "vernacularName": "pau-brasil-folha-de-laranja",
+      "language": "PORTUGUES",
+      "locality": "Brasil"
     }
   ],
   "distribution": [
     {
-    "locationID": "BR-ES",
-    "countryCode": "BR",
-    "establishmentMeans": "NATIVA",
-    "occurrenceRemarks": 
-      {
-      "endemism":"Endemica",
-      "phytogeographicDomain":"Mata Atlântica"
+      "locationID": "BR-ES",
+      "countryCode": "BR",
+      "establishmentMeans": "NATIVA",
+      "occurrenceRemarks": {
+        "endemism": "Endemica",
+        "phytogeographicDomain": "Mata Atlântica"
       }
     },
     {
       "locationID": "BR-RJ",
       "countryCode": "BR",
       "establishmentMeans": "NATIVA",
-      "occurrenceRemarks": 
-        {
-        "endemism":"Endemica",
-        "phytogeographicDomain":"Mata Atlântica"
-        }
+      "occurrenceRemarks": {
+        "endemism": "Endemica",
+        "phytogeographicDomain": "Mata Atlântica"
+      }
     },
     {
-    "locationID": "BR-SE",
-    "countryCode": "BR",
-    "establishmentMeans": "NATIVA",
-    "occurrenceRemarks": 
-      {
-      "endemism":"Endemica",
-      "phytogeographicDomain":"Mata Atlântica"
+      "locationID": "BR-SE",
+      "countryCode": "BR",
+      "establishmentMeans": "NATIVA",
+      "occurrenceRemarks": {
+        "endemism": "Endemica",
+        "phytogeographicDomain": "Mata Atlântica"
       }
     },
     {
       "locationID": "BR-RN",
       "countryCode": "BR",
       "establishmentMeans": "NATIVA",
-      "occurrenceRemarks": 
-        {
-        "endemism":"Endemica",
-        "phytogeographicDomain":"Mata Atlântica"
-        }
-      },
-      {
+      "occurrenceRemarks": {
+        "endemism": "Endemica",
+        "phytogeographicDomain": "Mata Atlântica"
+      }
+    },
+    {
       "locationID": "BR-PE",
-            "countryCode": "BR",
-            "establishmentMeans": "NATIVA",
-            "occurrenceRemarks": 
-              {
-              "endemism":"Endemica",
-              "phytogeographicDomain":"Mata Atlântica"
-              }
-            },
-            {
-              "locationID": "BR-PB",
-              "countryCode": "BR",
-              "establishmentMeans": "NATIVA",
-              "occurrenceRemarks": 
-                {
-                "endemism":"Endemica",
-                "phytogeographicDomain":"Mata Atlântica"
-                }
-              },
-              {
-              "locationID": "BR-BA",
-              "countryCode": "BR",
-              "establishmentMeans": "NATIVA",
-              "occurrenceRemarks": 
-                {
-                "endemism":"Endemica",
-                "phytogeographicDomain":"Mata Atlântica"
-                }
-              },
-              {
-              "locationID": "BR-PB",
-              "countryCode": "BR",
-              "establishmentMeans": "NATIVA",
-              "occurrenceRemarks": 
-                {
-                "endemism":"Endemica",
-                "phytogeographicDomain":"Mata Atlântica"
-                }
-              },
-              {
-              "locationID": "BR-AL",
-              "countryCode": "BR",
-              "establishmentMeans": "NATIVA",
-              "occurrenceRemarks": 
-                {
-                "endemism":"Endemica",
-                "phytogeographicDomain":"Mata Atlântica"
-                }
-              }
-    ]
+      "countryCode": "BR",
+      "establishmentMeans": "NATIVA",
+      "occurrenceRemarks": {
+        "endemism": "Endemica",
+        "phytogeographicDomain": "Mata Atlântica"
+      }
+    },
+    {
+      "locationID": "BR-PB",
+      "countryCode": "BR",
+      "establishmentMeans": "NATIVA",
+      "occurrenceRemarks": {
+        "endemism": "Endemica",
+        "phytogeographicDomain": "Mata Atlântica"
+      }
+    },
+    {
+      "locationID": "BR-BA",
+      "countryCode": "BR",
+      "establishmentMeans": "NATIVA",
+      "occurrenceRemarks": {
+        "endemism": "Endemica",
+        "phytogeographicDomain": "Mata Atlântica"
+      }
+    },
+    {
+      "locationID": "BR-PB",
+      "countryCode": "BR",
+      "establishmentMeans": "NATIVA",
+      "occurrenceRemarks": {
+        "endemism": "Endemica",
+        "phytogeographicDomain": "Mata Atlântica"
+      }
+    },
+    {
+      "locationID": "BR-AL",
+      "countryCode": "BR",
+      "establishmentMeans": "NATIVA",
+      "occurrenceRemarks": {
+        "endemism": "Endemica",
+        "phytogeographicDomain": "Mata Atlântica"
+      }
+    }
+  ]
 }
