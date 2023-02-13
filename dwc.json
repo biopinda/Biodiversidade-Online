@@ -1,5 +1,4 @@
 {
-  "taxon": {
     "taxionID": 602728,
     "scientificName": "Paubrasilia echinata (Lam.) Gagnon, H.C.Lima & G.P.Lewis",
     "kingdom": "Plantae",
@@ -30,8 +29,7 @@
         "scientificName": "Caesalpinia vesicaria Vell.",
         "taxonomicStatus": "synonym"
       }
-    ]
-  },
+    ],
   "vernacularname": [
     {
       "vernacularName": "pau-pernambuco",
