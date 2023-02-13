@@ -8,7 +8,29 @@
     "specificEpithet": "echinata",
     "scientificNameAuthorship": "(Lam.) Gagnon, H.C.Lima & G.P.Lewis",
     "taxonRank": "specie",
-    "taxonomicStatus": "accepted name"
+    "taxonomicStatus": "accepted name",
+    "othernames": [
+      {
+        "taxionID": 82704,
+        "scientificName": "Caesalpinia echinata Lam.",
+        "taxonomicStatus": "synonym"
+      },
+      {
+        "taxionID": 114644,
+        "scientificName": "Caesalpinia obliqua Vogel",
+        "taxonomicStatus": "synonym"
+      },
+      {
+        "taxionID": 605722,
+        "scientificName": "Guilandina echinata (Lam.) Spreng.",
+        "taxonomicStatus": "synonym"
+      },
+      {
+        "taxionID": 605723,
+        "scientificName": "Caesalpinia vesicaria Vell.",
+        "taxonomicStatus": "synonym"
+      }
+    ]
   },
   "vernacularname": [
     {
