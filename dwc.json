@@ -1,35 +1,35 @@
 {
-    "taxionID": 602728,
-    "scientificName": "Paubrasilia echinata (Lam.) Gagnon, H.C.Lima & G.P.Lewis",
-    "kingdom": "Plantae",
-    "family": "Fabaceae",
-    "genus": "Paubrasilia",
-    "specificEpithet": "echinata",
-    "scientificNameAuthorship": "(Lam.) Gagnon, H.C.Lima & G.P.Lewis",
-    "taxonRank": "specie",
-    "taxonomicStatus": "accepted name",
-    "othernames": [
-      {
-        "taxionID": 82704,
-        "scientificName": "Caesalpinia echinata Lam.",
-        "taxonomicStatus": "synonym"
-      },
-      {
-        "taxionID": 114644,
-        "scientificName": "Caesalpinia obliqua Vogel",
-        "taxonomicStatus": "synonym"
-      },
-      {
-        "taxionID": 605722,
-        "scientificName": "Guilandina echinata (Lam.) Spreng.",
-        "taxonomicStatus": "synonym"
-      },
-      {
-        "taxionID": 605723,
-        "scientificName": "Caesalpinia vesicaria Vell.",
-        "taxonomicStatus": "synonym"
-      }
-    ],
+  "taxionID": 602728,
+  "scientificName": "Paubrasilia echinata (Lam.) Gagnon, H.C.Lima & G.P.Lewis",
+  "kingdom": "Plantae",
+  "family": "Fabaceae",
+  "genus": "Paubrasilia",
+  "specificEpithet": "echinata",
+  "scientificNameAuthorship": "(Lam.) Gagnon, H.C.Lima & G.P.Lewis",
+  "taxonRank": "specie",
+  "taxonomicStatus": "accepted name",
+  "othernames": [
+    {
+      "taxionID": 82704,
+      "scientificName": "Caesalpinia echinata Lam.",
+      "taxonomicStatus": "synonym"
+    },
+    {
+      "taxionID": 114644,
+      "scientificName": "Caesalpinia obliqua Vogel",
+      "taxonomicStatus": "synonym"
+    },
+    {
+      "taxionID": 605722,
+      "scientificName": "Guilandina echinata (Lam.) Spreng.",
+      "taxonomicStatus": "synonym"
+    },
+    {
+      "taxionID": 605723,
+      "scientificName": "Caesalpinia vesicaria Vell.",
+      "taxonomicStatus": "synonym"
+    }
+  ],
   "vernacularname": [
     {
       "vernacularName": "pau-pernambuco",
@@ -154,5 +154,16 @@
         "phytogeographicDomain": "Mata Atlântica"
       }
     }
+  ],
+  "lifeform": [
+    "Árvore"
+  ],
+  "habitat": [
+    "Terrícola"
+  ],
+  "vegetationType": [
+    "Floresta Estacional Semidecidual",
+    "Floresta Ombrófila (= Floresta Pluvial)",
+    "Restinga"
   ]
 }
