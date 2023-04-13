@@ -30,6 +30,17 @@
       "taxonomicStatus": "synonym"
     }
   ],
+  "lifeform": [
+    "Árvore"
+  ],
+  "habitat": [
+    "Terrícola"
+  ],
+  "vegetationType": [
+    "Floresta Estacional Semidecidual",
+    "Floresta Ombrófila (= Floresta Pluvial)",
+    "Restinga"
+  ],
   "vernacularname": [
     {
       "vernacularName": "pau-pernambuco",
@@ -154,16 +165,5 @@
         "phytogeographicDomain": "Mata Atlântica"
       }
     }
-  ],
-  "lifeform": [
-    "Árvore"
-  ],
-  "habitat": [
-    "Terrícola"
-  ],
-  "vegetationType": [
-    "Floresta Estacional Semidecidual",
-    "Floresta Ombrófila (= Floresta Pluvial)",
-    "Restinga"
   ]
 }
