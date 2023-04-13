@@ -6,6 +6,7 @@ Ficha do pau-brasil: http://reflora.jbrj.gov.br/reflora/listaBrasil/FichaPublica
 ## distribution.txt
 
 * As colunas "countryCode", "establishmentMeans" e "occurrenceRemarks" são redundantes
+* "occorenceRemarks" com vários termos
 
 | id	| locationID	| countryCode	| establishmentMeans	| occurrenceRemarks |
 | --- | --- | --- | --- | --- |
@@ -18,3 +19,13 @@ Ficha do pau-brasil: http://reflora.jbrj.gov.br/reflora/listaBrasil/FichaPublica
 |602728 | BR-BA | BR | NATIVA | {"endemism":"Endemica","phytogeographicDomain":["Mata Atlântica"]} |
 |602728 | BR-AL | BR | NATIVA | {"endemism":"Endemica","phytogeographicDomain":["Mata Atlântica"]} |
 |604183 | BR-ES | BR | NATIVA | {"endemism":"Endemica","phytogeographicDomain":["Mata Atlântica"]} |
+
+
+## speciesprofile.txt
+
+* "lifeForm" contendo vários termos
+* "habitat" nulo
+
+| id | lifeForm | habitat |
+| --- | --- | --- |
+| 602728 | {"lifeForm":["Árvore"],"habitat":["Terrícola"],"vegetationType":["Floresta Estacional Semidecidual","Floresta Ombrófila (= Floresta Pluvial)","Restinga"]}	|  |
