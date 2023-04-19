@@ -7,7 +7,7 @@
   "genus": "Paubrasilia",
   "specificEpithet": "echinata",
   "scientificNameAuthorship": "(Lam.) Gagnon, H.C.Lima & G.P.Lewis",
-  "taxonRank": "specie",
+  "taxonRank": "species",
   "taxonomicStatus": "accepted name",
   "othernames": [
     {
@@ -41,7 +41,7 @@
     {
       "origin": "Native",
       "Endemism": "Endemic",
-      "Phytogeographic Domains": [
+      "phytogeographicDomains": [
         "Mata Atlântica"
       ],
       "ocurrence": [
