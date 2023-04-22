@@ -1,4 +1,5 @@
 import { parse } from 'https://deno.land/x/xml@2.1.0/mod.ts'
+import { unZipFromURL } from 'https://deno.land/x/zip@v1.1.0/mod.ts'
 
 type WithAttribute<A extends string, T> = {
   [key in `@${A}`]: T
@@ -18,7 +19,7 @@ type ExtensionSpec = BaseSpec & {
   id: undefined
   coreid: IndexedField
 }
-type ReturnObj = Record<
+type DwcJson = Record<
   string,
   Record<string, string | Record<string, unknown>[]>
 >
@@ -40,11 +41,7 @@ const streamProcessor = async (
   const decoder = new TextDecoder()
   let lineRemainder = ''
   let skippedFirstLine = false
-  let chunkN = 0
   for await (const chunk of file.readable) {
-    await Deno.stdout.write(
-      new TextEncoder().encode(`Parsing chunk ${++chunkN} of ${fileName}\r`)
-    )
     const lines = decoder.decode(chunk).split('\n')
     const lastLine = lines.pop()
     lines[0] = lineRemainder + lines[0]
@@ -60,10 +57,9 @@ const streamProcessor = async (
   if (lineRemainder) {
     lineCallback(lineRemainder)
   }
-  await Deno.stdout.write(new TextEncoder().encode('\ndone\n'))
 }
 
-const _addLineToObj = (line: string, fields: string[], obj: ReturnObj) => {
+const _addLineToObj = (line: string, fields: string[], obj: DwcJson) => {
   const values = line.split('\t')
   const id = values[fields.indexOf('INDEX')]
   if (id) {
@@ -76,7 +72,7 @@ const _addLineToObj = (line: string, fields: string[], obj: ReturnObj) => {
   }
 }
 const getFileFields = async (fileName: string, fields: string[]) => {
-  const obj: ReturnObj = {}
+  const obj: DwcJson = {}
   await streamProcessor(fileName, (line) => {
     _addLineToObj(line, fields, obj)
   })
@@ -92,12 +88,12 @@ const jsonSafeParse = (str: string) => {
 }
 
 const addExtension = async (
-  obj: ReturnObj,
+  obj: DwcJson,
   filePath: string,
   fields: string[]
 ) => {
   const extensionName = filePath.split('/').pop()?.split('.').shift() as string
-  await streamProcessor(`dwca/${filePath}`, (line) => {
+  await streamProcessor(filePath, (line) => {
     const values = line.split('\t')
     const id = values[fields.indexOf('INDEX')]
     if (values.slice(1).every((v) => !v)) {
@@ -120,8 +116,8 @@ const addExtension = async (
   })
 }
 
-export const buildJson = async (fileName: string) => {
-  const contents = await Deno.readTextFile(fileName)
+export const buildJson = async (folder: string) => {
+  const contents = await Deno.readTextFile(`${folder}/meta.xml`)
   const { archive } = parse(contents) as unknown as {
     archive: { core: CoreSpec; extension: ExtensionSpec[] }
   }
@@ -129,9 +125,12 @@ export const buildJson = async (fileName: string) => {
     core: _parseJsonEntry(archive.core),
     extensions: archive.extension.map(_parseJsonEntry)
   }
-  const root = await getFileFields(`dwca/${ref.core.file}`, ref.core.fields)
+  const root = await getFileFields(
+    `${folder}/${ref.core.file}`,
+    ref.core.fields
+  )
   for (const extension of ref.extensions) {
-    await addExtension(root, extension.file, extension.fields)
+    await addExtension(root, `${folder}/${extension.file}`, extension.fields)
   }
   return root
 }
@@ -174,4 +173,17 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
       return [id, taxon]
     })
   )
+}
+
+export const processaZip = async (url: string) => {
+  await unZipFromURL(url, '.temp')
+  const json = await buildJson('.temp')
+  await Deno.remove('.temp', { recursive: true })
+  return json
+}
+
+export const processaFloraZip = async (url: string) => {
+  const json = await processaZip(url)
+  const floraJson = processaFlora(json)
+  return floraJson
 }
