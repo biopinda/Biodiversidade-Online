@@ -1,0 +1,11 @@
+---
+const {title, fields} = Astro.props
+---
+<h3 class="pt-2 font-bold">Referência</h3>
+{Object.entries(fields).map(([name,text]) => {
+  return (
+    <div>
+      <span class="font-semibold">{name}:</span> <span>{text}</span>
+    </div>
+  )
+})}

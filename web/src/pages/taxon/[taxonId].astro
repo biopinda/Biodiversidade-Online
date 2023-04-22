@@ -1,0 +1,18 @@
+---
+import {jsonPromise} from '../../lib/json.ts'
+import Layout from '../../layouts/base.astro'
+import Taxon from '../../components/Taxon.astro'
+
+const json = await jsonPromise
+
+export async function getStaticPaths() {
+  return Object.entries(await jsonPromise).map(([taxonId, _]) => ({
+    params: { taxonId }
+  }))
+}
+const {taxonId} = Astro.params
+---
+
+<Layout title={`Taxon: ${json[taxonId].scientificName}`}>
+  <Taxon json={json[taxonId]}>
+</Layout>
