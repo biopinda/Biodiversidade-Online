@@ -1,11 +1,20 @@
 ---
-const {title, fields} = Astro.props
+import TaxonLink from './TaxonLink.astro'
+const { title, fields } = Astro.props
 ---
-<h3 class="pt-2 font-bold">Referência</h3>
-{Object.entries(fields).map(([name,text]) => {
-  return (
-    <div>
-      <span class="font-semibold">{name}:</span> <span>{text}</span>
-    </div>
-  )
-})}
+
+{title && <h3 class="pt-2 font-bold">{title}</h3>}
+{
+  Object.entries(fields).map(([name, text]) => {
+    return (
+      text && (
+        <div>
+          <span class="font-semibold">{name.replace(' ID', '')}:</span>{' '}
+          <span>
+            {name.endsWith(' ID') ? <TaxonLink taxonId={text} /> : text}
+          </span>
+        </div>
+      )
+    )
+  })
+}

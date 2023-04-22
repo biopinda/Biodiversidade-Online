@@ -1,0 +1,9 @@
+---
+import { jsonPromise } from '../lib/json.ts'
+const { taxonId } = Astro.props
+const fullJson = await jsonPromise
+---
+
+<a href={`/taxon/${taxonId}`} class="text-blue-500"
+  >{fullJson[taxonId]?.scientificName ?? '??'}</a
+>
