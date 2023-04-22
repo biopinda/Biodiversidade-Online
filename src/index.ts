@@ -18,7 +18,10 @@ type ExtensionSpec = BaseSpec & {
   id: undefined
   coreid: IndexedField
 }
-type ReturnObj = Record<string, Record<string, string | Record<string, string>>>
+type ReturnObj = Record<
+  string,
+  Record<string, string | Record<string, unknown>[]>
+>
 
 const _parseJsonEntry = (entry: CoreSpec | ExtensionSpec) => {
   const fields = []
@@ -80,6 +83,14 @@ const getFileFields = async (fileName: string, fields: string[]) => {
   return obj
 }
 
+const jsonSafeParse = (str: string) => {
+  try {
+    return JSON.parse(str)
+  } catch (_e) {
+    return str
+  }
+}
+
 const addExtension = async (
   obj: ReturnObj,
   filePath: string,
@@ -92,16 +103,24 @@ const addExtension = async (
     if (values.slice(1).every((v) => !v)) {
       return
     }
-    obj[id][extensionName] = fields.reduce((acc, field, index) => {
-      if (field !== 'INDEX' && values[index]) {
-        acc[field] = values[index]
-      }
-      return acc
-    }, {} as Record<string, string>)
+    if (!obj[id][extensionName]) {
+      obj[id][extensionName] = []
+    }
+    (obj[id][extensionName] as Record<string, unknown>[]).push(
+      fields.reduce((acc, field, index) => {
+        if (field !== 'INDEX' && values[index]) {
+          acc[field] =
+            values[index].charAt(0) === '{'
+              ? jsonSafeParse(values[index])
+              : values[index]
+        }
+        return acc
+      }, {} as Record<string, unknown>)
+    )
   })
 }
 
-const buildJson = async (fileName: string) => {
+export const buildJson = async (fileName: string) => {
   const contents = await Deno.readTextFile(fileName)
   const { archive } = parse(contents) as unknown as {
     archive: { core: CoreSpec; extension: ExtensionSpec[] }
@@ -117,20 +136,42 @@ const buildJson = async (fileName: string) => {
   return root
 }
 
-const findTaxonByName = (obj: ReturnObj, name: string) => {
+export const findTaxonByName = (
+  obj: Record<string, { scientificName?: string }>,
+  name: string
+) => {
   return Object.values(obj).find(
     (taxon) => (taxon.scientificName as string).search(name) >= 0
   )
 }
 
-buildJson('dwca/meta.xml').then((obj) => {
-  const paubrasilia = findTaxonByName(obj, 'Paubrasilia e')
-  if (!paubrasilia) return
-  const { parentNameUsageID, originalNameUsageID } = paubrasilia
-  console.log(
-    paubrasilia,
-    obj[parentNameUsageID as string],
-    obj[originalNameUsageID as string],
-    obj['115']
+type FloraJson = Record<
+  string,
+  Record<
+    string,
+    string | Record<string, unknown> | Array<string | Record<string, unknown>>
+  >
+>
+export const processaFlora = (dwcJson: FloraJson): FloraJson => {
+  return Object.fromEntries(
+    Object.entries(dwcJson).map(([id, taxon]) => {
+      const distribution = taxon.distribution as Record<
+        string,
+        Record<string, string>
+      >[]
+      if (!distribution) return [id, taxon]
+      taxon.distribution = {
+        origin: distribution[0]?.establishmentMeans,
+        Endemism: distribution[0]?.occurrenceRemarks.endemism,
+        phytogeographicDomains:
+          distribution[0]?.occurrenceRemarks.phytogeographicDomain,
+        occurrence: distribution.map(({ locationID }) => locationID).sort(),
+        vegetationType: (
+          taxon.speciesprofile as Record<string, Record<string, string>>[]
+        )?.[0]?.lifeForm?.vegetationType
+      }
+
+      return [id, taxon]
+    })
   )
-})
+}
