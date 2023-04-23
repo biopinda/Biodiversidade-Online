@@ -187,3 +187,16 @@ export const processaFloraZip = async (url: string) => {
   const floraJson = processaFlora(json)
   return floraJson
 }
+
+async function main() {
+  if (Deno.args?.length === 0) {
+    return
+  }
+  const [url] = Deno.args
+  await Deno.writeTextFile(
+    'flora.json',
+    JSON.stringify(await processaFloraZip(url))
+  )
+}
+
+main()
