@@ -1,0 +1,90 @@
+---
+const { json } = Astro.props
+import Section from './Section.astro'
+import TaxonLink from './TaxonLink.astro'
+---
+
+<div class="m-6 w-[600px] bg-white p-4 shadow-lg border-slate-200 border rounded">
+  <h1 class="font-bold text-lg text-green-600">{json.scientificName}</h1>
+  <Section
+    title="Informações"
+    fields={{
+      ID: json.taxonID,
+      'Nome científico': json.scientificName,
+      'Nome científico autor': json.scientificNameAuthorship,
+      'Nome aceito': json.acceptedNameUsage,
+      'Nome aceito ID': json.acceptedNameUsageID,
+      'Nome original ID': json.originalNameUsageID,
+      'Nome publicado em': json.namePublishedIn,
+      'Nome publicado em ano': json.namePublishedInYear,
+      Classificação: json.higherClassification,
+      Reino: json.kingdom,
+      Família: json.family,
+      Gênero: json.genus,
+      Espécie: json.specificEpithet,
+      Rank: json.taxonRank,
+      'Status taxonômico': json.taxonomicStatus,
+      'Status nomenclatural': json.nomenclaturalStatus,
+      Modificado: json.modified,
+      'Citação bibliográfica': json.bibliographicCitation
+    }}
+  />
+  <h3 class="pt-2 font-bold">Relações</h3>
+  <ul class="list-disc list-inside">
+    {
+      json.resourcerelationship?.map(
+        ({ relatedResourceID, relationshipOfResource }) => (
+          <li class="pl-2">
+            <TaxonLink taxonId={relatedResourceID} /> - {relationshipOfResource}
+          </li>
+        )
+      )
+    }
+  </ul>
+  <Section
+    title="Distribuição"
+    fields={{
+      Origem: json.distribution?.origin,
+      Endemismo: json.distribution?.endemism,
+      'Domínios fitogeográficos':
+        json.distribution?.phytogeographicDomains?.join(', '),
+      Ocorrência: json.distribution?.occurrence?.sort().join(', '),
+      'Tipo de vegetação': json.distribution?.vegetationType?.join(', ')
+    }}
+  />
+  <Section
+    title="Referência"
+    fields={{
+      'Citação bibliográfica': json.reference?.[0]?.bibliographicCitation,
+      Título: json.reference?.[0]?.title,
+      Autor: json.reference?.[0]?.creator,
+      Data: json.reference?.[0]?.date,
+      Tipo: json.reference?.[0]?.type
+    }}
+  />
+  {
+    json.vernacularname && (
+      <>
+        <h3 class="pt-2 font-bold">Nomes vernaculares</h3>
+        {json.vernacularname?.map(({ vernacularName, language, locality }) => (
+          <div class="border-l-4 border-slate-200 pl-1 mb-2">
+            <Section
+              fields={{
+                Nome: vernacularName,
+                Língua: language,
+                Local: locality
+              }}
+            />
+          </div>
+        ))}
+      </>
+    )
+  }
+  <details>
+    <summary class="text-blue-600">JSON</summary>
+    <pre
+      class="bg-slate-200 shadow-inner overflow-y-auto">
+    {JSON.stringify(json, null, 2)}
+    </pre>
+  </details>
+</div>
