@@ -1,7 +1,7 @@
 ---
-import { jsonPromise } from '../lib/json.ts'
+import { getJson } from '../lib/json'
 const { taxonId } = Astro.props
-const fullJson = await jsonPromise
+const fullJson = await getJson()
 ---
 
 <a href={`/taxon/${taxonId}`} class="text-blue-500"

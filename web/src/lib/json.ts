@@ -1,9 +1,10 @@
 import fs from 'fs/promises'
 
-export const getJson = async (path: string) => {
-  const string = await fs.readFile(path, 'utf-8')
-  console.log('read file')
-  return JSON.parse(string)
-}
+const readRawJson = (path: string) => fs.readFile(path, 'utf-8')
 
-export const jsonPromise = getJson('../flora.json')
+const rawJsonPromise = readRawJson('../flora.json')
+const jsonPromise: Promise<Record<string, Record<string, unknown>>> =
+  rawJsonPromise.then(JSON.parse)
+
+export const getRawJson = () => rawJsonPromise
+export const getJson = () => jsonPromise
