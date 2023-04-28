@@ -1,4 +1,4 @@
-import { getRawJson } from '../../lib/json.ts'
+import { getRawJson } from '../../lib/json'
 
 export async function get() {
   return new Response(await getRawJson(), {
