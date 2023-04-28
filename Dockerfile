@@ -12,6 +12,7 @@ RUN deno run -A src/index.ts ${DWCA_URL}
 FROM node:alpine AS node
 COPY web /workspace/web
 WORKDIR /workspace
+COPY --from=deno /workspace/flora.json /workspace/flora.json
 RUN cd web && yarn && yarn build
 
 FROM node:alpine
