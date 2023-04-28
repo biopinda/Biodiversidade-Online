@@ -3,7 +3,10 @@ export const prerender = true
 import { getRawJson } from '../../lib/json.ts'
 
 export async function get() {
-  return {
-    body: await getRawJson()
-  }
+  return new Response(await getRawJson(), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Disposition': 'attachment; filename="flora.object.json"'
+    }
+  })
 }
