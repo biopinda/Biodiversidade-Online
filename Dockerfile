@@ -1,7 +1,6 @@
 FROM node:alpine AS build
 COPY web /workspace/web
 WORKDIR /workspace
-COPY --from=deno /workspace/flora.json /workspace/flora.json
 RUN cd web && yarn && yarn build
 
 FROM node:alpine
