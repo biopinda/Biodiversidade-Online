@@ -1,15 +1,18 @@
 ---
-import { getJson } from '../../lib/json'
-import Layout from '../../layouts/base.astro'
 import Taxon from '../../components/Taxon.astro'
-
-const json = await getJson()
+import Layout from '../../layouts/base.astro'
+import { getTaxon } from '../../lib/mongo'
 
 const { taxonId } = Astro.params as { taxonId: string }
+const taxon = await getTaxon(taxonId)
 ---
 
-<Layout title={`Taxon: ${json[taxonId]?.scientificName}`}>
+<Layout
+  title={`Taxon: ${
+    taxon ? taxon.scientificName : `<não encontrado (${taxonId})>`
+  }`}
+>
   <div class="flex flex-row justify-center bg-green-100">
-    <Taxon json={json[taxonId]} />
+    {taxon ? <Taxon json={taxon} /> : <p>Taxon não encontrado</p>}
   </div>
 </Layout>

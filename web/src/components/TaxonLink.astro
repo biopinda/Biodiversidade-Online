@@ -1,9 +1,9 @@
 ---
-import { getJson } from '../lib/json'
+import { getTaxon } from '../lib/mongo'
 const { taxonId } = Astro.props
-const fullJson = await getJson()
+const taxon = await getTaxon(taxonId)
 ---
 
 <a href={`/taxon/${taxonId}`} class="text-blue-500"
-  >{fullJson[taxonId]?.scientificName ?? '??'}</a
+  >{taxon?.scientificName ?? '??'}</a
 >

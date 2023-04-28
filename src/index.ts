@@ -1,5 +1,6 @@
 import { parse } from 'https://deno.land/x/xml@2.1.0/mod.ts'
 import { unZipFromURL } from 'https://deno.land/x/zip@v1.1.0/mod.ts'
+import { MongoClient } from 'https://deno.land/x/mongo@v0.31.2/mod.ts'
 
 type WithAttribute<A extends string, T> = {
   [key in `@${A}`]: T
@@ -210,10 +211,19 @@ async function main() {
     return
   }
   const [url] = Deno.args
-  await Deno.writeTextFile(
-    'flora.json',
-    JSON.stringify(await processaFloraZip(url))
-  )
+  const json = await processaFloraZip(url)
+  const client = new MongoClient()
+  await client.connect(Deno.env.get('MONGO_URI') as string)
+  const collection = client.database('dwc2json').collection('taxa')
+  console.debug('Cleaning collection')
+  console.log(await collection.deleteMany({}))
+  console.debug('Inserting taxa')
+  const taxa = Object.values(json)
+  for (let i = 0, n = taxa.length; i < n; i += 5000) {
+    console.log(`Inserting ${i} to ${Math.min(i + 5000, n)}`)
+    await collection.insertMany(taxa.slice(i, i + 5000), { ordered: false })
+  }
+  console.debug('Done')
 }
 
 main()

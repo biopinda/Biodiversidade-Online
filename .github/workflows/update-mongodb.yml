@@ -1,0 +1,38 @@
+name: Build and Deploy to Cloud Run
+
+on:
+  push:
+    branches: ['main']
+    paths: ['src/**']
+  workflow_dispatch:
+    inputs:
+      DWCA_URL:
+        description: 'Darwin Core Archive URL'
+        required: true
+        default: ${{ env.DWCA_URL }}
+
+env:
+  DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=lista_especies_flora_brasil&v=393.372
+
+jobs:
+  update-db:
+    permissions:
+      contents: 'read'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Update DB from web
+        if: ${{ github.event.inputs.DWCA_URL }}
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: deno run -A src/index.ts ${{ github.event.inputs.DWCA_URL}}
+      - name: Update DB
+        if: ${{ !github.event.inputs.DWCA_URL }}
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: deno run -A src/index.ts ${{ env.DWCA_URL }}
