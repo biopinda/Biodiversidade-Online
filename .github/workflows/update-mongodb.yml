@@ -1,4 +1,4 @@
-name: Build and Deploy to Cloud Run
+name: Update MongoDB
 
 on:
   push:
@@ -25,13 +25,17 @@ jobs:
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
+      - name: Install zip
+        run: sudo apt update && sudo apt install zip
       - name: Update DB from web
         if: ${{ github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: deno run -A src/index.ts ${{ github.event.inputs.DWCA_URL}}
+          TEMPDIR: /home/runner/work/DarwinCoreJSON/
+        run: deno run -A src/index.ts "${{ github.event.inputs.DWCA_URL}}"
       - name: Update DB
         if: ${{ !github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: deno run -A src/index.ts ${{ DWCA_URL }}
+          TEMPDIR: /home/runner/work/DarwinCoreJSON/
+        run: deno run -A src/index.ts "${{ env.DWCA_URL }}"
