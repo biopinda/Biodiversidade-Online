@@ -1,7 +1,8 @@
 FROM node:alpine AS build
+ARG MONGO_URI
 COPY web /workspace/web
 WORKDIR /workspace
-RUN cd web && yarn && yarn build
+RUN cd web && yarn && MONGO_URI=$MONGO_URI yarn build
 
 FROM node:alpine
 ENV NODE_ENV=production

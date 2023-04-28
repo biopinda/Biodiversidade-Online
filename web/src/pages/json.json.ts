@@ -1,4 +1,4 @@
-// export const prerender = true
+export const prerender = true
 
 import { listTaxa } from '../lib/mongo'
 
