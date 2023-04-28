@@ -1,6 +1,9 @@
 ---
 import TaxonLink from './TaxonLink.astro'
-const { title, fields } = Astro.props
+const { title, fields } = Astro.props as {
+  title: string
+  fields: Record<string, string>
+}
 ---
 
 {title && <h3 class="pt-2 font-bold">{title}</h3>}
