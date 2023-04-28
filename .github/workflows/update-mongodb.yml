@@ -9,7 +9,6 @@ on:
       DWCA_URL:
         description: 'Darwin Core Archive URL'
         required: true
-        default: ${{ env.DWCA_URL }}
 
 env:
   DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=lista_especies_flora_brasil&v=393.372
@@ -35,4 +34,4 @@ jobs:
         if: ${{ !github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: deno run -A src/index.ts ${{ env.DWCA_URL }}
+        run: deno run -A src/index.ts ${{ DWCA_URL }}
