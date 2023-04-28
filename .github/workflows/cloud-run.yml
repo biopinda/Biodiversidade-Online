@@ -52,6 +52,8 @@ jobs:
 
       - name: Build and push
         uses: docker/build-push-action@v4
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
         with:
           context: .
           push: true
