@@ -3,7 +3,7 @@ name: Build and Deploy to Cloud Run
 on:
   push:
     branches: ['main']
-    paths: ['web/**', 'Dockerfile']
+    paths: ['web/**', 'Dockerfile', '.github/workflows/cloud-run.yml']
 
 env:
   PROJECT_ID: dwca-flora
