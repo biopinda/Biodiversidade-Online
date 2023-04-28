@@ -3,7 +3,18 @@ import { listTaxa } from '../../lib/mongo'
 
 export async function get({ request: { url } }: APIContext) {
   const searchParams = new URL(url).searchParams
-  const filter = Object.fromEntries(searchParams.entries())
+  const filter = Object.fromEntries(
+    Array.from(searchParams.entries()).map(([key, value]) => {
+      if (key.endsWith('[]')) {
+        return [key.slice(0, -2), [value.split(',')]]
+      }
+      if (value.startsWith('[') || value.startsWith('{')) {
+        return [key, JSON.parse(value)]
+      }
+      return [key, value]
+    })
+  )
+  console.log(filter, '\n\n\n')
   return new Response(JSON.stringify(await listTaxa(filter)), {
     headers: {
       'Content-Type': 'application/json'
