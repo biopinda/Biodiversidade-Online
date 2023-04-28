@@ -3,7 +3,7 @@ name: Build and Deploy to Cloud Run
 on:
   push:
     branches: ['main']
-    paths: ['web/**']
+    paths: ['web/**', 'Dockerfile']
 
 env:
   PROJECT_ID: dwca-flora
