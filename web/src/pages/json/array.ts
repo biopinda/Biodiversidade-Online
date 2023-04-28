@@ -1,4 +1,4 @@
-import { getJson } from '../../lib/json'
+import { getJson } from '../../lib/json.ts'
 
 export async function get() {
   return new Response(JSON.stringify(Object.values(await getJson())), {
