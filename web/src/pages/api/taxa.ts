@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro'
-import { listTaxa } from '../../lib/mongo'
+import { listTaxaPaginated } from '../../lib/mongo'
 
 export async function get({ request: { url } }: APIContext) {
   const searchParams = new URL(url).searchParams
@@ -15,7 +15,7 @@ export async function get({ request: { url } }: APIContext) {
     })
   )
   console.log(filter, '\n\n\n')
-  return new Response(JSON.stringify(await listTaxa(filter)), {
+  return new Response(JSON.stringify(await listTaxaPaginated(filter)), {
     headers: {
       'Content-Type': 'application/json'
     }
