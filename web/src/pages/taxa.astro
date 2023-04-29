@@ -1,5 +1,6 @@
 ---
-import { listTaxa } from '../lib/mongo'
+import BaseLayout from '../layouts/base.astro'
+import { listTaxaPaginated } from '../lib/mongo'
 
 const searchParams: Record<string, string> = Object.fromEntries(
   Array.from(Astro.url.searchParams.entries())
@@ -13,47 +14,96 @@ const filter = Object.entries(searchParams).reduce((acc, [key, value]) => {
 }, {} as Record<string, unknown>)
 
 let taxa: Record<string, unknown>[] = []
+let total = 0
+let totalPages = 0
+const currentPage = searchParams.page ? +searchParams.page : 1
 if (Astro.url.searchParams.size > 0) {
-  taxa = await listTaxa(filter, { taxonID: 1, scientificName: 1, _id: 0 })
+  ;({
+    data: taxa,
+    total,
+    totalPages
+  } = await listTaxaPaginated(
+    filter,
+    searchParams.page ? +searchParams.page - 1 : 0,
+    {
+      taxonID: 1,
+      scientificName: 1,
+      _id: 0
+    }
+  ))
+}
+
+const searchParamsWithPage = (page: number) => {
+  const params = new URLSearchParams(searchParams)
+  params.set('page', page.toString())
+  return `?${params.toString()}`
 }
 ---
 
-<section class="m-2">
-  <h2 class="text-xl font-bold">Filtro</h2>
-  <form class="inline-flex flex-col gap-1">
-    <div class="row">
-      <label for="scientificName">Scientific Name</label>
+<BaseLayout title="Procura de Taxa">
+  <section class="m-2 p-2 border rounded border-slate-400 inline-block">
+    <h2 class="text-xl font-bold">Filtro</h2>
+    <form class="inline-flex flex-col gap-1">
+      <div class="row">
+        <label for="scientificName">Scientific Name</label>
+        <input
+          id="scientificName"
+          name="scientificName"
+          type="text"
+          class="border border-slate-400 rounded p-1"
+          value={searchParams.scientificName}
+        />
+      </div>
       <input
-        id="scientificName"
-        name="scientificName"
-        type="text"
-        class="border border-slate-400 rounded p-1"
-        value={searchParams.scientificName}
+        class="self-end p-1 rounded bg-slate-400 text-white"
+        type="submit"
+        value="Filtrar"
       />
-    </div>
-    <input
-      class="self-end p-1 rounded bg-slate-400 text-white"
-      type="submit"
-      value="Filtrar"
-    />
-  </form>
-</section>
-{
-  taxa.length > 0 && (
-    <section class="m-2">
-      <h2 class="text-xl font-bold">Resultados</h2>
-      <ul class="grid grid-cols-2 gap-2">
-        {taxa.map((taxon) => (
-          <li class="border border-slate-400 rounded p-1">
-            <a class="text-green-800" href={`/taxon/${taxon.taxonID}`}>
-              {taxon.scientificName}
-            </a>
-            <a class="text-blue-600" href={`/taxon/${taxon.taxonID}.json`}>
-              (json)
-            </a>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
+    </form>
+  </section>
+  {
+    taxa.length > 0 && (
+      <section class="m-2">
+        <div class="flex flex-row items-center pb-2 gap-2">
+          <h2 class="text-xl font-bold">
+            Resultados{total > 0 && <>: {total}</>}
+          </h2>
+          <div class="grow" />
+          {totalPages > 1 && (
+            <div class="text-sm italic">Página {currentPage} / {totalPages}</div>
+            <div class="flex flex-row gap-1">
+              {currentPage > 1 && (
+                <a
+                  class="p-1 rounded bg-green-600 text-white"
+                  href={searchParamsWithPage(currentPage - 1)}
+                >
+                  Anterior
+                </a>
+              )}
+              {currentPage < totalPages && (
+                <a
+                  class="p-1 rounded bg-green-600 text-white"
+                  href={searchParamsWithPage(currentPage + 1)}
+                >
+                  Próxima
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+        <ul class="grid grid-cols-2 gap-2">
+          {taxa.map((taxon) => (
+            <li class="border border-slate-400 rounded p-1">
+              <a class="text-green-800" href={`/taxon/${taxon.taxonID}`}>
+                {taxon.scientificName}
+              </a>
+              <a class="text-blue-600" href={`/taxon/${taxon.taxonID}.json`}>
+                (json)
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</BaseLayout>
