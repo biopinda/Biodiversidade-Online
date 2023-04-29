@@ -223,6 +223,15 @@ async function main() {
     console.log(`Inserting ${i} to ${Math.min(i + 5000, n)}`)
     await collection.insertMany(taxa.slice(i, i + 5000), { ordered: false })
   }
+  console.log('Creating indexes')
+  await collection.createIndexes({
+    indexes: [
+      {
+        key: { scientificName: 'text' },
+        name: 'scientificName'
+      }
+    ]
+  })
   console.debug('Done')
 }
 
