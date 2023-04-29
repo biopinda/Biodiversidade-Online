@@ -1,0 +1,59 @@
+---
+import { listTaxa } from '../lib/mongo'
+
+const searchParams: Record<string, string> = Object.fromEntries(
+  Array.from(Astro.url.searchParams.entries())
+)
+
+const filter = Object.entries(searchParams).reduce((acc, [key, value]) => {
+  if (key === 'scientificName') {
+    acc.scientificName = new RegExp(value, 'i')
+  }
+  return acc
+}, {} as Record<string, unknown>)
+
+let taxa: Record<string, unknown>[] = []
+if (Astro.url.searchParams.size > 0) {
+  taxa = await listTaxa(filter, { taxonID: 1, scientificName: 1, _id: 0 })
+}
+---
+
+<section class="m-2">
+  <h2 class="text-xl font-bold">Filtro</h2>
+  <form class="inline-flex flex-col gap-1">
+    <div class="row">
+      <label for="scientificName">Scientific Name</label>
+      <input
+        id="scientificName"
+        name="scientificName"
+        type="text"
+        class="border border-slate-400 rounded p-1"
+        value={searchParams.scientificName}
+      />
+    </div>
+    <input
+      class="self-end p-1 rounded bg-slate-400 text-white"
+      type="submit"
+      value="Filtrar"
+    />
+  </form>
+</section>
+{
+  taxa.length > 0 && (
+    <section class="m-2">
+      <h2 class="text-xl font-bold">Resultados</h2>
+      <ul class="grid grid-cols-2 gap-2">
+        {taxa.map((taxon) => (
+          <li class="border border-slate-400 rounded p-1">
+            <a class="text-green-800" href={`/taxon/${taxon.taxonID}`}>
+              {taxon.scientificName}
+            </a>
+            <a class="text-blue-600" href={`/taxon/${taxon.taxonID}.json`}>
+              (json)
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
