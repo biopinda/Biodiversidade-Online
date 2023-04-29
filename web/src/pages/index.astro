@@ -1,7 +1,13 @@
 ---
+export const prerender = true
 import Layout from '../layouts/base.astro'
+import { countTaxa } from '../lib/mongo'
+
+const taxaNum = await countTaxa()
 ---
 
 <Layout title="Flora">
-  <h1>Flora</h1>
+  <h1>Flora JSON</h1>
+  <b>Taxa:</b>
+  <span>{taxaNum}</span>
 </Layout>
