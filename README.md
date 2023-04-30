@@ -1,7 +1,5 @@
-# Darwin Core JSON
+# ___Darwin Core Archive to JSON___ - Flora e Funga do Brasil
 
-```mermaid
-graph TD
-    A(Pega DwC do IPT) --> B(Converte para JSON)
+## Motivação e Justificativa
 
-```
+A [Flora e Funga do Brasil](http://floradobrasil.jbrj.gov.br/reflora/listaBrasil/ConsultaPublicaUC/ConsultaPublicaUC.do) é uma base de dados de referência nacional para a biodiversidade de plantas e fungos 
