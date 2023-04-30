@@ -2,4 +2,6 @@
 
 ## Motivação e Justificativa
 
-A [Flora e Funga do Brasil](http://floradobrasil.jbrj.gov.br/reflora/listaBrasil/ConsultaPublicaUC/ConsultaPublicaUC.do) é uma base de dados de referência nacional para a biodiversidade de plantas e fungos. Além da interface de acesso aos dados, o acesso pode ser feito via [___web services___](https://servicos.jbrj.gov.br/v2/flora/) e parte dos dados podem ser "baixados" no formato [___Darwin Core Archive___](), através do recurso disponível no [IPT institucional]()
+A [Flora e Funga do Brasil](http://floradobrasil.jbrj.gov.br/reflora/listaBrasil/ConsultaPublicaUC/ConsultaPublicaUC.do) é uma base de dados de referência nacional para a biodiversidade de plantas e fungos. Além da interface de acesso aos dados, o acesso pode ser feito via [___web services___](https://servicos.jbrj.gov.br/v2/flora/) e parte dos dados podem ser "baixados" no formato [___Darwin Core Archive___](https://www.gbif.org/pt/darwin-core), através do recurso disponível no [IPT institucional](https://ipt.jbrj.gov.br/jbrj/resource?r=lista_especies_flora_brasil).
+
+Entretanto, 
