@@ -29,4 +29,4 @@ Por fim, a importância do conjunto de dados da Flora e Funga do Brasil para a c
 ## Objetivo
 
 * Criar uma ferramenta livre, gratuita e de código que ofereça os dados publicados pela Flora e Funga do Brasil em formato Darwin Core Archive no IPT, em formato JSON
-* Oferecer a ferramenta como uma aplicação "stand alone", em um [___Docker___](https://pt.wikipedia.org/wiki/Docker_(software)
+* Oferecer a ferramenta como uma aplicação "stand alone", em um [___Docker___](https://pt.wikipedia.org/wiki/Docker_(software))
