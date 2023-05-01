@@ -22,7 +22,7 @@ Por outro lado, [formato JSON](https://pt.wikipedia.org/wiki/JSON) é uma forma 
 
 Além disto a base de dados da Flora e Funga do Brasil possui hoje mais de 135.000 nomes científicos e o produto cartesiano das relações entre todas as tabelas gera um conjunto de registros significativo para a manipulação visando análise para geração de informação relevante.
 
-Com esta aplicação, é possível importar o conjunto de dados da Flora e Funga do Brasil, disponível no formato DwC-A, para um sistema gerenciador de bancos de dados orientado à documentos, como o [MongoDB](https://www.mongodb.com/), por exemplo, e realizar consultas e definir filtros de forma mais simples, para o {usuário, analista, cientista de dados, pesquisador etc} sem maiores conhecimentos técnicos e de ___SQL___.
+Com esta aplicação, é possível importar o conjunto de dados da Flora e Funga do Brasil, disponível no formato DwC-A, para um sistema gerenciador de bancos de dados orientado à documentos, como o [MongoDB](https://www.mongodb.com/), por exemplo, e realizar consultas e definir filtros de forma mais simples, para o {usuário, analista, cientista de dados, pesquisador etc} sem maiores conhecimentos técnicos e de ___SQL___, e sem o custo computacional gerado pelas "JOINs".
 
 Por fim, a importância do conjunto de dados da Flora e Funga do Brasil para a conservação e uso sustentável e socielmente justo da biodiversidade brasileira requer que sua disponibilidade e facilidade de uso seja sempre ampliada e potencializada pela oferta do seu conjunto de dados em diferentes formatos, para que possa causar o maior impacto possível na tomada de decisão e na formulação de políticas públicas relacionadas com a biodiversidade vegetal brasileira.
 
