@@ -2,6 +2,14 @@
 
 Ficha do pau-brasil: http://reflora.jbrj.gov.br/reflora/listaBrasil/FichaPublicaTaxonUC/FichaPublicaTaxonUC.do?id=FB602728
 
+## taxon.txt
+
+* a coluna "higherClassification" traz uma string contendo vários grupos taxonômicos, alguns redundantes com outros atributos
+
+| id	| ...	| higherClassification	| 
+| --- | --- | --- | 
+| 602728 | ...| Flora e Funga;Angiospermas;Fabaceae Lindl.;Paubrasilia (Lam.) Gagnon, H.C.Lima & G.P.Lewis |
+
 
 ## distribution.txt
 
