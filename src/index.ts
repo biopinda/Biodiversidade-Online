@@ -103,7 +103,7 @@ const addExtension = async (
     if (!obj[id][extensionName]) {
       obj[id][extensionName] = []
     }
-    (obj[id][extensionName] as Record<string, unknown>[]).push(
+    ;(obj[id][extensionName] as Record<string, unknown>[]).push(
       fields.reduce((acc, field, index) => {
         if (field !== 'INDEX' && values[index]) {
           acc[field] =
@@ -177,6 +177,19 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
             taxon.speciesprofile as Record<string, Record<string, string>>[]
           )?.[0]?.lifeForm?.vegetationType
         }
+      }
+      if (taxon.resourcerelationship) {
+        const resourcerelationship = taxon.resourcerelationship as Record<
+          string,
+          string | Record<string, string>
+        >[]
+        taxon.othernames = resourcerelationship.map((relationship) => ({
+          taxonID: relationship.relatedResourceID,
+          scientificName:
+            dwcJson[relationship.relatedResourceID as string]?.scientificName,
+          taxonomicStatus: relationship.relationshipOfResource
+        }))
+        delete taxon.resourcerelationship
       }
 
       if (taxon.speciesprofile) {

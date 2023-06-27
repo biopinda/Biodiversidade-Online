@@ -13,7 +13,7 @@ const { json } = Astro.props as {
       vegetationType: string[]
     }
     reference: RU[]
-    resourcerelationship: RU[]
+    othernames: RU[]
     vernacularname: RU[]
   }
 }
@@ -51,10 +51,10 @@ import TaxonLink from './TaxonLink.astro'
   <h3 class="pt-2 font-bold">Relações</h3>
   <ul class="list-disc list-inside">
     {
-      json.resourcerelationship?.map(
-        ({ relatedResourceID, relationshipOfResource }) => (
+      json.othernames?.map(
+        ({ taxonID, taxonomicStatus }) => (
           <li class="pl-2">
-            <TaxonLink taxonId={relatedResourceID} /> - {relationshipOfResource}
+            <TaxonLink taxonId={taxonID} /> - {taxonomicStatus}
           </li>
         )
       )
