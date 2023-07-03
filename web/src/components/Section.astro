@@ -4,11 +4,24 @@ const { title, fields } = Astro.props as {
   title: string
   fields: Record<string, string>
 }
+const filteredFieldsArray = Object.entries(fields).reduce(
+  (acc, [name, text], _, array) => {
+    if (!name.endsWith(' ID')) {
+      if (array.some(([otherName]) => otherName === `${name} ID`)) {
+        // skip
+        return acc
+      }
+    }
+    acc.push({ name, text })
+    return acc
+  },
+  [] as { name: string; text: string }[]
+)
 ---
 
 {title && <h3 class="pt-2 font-bold">{title}</h3>}
 {
-  Object.entries(fields).map(([name, text]) => {
+  filteredFieldsArray.map(({ name, text }) => {
     return (
       text && (
         <div>
