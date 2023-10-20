@@ -1,5 +1,7 @@
 ---
-export const prerender = true
+// Need deno to prerender but astro uses node
+// at build time... Perhaps in the future
+// export const prerender = true 
 import Layout from '../layouts/base.astro'
 import { countTaxa } from '../lib/mongo'
 

@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro'
-import { listTaxaPaginated } from '../../lib/mongo'
+import { listTaxaPaginated } from '../../lib/mongo.ts'
 
 export async function get({ request: { url } }: APIContext) {
   const searchParams = new URL(url).searchParams
