@@ -1,11 +1,13 @@
 const isDeno = typeof Deno !== 'undefined'
 const { MongoClient } = await import(
-  isDeno ? 'https://deno.land/x/mongo@v0.31.2/mod.ts' : 'mongodb'
+  //TODO: harcoding to true because I can't get astro to build otherwise
+  true ? 'https://deno.land/x/mongo@v0.31.2/mod.ts' : 'mongodb'
 )
 
 const url =
   // @ts-ignore astro stuff
   import.meta.env.MONGO_URI ??
+  // @ts-ignore ignore node stuff
   process.env.MONGO_URI ??
   Deno.env.get('MONGO_URI')
 if (!url) {
