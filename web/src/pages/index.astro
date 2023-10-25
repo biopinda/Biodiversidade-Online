@@ -1,17 +1,15 @@
 ---
 // Não pode prerender usando deno
 // export const prerender = true
-import { Image } from 'astro:assets'
 import Layout from '../layouts/base.astro'
-
-import floraLogo from '../images/flora.svg'
 ---
 
 <Layout title="Flora">
   <div class="h-screen v-screen flex flex-col items-center justify-center">
-    <Image class="h-64 w-auto" src={floraLogo} alt="Logotipo Flora" />
+    <img class="h-64 w-auto" src="/flora.svg" alt="Logotipo Flora" />
     <div>
-      Clique <a class="text-green-800 font-bold" href="/taxa">aqui</a> para buscar
+      Clique <a class="text-green-800 font-bold" href="/taxa">aqui</a> para
+      buscar
     </div>
   </div>
 </Layout>
