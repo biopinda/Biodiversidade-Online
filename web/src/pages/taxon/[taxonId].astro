@@ -12,7 +12,7 @@ const taxon = await getTaxon(taxonId)
     taxon ? taxon.scientificName : `<não encontrado (${taxonId})>`
   }`}
 >
-  <div class="flex flex-row justify-center bg-green-100">
+  <div class="flex flex-row justify-center items-start bg-green-100 h-screen">
     {taxon ? <Taxon json={taxon} /> : <p>Taxon não encontrado</p>}
   </div>
 </Layout>
