@@ -2,7 +2,7 @@
   "deno.enable": true,
   "deno.lint": true,
   "deno.unstable": true,
-  "deno.enablePaths": [
-    "web"
-  ]
+  "[astro]": {
+    "editor.defaultFormatter": "astro-build.astro-vscode"
+  }
 }
