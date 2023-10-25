@@ -1,8 +1,8 @@
 name: Deno Deploy
 on:
   push:
-    # branches:
-    #   - master
+    branches:
+      - master
     paths: ['web/**', '.github/workflows/deno-deploy.yml']
 
 jobs:
