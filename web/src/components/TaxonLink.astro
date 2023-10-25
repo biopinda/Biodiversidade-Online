@@ -4,6 +4,6 @@ const { taxonId } = Astro.props
 const taxon = await getTaxon(taxonId)
 ---
 
-<a href={`/taxon/${taxonId}`} class="text-blue-500"
+<a href={`/taxon/${taxonId}`} class="text-green-800 underline"
   >{taxon?.scientificName ?? '??'}</a
 >
