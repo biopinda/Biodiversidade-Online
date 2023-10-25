@@ -1,15 +1,16 @@
 ---
-// Need deno to prerender but astro uses node
-// at build time... Perhaps in the future
-// export const prerender = true 
+export const prerender = true
+import { Image } from 'astro:assets'
 import Layout from '../layouts/base.astro'
-import { countTaxa } from '../lib/mongo'
 
-const taxaNum = await countTaxa()
+import floraLogo from '../images/flora.svg'
 ---
 
 <Layout title="Flora">
-  <h1>Flora JSON</h1>
-  <b>Taxa:</b>
-  <span>{taxaNum}</span>
+  <div class="h-screen v-screen flex flex-col items-center justify-center">
+    <Image class="h-64 w-auto" src={floraLogo} alt="Logotipo Flora" />
+    <div>
+      Clique <a class="text-green-800 font-bold" href="/taxa">aqui</a> para buscar
+    </div>
+  </div>
 </Layout>
