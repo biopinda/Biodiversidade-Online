@@ -1,5 +1,10 @@
-import { MongoClient } from "https://deno.land/x/mongo@v0.31.2/mod.ts"
+const isDeno = typeof Deno !== 'undefined'
+const { MongoClient } = await import(
+  isDeno ? 'https://deno.land/x/mongo@v0.31.2/mod.ts' : 'mongodb'
+)
+
 const url =
+  // @ts-ignore astro stuff
   import.meta.env.MONGO_URI ??
   process.env.MONGO_URI ??
   Deno.env.get('MONGO_URI')
@@ -8,11 +13,11 @@ if (!url) {
     'Please define the MONGO_URI environment variable inside .env.local'
   )
 }
-const client = new MongoClient()
+const client = isDeno ? new MongoClient() : new MongoClient(url)
 
 async function getCollection(dbName: string, collection: string) {
-  await client.connect(url)
-  return client.database(dbName).collection(collection)
+  await client.connect(isDeno ? url : undefined)
+  return client[isDeno ? 'database' : 'db'](dbName).collection(collection)
 }
 
 export async function listTaxa(
