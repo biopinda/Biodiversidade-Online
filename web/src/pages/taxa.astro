@@ -2,6 +2,10 @@
 import BaseLayout from '../layouts/base.astro'
 import { listTaxaPaginated } from '../lib/mongo'
 
+import { countTaxa } from '../lib/mongo';
+
+const taxaNum = await countTaxa()
+
 const searchParams: Record<string, string> = Object.fromEntries(
   Array.from(Astro.url.searchParams.entries())
 )
@@ -54,11 +58,14 @@ const searchParamsWithPage = (page: number) => {
           value={searchParams.scientificName}
         />
       </div>
-      <input
-        class="self-end p-1 px-2 rounded bg-green-800 text-white"
-        type="submit"
-        value="Filtrar"
-      />
+      <div class="flex justify-between items-center">
+        <div>Taxa disponível: <b>{taxaNum}</b></div>
+        <input
+          class="p-1 px-2 rounded bg-green-800 text-white"
+          type="submit"
+          value="Filtrar"
+        />
+      </div>
     </form>
   </section>
   {
