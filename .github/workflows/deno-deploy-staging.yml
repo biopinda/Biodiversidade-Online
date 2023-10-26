@@ -1,0 +1,58 @@
+name: Deno Deploy (Staging)
+on:
+  pull_request:
+    paths: ['web/**', '.github/workflows/deno-deploy-staging.yml']
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Needed for auth with Deno Deploy
+      contents: read # Needed to clone the repository
+      pull-requests: write
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Setup node and cache
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+          cache-dependency-path: web/yarn.lock
+
+      - name: Install dependencies
+        working-directory: ./web
+        run: yarn
+
+      - name: Build Astro
+        working-directory: ./web
+        env:
+          MONGO_URI: ${{secrets.MONGO_URI}}
+        run: yarn run build
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Install deployctl
+        run: deno install --allow-all --no-check -r -f https://deno.land/x/deploy/deployctl.ts
+
+      - id: deploy
+        name: Upload to Deno Deploy
+        working-directory: ./web
+        run: |
+          cd dist
+          echo "staging_hash=$(deployctl deploy --project=${{secrets.DENO_DEPLOY_PROJECT}} --token=${{secrets.DENO_DEPLOY_TOKEN}} ./server/entry.mjs | awk -F'[-.]' '/deno.dev/{print $3}')" >> $GITHUB_OUTPUT
+
+      - uses: actions/github-script@v6
+        name: Adiciona comentário
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Disponível em https://dwca2json-${{steps.deploy.outputs.staging_hash}}.deno.dev'
+            })
