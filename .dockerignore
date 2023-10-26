@@ -1,5 +1,0 @@
-**/node_modules
-**/*.json
-!web/package.json
-temp
-web/dist
