@@ -48,7 +48,7 @@ import TaxonLink from './TaxonLink.astro'
       'Citação bibliográfica': json.bibliographicCitation
     }}
   />
-  <h3 class="pt-2 font-bold">Outros nomes</h3>
+  <h2 class="pt-2 font-bold">Outros nomes</h2>
   <ul class="list-disc list-inside">
     {
       json.othernames?.map(
@@ -84,7 +84,7 @@ import TaxonLink from './TaxonLink.astro'
   {
     json.vernacularname && (
       <>
-        <h3 class="pt-2 font-bold">Nomes vernaculares</h3>
+        <h2 class="pt-2 font-bold">Nomes vernaculares</h2>
         {json.vernacularname?.map(({ vernacularName, language, locality }) => (
           <div class="border-l-4 border-slate-200 pl-1 mb-2">
             <Section
