@@ -48,29 +48,36 @@ import TaxonLink from './TaxonLink.astro'
       'Citação bibliográfica': json.bibliographicCitation
     }}
   />
-  <h2 class="pt-2 font-bold">Outros nomes</h2>
-  <ul class="list-disc list-inside">
-    {
-      json.othernames?.map(
-        ({ taxonID, taxonomicStatus }) => (
-          <li class="pl-2">
-            <TaxonLink taxonId={taxonID} /> - {taxonomicStatus}
-          </li>
-        )
-      )
-    }
-  </ul>
-  <Section
-    title="Distribuição"
-    fields={{
-      Origem: json.distribution?.origin,
-      Endemismo: json.distribution?.endemism,
-      'Domínios fitogeográficos':
-        json.distribution?.phytogeographicDomains?.join(', '),
-      Ocorrência: json.distribution?.occurrence?.sort().join(', '),
-      'Tipo de vegetação': json.distribution?.vegetationType?.join(', ')
-    }}
-  />
+  {
+    json.othernames?.length > 0 && (
+      <>
+        <h2 class="pt-2 font-bold">Outros nomes</h2>
+        <ul class="list-disc list-inside">
+          {json.othernames?.map(({ taxonID, taxonomicStatus }) => (
+            <li class="pl-2">
+              <TaxonLink taxonId={taxonID} /> - {taxonomicStatus}
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+
+  {
+    Object.keys(json.distribution ?? {}).length > 0 && (
+      <Section
+        title="Distribuição"
+        fields={{
+          Origem: json.distribution?.origin,
+          Endemismo: json.distribution?.endemism,
+          'Domínios fitogeográficos':
+            json.distribution?.phytogeographicDomains?.join(', '),
+          Ocorrência: json.distribution?.occurrence?.sort().join(', '),
+          'Tipo de vegetação': json.distribution?.vegetationType?.join(', ')
+        }}
+      />
+    )
+  }
   <Section
     title="Referência"
     fields={{
