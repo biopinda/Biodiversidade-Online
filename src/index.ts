@@ -200,6 +200,14 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
           .vegetationType
       }
 
+      if (taxon.higherClassification) {
+        // Usa somente segundo componente da string separada por ;
+        // https://github.com/edalcin/DarwinCoreJSON/issues/13
+        taxon.higherClassification = (
+          taxon.higherClassification as string
+        ).split(';')[1]
+      }
+
       entries.push([id, taxon])
       return entries
     }, [] as [string, FloraJson[string]][])
