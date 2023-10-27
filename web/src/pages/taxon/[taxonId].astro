@@ -11,6 +11,9 @@ const taxon = await getTaxon(taxonId)
   title={`Taxon: ${
     taxon ? taxon.scientificName : `<não encontrado (${taxonId})>`
   }`}
+  metaDescription={taxon?.scientificName
+    ? `Flora e Funga do Brasil: ${taxon.scientificName}`
+    : null}
 >
   <div class="flex flex-row justify-center items-start bg-green-100 h-screen">
     {taxon ? <Taxon json={taxon} /> : <p>Taxon não encontrado</p>}
