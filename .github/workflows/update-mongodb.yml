@@ -3,15 +3,11 @@ name: Update MongoDB
 on:
   push:
     branches: ['main']
-    paths: ['src/**']
+    paths: ['src/**', '.github/workflows/update-mongodb.yml']
   workflow_dispatch:
-    inputs:
-      DWCA_URL:
-        description: 'Darwin Core Archive URL'
-        required: true
 
 env:
-  DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=lista_especies_flora_brasil&v=393.372
+  DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=lista_especies_flora_brasil
 
 jobs:
   update-db:
