@@ -15,7 +15,9 @@ const taxon = await getTaxon(taxonId)
     ? `Flora e Funga do Brasil: ${taxon.scientificName}`
     : null}
 >
-  <div class="flex flex-row justify-center items-start bg-green-100 h-screen">
+  <div
+    class="flex flex-row justify-center items-start bg-green-100 min-h-screen"
+  >
     {taxon ? <Taxon json={taxon} /> : <p>Taxon não encontrado</p>}
   </div>
 </Layout>
