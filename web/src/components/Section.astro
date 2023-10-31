@@ -18,8 +18,11 @@ const filteredFieldsArray = Object.entries(fields).reduce(
   [] as { name: string; text: string }[]
 )
 ---
-
-{title && <h2 class="pt-2 font-bold">{title}</h2>}
+{
+  title && filteredFieldsArray.length > 0 && (
+    <h2 class="pt-2 font-bold">{title}</h2>
+  )
+}
 {
   filteredFieldsArray.map(({ name, text }) => {
     return (
