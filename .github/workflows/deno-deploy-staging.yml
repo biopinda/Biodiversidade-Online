@@ -27,15 +27,21 @@ jobs:
         working-directory: ./web
         run: yarn
 
+      - name: Setup deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Hackfix to build astro
+        working-directory: ./web
+        run: deno run -A ./hackfix_astrobuild.ts build
+
       - name: Build Astro
         working-directory: ./web
         env:
           MONGO_URI: ${{secrets.MONGO_URI}}
         run: yarn run build
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
       - name: Install deployctl
         run: deno install --allow-all --no-check -r -f https://deno.land/x/deploy/deployctl.ts
 
