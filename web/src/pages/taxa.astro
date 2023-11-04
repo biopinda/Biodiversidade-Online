@@ -21,7 +21,7 @@ let taxa: Record<string, unknown>[] = []
 let total = 0
 let totalPages = 0
 const currentPage = searchParams.page ? +searchParams.page : 1
-if (Astro.url.searchParams.size > 0) {
+if (Object.keys(searchParams).length > 0) {
   ;({
     data: taxa,
     total,
