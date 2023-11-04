@@ -17,6 +17,7 @@ const { json } = Astro.props as {
     vernacularname: RU[]
   }
 }
+import Map from './Map.astro'
 import Section from './Section.astro'
 import TaxonLink from './TaxonLink.astro'
 ---
@@ -65,19 +66,29 @@ import TaxonLink from './TaxonLink.astro'
 
   {
     Object.keys(json.distribution ?? {}).length > 0 && (
-      <Section
-        title="Distribuição"
-        fields={{
-          Origem: json.distribution?.origin,
-          Endemismo: json.distribution?.endemism,
-          'Domínios fitogeográficos':
-            json.distribution?.phytogeographicDomains?.join(', '),
-          Ocorrência: json.distribution?.occurrence?.sort().join(', '),
-          'Tipo de vegetação': json.distribution?.vegetationType?.join(', ')
-        }}
-      />
+      <div class="flex items-start">
+        <div class="basis-1/2">
+          <Section
+            title="Distribuição"
+            fields={{
+              Origem: json.distribution?.origin,
+              Endemismo: json.distribution?.endemism,
+              'Domínios fitogeográficos':
+                json.distribution?.phytogeographicDomains?.join(', '),
+              Ocorrência: json.distribution?.occurrence?.sort().join(', '),
+              'Tipo de vegetação': json.distribution?.vegetationType?.join(', ')
+            }}
+          />
+        </div>
+        {json.distribution?.occurrence && (
+          <div class="basis-1/2">
+            <Map stateList={json.distribution.occurrence} />
+          </div>
+        )}
+      </div>
     )
   }
+
   <Section
     title="Referência"
     fields={{
