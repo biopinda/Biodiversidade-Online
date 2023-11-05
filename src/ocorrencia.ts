@@ -12,7 +12,7 @@ const collection = client.database('dwc2json').collection('ocorrencias')
 console.debug('Cleaning collection')
 console.log(await collection.deleteMany({}))
 
-const CHUNK_SIZE = 15000;
+const CHUNK_SIZE = 5000;
 for (const url of refUrls) {
   if (!url) continue
   console.debug(`Processing ${url}`)
