@@ -12,15 +12,16 @@ const collection = client.database('dwc2json').collection('ocorrencias')
 console.debug('Cleaning collection')
 console.log(await collection.deleteMany({}))
 
+const CHUNK_SIZE = 50000;
 for (const url of refUrls) {
   if (!url) continue
   console.debug(`Processing ${url}`)
   const json = await processaZip(url)
   const ocorrencias = Object.values(json)
   console.debug(`Inserting entries (${ocorrencias.length})`)
-  for (let i = 0, n = ocorrencias.length; i < n; i += 5000) {
-    console.log(`Inserting ${i} to ${Math.min(i + 5000, n)}`)
-    await collection.insertMany(ocorrencias.slice(i, i + 5000), {
+  for (let i = 0, n = ocorrencias.length; i < n; i += CHUNK_SIZE) {
+    console.log(`Inserting ${i} to ${Math.min(i + CHUNK_SIZE, n)}`)
+    await collection.insertMany(ocorrencias.slice(i, i + CHUNK_SIZE), {
       ordered: false
     })
   }
