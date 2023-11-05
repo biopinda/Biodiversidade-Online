@@ -30,4 +30,4 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/DarwinCoreJSON/
-        run: deno run -A src/ocorrencia.ts
+        run: deno run -A --v8-flags=--max-old-space-size=8192 src/ocorrencia.ts
