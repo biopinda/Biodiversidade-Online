@@ -1,9 +1,14 @@
-name: Update MongoDB
+name: Update MongoDB - Flora
 
 on:
   push:
     branches: ['main']
-    paths: ['src/**', '.github/workflows/update-mongodb.yml']
+    paths:
+      [
+        'src/lib/**',
+        'src/flora.ts',
+        '.github/workflows/update-mongodb-flora.yml'
+      ]
   workflow_dispatch:
 
 env:
@@ -28,10 +33,10 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/DarwinCoreJSON/
-        run: deno run -A src/index.ts "${{ github.event.inputs.DWCA_URL}}"
+        run: deno run -A src/flora.ts "${{ github.event.inputs.DWCA_URL}}"
       - name: Update DB
         if: ${{ !github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/DarwinCoreJSON/
-        run: deno run -A src/index.ts "${{ env.DWCA_URL }}"
+        run: deno run -A src/flora.ts "${{ env.DWCA_URL }}"

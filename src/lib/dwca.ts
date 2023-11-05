@@ -120,7 +120,9 @@ const addExtension = async (
       }, {} as Record<string, unknown>)
     )
   })
-  console.log(`Unknown ${unknownCount}`)
+  if (unknownCount > 0) {
+    console.log(`Unknown ${unknownCount}`)
+  }
 }
 
 export const buildJson = async (folder: string) => {
