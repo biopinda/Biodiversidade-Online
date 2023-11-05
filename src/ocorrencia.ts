@@ -1,15 +1,13 @@
-import { config } from 'https://deno.land/x/dotenv@v3.2.2/mod.ts'
 import { MongoClient } from 'https://deno.land/x/mongo@v0.31.2/mod.ts'
 
 import { processaZip } from './lib/dwca.ts'
-const { MONGO_URI } = config()
 
 const refUrls = await Deno.readTextFile('./referencias/herbarios.txt').then(
   (contents) => contents.split('\n')
 )
 
 const client = new MongoClient()
-await client.connect(MONGO_URI as string)
+await client.connect(Deno.env.get('MONGO_URI') as string)
 const collection = client.database('dwc2json').collection('ocorrencias')
 console.debug('Cleaning collection')
 console.log(await collection.deleteMany({}))

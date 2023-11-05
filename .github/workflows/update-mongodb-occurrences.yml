@@ -26,7 +26,7 @@ jobs:
           deno-version: v1.x
       - name: Install zip
         run: sudo apt update && sudo apt install zip
-      - name: Update DB from web
+      - name: Update DB
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/DarwinCoreJSON/
