@@ -72,6 +72,32 @@ export async function countTaxa(filter: Record<string, unknown> = {}) {
   return await taxa.countDocuments(filter)
 }
 
+export async function countTaxaRegions() {
+  const taxa = await getCollection('dwc2json', 'taxa')
+  return await taxa
+    .aggregate([
+      {
+        $match: {
+          taxonomicStatus: 'NOME ACEITO'
+        }
+      },
+      {
+        $unwind: {
+          path: '$distribution.occurrence'
+        }
+      },
+      {
+        $group: {
+          _id: '$distribution.occurrence',
+          count: {
+            $count: {}
+          }
+        }
+      }
+    ])
+    .toArray()
+}
+
 export async function getTaxon(
   kingdom: 'Plantae' | 'Fungi' | 'Animalia',
   id: string,

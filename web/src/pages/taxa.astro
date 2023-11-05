@@ -1,8 +1,6 @@
 ---
 import BaseLayout from '../layouts/base.astro'
-import { listTaxaPaginated } from '../lib/mongo'
-
-import { countTaxa } from '../lib/mongo'
+import { countTaxa, listTaxaPaginated } from '../lib/mongo'
 
 const taxaNum = await countTaxa()
 
@@ -43,8 +41,8 @@ const searchParamsWithPage = (page: number) => {
 }
 ---
 
-<img src="/logoReflora.svg" alt="Reflora Logo" />
-<BaseLayout useTransition title="Procura de Taxa">
+<BaseLayout title="Procura de Taxa">
+  <img src="/logoReflora.svg" alt="Reflora Logo" />
   <section class="m-2 p-2 border rounded border-slate-400 inline-block">
     <h2 class="text-xl font-bold">Filtro</h2>
     <form class="inline-flex flex-col gap-1">
