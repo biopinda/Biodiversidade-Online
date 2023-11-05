@@ -1,0 +1,33 @@
+name: Update MongoDB - Ocorrências
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      [
+        'src/lib/**',
+        'src/ocorrencia.ts',
+        '.github/workflows/update-mongodb-occurrences.yml',
+        'referencias/herbarios.txt'
+      ]
+  workflow_dispatch:
+
+jobs:
+  update-db:
+    permissions:
+      contents: 'read'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Install zip
+        run: sudo apt update && sudo apt install zip
+      - name: Update DB from web
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          TEMPDIR: /home/runner/work/DarwinCoreJSON/
+        run: deno run -A src/ocorrencia.ts
