@@ -50,7 +50,6 @@ https://ipt.jbrj.gov.br/reflora/archive.do?r=pmsp
 https://ipt.jbrj.gov.br/reflora/archive.do?r=rb_herbarium
 https://ipt.jbrj.gov.br/reflora/archive.do?r=rbr
 https://ipt.jbrj.gov.br/reflora/archive.do?r=real
-https://ipt.jbrj.gov.br/reflora/eml.do?r=rfa
 https://ipt.jbrj.gov.br/reflora/archive.do?r=ron
 https://ipt.jbrj.gov.br/reflora/archive.do?r=s_reflora
 https://ipt.jbrj.gov.br/reflora/archive.do?r=sames
