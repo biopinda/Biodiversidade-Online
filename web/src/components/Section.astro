@@ -2,35 +2,44 @@
 import TaxonLink from './TaxonLink.astro'
 const { title, fields } = Astro.props as {
   title: string
-  fields: Record<string, string>
+  fields: Record<string, string | { link: string; text: string }>
 }
 const filteredFieldsArray = Object.entries(fields).reduce(
-  (acc, [name, text], _, array) => {
+  (acc, [name, data], _, array) => {
     if (!name.endsWith(' ID')) {
       if (array.some(([otherName]) => otherName === `${name} ID`)) {
         // skip
         return acc
       }
     }
-    acc.push({ name, text })
+    acc.push({ name, data })
     return acc
   },
-  [] as { name: string; text: string }[]
+  [] as { name: string; data: string | { link: string; text: string } }[]
 )
 ---
+
 {
   title && filteredFieldsArray.length > 0 && (
     <h2 class="pt-2 font-bold">{title}</h2>
   )
 }
 {
-  filteredFieldsArray.map(({ name, text }) => {
+  filteredFieldsArray.map(({ name, data }) => {
     return (
-      text && (
+      data && (
         <div>
           <span class="font-semibold">{name.replace(' ID', '')}:</span>{' '}
           <span>
-            {name.endsWith(' ID') ? <TaxonLink taxonId={text} /> : text}
+            {typeof data === 'string' ? (
+              name.endsWith(' ID') ? (
+                <TaxonLink taxonId={data} />
+              ) : (
+                data
+              )
+            ) : (
+              <a href={data.link} class="text-green-800 underline">{(data as { text: string }).text}</a>
+            )}
           </span>
         </div>
       )
