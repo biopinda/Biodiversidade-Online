@@ -13,6 +13,8 @@ const searchParams: Record<string, string> = Object.fromEntries(
 const filter = Object.entries(searchParams).reduce((acc, [key, value]) => {
   if (key === 'scientificName') {
     acc.scientificName = new RegExp(value, 'i')
+  } else {
+    acc[key] = value
   }
   return acc
 }, {} as Record<string, unknown>)
