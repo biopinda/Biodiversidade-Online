@@ -39,14 +39,17 @@ import TaxonLink from './TaxonLink.astro'
         link: `/taxa?namePublishedInYear=${json.namePublishedInYear}`,
         text: json.namePublishedInYear
       },
-      Classificação: {
+      Reino: { link: `/taxa?kingdom=${json.kingdom}`, text: json.kingdom },
+      Grupo: {
         link: `/taxa?higherClassification=${json.higherClassification}`,
         text: json.higherClassification
       },
-      Reino: { link: `/taxa?kingdom=${json.kingdom}`, text: json.kingdom },
       Família: { link: `/taxa?family=${json.family}`, text: json.family },
       Gênero: { link: `/taxa?genus=${json.genus}`, text: json.genus },
-      Espécie: json.specificEpithet,
+      'Epíteto específico': {
+        link: `/taxa?specificEpithet=${json.specificEpithet}`,
+        text: json.specificEpithet
+      },
       Rank: json.taxonRank,
       'Status taxonômico': json.taxonomicStatus,
       'Status nomenclatural': json.nomenclaturalStatus,
