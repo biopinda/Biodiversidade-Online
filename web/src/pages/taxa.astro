@@ -10,14 +10,11 @@ const searchParams: Record<string, string> = Object.fromEntries(
   Array.from(Astro.url.searchParams.entries())
 )
 
-const filter = Object.entries(searchParams).reduce((acc, [key, value]) => {
-  if (key === 'scientificName') {
-    acc.scientificName = new RegExp(value, 'i')
-  } else {
-    acc[key] = value
-  }
-  return acc
-}, {} as Record<string, unknown>)
+const filter: Record<string,unknown> = structuredClone(searchParams)
+if (filter.scientificName !== undefined) {
+  filter.scientificName  = new RegExp(filter.scientificName as string, 'i')
+}
+delete filter.page
 
 let taxa: Record<string, unknown>[] = []
 let total = 0
