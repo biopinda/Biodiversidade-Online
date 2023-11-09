@@ -14,7 +14,7 @@ const { json } = Astro.props as {
     }
     reference: RU[]
     othernames: RU[]
-    vernacularname: RU[]
+    vernacularname: R<string>[]
   }
 }
 import Map from './Map.astro'
@@ -111,17 +111,19 @@ import TaxonLink from './TaxonLink.astro'
     json.vernacularname && (
       <>
         <h2 class="pt-2 font-bold">Nomes vernaculares</h2>
-        {json.vernacularname?.map(({ vernacularName, language, locality }) => (
-          <div class="border-l-4 border-slate-200 pl-1 mb-2">
-            <Section
-              fields={{
-                Nome: vernacularName,
-                Língua: language,
-                Local: locality
-              }}
-            />
-          </div>
-        ))}
+        <ul class="list-disc pl-5">
+          {json.vernacularname
+            .sort(
+              (a, b) =>
+                a.vernacularName?.localeCompare(b.vernacularName ?? '') ?? 0
+            )
+            .map(({ vernacularName, language, locality }) => (
+              <li>
+                {vernacularName}, {locality} -{' '}
+                <span class="text-xs italic">{language}</span>
+              </li>
+            ))}
+        </ul>
       </>
     )
   }
