@@ -17,7 +17,7 @@ export async function GET({ request: { url } }: APIContext) {
   if (filter.scientificName) {
     filter.scientificName = new RegExp(filter.scientificName, 'i')
   }
-  console.log(filter, '\n\n\n')
+
   return new Response(JSON.stringify(await listTaxaPaginated(filter)), {
     headers: {
       'Content-Type': 'application/json'
