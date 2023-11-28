@@ -1,5 +1,6 @@
 import { parse } from 'https://deno.land/x/xml@2.1.0/mod.ts'
-import { unZipFromURL } from 'https://deno.land/x/zip@v1.1.0/mod.ts'
+import { download } from 'https://deno.land/x/download@v2.0.2/mod.ts'
+import { decompress } from 'https://deno.land/x/zip@v1.2.5/mod.ts'
 
 type WithAttribute<A extends string, T> = {
   [key in `@${A}`]: T
@@ -145,7 +146,8 @@ export const buildJson = async (folder: string) => {
 }
 
 export const processaZip = async (url: string) => {
-  await unZipFromURL(url, '.temp')
+  await download(url, { file: 'temp.zip', dir: '.temp' })
+  await decompress('.temp/temp.zip', '.temp')
   const json = await buildJson('.temp')
   await Deno.remove('.temp', { recursive: true })
   return json
