@@ -152,3 +152,21 @@ export const processaZip = async (url: string) => {
   await Deno.remove('.temp', { recursive: true })
   return json
 }
+
+type RU = Record<string, unknown>
+export type Eml = {
+  '@packageId': string
+  dataset: {
+    alternateIdentifier: string[]
+    title: string
+    creator: RU
+  } & RU
+} & RU
+type OuterEml = {
+  'eml:eml': Eml
+} & RU
+export const getEml = async (url: string) => {
+  const contents = await fetch(url).then((res) => res.text())
+  const xml = parse(contents) as OuterEml
+  return xml['eml:eml']
+}
