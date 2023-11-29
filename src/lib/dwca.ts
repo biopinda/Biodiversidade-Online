@@ -209,7 +209,10 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
               json_patch(c.json, json_object(
                 ${extensionNames
                   .map((ext) =>
-                    [`'${ext}'`, `json_group_array(json(${ext}.json))`].join(
+                    [`'${ext}'`, `json_group_array(json(${ext}.json)) filter (
+                      where
+                        ${ext}.json is not null
+                    )`].join(
                       ', '
                     )
                   )
