@@ -1,6 +1,7 @@
 import { parse } from 'https://deno.land/x/xml@2.1.0/mod.ts'
 import { download } from 'https://deno.land/x/download@v2.0.2/mod.ts'
 import { decompress } from 'https://deno.land/x/zip@v1.2.5/mod.ts'
+import { DB } from 'https://deno.land/x/sqlite@v3.8/mod.ts'
 
 type WithAttribute<A extends string, T> = {
   [key in `@${A}`]: T
@@ -145,15 +146,123 @@ export const buildJson = async (folder: string) => {
   return root
 }
 
-export const processaZip = async (url: string) => {
-  await download(url, { file: 'temp.zip', dir: '.temp' })
-  await decompress('.temp/temp.zip', '.temp')
-  const json = await buildJson('.temp')
-  await Deno.remove('.temp', { recursive: true })
-  return json
+const _addLineToTable = (
+  db: InstanceType<typeof DB>,
+  line: string,
+  fields: string[],
+  table: string
+) => {
+  const values = line.split('\t')
+  const id = values[fields.indexOf('INDEX')]
+  if (id) {
+    const obj: RU = {}
+    fields.forEach((field, index) => {
+      if (field !== 'INDEX' && values[index]) {
+        obj[field] = values[index]
+      }
+    })
+    db.query(`INSERT INTO ${table} VALUES (?, ?)`, [id, JSON.stringify(obj)])
+  }
+}
+
+export const buildSqlite = async (folder: string, chunkSize = 5000) => {
+  {
+    const db = new DB(':memory:')
+    db.execute('CREATE TABLE core (id TEXT PRIMARY KEY, json JSON)')
+    const contents = await Deno.readTextFile(`${folder}/meta.xml`)
+    const { archive } = parse(contents) as unknown as {
+      archive: { core: CoreSpec; extension: ExtensionSpec[] }
+    }
+    const ref = {
+      core: _parseJsonEntry(archive.core),
+      extensions: archive.extension.map(_parseJsonEntry)
+    }
+    console.log('prepping core')
+    await streamProcessor(`${folder}/${ref.core.file}`, (line) => {
+      _addLineToTable(db, line, ref.core.fields, 'core')
+    })
+    console.log(db.query(`SELECT COUNT(id) FROM core`)[0][0])
+    for (const extension of ref.extensions) {
+      const tableName = extension.file.split('.')[0] as string
+      console.log(`prepping EXT:${tableName}`)
+      db.execute(`CREATE TABLE ${tableName} (id, json JSON)`)
+      db.execute(`CREATE INDEX idx_${tableName}_id ON ${tableName} (id)`)
+      await streamProcessor(`${folder}/${extension.file}`, (line) => {
+        _addLineToTable(db, line, extension.fields, tableName)
+      })
+      console.log(db.query(`SELECT COUNT(*) FROM ${tableName}`)[0][0])
+    }
+    const extensionNames = ref.extensions.map((ext) => ext.file.split('.')[0])
+
+    return {
+      get length() {
+        return db.query(`SELECT COUNT(id) FROM core`)[0][0] as number
+      },
+      *[Symbol.iterator]() {
+        let batch: [string, RU][] = []
+        let offset = 0
+        do {
+          batch = db
+            .query(
+              `SELECT
+              c.id,
+              json_patch(c.json, json_object(
+                ${extensionNames
+                  .map((ext) =>
+                    [`'${ext}'`, `json_group_array(json(${ext}.json))`].join(
+                      ', '
+                    )
+                  )
+                  .join(', ')}
+              )) AS extended_json
+            FROM
+              core c
+            ${extensionNames
+              .map((ext) => `LEFT JOIN ${ext} ON c.id = ${ext}.id`)
+              .join('\n')}
+            GROUP BY
+                c.id
+            LIMIT ${chunkSize} OFFSET ${offset};`
+            )
+            .map(([id, json]) => [id, JSON.parse(json as string)]) as [
+            string,
+            RU
+          ][]
+          yield batch
+          offset += chunkSize
+        } while (batch.length > 0)
+        db.close()
+        return null
+      }
+    }
+  }
 }
 
 type RU = Record<string, unknown>
+export function processaZip(
+  url: string,
+  sqlite?: false,
+  chunkSize?: number
+): Promise<DwcJson>
+export function processaZip(
+  url: string,
+  sqlite: true,
+  chunkSize?: number
+): Promise<ReturnType<typeof buildSqlite>>
+export async function processaZip(
+  url: string,
+  sqlite = false,
+  chunkSize = 5000
+): Promise<DwcJson | ReturnType<typeof buildSqlite>> {
+  await download(url, { file: 'temp.zip', dir: '.temp' })
+  await decompress('.temp/temp.zip', '.temp')
+  const ret = sqlite
+    ? await buildSqlite('.temp', chunkSize)
+    : await buildJson('.temp')
+  await Deno.remove('.temp', { recursive: true })
+  return ret
+}
+
 export type Eml = {
   '@packageId': string
   dataset: {
