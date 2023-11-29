@@ -57,6 +57,38 @@ await client.connect(Deno.env.get('MONGO_URI') as string)
 const iptsCol = client.database('dwc2json').collection('ipts')
 const ocorrenciasCol = client.database('dwc2json').collection('ocorrencias')
 
+console.log('Creating indexes')
+await Promise.all([
+  ocorrenciasCol.createIndexes({
+    indexes: [
+      {
+        key: { scientificName: 1 },
+        name: 'scientificName'
+      },
+      {
+        key: { iptId: 1 },
+        name: 'iptId'
+      },
+      {
+        key: { ipt: 1 },
+        name: 'ipt'
+      }
+    ]
+  }),
+  iptsCol.createIndexes({
+    indexes: [
+      {
+        key: { tag: 1 },
+        name: 'tag'
+      },
+      {
+        key: { ipt: 1 },
+        name: 'ipt'
+      }
+    ]
+  })
+])
+
 type DbIpt = {
   _id: Ipt['id']
   tag: string
@@ -112,36 +144,4 @@ for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
     )
   }
 }
-
-console.log('Creating indexes')
-await Promise.all([
-  ocorrenciasCol.createIndexes({
-    indexes: [
-      {
-        key: { scientificName: 1 },
-        name: 'scientificName'
-      },
-      {
-        key: { iptId: 1 },
-        name: 'iptId'
-      },
-      {
-        key: { ipt: 1 },
-        name: 'ipt'
-      }
-    ]
-  }),
-  iptsCol.createIndexes({
-    indexes: [
-      {
-        key: { tag: 1 },
-        name: 'tag'
-      },
-      {
-        key: { ipt: 1 },
-        name: 'ipt'
-      }
-    ]
-  })
-])
 console.debug('Done')
