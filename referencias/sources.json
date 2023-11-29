@@ -1,6 +1,6 @@
 [
   {
-    "collection": "reflora",
+    "ipt": "reflora",
     "baseUrl": "https://ipt.jbrj.gov.br/reflora/",
     "datasets": [
       "alcb_herbarium",
