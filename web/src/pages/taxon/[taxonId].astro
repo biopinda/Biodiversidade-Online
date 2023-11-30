@@ -11,7 +11,7 @@ const kingdom = {
   A: 'Animalia'
 }[kingdomId as string] as Parameters<typeof getTaxon>[0] | undefined
 
-const taxon = kingdom && await getTaxon(kingdom, id)
+const taxon = kingdom && await getTaxon(kingdom, id, true)
 ---
 
 <Layout

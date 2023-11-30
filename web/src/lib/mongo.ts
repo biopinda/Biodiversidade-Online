@@ -63,8 +63,30 @@ export async function countTaxa(filter: Record<string, unknown> = {}) {
 
 export async function getTaxon(
   kingdom: 'Plantae' | 'Fungi' | 'Animalia',
-  id: string
+  id: string,
+  includeOccurrences = false
 ) {
   const taxa = await getCollection('dwc2json', 'taxa')
-  return await taxa.findOne({ kingdom, taxonID: id })
+  return includeOccurrences
+    ? (
+        await taxa
+          .aggregate([
+            {
+              $match: {
+                kingdom,
+                taxonID: id
+              }
+            },
+            {
+              $lookup: {
+                from: 'ocorrencias',
+                localField: 'scientificName',
+                foreignField: 'scientificName',
+                as: 'occurrences'
+              }
+            }
+          ])
+          .toArray()
+      )[0]
+    : await taxa.findOne({ kingdom, taxonID: id })
 }
