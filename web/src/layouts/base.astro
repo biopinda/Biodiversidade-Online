@@ -1,5 +1,5 @@
 ---
-const { title, metaDescription } = Astro.props
+const { title, metaDescription, bodyClasses } = Astro.props
 ---
 
 <!doctype html>
@@ -16,11 +16,11 @@ const { title, metaDescription } = Astro.props
     <title>{title}</title>
     <!-- Matomo -->
     <script type="text/partytown">
-    var _paq = (window._paq = window._paq || [])
-    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-    _paq.push(['trackPageView'])
-    _paq.push(['enableLinkTracking'])
-      ; (function () {
+      var _paq = (window._paq = window._paq || [])
+      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+      _paq.push(['trackPageView'])
+      _paq.push(['enableLinkTracking'])
+      ;(function () {
         var u = '//matomo.dalc.in/'
         _paq.push(['setTrackerUrl', u + 'matomo.php'])
         _paq.push(['setSiteId', '5'])
@@ -34,7 +34,7 @@ const { title, metaDescription } = Astro.props
     </script>
     <!-- End Matomo Code -->
   </head>
-  <body>
+  <body class={bodyClasses ?? ''}>
     <slot />
   </body>
 </html>

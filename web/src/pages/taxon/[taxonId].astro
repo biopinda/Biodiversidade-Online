@@ -21,9 +21,10 @@ const taxon = kingdom && await getTaxon(kingdom, id)
   metaDescription={taxon?.scientificName
     ? `Flora e Funga do Brasil: ${taxon.scientificName}`
     : null}
+  bodyClasses="bg-green-100"
 >
   <div
-    class="flex flex-row justify-center items-start bg-green-100 min-h-screen"
+    class="flex flex-row justify-center items-start"
   >
     {taxon ? <Taxon json={taxon} /> : <p>Taxon não encontrado</p>}
   </div>
