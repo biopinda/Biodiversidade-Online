@@ -22,117 +22,133 @@ const { json } = Astro.props as {
 import Map from './Map.astro'
 import Section from './Section.astro'
 import TaxonLink from './TaxonLink.astro'
+import Ocorrencias from './ocorrencias'
 ---
 
 <div
   class="m-12 w-full lg:w-[960px] bg-white p-4 shadow-lg border-slate-200 border rounded"
 >
   <div class="columns-1 lg:columns-2">
-  <h1 class="font-bold text-lg text-green-800 mb-4">{json.scientificName}</h1>
-  <Section
-    kingdom={json.kingdom}
-    fields={{
-      ID: json.taxonID,
-      'Nome científico': json.scientificName,
-      'Nome científico autor': json.scientificNameAuthorship,
-      'Nome aceito': json.acceptedNameUsage,
-      'Nome aceito ID': json.acceptedNameUsageID,
-      'Nome original ID': json.originalNameUsageID,
-      'Nome publicado em': json.namePublishedIn,
-      'Nome publicado em ano': {
-        link: `/taxa?namePublishedInYear=${json.namePublishedInYear}`,
-        text: json.namePublishedInYear
-      },
-      Reino: { link: `/taxa?kingdom=${json.kingdom}`, text: json.kingdom },
-      Grupo: {
-        link: `/taxa?higherClassification=${json.higherClassification}`,
-        text: json.higherClassification
-      },
-      Família: { link: `/taxa?family=${json.family}`, text: json.family },
-      Gênero: { link: `/taxa?genus=${json.genus}`, text: json.genus },
-      'Epíteto específico': {
-        link: `/taxa?specificEpithet=${json.specificEpithet}`,
-        text: json.specificEpithet
-      },
-      Rank: json.taxonRank,
-      'Status taxonômico': json.taxonomicStatus,
-      'Status nomenclatural': json.nomenclaturalStatus,
-      Modificado: json.modified,
-      'Citação bibliográfica': json.bibliographicCitation
-    }}
-  />
-  {
-    json.othernames?.length > 0 && (
-      <>
-        <h2 class="pt-2 font-bold">Outros nomes</h2>
-        <ul class="list-disc list-inside">
-          {json.othernames?.map(({ taxonID, taxonomicStatus }) => (
-            <li class="pl-2">
-              <TaxonLink kingdom={json.kingdom} taxonId={taxonID} /> -{' '}
-              {taxonomicStatus}
-            </li>
-          ))}
-        </ul>
-      </>
-    )
-  }
+    <h1 class="font-bold text-lg text-green-800 mb-4">{json.scientificName}</h1>
+    <Section
+      kingdom={json.kingdom}
+      fields={{
+        ID: json.taxonID,
+        'Nome científico': json.scientificName,
+        'Nome científico autor': json.scientificNameAuthorship,
+        'Nome aceito': json.acceptedNameUsage,
+        'Nome aceito ID': json.acceptedNameUsageID,
+        'Nome original ID': json.originalNameUsageID,
+        'Nome publicado em': json.namePublishedIn,
+        'Nome publicado em ano': {
+          link: `/taxa?namePublishedInYear=${json.namePublishedInYear}`,
+          text: json.namePublishedInYear
+        },
+        Reino: { link: `/taxa?kingdom=${json.kingdom}`, text: json.kingdom },
+        Grupo: {
+          link: `/taxa?higherClassification=${json.higherClassification}`,
+          text: json.higherClassification
+        },
+        Família: { link: `/taxa?family=${json.family}`, text: json.family },
+        Gênero: { link: `/taxa?genus=${json.genus}`, text: json.genus },
+        'Epíteto específico': {
+          link: `/taxa?specificEpithet=${json.specificEpithet}`,
+          text: json.specificEpithet
+        },
+        Rank: json.taxonRank,
+        'Status taxonômico': json.taxonomicStatus,
+        'Status nomenclatural': json.nomenclaturalStatus,
+        Modificado: json.modified,
+        'Citação bibliográfica': json.bibliographicCitation
+      }}
+    />
+    {
+      json.othernames?.length > 0 && (
+        <>
+          <h2 class="pt-2 font-bold">Outros nomes</h2>
+          <ul class="list-disc list-inside">
+            {json.othernames?.map(({ taxonID, taxonomicStatus }) => (
+              <li class="pl-2">
+                <TaxonLink kingdom={json.kingdom} taxonId={taxonID} /> -{' '}
+                {taxonomicStatus}
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
 
-  {
-    Object.keys(json.distribution ?? {}).length > 0 && (
-      <div class="flex items-start">
-        <div class="basis-1/2">
-          <Section
-            title="Distribuição"
-            fields={{
-              Origem: json.distribution?.origin,
-              Endemismo: json.distribution?.endemism,
-              'Domínios fitogeográficos':
-                json.distribution?.phytogeographicDomains?.join(', '),
-              Ocorrência: json.distribution?.occurrence?.sort().join(', '),
-              'Tipo de vegetação': json.distribution?.vegetationType?.join(', ')
-            }}
-          />
-        </div>
-        {json.distribution?.occurrence && (
+    {
+      Object.keys(json.distribution ?? {}).length > 0 && (
+        <div class="flex items-start">
           <div class="basis-1/2">
-            <Map stateList={json.distribution.occurrence} />
+            <Section
+              title="Distribuição"
+              fields={{
+                Origem: json.distribution?.origin,
+                Endemismo: json.distribution?.endemism,
+                'Domínios fitogeográficos':
+                  json.distribution?.phytogeographicDomains?.join(', '),
+                Ocorrência: json.distribution?.occurrence?.sort().join(', '),
+                'Tipo de vegetação':
+                  json.distribution?.vegetationType?.join(', ')
+              }}
+            />
           </div>
-        )}
+          {json.distribution?.occurrence && (
+            <div class="basis-1/2">
+              <Map stateList={json.distribution.occurrence} />
+            </div>
+          )}
+        </div>
+      )
+    }
+  </div>
+  {
+    json.occurrences?.length > 0 && (
+      <div class="pb-2">
+        <h2 class="pt-2 font-bold">Ocorrencias: {json.occurrences.length}</h2>
+        <Ocorrencias
+          occurrences={json.occurrences.map(({ _id, ...occurrence }) => ({
+            _id: _id?.toString(),
+            ...occurrence
+          }))}
+          client:visible
+        />
       </div>
     )
   }
-  </div>
   <div class="columns-1 lg:columns-2">
-  <Section
-    title="Referência"
-    fields={{
-      'Citação bibliográfica': json.reference?.[0]?.bibliographicCitation,
-      Título: json.reference?.[0]?.title,
-      Autor: json.reference?.[0]?.creator,
-      Data: json.reference?.[0]?.date,
-      Tipo: json.reference?.[0]?.type
-    }}
-  />
-  {
-    json.vernacularname && (
-      <>
-        <h2 class="pt-2 font-bold">Nomes vernaculares</h2>
-        <ul class="list-disc pl-5">
-          {json.vernacularname
-            .sort(
-              (a, b) =>
-                a.vernacularName?.localeCompare(b.vernacularName ?? '') ?? 0
-            )
-            .map(({ vernacularName, language, locality }) => (
-              <li>
-                {vernacularName}, {locality} -{' '}
-                <span class="text-xs italic">{language}</span>
-              </li>
-            ))}
-        </ul>
-      </>
-    )
-  }
+    <Section
+      title="Referência"
+      fields={{
+        'Citação bibliográfica': json.reference?.[0]?.bibliographicCitation,
+        Título: json.reference?.[0]?.title,
+        Autor: json.reference?.[0]?.creator,
+        Data: json.reference?.[0]?.date,
+        Tipo: json.reference?.[0]?.type
+      }}
+    />
+    {
+      json.vernacularname && (
+        <>
+          <h2 class="pt-2 font-bold">Nomes vernaculares</h2>
+          <ul class="list-disc pl-5">
+            {json.vernacularname
+              .sort(
+                (a, b) =>
+                  a.vernacularName?.localeCompare(b.vernacularName ?? '') ?? 0
+              )
+              .map(({ vernacularName, language, locality }) => (
+                <li>
+                  {vernacularName}, {locality} -{' '}
+                  <span class="text-xs italic">{language}</span>
+                </li>
+              ))}
+          </ul>
+        </>
+      )
+    }
   </div>
   <details>
     <summary class="text-blue-600">JSON</summary>
