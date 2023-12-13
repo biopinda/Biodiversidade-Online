@@ -1,5 +1,6 @@
 ---
-const { title, metaDescription, bodyClasses } = Astro.props
+import { ViewTransitions } from 'astro:transitions'
+const { title, useTransition, metaDescription, bodyClasses } = Astro.props
 ---
 
 <!doctype html>
@@ -37,6 +38,7 @@ const { title, metaDescription, bodyClasses } = Astro.props
       })()
     </script>
     <!-- End Matomo Code -->
+    {useTransition && <ViewTransitions />}
   </head>
   <body class={bodyClasses ?? ''}>
     <slot />
