@@ -103,7 +103,7 @@ const searchParamsWithPage = (page: number) => {
               <a class="text-green-800" href={`/taxon/${(taxon.kingdom as string)[0]?.toUpperCase()}${taxon.taxonID}`}>
                 {taxon.scientificName}
               </a>
-              <a class="text-blue-600" href={`/taxon/${taxon.taxonID}.json`}>
+              <a class="text-blue-600" href={`/taxon/${(taxon.kingdom as string)[0]?.toUpperCase()}${taxon.taxonID}.json`}>
                 (json)
               </a>
             </li>
