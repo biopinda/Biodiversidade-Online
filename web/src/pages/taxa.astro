@@ -43,7 +43,7 @@ const searchParamsWithPage = (page: number) => {
 }
 ---
 <img src="/logoReflora.svg" alt="Reflora Logo">
-<BaseLayout title="Procura de Taxa">
+<BaseLayout useTransition title="Procura de Taxa">
     <section class="m-2 p-2 border rounded border-slate-400 inline-block">
     <h2 class="text-xl font-bold">Filtro</h2>
     <form class="inline-flex flex-col gap-1">
@@ -98,16 +98,18 @@ const searchParamsWithPage = (page: number) => {
           )}
         </div>
         <ul class="grid grid-cols-2 gap-2">
-          {taxa.map((taxon) => (
+          {taxa.map((taxon) => {
+            const pageId = `${(taxon.kingdom as string)[0]?.toUpperCase()}${taxon.taxonID}`
+          return (
             <li class="border border-slate-400 rounded p-1">
-              <a class="text-green-800" href={`/taxon/${(taxon.kingdom as string)[0]?.toUpperCase()}${taxon.taxonID}`}>
+              <a class="text-green-800" href={`/taxon/${(taxon.kingdom as string)[0]?.toUpperCase()}${taxon.taxonID}`} transition:name={`hero-${pageId}`}>
                 {taxon.scientificName}
               </a>
-              <a class="text-blue-600" href={`/taxon/${(taxon.kingdom as string)[0]?.toUpperCase()}${taxon.taxonID}.json`}>
+              <a class="text-blue-600" href={`/taxon/${pageId}.json`}>
                 (json)
               </a>
             </li>
-          ))}
+          )})}
         </ul>
       </section>
     )

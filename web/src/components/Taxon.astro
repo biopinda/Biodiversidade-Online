@@ -2,7 +2,7 @@
 type R<T> = Record<string, T>
 type RU = R<unknown>
 
-const { json } = Astro.props as {
+const { pageId, json } = Astro.props as {
   json: {
     [key: string]: unknown
     kingdom: string
@@ -18,18 +18,40 @@ const { json } = Astro.props as {
     vernacularname: R<string>[]
     occurrences: R<RU>[]
   }
+  pageId: string
 }
 import Map from './Map.astro'
 import Section from './Section.astro'
 import TaxonLink from './TaxonLink.astro'
-import Ocorrencias from './ocorrencias'
 ---
 
 <div
-  class="m-12 w-full lg:w-[960px] bg-white p-4 shadow-lg border-slate-200 border rounded"
+  class="m-12 w-full lg:w-[960px] bg-white shadow-lg border-slate-200 border rounded"
 >
-  <div class="columns-1 lg:columns-2">
-    <h1 class="font-bold text-lg text-green-800 mb-4">{json.scientificName}</h1>
+  <div
+    class="bg-green-800 text-white p-4 mb-4 rounded-t sticky top-0 z-10 flex gap-4 items-center"
+  >
+    <a
+      href="/taxa"
+      class="p-1 px-2 bg-white text-black rounded-lg hover:text-green-800 whitespace-nowrap"
+      ><i class="las la-search"></i> Busca</a
+    >
+    <h1 class="font-bold text-lg" transition:name={`hero-${pageId}`}>
+      {json.scientificName}
+    </h1>
+    <div class="flex-1"></div>
+    {
+      json.occurrences?.length > 0 && (
+        <a
+          href={`/taxon/${pageId}/ocorrencias`}
+          class="p-1 px-2 bg-white text-black rounded-lg hover:text-green-800 whitespace-nowrap"
+        >
+          <i class="las la-th-list" /> Ocorrências
+        </a>
+      )
+    }
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 p-4 gap-2">
     <Section
       kingdom={json.kingdom}
       fields={{
@@ -63,25 +85,14 @@ import Ocorrencias from './ocorrencias'
       }}
     />
     {
-      json.othernames?.length > 0 && (
-        <>
-          <h2 class="pt-2 font-bold">Outros nomes</h2>
-          <ul class="list-disc list-inside">
-            {json.othernames?.map(({ taxonID, taxonomicStatus }) => (
-              <li class="pl-2">
-                <TaxonLink kingdom={json.kingdom} taxonId={taxonID} /> -{' '}
-                {taxonomicStatus}
-              </li>
-            ))}
-          </ul>
-        </>
-      )
-    }
-
-    {
-      Object.keys(json.distribution ?? {}).length > 0 && (
-        <div class="flex items-start">
-          <div class="basis-1/2">
+      Object.keys(json.distribution?.occurrence ?? {}).length > 0 && (
+        <section class="flex flex-col">
+          {json.distribution?.occurrence && (
+            <div>
+              <Map stateList={json.distribution.occurrence} />
+            </div>
+          )}
+          <div>
             <Section
               title="Distribuição"
               fields={{
@@ -95,44 +106,28 @@ import Ocorrencias from './ocorrencias'
               }}
             />
           </div>
-          {json.distribution?.occurrence && (
-            <div class="basis-1/2">
-              <Map stateList={json.distribution.occurrence} />
-            </div>
-          )}
-        </div>
+        </section>
       )
     }
-  </div>
-  {
-    json.occurrences?.length > 0 && (
-      <div class="pb-2">
-        <h2 class="pt-2 font-bold">Ocorrencias: {json.occurrences.length}</h2>
-        <Ocorrencias
-          occurrences={json.occurrences.map(({ _id, ...occurrence }) => ({
-            _id: _id?.toString(),
-            ...occurrence
-          }))}
-          client:visible
-        />
-      </div>
-    )
-  }
-  <div class="columns-1 lg:columns-2">
-    <Section
-      title="Referência"
-      fields={{
-        'Citação bibliográfica': json.reference?.[0]?.bibliographicCitation,
-        Título: json.reference?.[0]?.title,
-        Autor: json.reference?.[0]?.creator,
-        Data: json.reference?.[0]?.date,
-        Tipo: json.reference?.[0]?.type
-      }}
-    />
+    {
+      json.othernames?.length > 0 && (
+        <details>
+          <summary class="pt-2 font-bold">Outros nomes</summary>
+          <ul class="list-disc list-inside">
+            {json.othernames?.map(({ taxonID, taxonomicStatus }) => (
+              <li class="pl-2">
+                <TaxonLink kingdom={json.kingdom} taxonId={taxonID} /> -{' '}
+                {taxonomicStatus}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )
+    }
     {
       json.vernacularname && (
-        <>
-          <h2 class="pt-2 font-bold">Nomes vernaculares</h2>
+        <details>
+          <summary class="pt-2 font-bold">Nomes vernaculares</summary>
           <ul class="list-disc pl-5">
             {json.vernacularname
               .sort(
@@ -146,15 +141,22 @@ import Ocorrencias from './ocorrencias'
                 </li>
               ))}
           </ul>
-        </>
+        </details>
       )
     }
   </div>
-  <details>
-    <summary class="text-blue-600">JSON</summary>
-    <pre
-      class="p-4 bg-slate-200 shadow-inner whitespace-pre-wrap break-words">
-    {JSON.stringify(json, null, 2)}
-    </pre>
-  </details>
+  {
+    json.reference?.length > 0 && (
+      <footer
+        class="p-2 col-span-2 bg-slate-100 italic rounded-b"
+        title="Referência"
+      >
+        {json.reference?.map(({ creator, bibliographicCitation }) => (
+          <div>
+            {[creator, bibliographicCitation].filter(Boolean).join(', ')}
+          </div>
+        ))}
+      </footer>
+    )
+  }
 </div>

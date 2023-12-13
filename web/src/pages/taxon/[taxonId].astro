@@ -11,10 +11,11 @@ const kingdom = {
   A: 'Animalia'
 }[kingdomId as string] as Parameters<typeof getTaxon>[0] | undefined
 
-const taxon = kingdom && await getTaxon(kingdom, id, true)
+const taxon = kingdom && (await getTaxon(kingdom, id, true))
 ---
 
 <Layout
+  useTransition
   title={`Taxon: ${
     taxon ? taxon.scientificName : `<não encontrado (${taxonId})>`
   }`}
@@ -23,9 +24,13 @@ const taxon = kingdom && await getTaxon(kingdom, id, true)
     : null}
   bodyClasses="bg-green-100"
 >
-  <div
-    class="flex flex-row justify-center items-start"
-  >
-    {taxon ? <Taxon json={taxon} /> : <p>Taxon não encontrado</p>}
+  <div class="flex flex-row justify-center items-start">
+    {
+      taxon ? (
+        <Taxon pageId={taxonId} json={taxon} />
+      ) : (
+        <p>Taxon não encontrado</p>
+      )
+    }
   </div>
 </Layout>

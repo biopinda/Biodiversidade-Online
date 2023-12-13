@@ -20,32 +20,34 @@ const filteredFieldsArray = Object.entries(fields).reduce(
 )
 ---
 
-{
-  title && filteredFieldsArray.length > 0 && (
-    <h2 class="pt-2 font-bold">{title}</h2>
-  )
-}
-{
-  filteredFieldsArray.map(({ name, data }) => {
-    return (
-      data && (
-        <div>
-          <span class="font-semibold">{name.replace(' ID', '')}:</span>{' '}
-          <span>
-            {typeof data === 'string' ? (
-              name.endsWith(' ID') ? (
-                <TaxonLink kingdom={kingdom} taxonId={data} />
-              ) : (
-                data
-              )
-            ) : (
-              <a href={data.link} class="text-green-800 underline">
-                {(data as { text: string }).text}
-              </a>
-            )}
-          </span>
-        </div>
-      )
+<section>
+  {
+    title && filteredFieldsArray.length > 0 && (
+      <h2 class="pt-2 font-bold">{title}</h2>
     )
-  })
-}
+  }
+  {
+    filteredFieldsArray.map(({ name, data }) => {
+      return (
+        data && (
+          <div>
+            <span class="font-semibold">{name.replace(' ID', '')}:</span>{' '}
+            <span>
+              {typeof data === 'string' ? (
+                name.endsWith(' ID') ? (
+                  <TaxonLink kingdom={kingdom} taxonId={data} />
+                ) : (
+                  data
+                )
+              ) : (
+                <a href={data.link} class="text-green-800 underline">
+                  {(data as { text: string }).text}
+                </a>
+              )}
+            </span>
+          </div>
+        )
+      )
+    })
+  }
+</section>
