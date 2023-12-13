@@ -10,17 +10,17 @@ export const findTaxonByName = (
   )
 }
 
-type FloraJson = Record<
+type FaunaJson = Record<
   string,
   Record<
     string,
     string | Record<string, unknown> | Array<string | Record<string, unknown>>
   >
 >
-export const processaFlora = (dwcJson: FloraJson): FloraJson => {
+export const processaFauna = (dwcJson: FaunaJson): FaunaJson => {
   return Object.fromEntries(
     Object.entries(dwcJson).reduce((entries, [id, taxon]) => {
-      const distribution = taxon.distribution as Record<
+      const _distribution = taxon.distribution as Record<
         string,
         Record<string, string>
       >[]
@@ -31,18 +31,18 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
       ) {
         return entries
       }
-      if (distribution) {
-        taxon.distribution = {
-          origin: distribution[0]?.establishmentMeans,
-          Endemism: distribution[0]?.occurrenceRemarks.endemism,
-          phytogeographicDomains:
-            distribution[0]?.occurrenceRemarks.phytogeographicDomain,
-          occurrence: distribution.map(({ locationID }) => locationID).sort(),
-          vegetationType: (
-            taxon.speciesprofile as Record<string, Record<string, string>>[]
-          )?.[0]?.lifeForm?.vegetationType
-        }
-      }
+      // if (distribution) {
+      //   taxon.distribution = {
+      //     origin: distribution[0]?.establishmentMeans,
+      //     Endemism: distribution[0]?.occurrenceRemarks.endemism,
+      //     phytogeographicDomains:
+      //       distribution[0]?.occurrenceRemarks.phytogeographicDomain,
+      //     occurrence: distribution.map(({ locationID }) => locationID).sort(),
+      //     vegetationType: (
+      //       taxon.speciesprofile as Record<string, Record<string, string>>[]
+      //     )?.[0]?.lifeForm?.vegetationType
+      //   }
+      // }
       if (taxon.resourcerelationship) {
         const resourcerelationship = taxon.resourcerelationship as Record<
           string,
@@ -57,13 +57,13 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
         delete taxon.resourcerelationship
       }
 
-      if (taxon.speciesprofile) {
-        taxon.speciesprofile = (
-          taxon.speciesprofile as Record<string, unknown>[]
-        )[0]
-        delete (taxon.speciesprofile.lifeForm as Record<string, unknown>)
-          .vegetationType
-      }
+      // if (taxon.speciesprofile) {
+      //   taxon.speciesprofile = (
+      //     taxon.speciesprofile as Record<string, unknown>[]
+      //   )[0]
+      //   delete (taxon.speciesprofile.lifeForm as Record<string, unknown>)
+      //     .vegetationType
+      // }
 
       if (taxon.higherClassification) {
         // Usa somente segundo componente da string separada por ;
@@ -73,28 +73,30 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
         ).split(';')[1]
       }
 
+      taxon.kingdom = 'Animalia'
+
       entries.push([id, taxon])
       return entries
-    }, [] as [string, FloraJson[string]][])
+    }, [] as [string, FaunaJson[string]][])
   )
 }
 
-export const processaFloraZip = async (url: string) => {
+export const processaFaunaZip = async (url: string) => {
   const json = await processaZip(url)
-  const floraJson = processaFlora(json)
-  return floraJson
+  const faunaJson = processaFauna(json)
+  return faunaJson
 }
 async function main() {
   if (Deno.args?.length === 0) {
     return
   }
   const [url] = Deno.args
-  const json = await processaFloraZip(url)
+  const json = await processaFaunaZip(url)
   const client = new MongoClient()
   await client.connect(Deno.env.get('MONGO_URI') as string)
   const collection = client.database('dwc2json').collection('taxa')
   console.debug('Cleaning collection')
-  console.log(await collection.deleteMany({ kingdom: 'Plantae' }))
+  console.log(await collection.deleteMany({ kingdom: 'Animalia' }))
   console.debug('Inserting taxa')
   const taxa = Object.values(json)
   for (let i = 0, n = taxa.length; i < n; i += 5000) {
