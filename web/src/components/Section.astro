@@ -1,7 +1,8 @@
 ---
 import TaxonLink from './TaxonLink.astro'
-const { title, fields } = Astro.props as {
+const { title, kingdom, fields } = Astro.props as {
   title: string
+  kingdom: string
   fields: Record<string, string | { link: string; text: string }>
 }
 const filteredFieldsArray = Object.entries(fields).reduce(
@@ -33,12 +34,14 @@ const filteredFieldsArray = Object.entries(fields).reduce(
           <span>
             {typeof data === 'string' ? (
               name.endsWith(' ID') ? (
-                <TaxonLink taxonId={data} />
+                <TaxonLink kingdom={kingdom} taxonId={data} />
               ) : (
                 data
               )
             ) : (
-              <a href={data.link} class="text-green-800 underline">{(data as { text: string }).text}</a>
+              <a href={data.link} class="text-green-800 underline">
+                {(data as { text: string }).text}
+              </a>
             )}
           </span>
         </div>

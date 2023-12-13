@@ -4,7 +4,14 @@ import Layout from '../../layouts/base.astro'
 import { getTaxon } from '../../lib/mongo'
 
 const { taxonId } = Astro.params as { taxonId: string }
-const taxon = await getTaxon(taxonId)
+const [kingdomId, id] = [taxonId[0], taxonId.slice(1)]
+const kingdom = {
+  P: 'Plantae',
+  F: 'Fungi',
+  A: 'Animalia'
+}[kingdomId as string] as Parameters<typeof getTaxon>[0] | undefined
+
+const taxon = kingdom && await getTaxon(kingdom, id)
 ---
 
 <Layout

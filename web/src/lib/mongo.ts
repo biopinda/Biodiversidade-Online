@@ -61,7 +61,10 @@ export async function countTaxa(filter: Record<string, unknown> = {}) {
   return await taxa.countDocuments(filter)
 }
 
-export async function getTaxon(id: string) {
+export async function getTaxon(
+  kingdom: 'Plantae' | 'Fungi' | 'Animalia',
+  id: string
+) {
   const taxa = await getCollection('dwc2json', 'taxa')
-  return await taxa.findOne({ taxonID: id })
+  return await taxa.findOne({ kingdom, taxonID: id })
 }
