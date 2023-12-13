@@ -175,7 +175,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
     }
     const ref = {
       core: _parseJsonEntry(archive.core),
-      extensions: archive.extension.map(_parseJsonEntry)
+      extensions: archive.extension?.map(_parseJsonEntry) ?? []
     }
     console.log('prepping core')
     await streamProcessor(`${folder}/${ref.core.file}`, (line) => {
