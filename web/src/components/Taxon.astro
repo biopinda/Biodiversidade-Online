@@ -73,10 +73,7 @@ import TaxonLink from './TaxonLink.astro'
         },
         Família: { link: `/taxa?family=${json.family}`, text: json.family },
         Gênero: { link: `/taxa?genus=${json.genus}`, text: json.genus },
-        'Epíteto específico': {
-          link: `/taxa?specificEpithet=${json.specificEpithet}`,
-          text: json.specificEpithet
-        },
+        'Epíteto específico': json.specificEpithet,
         Rank: json.taxonRank,
         'Status taxonômico': json.taxonomicStatus,
         'Status nomenclatural': json.nomenclaturalStatus,
