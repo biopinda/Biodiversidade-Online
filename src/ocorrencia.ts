@@ -98,7 +98,9 @@ for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
     )
     console.debug(`Cleaning ${set}`)
     console.log(
-      `Deleted ${await ocorrenciasCol.deleteMany({ iptId: ipt.id })} entries`
+      `Deleted ${
+        (await ocorrenciasCol.deleteMany({ iptId: ipt.id })).deletedCount
+      } entries`
     )
     let totalProcessed = 0
     for (const batch of ocorrencias) {
