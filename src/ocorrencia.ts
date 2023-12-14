@@ -1,7 +1,7 @@
-import { MongoClient } from 'https://deno.land/x/mongo@v0.31.2/mod.ts'
+import { MongoClient } from 'npm:mongodb'
 
-import { getEml, processaZip, processaEml, type DbIpt } from './lib/dwca.ts'
 import { calculateObjectSize } from 'npm:bson'
+import { getEml, processaEml, processaZip, type DbIpt } from './lib/dwca.ts'
 
 type InsertManyParams = Parameters<typeof ocorrenciasCol.insertMany>
 async function safeInsertMany(
@@ -25,8 +25,9 @@ async function safeInsertMany(
         returns.push(await collection.insertMany(chunk, options))
       }
       return returns.reduce((acc, cur) => ({
+        acknowledged: acc.acknowledged && cur.acknowledged,
         insertedCount: acc.insertedCount + cur.insertedCount,
-        insertedIds: [...acc.insertedIds, ...cur.insertedIds]
+        insertedIds: { ...acc.insertedIds, ...cur.insertedIds }
       }))
     } catch (_e) {
       chunkSize = Math.floor(chunkSize / 2)
@@ -42,42 +43,38 @@ const iptSources = await Deno.readTextFile('./referencias/sources.json').then(
   (contents) => JSON.parse(contents)
 )
 
-const client = new MongoClient()
-await client.connect(Deno.env.get('MONGO_URI') as string)
-const iptsCol = client.database('dwc2json').collection('ipts')
-const ocorrenciasCol = client.database('dwc2json').collection('ocorrencias')
+const client = new MongoClient(Deno.env.get('MONGO_URI') as string)
+await client.connect()
+const iptsCol = client.db('dwc2json').collection<DbIpt>('ipts')
+const ocorrenciasCol = client.db('dwc2json').collection('ocorrencias')
 
 console.log('Creating indexes')
 await Promise.all([
-  ocorrenciasCol.createIndexes({
-    indexes: [
-      {
-        key: { scientificName: 1 },
-        name: 'scientificName'
-      },
-      {
-        key: { iptId: 1 },
-        name: 'iptId'
-      },
-      {
-        key: { ipt: 1 },
-        name: 'ipt'
-      },
-      { key: { canonicalName: 1 }, name: 'canonicalName' }
-    ]
-  }),
-  iptsCol.createIndexes({
-    indexes: [
-      {
-        key: { tag: 1 },
-        name: 'tag'
-      },
-      {
-        key: { ipt: 1 },
-        name: 'ipt'
-      }
-    ]
-  })
+  ocorrenciasCol.createIndexes([
+    {
+      key: { scientificName: 1 },
+      name: 'scientificName'
+    },
+    {
+      key: { iptId: 1 },
+      name: 'iptId'
+    },
+    {
+      key: { ipt: 1 },
+      name: 'ipt'
+    },
+    { key: { canonicalName: 1 }, name: 'canonicalName' }
+  ]),
+  iptsCol.createIndexes([
+    {
+      key: { tag: 1 },
+      name: 'tag'
+    },
+    {
+      key: { ipt: 1 },
+      name: 'ipt'
+    }
+  ])
 ])
 
 for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
@@ -86,9 +83,8 @@ for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
     console.debug(`Processing ${set}`)
     const eml = await getEml(`${baseUrl}eml.do?r=${set}`)
     const ipt = processaEml(eml)
-    const dbVersion = (
-      (await iptsCol.findOne({ _id: ipt.id })) as DbIpt | undefined
-    )?.version
+    const dbVersion = ((await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null)
+      ?.version
     if (dbVersion === ipt.version) {
       console.debug(`${set} already on version ${ipt.version}`)
       continue
@@ -138,3 +134,4 @@ for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
   }
 }
 console.debug('Done')
+client.close()
