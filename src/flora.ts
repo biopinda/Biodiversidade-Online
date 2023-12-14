@@ -73,6 +73,14 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
         ).split(';')[1]
       }
 
+      taxon.canonicalName = [
+        taxon.genus,
+        taxon.specificEpithet,
+        taxon.infraspecificEpithet
+      ]
+        .filter(Boolean)
+        .join(' ')
+
       entries.push([id, taxon])
       return entries
     }, [] as [string, FloraJson[string]][])
@@ -123,6 +131,10 @@ async function main() {
       {
         key: { taxonID: 1, kingdom:1 },
         name: 'taxonKingdom'
+      },
+      {
+        key: { canonicalName: 1 },
+        name: 'canonicalName'
       }
     ]
   })
