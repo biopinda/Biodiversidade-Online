@@ -62,7 +62,8 @@ await Promise.all([
       {
         key: { ipt: 1 },
         name: 'ipt'
-      }
+      },
+      { key: { canonicalName: 1 }, name: 'canonicalName' }
     ]
   }),
   iptsCol.createIndexes({
@@ -112,6 +113,13 @@ for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
         batch.map((ocorrencia) => ({
           iptId: ipt.id,
           ipt: iptName,
+          canonicalName: [
+            ocorrencia[1].genus,
+            ocorrencia[1].specificEpithet,
+            ocorrencia[1].infraspecificEpithet
+          ]
+            .filter(Boolean)
+            .join(' '),
           ...ocorrencia[1]
         })),
         {
