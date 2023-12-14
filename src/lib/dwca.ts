@@ -143,7 +143,14 @@ export const buildJson = async (folder: string) => {
   for (const extension of ref.extensions) {
     await addExtension(root, `${folder}/${extension.file}`, extension.fields)
   }
-  return root
+  return {
+    json: root,
+    ipt: processaEml(
+      extractEml(
+        parse(await Deno.readTextFile(`${folder}/eml.xml`)) as OuterEml
+      )
+    )
+  }
 }
 
 const _addLineToTable = (
@@ -209,12 +216,13 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
               json_patch(c.json, json_object(
                 ${extensionNames
                   .map((ext) =>
-                    [`'${ext}'`, `json_group_array(json(${ext}.json)) filter (
+                    [
+                      `'${ext}'`,
+                      `json_group_array(json(${ext}.json)) filter (
                       where
                         ${ext}.json is not null
-                    )`].join(
-                      ', '
-                    )
+                    )`
+                    ].join(', ')
                   )
                   .join(', ')}
               )) AS extended_json
@@ -246,7 +254,7 @@ export function processaZip(
   url: string,
   sqlite?: false,
   chunkSize?: number
-): Promise<DwcJson>
+): Promise<ReturnType<typeof buildJson>>
 export function processaZip(
   url: string,
   sqlite: true,
@@ -256,7 +264,7 @@ export async function processaZip(
   url: string,
   sqlite = false,
   chunkSize = 5000
-): Promise<DwcJson | ReturnType<typeof buildSqlite>> {
+): Promise<ReturnType<typeof buildJson> | ReturnType<typeof buildSqlite>> {
   await download(url, { file: 'temp.zip', dir: '.temp' })
   await decompress('.temp/temp.zip', '.temp')
   const ret = sqlite
@@ -277,8 +285,24 @@ export type Eml = {
 type OuterEml = {
   'eml:eml': Eml
 } & RU
+const extractEml = (OuterEml: OuterEml) => OuterEml['eml:eml']
 export const getEml = async (url: string) => {
   const contents = await fetch(url).then((res) => res.text())
-  const xml = parse(contents) as OuterEml
-  return xml['eml:eml']
+  return extractEml(parse(contents) as OuterEml)
 }
+
+export type Ipt = {
+  id: string
+  version: string
+} & Eml['dataset']
+export const processaEml = (emlJson: Eml): Ipt => {
+  const [id, version] =
+    emlJson['@packageId'].match(/(.+)\/(.+)/)?.slice(1) ?? []
+  return { id, version, ...emlJson.dataset }
+}
+
+export type DbIpt = {
+  _id: Ipt['id']
+  tag: string
+  collection: string
+} & Omit<Ipt, 'id'>

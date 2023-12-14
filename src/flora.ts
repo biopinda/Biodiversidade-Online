@@ -1,5 +1,5 @@
 import { MongoClient } from 'https://deno.land/x/mongo@v0.31.2/mod.ts'
-import { processaZip } from './lib/dwca.ts'
+import { processaZip, type DbIpt } from './lib/dwca.ts'
 
 export const findTaxonByName = (
   obj: Record<string, { scientificName?: string }>,
@@ -88,26 +88,41 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
 }
 
 export const processaFloraZip = async (url: string) => {
-  const json = await processaZip(url)
+  const { json, ipt } = await processaZip(url)
   const floraJson = processaFlora(json)
-  return floraJson
+  return { json: floraJson, ipt }
 }
 async function main() {
   if (Deno.args?.length === 0) {
     return
   }
   const [url] = Deno.args
-  const json = await processaFloraZip(url)
+  const { json, ipt } = await processaFloraZip(url)
   const client = new MongoClient()
   await client.connect(Deno.env.get('MONGO_URI') as string)
+  const iptsCol = client.database('dwc2json').collection('ipts')
   const collection = client.database('dwc2json').collection('taxa')
-  console.debug('Cleaning collection')
-  console.log(await collection.deleteMany({ kingdom: 'Plantae' }))
-  console.debug('Inserting taxa')
-  const taxa = Object.values(json)
-  for (let i = 0, n = taxa.length; i < n; i += 5000) {
-    console.log(`Inserting ${i} to ${Math.min(i + 5000, n)}`)
-    await collection.insertMany(taxa.slice(i, i + 5000), { ordered: false })
+  const dbVersion = (
+    (await iptsCol.findOne({ _id: ipt.id })) as DbIpt | undefined
+  )?.version
+  if (dbVersion === ipt.version) {
+    console.debug(`Fauna already on version ${ipt.version}`)
+  } else {
+    console.debug('Cleaning collection')
+    console.log(await collection.deleteMany({ kingdom: 'Plantae' }))
+    console.debug('Inserting taxa')
+    const taxa = Object.values(json)
+    for (let i = 0, n = taxa.length; i < n; i += 5000) {
+      console.log(`Inserting ${i} to ${Math.min(i + 5000, n)}`)
+      await collection.insertMany(taxa.slice(i, i + 5000), { ordered: false })
+    }
+    console.debug(`Inserting IPT`)
+    const { id: _id, ...iptDb } = ipt
+    await iptsCol.updateOne(
+      { _id: ipt.id },
+      { $set: { _id, ...iptDb, ipt: 'flora', set: 'flora' } },
+      { upsert: true }
+    )
   }
   console.log('Creating indexes')
   await collection.createIndexes({
@@ -129,7 +144,7 @@ async function main() {
         name: 'genus'
       },
       {
-        key: { taxonID: 1, kingdom:1 },
+        key: { taxonID: 1, kingdom: 1 },
         name: 'taxonKingdom'
       },
       {

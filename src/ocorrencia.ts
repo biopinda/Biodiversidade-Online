@@ -1,6 +1,6 @@
 import { MongoClient } from 'https://deno.land/x/mongo@v0.31.2/mod.ts'
 
-import { getEml, processaZip, type Eml } from './lib/dwca.ts'
+import { getEml, processaZip, processaEml, type DbIpt } from './lib/dwca.ts'
 import { calculateObjectSize } from 'npm:bson'
 
 type InsertManyParams = Parameters<typeof ocorrenciasCol.insertMany>
@@ -36,16 +36,6 @@ async function safeInsertMany(
       continue
     }
   }
-}
-
-type Ipt = {
-  id: string
-  version: string
-} & Eml['dataset']
-const processaEml = (emlJson: Eml): Ipt => {
-  const [id, version] =
-    emlJson['@packageId'].match(/(.+)\/(.+)/)?.slice(1) ?? []
-  return { id, version, ...emlJson.dataset }
 }
 
 const iptSources = await Deno.readTextFile('./referencias/sources.json').then(
@@ -89,11 +79,6 @@ await Promise.all([
   })
 ])
 
-type DbIpt = {
-  _id: Ipt['id']
-  tag: string
-  collection: string
-} & Omit<Ipt, 'id'>
 for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
   for (const set of datasets) {
     if (!set) continue
