@@ -109,7 +109,11 @@ async function main() {
     console.debug(`Fauna already on version ${ipt.version}`)
   } else {
     console.debug('Cleaning collection')
-    console.log(await collection.deleteMany({ kingdom: 'Plantae' }))
+    console.log(
+      await collection.deleteMany({
+        $or: [{ kingdom: 'Plantae' }, { kingdom: 'Fungi' }]
+      })
+    )
     console.debug('Inserting taxa')
     const taxa = Object.values(json)
     for (let i = 0, n = taxa.length; i < n; i += 5000) {
