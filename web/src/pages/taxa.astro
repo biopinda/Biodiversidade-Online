@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/base.astro'
 import { listTaxaPaginated } from '../lib/mongo'
 
-import { countTaxa } from '../lib/mongo';
+import { countTaxa } from '../lib/mongo'
 
 const taxaNum = await countTaxa()
 
@@ -10,9 +10,9 @@ const searchParams: Record<string, string> = Object.fromEntries(
   Array.from(Astro.url.searchParams.entries())
 )
 
-const filter: Record<string,unknown> = structuredClone(searchParams)
+const filter: Record<string, unknown> = structuredClone(searchParams)
 if (filter.scientificName !== undefined) {
-  filter.scientificName  = new RegExp(filter.scientificName as string, 'i')
+  filter.scientificName = new RegExp(filter.scientificName as string, 'i')
 }
 delete filter.page
 
@@ -42,13 +42,14 @@ const searchParamsWithPage = (page: number) => {
   return `?${params.toString()}`
 }
 ---
-<img src="/logoReflora.svg" alt="Reflora Logo">
+
+<img src="/logoReflora.svg" alt="Reflora Logo" />
 <BaseLayout useTransition title="Procura de Taxa">
-    <section class="m-2 p-2 border rounded border-slate-400 inline-block">
+  <section class="m-2 p-2 border rounded border-slate-400 inline-block">
     <h2 class="text-xl font-bold">Filtro</h2>
     <form class="inline-flex flex-col gap-1">
       <div class="row">
-        <label for="scientificName">Nome Completo ou Gênero </label>
+        <label for="scientificName">Nome Completo ou Gênero</label>
         <input
           id="scientificName"
           name="scientificName"
@@ -74,42 +75,64 @@ const searchParamsWithPage = (page: number) => {
           <h2 class="text-xl font-bold">
             Resultados{total > 0 && <>: {total}</>}
           </h2>
+          <a
+            class="p-1 px-2 rounded bg-green-800 text-white hover:drop-shadow"
+            href={`/api/taxa?scientificName=${searchParams.scientificName}`}
+            download={`${searchParams.scientificName}.json`}
+          >
+            <li class="las la-save" />
+            Baixar em JSON
+          </a>
           <div class="grow" />
           {totalPages > 1 && (
-            <div class="text-sm italic">Página {currentPage} / {totalPages}</div>
-            <div class="flex flex-row gap-1">
-              {currentPage > 1 && (
-                <a
-                  class="p-1 px-2 rounded bg-green-800 text-white"
-                  href={searchParamsWithPage(currentPage - 1)}
-                >
-                  Anterior
-                </a>
-              )}
-              {currentPage < totalPages && (
-                <a
-                  class="p-1 px-2 rounded bg-green-800 text-white"
-                  href={searchParamsWithPage(currentPage + 1)}
-                >
-                  Próxima
-                </a>
-              )}
-            </div>
+            <>
+              <div class="text-sm italic">
+                Página {currentPage} / {totalPages}
+              </div>
+
+              <div class="flex flex-row gap-1">
+                {currentPage > 1 && (
+                  <a
+                    class="p-1 px-2 rounded bg-green-800 text-white"
+                    href={searchParamsWithPage(currentPage - 1)}
+                  >
+                    Anterior
+                  </a>
+                )}
+                {currentPage < totalPages && (
+                  <a
+                    class="p-1 px-2 rounded bg-green-800 text-white"
+                    href={searchParamsWithPage(currentPage + 1)}
+                  >
+                    Próxima
+                  </a>
+                )}
+              </div>
+            </>
           )}
         </div>
         <ul class="grid grid-cols-2 gap-2">
           {taxa.map((taxon) => {
-            const pageId = `${(taxon.kingdom as string)[0]?.toUpperCase()}${taxon.taxonID}`
-          return (
-            <li class="border border-slate-400 rounded p-1">
-              <a class="text-green-800" href={`/taxon/${(taxon.kingdom as string)[0]?.toUpperCase()}${taxon.taxonID}`} transition:name={`hero-${pageId}`}>
-                {taxon.scientificName}
-              </a>
-              <a class="text-blue-600" href={`/taxon/${pageId}.json`}>
-                (json)
-              </a>
-            </li>
-          )})}
+            const pageId = `${(taxon.kingdom as string)[0]?.toUpperCase()}${
+              taxon.taxonID
+            }`
+            return (
+              <li class="border border-slate-400 rounded p-1">
+                <a
+                  class="text-green-800"
+                  href={`/taxon/${(taxon.kingdom as string)[0]?.toUpperCase()}${
+                    taxon.taxonID
+                  }`}
+                  transition:name={`hero-${pageId}`}
+                >
+                  {taxon.scientificName}
+                </a>
+                <a class="text-blue-600" href={`/taxon/${pageId}.json`}>
+                  (json)
+                </a>
+              </li>
+            )
+          })}
         </ul>
       </section>
     )
