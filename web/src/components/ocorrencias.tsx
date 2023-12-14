@@ -44,8 +44,8 @@ export default function Ocorrencias({ occurrences }: Props) {
     (occurrence) => occurrence._id === selectedOccurrence
   )
   return (
-    <div class="grid grid-cols-1 lg:grid-cols-2 border border-slate-200">
-      <div class="overflow-auto h-60 border-b lg:border-r lg:border-b-0 border-slate-200">
+    <div class="grid gap-2 grid-cols-1 lg:grid-cols-2 border border-slate-200 h-full overflow-y-auto">
+      <div class="overflow-auto h-64 lg:h-auto border-b lg:border-r lg:border-b-0 border-slate-200 lg:row-span-2">
         <table class="border-collapse w-full cursor-default">
           <thead>
             <tr>
@@ -125,7 +125,7 @@ export default function Ocorrencias({ occurrences }: Props) {
           </tbody>
         </table>
       </div>
-      <div className="mt-2 p-2 w-full overflow-y-auto h-60 break-words">
+      <div className="mt-2 p-2 w-full h-64 lg:h-auto overflow-y-auto break-words">
         {Object.entries(occurrence ?? {}).map(([key, value]) => (
           <div>
             <span className="font-bold">{key}: </span>
@@ -147,6 +147,20 @@ export default function Ocorrencias({ occurrences }: Props) {
             )}
           </div>
         ))}
+      </div>
+      <div class="grid gap-2 items-start grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {(occurrence?.multimedia as Record<string, string>[])?.map(
+          ({ identifier, rightsHolder, created }) => (
+            <div class="relative">
+              <a href={`https://${identifier}`} target="_blank">
+                <img src={`https://${identifier}`} alt={rightsHolder} />
+                <div class="absolute bottom-0 right-0 left-0 bg-gray-200 text-xs px-2">
+                  {created}
+                </div>
+              </a>
+            </div>
+          )
+        )}
       </div>
     </div>
   )

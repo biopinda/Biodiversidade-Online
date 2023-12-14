@@ -1,7 +1,7 @@
 ---
 import Layout from '../../../layouts/base.astro'
 import { getTaxon } from '../../../lib/mongo'
-import Ocorrencias from '../../../components/ocorrencias'
+import OcorrenciasComponent from '../../../components/ocorrencias'
 
 const { taxonId } = Astro.params as { taxonId: string }
 const [kingdomId, id] = [taxonId[0], taxonId.slice(1)]
@@ -11,7 +11,13 @@ const kingdom = {
   A: 'Animalia'
 }[kingdomId as string] as Parameters<typeof getTaxon>[0] | undefined
 
-const taxon = kingdom && (await getTaxon(kingdom, id, true))
+type Taxon = {
+  [key: string]: unknown
+  occurrences?: {
+    _id?: { toString: () => string }
+  }[]
+}
+const taxon: Taxon = kingdom && (await getTaxon(kingdom, id, true))
 ---
 
 <Layout
@@ -26,7 +32,7 @@ const taxon = kingdom && (await getTaxon(kingdom, id, true))
 >
   <div class="flex flex-row justify-center items-start">
     <div
-      class="m-12 w-full lg:w-[960px] bg-white shadow-lg border-slate-200 border rounded"
+      class="mt-4 lg:mt-0 lg:top-4 lg:absolute lg:bottom-0 w-full lg:w-[960px] bg-white shadow-lg border-slate-200 border rounded"
     >
       <div
         class="bg-green-800 text-white p-4 rounded-t sticky top-0 z-10 flex gap-4 items-center"
@@ -46,13 +52,15 @@ const taxon = kingdom && (await getTaxon(kingdom, id, true))
           <i class="las la-th-list"></i> Ocorrências
         </div>
       </div>
-      <Ocorrencias
-          occurrences={taxon.occurrences.map(({ _id, ...occurrence }) => ({
+      <div class="h-auto lg:h-[calc(100vh-81px)]">
+        <OcorrenciasComponent
+          occurrences={taxon.occurrences?.map(({ _id, ...occurrence }) => ({
             _id: _id?.toString(),
             ...occurrence
-          }))}
+          })) ?? []}
           client:visible
         />
+      </div>
     </div>
   </div>
 </Layout>
