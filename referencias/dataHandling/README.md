@@ -5,4 +5,3 @@
 * Identificado problemas com "cf. e "aff."
 * Identificado problema com subGenus
 * Retirado herbários duplicados do source.reflora
-* 
