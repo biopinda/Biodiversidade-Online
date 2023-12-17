@@ -1,5 +1,12 @@
 [
   {
+    "ipt": "jbrj",
+    "baseUrl": "https://ipt.jbrj.gov.br/jbrj/",
+    "datasets": [
+      "jbrj_rb"
+    ]
+  },
+  {
     "ipt": "reflora",
     "baseUrl": "https://ipt.jbrj.gov.br/reflora/",
     "datasets": [
@@ -33,7 +40,6 @@
       "p_reflora",
       "pc_herb",
       "pmsp",
-      "rb_herbarium",
       "rbr",
       "real",
       "s_reflora",
