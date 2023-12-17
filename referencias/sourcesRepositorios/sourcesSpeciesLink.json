@@ -1,0 +1,33 @@
+{
+    "ipt": "speciesLink",
+    "baseUrl": "http://ipt1.cria.org.br/ipt",
+    "datasets":
+    [
+        "bhzb",
+        "botu",
+        "botu-fungi",
+        "ce-ufpe",
+        "cepann",
+        "cnmt",
+        "cpap",
+        "cvrd",
+        "dcbu",
+        "dsec",
+        "dzub",
+        "eafm",
+        "ean",
+        "efc",
+        "fuel",
+        "hamab",
+        "has",
+        "has-algae",
+        "hbra",
+        "hcdal",
+        "hfsl",
+        "hfsl-fungos",
+        "hpan",
+        "hpbr",
+        "hpl",
+        ""
+    ]
+}
