@@ -2,6 +2,7 @@ import { parse } from 'https://deno.land/x/xml@2.1.0/mod.ts'
 import { download } from 'https://deno.land/x/download@v2.0.2/mod.ts'
 import { decompress } from 'https://deno.land/x/zip@v1.2.5/mod.ts'
 import { DB } from 'https://deno.land/x/sqlite@v3.8/mod.ts'
+import cliProgress from 'npm:cli-progress'
 
 type WithAttribute<A extends string, T> = {
   [key in `@${A}`]: T
@@ -184,21 +185,44 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
       core: _parseJsonEntry(archive.core),
       extensions: archive.extension?.map(_parseJsonEntry) ?? []
     }
-    console.log('prepping core')
+    const multibar = new cliProgress.MultiBar(
+      {
+        clearOnComplete: false,
+        hideCursor: true,
+        format: ' {bar} | {filename} | {value}/{total}'
+      },
+      cliProgress.Presets.shades_grey
+    )
+    const b1 = multibar.create(ref.extensions.length + 1, 0)
+    let lineCount = 0
+    await streamProcessor(`${folder}/${ref.core.file}`, (line) => {
+      lineCount++
+    })
+    const b2 = multibar.create(lineCount, 0, { filename: ref.core.file })
+    b1.increment(1, { filename: ref.core.file })
     await streamProcessor(`${folder}/${ref.core.file}`, (line) => {
       _addLineToTable(db, line, ref.core.fields, 'core')
+      b2.increment()
     })
-    console.log(db.query(`SELECT COUNT(id) FROM core`)[0][0])
     for (const extension of ref.extensions) {
       const tableName = extension.file.split('.')[0] as string
-      console.log(`prepping EXT:${tableName}`)
+      // console.log(`prepping EXT:${tableName}`)
       db.execute(`CREATE TABLE ${tableName} (id, json JSON)`)
       db.execute(`CREATE INDEX idx_${tableName}_id ON ${tableName} (id)`)
+      b1.increment(1, { filename: extension.file })
+      let lineCount = 0
+      await streamProcessor(`${folder}/${extension.file}`, (line) => {
+        lineCount++
+      })
+      b2.setTotal(lineCount)
+      b2.update(0, { filename: extension.file })
       await streamProcessor(`${folder}/${extension.file}`, (line) => {
         _addLineToTable(db, line, extension.fields, tableName)
+        b2.increment()
       })
-      console.log(db.query(`SELECT COUNT(*) FROM ${tableName}`)[0][0])
+      // console.log(db.query(`SELECT COUNT(*) FROM ${tableName}`)[0][0])
     }
+    multibar.stop()
     const extensionNames = ref.extensions.map((ext) => ext.file.split('.')[0])
 
     return {

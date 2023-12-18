@@ -1,6 +1,7 @@
 import { MongoClient } from 'npm:mongodb'
-
 import { calculateObjectSize } from 'npm:bson'
+import cliProgress from 'npm:cli-progress'
+
 import { getEml, processaEml, processaZip, type DbIpt } from './lib/dwca.ts'
 
 type InsertManyParams = Parameters<typeof ocorrenciasCol.insertMany>
@@ -102,10 +103,14 @@ for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
         (await ocorrenciasCol.deleteMany({ iptId: ipt.id })).deletedCount
       } entries`
     )
-    let totalProcessed = 0
+    const bar = new cliProgress.SingleBar(
+      {},
+      cliProgress.Presets.shades_classic
+    )
+    bar.start(ocorrencias.length, 0)
     for (const batch of ocorrencias) {
       if (!batch || !batch.length) break
-      console.debug(`Compiled ${(totalProcessed += batch.length)} entries`)
+      bar.increment(batch.length - Math.floor(batch.length / 4))
       await safeInsertMany(
         ocorrenciasCol,
         batch.map((ocorrencia) => ({
@@ -124,8 +129,9 @@ for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
           ordered: false
         }
       )
-      console.debug('Inserted')
+      bar.increment(Math.floor(batch.length / 4))
     }
+    bar.stop()
     console.debug(`Inserting IPT ${set}`)
     const { id: _id, ...iptDb } = ipt
     await iptsCol.updateOne(
