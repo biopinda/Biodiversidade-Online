@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         working-directory: ./web
         run: yarn
-      
+
       - name: Setup deno
         uses: denoland/setup-deno@v1
         with:
