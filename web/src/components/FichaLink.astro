@@ -18,7 +18,9 @@ const { kingdom, id } = Astro.props
       }${id}`}
     >
       <i class="la la-file-alt" /> Ficha na{' '}
-      {kingdom === 'Animalia' ? 'Fauna do Brasil' : 'Flora e Fungi do Brasil'}
+      {kingdom === 'Animalia'
+        ? 'Catálogo Taxonômico da Fauna do Brasil'
+        : 'Flora e Funga do Brasil'}
     </a>
   )
 }
