@@ -1,36 +1,19 @@
-# ___Darwin Core Archive to JSON___ - Flora e Funga do Brasil
+# ___Darwin Core Archive to JSON___
 
 [Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)
 
----
+## Motivação e Justificativa - V.2
 
-## Motivação e Justificativa
+O início deste projeto tinha uma motivação e justificativa mais modesta, como pode ser visto na [versão 1 do README](). Entretanto, com o avançar do desenvolvimento da ferramenta, o escopo do projeto se ampliou.
 
-A [Flora e Funga do Brasil](http://floradobrasil.jbrj.gov.br/reflora/listaBrasil/ConsultaPublicaUC/ConsultaPublicaUC.do) é uma base de dados de referência nacional para a biodiversidade de plantas e fungos. Além da interface de acesso aos dados, o acesso pode ser feito via [___web services___](https://servicos.jbrj.gov.br/v2/flora/) e parte dos dados podem ser "baixados" no formato [___Darwin Core Archive___ (DwC-A)](https://www.gbif.org/pt/darwin-core), através do recurso disponível no [IPT institucional](https://ipt.jbrj.gov.br/jbrj/resource?r=lista_especies_flora_brasil).
+No início, o foco do projeto era apenas ler o arquivo "[Darwin Core](https://dwc.tdwg.org/)" da [Flora e Funga do Brasil](https://floradobrasil.jbrj.gov.br/consulta/), publicado no [IPT do JBRJ](https://ipt.jbrj.gov.br/jbrj/resource?r=lista_especies_flora_brasil), e convertê-lo para o formato [JSON](https://www.json.org/json-pt.html), incluindo os documentos das "espécies" no [MongoDB](https://www.mongodb.com/), um banco de dados orientado à documentos, gratuito e de código aberto. Como "bônus", uma [interface de consulta simples](https://dwca2json.deno.dev/taxa) também foi criada, que também funciona como API, para consumir as fichas de espécie no formato JSON.
 
-Entretanto, [a estrutrura relacional do formato DwC-A](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0029715) exige do {usuário, analista, cientista de dados, pesquisador etc} um esforço adicional para relacionar e integrar as diferentes tabelas para gerar a informação necessária.
+Com a publicação dos dados do [Catálogo Taxonômico da Fauna do Brasil](http://fauna.jbrj.gov.br/) no [IPT do JBRJ](https://ipt.jbrj.gov.br/jbrj/resource?r=catalogo_taxonomico_da_fauna_do_brasil), surgiu a ideia de também incorporar os dados da fauna no banco de dados, tendo as fichas das espécies da fauna e da flora unificadas no banco de dados.
 
-Em essência, o formato DwC-A é um formato de transferência de dados entre aplicações. Porém, altamente específico para o domínio da biodiversidade, em especial, para atender a demanda por agregação de dados de provedores na base de dados do [GBIF](https://www.gbif.org/).
+Uma vez que o código implementado era genérico o suficiente para reconhecer e automatizar a conversão de diferentes "cores", como o de "ocorrências", surgiu a ideia então de criar uma coleção no mesmo banco de dados dedicado para ficha de ocorrências da flora e da fauna, nos diferentes IPTs públicos.
 
-Por outro lado, [formato JSON](https://pt.wikipedia.org/wiki/JSON) é uma forma de armazenar e transferir dados, sob a forma de ___documentos___, que se tornou muito popular com as aplicações baseadas na ___web___. Em resumo, o formato JSON:
+Desta forma, o banco criado por esta ferramenta hoje conta com cerca de 278 mil nomes de espécie e 9.3 milhões de fichas de ocorrÊncias, provenientes de 417 recursos publicados em 9 diferentes IPTs.
 
-* É uma formatação leve e compacto de troca de dados;
-* Para seres humanos, é fácil de ler e escrever;
-* Para máquinas, é fácil de interpretar e gerar;
-* É um padrão aberto independente de linguagem;
-* Utiliza texto legível a humanos, no formato atributo-valor, de natureza auto-descritiva.
+Estamos experimentado ofertar o acesso público ao banco de dados, e ainda há muito trabalho a ser feito na estruturação e incorporação dos dados à base, bem como na interface de acesso aos dados.
 
-Além disto a base de dados da Flora e Funga do Brasil possui hoje mais de 135.000 nomes científicos e o produto cartesiano das relações entre todas as tabelas gera um conjunto de registros significativo para a manipulação visando análise para geração de informação relevante.
-
-Com esta aplicação, é possível importar o conjunto de dados da Flora e Funga do Brasil, disponível no formato DwC-A, para um sistema gerenciador de bancos de dados orientado à documentos, como o [MongoDB](https://www.mongodb.com/), por exemplo, e realizar consultas e definir filtros de forma mais simples, para o {usuário, analista, cientista de dados, pesquisador etc} sem maiores conhecimentos técnicos e de ___SQL___, e sem o custo computacional gerado pelas "JOINs".
-
-Por fim, a importância do conjunto de dados da Flora e Funga do Brasil para a conservação e uso sustentável e socielmente justo da biodiversidade brasileira requer que sua disponibilidade e facilidade de uso seja sempre ampliada e potencializada pela oferta do seu conjunto de dados em diferentes formatos, para que possa causar o maior impacto possível na tomada de decisão e na formulação de políticas públicas relacionadas com a biodiversidade vegetal brasileira.
-
-## Objetivo
-
-* Criar uma ferramenta livre, gratuita e de código que ofereça os dados publicados pela Flora e Funga do Brasil em formato Darwin Core Archive no IPT, em formato JSON
-* Oferecer a ferramenta em um [___Docker___](https://pt.wikipedia.org/wiki/Docker_(software)), onde o usuário pode instalar em sua máquina local ou em um servidor
-
-----
-
-## [Clique aqui para acessar o DEMO](https://dwca2json.deno.dev/taxa/)
+Criticas e sugestões são sempre bem-vindas!
