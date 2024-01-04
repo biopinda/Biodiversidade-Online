@@ -1,11 +1,17 @@
 ---
+import FichaLink from './FichaLink.astro'
+import Map from './Map.astro'
+import Section from './Section.astro'
+import TaxonLink from './TaxonLink.astro'
+
 type R<T> = Record<string, T>
 type RU = R<unknown>
 
-const { pageId, json } = Astro.props as {
+interface Props {
   json: {
     [key: string]: unknown
-    kingdom: string
+    taxonID: string
+    kingdom: 'Animalia' | 'Plantae' | 'Fungi'
     distribution: {
       origin: string
       endemism: string
@@ -17,12 +23,16 @@ const { pageId, json } = Astro.props as {
     othernames: RU[]
     vernacularname: R<string>[]
     occurrences: R<RU>[]
+    bibliographicCitation?: string
   }
   pageId: string
 }
-import Map from './Map.astro'
-import Section from './Section.astro'
-import TaxonLink from './TaxonLink.astro'
+const { pageId, json } = Astro.props
+
+const fichaId: string =
+  json.kingdom === 'Animalia'
+    ? json.bibliographicCitation?.match(/.+\/(\w+)/)?.[1] ?? ''
+    : json.taxonID
 ---
 
 <div
@@ -55,7 +65,7 @@ import TaxonLink from './TaxonLink.astro'
     <Section
       kingdom={json.kingdom}
       fields={{
-        ID: json.taxonID,
+        TaxonID: json.taxonID,
         'Nome científico': json.scientificName,
         'Nome científico autor': json.scientificNameAuthorship,
         'Nome aceito': json.acceptedNameUsage,
@@ -142,18 +152,19 @@ import TaxonLink from './TaxonLink.astro'
       )
     }
   </div>
-  {
-    json.reference?.length > 0 && (
-      <footer
-        class="p-2 col-span-2 bg-slate-100 italic rounded-b"
-        title="Referência"
-      >
-        {json.reference?.map(({ creator, bibliographicCitation }) => (
-          <div>
-            {[creator, bibliographicCitation].filter(Boolean).join(', ')}
-          </div>
-        ))}
-      </footer>
-    )
-  }
+
+  <footer class="p-2 col-span-2 bg-slate-100 rounded-b" title="Referência">
+    {
+      json.reference?.length > 0 && (
+        <div class="italic">
+          {json.reference?.map(({ creator, bibliographicCitation }) => (
+            <div>
+              {[creator, bibliographicCitation].filter(Boolean).join(', ')}
+            </div>
+          ))}
+        </div>
+      )
+    }
+    <FichaLink kingdom={json.kingdom} id={fichaId} />
+  </footer>
 </div>

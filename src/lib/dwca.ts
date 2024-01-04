@@ -183,7 +183,10 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
     }
     const ref = {
       core: _parseJsonEntry(archive.core),
-      extensions: archive.extension?.map(_parseJsonEntry) ?? []
+      extensions: (Array.isArray(archive.extension)
+        ? archive.extension
+        : [archive.extension].filter(Boolean)
+      ).map(_parseJsonEntry)
     }
     const multibar = new cliProgress.MultiBar(
       {
@@ -195,7 +198,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
     )
     const b1 = multibar.create(ref.extensions.length + 1, 0)
     let lineCount = 0
-    await streamProcessor(`${folder}/${ref.core.file}`, (line) => {
+    await streamProcessor(`${folder}/${ref.core.file}`, (_line) => {
       lineCount++
     })
     const b2 = multibar.create(lineCount, 0, { filename: ref.core.file })
@@ -211,7 +214,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
       db.execute(`CREATE INDEX idx_${tableName}_id ON ${tableName} (id)`)
       b1.increment(1, { filename: extension.file })
       let lineCount = 0
-      await streamProcessor(`${folder}/${extension.file}`, (line) => {
+      await streamProcessor(`${folder}/${extension.file}`, (_line) => {
         lineCount++
       })
       b2.setTotal(lineCount)
