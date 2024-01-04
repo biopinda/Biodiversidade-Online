@@ -4,7 +4,7 @@
 
 ## Motivação e Justificativa - V.2
 
-O início deste projeto tinha uma motivação e justificativa mais modesta, como pode ser visto na [versão 1 do README](). Entretanto, com o avançar do desenvolvimento da ferramenta, o escopo do projeto se ampliou.
+O início deste projeto tinha uma motivação e justificativa mais modesta, como pode ser visto na [versão 1 do README](https://github.com/edalcin/DarwinCoreJSON/blob/main/README.v1.md). Entretanto, com o avançar do desenvolvimento da ferramenta, o escopo do projeto se ampliou.
 
 No início, o foco do projeto era apenas ler o arquivo "[Darwin Core](https://dwc.tdwg.org/)" da [Flora e Funga do Brasil](https://floradobrasil.jbrj.gov.br/consulta/), publicado no [IPT do JBRJ](https://ipt.jbrj.gov.br/jbrj/resource?r=lista_especies_flora_brasil), e convertê-lo para o formato [JSON](https://www.json.org/json-pt.html), incluindo os documentos das "espécies" no [MongoDB](https://www.mongodb.com/), um banco de dados orientado à documentos, gratuito e de código aberto. Como "bônus", uma [interface de consulta simples](https://dwca2json.deno.dev/taxa) também foi criada, que também funciona como API, para consumir as fichas de espécie no formato JSON.
 
