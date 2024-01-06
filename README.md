@@ -14,6 +14,8 @@ Uma vez que o código implementado era genérico o suficiente para reconhecer e 
 
 Desta forma, o banco criado por esta ferramenta hoje conta com cerca de 278 mil nomes de espécie e 9.3 milhões de fichas de ocorrÊncias, provenientes de 417 recursos publicados em 9 diferentes IPTs.
 
+Um dos aspectos mais significativos desta proposta é que todo o banco de dados é atualizado em poucos minutos, apenas clicando nas "[actions](https://github.com/edalcin/DarwinCoreJSON/actions)" de atualização da fauna, flora e ocorrências.
+
 Estamos experimentado ofertar o acesso público ao banco de dados, e ainda há muito trabalho a ser feito na estruturação e incorporação dos dados à base, bem como na interface de acesso aos dados.
 
-Criticas e sugestões são sempre bem-vindas!
+Criticas, sugestões e "[issues](https://github.com/edalcin/DarwinCoreJSON/issues)" são sempre bem-vindas!
