@@ -20,10 +20,11 @@ type FaunaJson = Record<
 export const processaFauna = (dwcJson: FaunaJson): FaunaJson => {
   return Object.fromEntries(
     Object.entries(dwcJson).reduce((entries, [id, taxon]) => {
-      // const _distribution = taxon.distribution as Record<
-      //   string,
-      //   Record<string, string>
-      // >[]
+      const distribution = taxon.distribution as {
+        locality: string
+        countryCode: string
+        establishmentMeans: string
+      }[]
       if (
         !['ESPECIE', 'VARIEDADE', 'FORMA', 'SUB_ESPECIE'].includes(
           taxon.taxonRank as string
@@ -31,18 +32,15 @@ export const processaFauna = (dwcJson: FaunaJson): FaunaJson => {
       ) {
         return entries
       }
-      // if (distribution) {
-      //   taxon.distribution = {
-      //     origin: distribution[0]?.establishmentMeans,
-      //     Endemism: distribution[0]?.occurrenceRemarks.endemism,
-      //     phytogeographicDomains:
-      //       distribution[0]?.occurrenceRemarks.phytogeographicDomain,
-      //     occurrence: distribution.map(({ locationID }) => locationID).sort(),
-      //     vegetationType: (
-      //       taxon.speciesprofile as Record<string, Record<string, string>>[]
-      //     )?.[0]?.lifeForm?.vegetationType
-      //   }
-      // }
+      if (distribution) {
+        taxon.distribution = {
+          origin: distribution[0]?.establishmentMeans,
+          occurrence: distribution[0]?.locality
+            ?.split(';')
+            .map((l) => `BR-${l}`),
+          countryCode: distribution[0]?.countryCode?.split(';')
+        }
+      }
       if (taxon.resourcerelationship) {
         const resourcerelationship = taxon.resourcerelationship as Record<
           string,
