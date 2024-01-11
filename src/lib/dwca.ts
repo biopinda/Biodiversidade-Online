@@ -238,29 +238,51 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
         do {
           batch = db
             .query(
-              `SELECT
+              `WITH
+              BatchIDRange AS (
+                SELECT MIN(id) as min_id, MAX(id) as max_id
+                FROM (
+                    SELECT id
+                    FROM core
+                    ORDER BY id
+                    LIMIT ${chunkSize} OFFSET ${offset}
+                )
+              ),
+              ${extensionNames
+                .map(
+                  (ext) => `
+              Aggregated${ext} AS (
+                  SELECT id, json_group_array(json(json)) AS json
+                  FROM ${ext}
+                  WHERE id >= (SELECT min_id FROM BatchIDRange)
+                    AND id <= (SELECT max_id FROM BatchIDRange)
+                  GROUP BY id
+              )
+              `
+                )
+                .join(', ')}
+              SELECT
               c.id,
               json_patch(c.json, json_object(
                 ${extensionNames
                   .map((ext) =>
-                    [
-                      `'${ext}'`,
-                      `json_group_array(json(${ext}.json)) filter (
-                      where
-                        ${ext}.json is not null
-                    )`
-                    ].join(', ')
+                    [`'${ext}'`, `json(Aggregated${ext}.json)`].join(', ')
                   )
                   .join(', ')}
-              )) AS extended_json
+              )) AS json
             FROM
               core c
             ${extensionNames
-              .map((ext) => `LEFT JOIN ${ext} ON c.id = ${ext}.id`)
+              .map(
+                (ext) => `
+            LEFT JOIN Aggregated${ext} ON c.id = Aggregated${ext}.id
+            `
+              )
               .join('\n')}
+            WHERE c.id >= (SELECT min_id FROM BatchIDRange)
+              AND c.id <= (SELECT max_id FROM BatchIDRange);
             GROUP BY
-                c.id
-            LIMIT ${chunkSize} OFFSET ${offset};`
+                c.id;`
             )
             .map(([id, json]) => [id, JSON.parse(json as string)]) as [
             string,
