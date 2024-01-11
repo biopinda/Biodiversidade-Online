@@ -236,59 +236,65 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
         let batch: [string, RU][] = []
         let offset = 0
         do {
-          batch = db
-            .query(
-              `WITH
-              BatchIDRange AS (
-                SELECT MIN(id) as min_id, MAX(id) as max_id
-                FROM (
-                    SELECT id
-                    FROM core
-                    ORDER BY id
-                    LIMIT ${chunkSize} OFFSET ${offset}
-                )
-              ),
-              ${extensionNames
-                .map(
-                  (ext) => `
-              Aggregated${ext} AS (
-                  SELECT id, json_group_array(json(json)) AS json
-                  FROM ${ext}
-                  WHERE id >= (SELECT min_id FROM BatchIDRange)
-                    AND id <= (SELECT max_id FROM BatchIDRange)
-                  GROUP BY id
-              )
-              `
-                )
-                .join(', ')}
-              SELECT
-              c.id,
-              json_patch(c.json, json_object(
-                ${extensionNames
-                  .map((ext) =>
-                    [`'${ext}'`, `json(Aggregated${ext}.json)`].join(', ')
-                  )
-                  .join(', ')}
-              )) AS json
-            FROM
-              core c
-            ${extensionNames
-              .map(
-                (ext) => `
-            LEFT JOIN Aggregated${ext} ON c.id = Aggregated${ext}.id
-            `
-              )
-              .join('\n')}
-            WHERE c.id >= (SELECT min_id FROM BatchIDRange)
-              AND c.id <= (SELECT max_id FROM BatchIDRange);
-            GROUP BY
-                c.id;`
+          const queryString = `WITH
+          ${[
+            `BatchIDRange AS (
+            SELECT MIN(id) as min_id, MAX(id) as max_id
+            FROM (
+                SELECT id
+                FROM core
+                ORDER BY id
+                LIMIT ${chunkSize} OFFSET ${offset}
             )
-            .map(([id, json]) => [id, JSON.parse(json as string)]) as [
-            string,
-            RU
-          ][]
-          yield batch
+          )`,
+            ...extensionNames.map(
+              (ext) => `
+          Aggregated${ext} AS (
+              SELECT id, json_group_array(json(json)) AS json
+              FROM ${ext}
+              WHERE id >= (SELECT min_id FROM BatchIDRange)
+                AND id <= (SELECT max_id FROM BatchIDRange)
+              GROUP BY id
+          )
+          `
+            )
+          ].join(', ')}
+          SELECT
+          c.id,
+          json_patch(c.json, json_object(
+            ${extensionNames
+              .map((ext) =>
+                [`'${ext}'`, `json(Aggregated${ext}.json)`].join(', ')
+              )
+              .join(', ')}
+          )) AS json
+        FROM
+          core c
+        ${extensionNames
+          .map(
+            (ext) => `
+        LEFT JOIN Aggregated${ext} ON c.id = Aggregated${ext}.id
+        `
+          )
+          .join('\n')}
+        WHERE c.id >= (SELECT min_id FROM BatchIDRange)
+          AND c.id <= (SELECT max_id FROM BatchIDRange);
+        GROUP BY
+            c.id;`
+          try {
+            batch = db
+              .query(queryString)
+              .map(([id, json]) => [id, JSON.parse(json as string)]) as [
+              string,
+              RU
+            ][]
+            yield batch
+          } catch (e) {
+            console.log(
+              `\n\nSQLITE ERROR: ${e.codeName}\n ${e.message}\n\n${queryString}\n\n`
+            )
+            throw e
+          }
           offset += chunkSize
         } while (batch.length > 0)
         db.close()
