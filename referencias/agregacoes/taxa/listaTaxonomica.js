@@ -6,8 +6,6 @@
       "parentNameUsage",
       "namePublishedIn",
       "namePublishedInYear",
-      "taxonomicStatus",
-      "nomenclaturalStatus",
       "modified",
       "bibliographicCitation",
       "references",
