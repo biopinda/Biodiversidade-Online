@@ -1,0 +1,25 @@
+[
+  {
+    $unset: [
+      "_id",
+      "parentNameUsageID",
+      "parentNameUsage",
+      "namePublishedIn",
+      "namePublishedInYear",
+      "taxonomicStatus",
+      "nomenclaturalStatus",
+      "modified",
+      "bibliographicCitation",
+      "references",
+      "speciesprofile",
+      "typesandspecimen",
+      "distribution",
+      "reference",
+      "originalNameUsageID",
+      "othernames",
+      "vernacularname",
+      "acceptedNameUsageID",
+      "acceptedNameUsage",
+    ],
+  },
+]
