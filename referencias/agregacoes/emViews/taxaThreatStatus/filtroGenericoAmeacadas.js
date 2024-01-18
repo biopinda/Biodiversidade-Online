@@ -2,7 +2,7 @@
   {
     $match:
       /**
-       * query: The query in MQL.
+       * espécies exclusivas de MG
        */
       {
         "distribution.occurrence": ["BR-MG"],
@@ -11,7 +11,7 @@
   {
     $match:
       /**
-       * query: The query in MQL.
+       * espécies exclusivas da Caatinga
        */
       {
         "distribution.phytogeographicDomains": [
@@ -22,7 +22,7 @@
   {
     $match:
       /**
-       * query: The query in MQL.
+       * espécies ameaçadas (nas categorias CR, EN e VU
        */
       {
         $or: [
