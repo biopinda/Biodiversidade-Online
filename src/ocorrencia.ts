@@ -114,21 +114,26 @@ for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
       bar.increment(batch.length - Math.floor(batch.length / 4))
       await safeInsertMany(
         ocorrenciasCol,
-        batch.map((ocorrencia) => ({
-          iptId: ipt.id,
-          ipt: iptName,
-          canonicalName: [
+        batch.map((ocorrencia) => {
+          const canonicalName = [
             ocorrencia[1].genus,
             ocorrencia[1].specificEpithet,
             ocorrencia[1].infraspecificEpithet
           ]
             .filter(Boolean)
-            .join(' '),
-          flatScientificName: (ocorrencia[1].scientificName as string)
-            .replace(/[^a-zA-Z0-9]/g, '')
-            .toLocaleLowerCase(),
-          ...ocorrencia[1]
-        })),
+            .join(' ')
+          return {
+            iptId: ipt.id,
+            ipt: iptName,
+            canonicalName,
+            flatScientificName: (
+              (ocorrencia[1].scientificName as string) ?? canonicalName
+            )
+              .replace(/[^a-zA-Z0-9]/g, '')
+              .toLocaleLowerCase(),
+            ...ocorrencia[1]
+          }
+        }),
         {
           ordered: false
         }
