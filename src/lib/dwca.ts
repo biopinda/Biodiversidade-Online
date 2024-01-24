@@ -30,6 +30,9 @@ type DwcJson = Record<
 const _parseJsonEntry = (entry: CoreSpec | ExtensionSpec) => {
   const fields = []
   fields[(entry.id ?? entry.coreid)['@index']] = 'INDEX'
+  if (!Array.isArray(entry.field)) {
+    entry.field = [entry.field]
+  }
   entry.field.forEach((field) => {
     fields[field['@index']] = field['@term'].split('/').pop()
   })
