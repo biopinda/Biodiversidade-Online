@@ -80,6 +80,9 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
       ]
         .filter(Boolean)
         .join(' ')
+      taxon.flatScientificName = (taxon.scientificName as string)
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .toLocaleLowerCase()
 
       entries.push([id, taxon])
       return entries
@@ -154,7 +157,8 @@ async function main() {
       {
         key: { canonicalName: 1 },
         name: 'canonicalName'
-      }
+      },
+      { key: { flatScientificName: 1 }, name: 'flatScientificName' }
     ]
   })
   console.debug('Done')

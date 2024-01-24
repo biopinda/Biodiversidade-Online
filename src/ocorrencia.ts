@@ -64,7 +64,8 @@ await Promise.all([
       key: { ipt: 1 },
       name: 'ipt'
     },
-    { key: { canonicalName: 1 }, name: 'canonicalName' }
+    { key: { canonicalName: 1 }, name: 'canonicalName' },
+    { key: { flatScientificName: 1 }, name: 'flatScientificName' }
   ]),
   iptsCol.createIndexes([
     {
@@ -123,6 +124,9 @@ for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
           ]
             .filter(Boolean)
             .join(' '),
+          flatScientificName: (ocorrencia[1].scientificName as string)
+            .replace(/[^a-zA-Z0-9]/g, '')
+            .toLocaleLowerCase(),
           ...ocorrencia[1]
         })),
         {
