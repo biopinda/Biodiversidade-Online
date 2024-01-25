@@ -117,8 +117,12 @@ for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
         batch.map((ocorrencia) => {
           const canonicalName = [
             ocorrencia[1].genus,
+            ocorrencia[1].genericName,
+            ocorrencia[1].subgenus,
+            ocorrencia[1].infragenericEpithet,
             ocorrencia[1].specificEpithet,
-            ocorrencia[1].infraspecificEpithet
+            ocorrencia[1].infraspecificEpithet,
+            ocorrencia[1].cultivarEpiteth
           ]
             .filter(Boolean)
             .join(' ')

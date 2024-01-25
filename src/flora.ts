@@ -75,8 +75,12 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
 
       taxon.canonicalName = [
         taxon.genus,
+        taxon.genericName,
+        taxon.subgenus,
+        taxon.infragenericEpithet,
         taxon.specificEpithet,
-        taxon.infraspecificEpithet
+        taxon.infraspecificEpithet,
+        taxon.cultivarEpiteth
       ]
         .filter(Boolean)
         .join(' ')

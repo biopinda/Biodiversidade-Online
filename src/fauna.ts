@@ -74,8 +74,12 @@ export const processaFauna = (dwcJson: FaunaJson): FaunaJson => {
       taxon.kingdom = 'Animalia'
       taxon.canonicalName = [
         taxon.genus,
+        taxon.genericName,
+        taxon.subgenus,
+        taxon.infragenericEpithet,
         taxon.specificEpithet,
-        taxon.infraspecificEpithet
+        taxon.infraspecificEpithet,
+        taxon.cultivarEpiteth
       ]
         .filter(Boolean)
         .join(' ')
