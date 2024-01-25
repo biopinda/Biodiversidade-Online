@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=lista_especies_flora_brasil
+  DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=florafunga
 
 jobs:
   update-db:

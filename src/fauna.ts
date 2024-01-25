@@ -74,11 +74,18 @@ export const processaFauna = (dwcJson: FaunaJson): FaunaJson => {
       taxon.kingdom = 'Animalia'
       taxon.canonicalName = [
         taxon.genus,
+        taxon.genericName,
+        taxon.subgenus,
+        taxon.infragenericEpithet,
         taxon.specificEpithet,
-        taxon.infraspecificEpithet
+        taxon.infraspecificEpithet,
+        taxon.cultivarEpiteth
       ]
         .filter(Boolean)
         .join(' ')
+      taxon.flatScientificName = (taxon.scientificName as string)
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .toLocaleLowerCase()
 
       entries.push([id, taxon])
       return entries
@@ -149,7 +156,8 @@ async function main() {
       {
         key: { canonicalName: 1 },
         name: 'canonicalName'
-      }
+      },
+      { key: { flatScientificName: 1 }, name: 'flatScientificName' }
     ]
   })
   console.debug('Done')
