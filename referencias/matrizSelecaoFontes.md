@@ -11,3 +11,5 @@ Alguns recursos, especialmente herbários, estão publicados em diferentes repos
 |  | REFLORA |  | REFLORA |
 | JABOT |  |  | JABOT |
 |  |  | SpeciesLink | SpeciesLink |
+
+A lista completa dos recursos está em https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/occurrences.csv
