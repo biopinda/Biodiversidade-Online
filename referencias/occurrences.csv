@@ -66,7 +66,7 @@ Museu Paraense Emílio Goeldi - Solifugae Collection,mpeg,Animalia,museuparaense
 Museu Paraense Emilio Goeldi - Ornithology Collection - Nests,mpeg,Animalia,museu_paraense_emilio_goeldi-ornithology_collection_nests,https://ipt.sibbr.gov.br/goeldi/
 Museu Paraense Emilio Goeldi - Ornithology Collection - Skin,mpeg,Animalia,museu_paraense_emilio_goeldi_ornithology_collection-skin,https://ipt.sibbr.gov.br/goeldi/
 Arachnida e Myriapoda Museu Nacional (MNRJ ARAC),mnrj,Animalia,mnrj_arachnidakury,https://ipt.sibbr.gov.br/mnrj/
-"Arachnida,_ordens_menores_do_Museu_Nacional_(MNRJ_ARAC_MINOR)",mnrj,Animalia,arachnida_ordens_menores_do_museu_nacional,https://ipt.sibbr.gov.br/mnrj/
+Arachnida_ordens_menores_do_Museu_Nacional_(MNRJ_ARAC_MINOR),mnrj,Animalia,arachnida_ordens_menores_do_museu_nacional,https://ipt.sibbr.gov.br/mnrj/
 Arachnida_Opiliones_do_Museu_Nacional_(MNRJ_ARAC_OPIL),mnrj,Animalia,arachnida_opiliones_do_museu_nacional,https://ipt.sibbr.gov.br/mnrj/
 Coleção de Anfíbios do Museu Nacional (MNRJ),mnrj,Animalia,mnrj_amphibia,https://ipt.sibbr.gov.br/mnrj/
 Coleção de Ascidiacea do Museu Nacional - UFRJ,mnrj,Animalia,ascidiacea_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/
@@ -97,8 +97,8 @@ Coleção Entomológica do MNRJ - Lepidoptera,mnrj,Animalia,mnrj_entomo_lepidopt
 Coleção Entomológica do MNRJ - Orthoptera,mnrj,Animalia,mnrj_entomo_orthoptera,https://ipt.sibbr.gov.br/mnrj/
 Coleção Entomológica do MNRJ - Outras Ordens,mnrj,Animalia,mnrj_entomo_outras_ordens,https://ipt.sibbr.gov.br/mnrj/
 Coleção Entomológica do Museu Nacional / UFRJ,mnrj,Animalia,entomologica_1,https://ipt.sibbr.gov.br/mnrj/
-"Coleção Ictiológica (MNRJ), Museu Nacional (MN), Universidade Federal do Rio de Janeiro(UFRJ)",mnrj,Animalia,mnrj_ictiologia,https://ipt.sibbr.gov.br/mnrj/
-"Firefly (Coleoptera: Lampyridae) species from the Atlantic Forest hotspot, Brazil.",mnrj,Animalia,af_fireflies_br_01,https://ipt.sibbr.gov.br/mnrj/
+Coleção Ictiológica (MNRJ) Museu Nacional (MN) Universidade Federal do Rio de Janeiro(UFRJ),mnrj,Animalia,mnrj_ictiologia,https://ipt.sibbr.gov.br/mnrj/
+Firefly (Coleoptera: Lampyridae) species from the Atlantic Forest hotspot Brazil.,mnrj,Animalia,af_fireflies_br_01,https://ipt.sibbr.gov.br/mnrj/
 Mollusca Collection - Museu Nacional/UFRJ,mnrj,Animalia,mnrj_mollusca,https://ipt.sibbr.gov.br/mnrj/
 Myriapoda_do_Museu_Nacional_(MNRJ_MYRI),mnrj,Animalia,myriapoda_do_museu_nacional,https://ipt.sibbr.gov.br/mnrj/
 Fiocruz/CAVAISC - Coleção de Artrópodes Vetores Ápteros de Importância em Saúde das Comunidades,fiocruz,Animalia,fiocruz_cavaisc,http://ipt.fiocruz.br/ipt/
@@ -111,8 +111,8 @@ Fiocruz/CMN - Coleção de Mosquitos Neotropicais,fiocruz,Animalia,fiocruz_cmn,h
 Fiocruz/COLFLEB - Coleção de Flebotomíneos,fiocruz,Animalia,fiocruz_colfleb,http://ipt.fiocruz.br/ipt/
 Fiocruz/CSIOC - Coleção de Simulídeos do Instituto Oswaldo Cruz,fiocruz,Animalia,fiocruz_csioc,http://ipt.fiocruz.br/ipt/
 Fiocruz/CTIOC - Coleção de Triatomíneos do Instituto Oswaldo Cruz,fiocruz,Animalia,fiocruz_ctioc,http://ipt.fiocruz.br/ipt/
-"Levantamento de flebotomíneos da Terra Indígena Suruwaha, Sul do Amazonas, Brasil",fiocruz,Animalia,fiocruz_suruwaha_01,http://ipt.fiocruz.br/ipt/
-"Levantamento de flebotomíneos da Terra Indígena Wajãpi, Amazônia Oriental, Brasil",fiocruz,Animalia,fiocruz_wajapi_01,http://ipt.fiocruz.br/ipt/
+Levantamento de flebotomíneos da Terra Indígena Suruwaha Sul do Amazonas Brasil,fiocruz,Animalia,fiocruz_suruwaha_01,http://ipt.fiocruz.br/ipt/
+Levantamento de flebotomíneos da Terra Indígena Wajãpi Amazônia Oriental Brasil,fiocruz,Animalia,fiocruz_wajapi_01,http://ipt.fiocruz.br/ipt/
 ACAM - Herbário da Universidade Estadual da Paraíba. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,acam,https://ipt.jbrj.gov.br/jabot/
 AFR - Herbário Anders Fredrik Regnell. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,afr,https://ipt.jbrj.gov.br/jabot/
 BHCB - Herbário da Universidade Federal Minas Gerais. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,bhcb,https://ipt.jbrj.gov.br/jabot/
@@ -203,7 +203,7 @@ ASE - Herbário da Universidade Federal de Sergipe,speciesLink,Plantae,ase,http:
 BHZB - Herbário do Jardim Botânico da Fundação Zoo-Botânica de Belo Horizonte,speciesLink,Plantae,bhzb,http://ipt1.cria.org.br/ipt
 BOTU - Herbário Irina Delanova Gemtchújnicov,speciesLink,Plantae,botu,http://ipt1.cria.org.br/ipt
 BOTU-Fungi - Herbário Irina Delanova Gemtchújnicov - Coleção de Fungos,speciesLink,Fungi,botu-fungi,http://ipt1.cria.org.br/ipt
-"BOTUw - Xiloteca ""Profa. Dra. Maria Aparecida Mourão Brasil""",speciesLink,Plantae,botuw,http://ipt1.cria.org.br/ipt
+BOTUw - Xiloteca Profa. Dra. Maria Aparecida Mourão Brasil,speciesLink,Plantae,botuw,http://ipt1.cria.org.br/ipt
 CE-UFPE - Coleção Entomológica da UFPE,speciesLink,Animalia,ce-ufpe,http://ipt1.cria.org.br/ipt
 CEN - Herbário da Embrapa Recursos Genéticos e Biotecnologia,speciesLink,Plantae,cen,http://ipt1.cria.org.br/ipt
 CEPANN - Coleção Entomológica Paulo Nogueira-Neto - IB/USP,speciesLink,Animalia,cepann,http://ipt1.cria.org.br/ipt
@@ -214,7 +214,7 @@ DCBU - Coleção Taxonômica do Departamento de Ecologia e Biologia Evolutiva da
 DSEC - Coleção Entomológica do Depto. de Sistemática e Ecologia,speciesLink,Animalia,dsec,http://ipt1.cria.org.br/ipt
 DZUB - Coleção Entomológica da Universidade de Brasília,speciesLink,Animalia,dzub,http://ipt1.cria.org.br/ipt
 DZUP-Hymenoptera - Coleção Entomológica Pe. Jesus Santiago Moure (Hymenoptera),speciesLink,Animalia,dzup-hymenoptera,http://ipt1.cria.org.br/ipt
-"EAFM - Herbário do Instituto Federal de Educação, Ciência e Tecnologia do Amazonas",speciesLink,Plantae,eafm,http://ipt1.cria.org.br/ipt
+EAFM - Herbário do Instituto Federal de Educação Ciência e Tecnologia do Amazonas,speciesLink,Plantae,eafm,http://ipt1.cria.org.br/ipt
 EAN - Herbário Jaime Coelho de Moraes,speciesLink,Plantae,ean,http://ipt1.cria.org.br/ipt
 EFC - Herbário Escola de Florestas Curitiba,speciesLink,Plantae,efc,http://ipt1.cria.org.br/ipt
 FNJV - Fonoteca Neotropical Jacques Vielliard,speciesLink,Plantae,fnjv,http://ipt1.cria.org.br/ipt
@@ -229,7 +229,7 @@ HCDAL - Herbário Caririense Dárdano de Andrade-Lima,speciesLink,Plantae,hcdal,
 HDJFw - Xiloteca do Herbário Dendrológico Jeanine Felfili,speciesLink,Plantae,HDJFw,http://ipt1.cria.org.br/ipt
 HFSL - Herbário Dr. Ary Tupinambá Penna Pinheiro,speciesLink,Plantae,hfsl,http://ipt1.cria.org.br/ipt
 HFSL-Fungos - Herbário Dr. Ary Tupinambá Penna Pinheiro - Fungos,speciesLink,Fungi,hfsl-fungos,http://ipt1.cria.org.br/ipt
-"HPAN - Herbário do Pantanal ""Vali Joana Pott""",speciesLink,Plantae,hpan,http://ipt1.cria.org.br/ipt
+HPAN - Herbário do Pantanal Vali Joana Pott,speciesLink,Plantae,hpan,http://ipt1.cria.org.br/ipt
 HPBR - Herbário Padre Balduino Rambo,speciesLink,Plantae,hpbr,http://ipt1.cria.org.br/ipt
 HPL - Herbário do Jardim Botânico Plantarum,speciesLink,Plantae,hpl,http://ipt1.cria.org.br/ipt
 HST - Herbário Sérgio Tavares,speciesLink,Plantae,hst,http://ipt1.cria.org.br/ipt
@@ -276,12 +276,12 @@ PACA-Fungi - Herbarium Anchieta - Fungi Rickiani,speciesLink,Fungi,paca-fungi,ht
 PACA-Liquens - Herbarium Anchieta,speciesLink,Plantae,paca-liquens,http://ipt1.cria.org.br/ipt
 PEUFR - Herbário Professor Vasconcelos Sobrinho,speciesLink,Plantae,peufr,http://ipt1.cria.org.br/ipt
 R-Fungi - Herbário do Museu Nacional,speciesLink,Fungi,R-Fungi,http://ipt1.cria.org.br/ipt
-"RPSP - Coleção Entomológica Prof. J.M.F. Camargo, FFCLRP/USP",speciesLink,Animalia,rpsp,http://ipt1.cria.org.br/ipt
+RPSP - Coleção Entomológica Prof. J.M.F. Camargo FFCLRP/USP,speciesLink,Animalia,rpsp,http://ipt1.cria.org.br/ipt
 SJRP-Fungi - Herbário de fungos de São José do Rio Preto,speciesLink,Fungi,sjrp-fungi,http://ipt1.cria.org.br/ipt
 SMDB - Santa Maria Departamento de Biologia,speciesLink,Plantae,smdb,http://ipt1.cria.org.br/ipt
 SORO - Herbário do Centro de Ciências e Tecnologias para a Sustentabilidade,speciesLink,Plantae,soro,http://ipt1.cria.org.br/ipt
-"SP - Herbário do Estado ""Maria Eneyda P. Kaufmann Fidalgo"" - Coleção de Fanerógamas",speciesLink,Plantae,sp_fanerogamas,http://ipt1.cria.org.br/ipt
-"SP-Algae - Herbário do Estado ""Maria Eneyda P. Kaufmann Fidalgo - Coleção de Algas",speciesLink,Plantae,sp-algae,http://ipt1.cria.org.br/ipt
+SP - Herbário do Estado Maria Eneyda P. Kaufmann Fidalgo - Coleção de Fanerógamas,speciesLink,Plantae,sp_fanerogamas,http://ipt1.cria.org.br/ipt
+SP-Algae - Herbário do Estado Maria Eneyda P. Kaufmann Fidalgo - Coleção de Algas,speciesLink,Plantae,sp-algae,http://ipt1.cria.org.br/ipt
 SP-Bryophyta - Maria Eneyda P. Kauffman Fidalgo,speciesLink,Plantae,sp-bryophyta,http://ipt1.cria.org.br/ipt
 SP-Fungi - Maria Eneyda Pacheco Kauffmann Fidalgo,speciesLink,Fungi,sp-fungi,http://ipt1.cria.org.br/ipt
 SPFR - Herbário do Departamento de Biologia da FFCLRP-USP,speciesLink,Plantae,spfr,http://ipt1.cria.org.br/ipt
@@ -350,7 +350,7 @@ Coleção de Mastozoologia do Museu de História Natural Capão da Imbuia,taxonl
 Coleção de Mastozoologia do Museu de Zoologia da UEL,taxonline,Animalia,mzuel_mastozoologia_01,https://ipt.sibbr.gov.br/taxonline/
 Coleção de Ornitologia do Museu de Zoologia da UEL,taxonline,Animalia,mzuel_ornitologia_01,https://ipt.sibbr.gov.br/taxonline/
 Coleção Entomológica Ana Leuch Lozovei,taxonline,Animalia,ufpr_colpar_dpat_01,https://ipt.sibbr.gov.br/taxonline/
-"Coleção Entomológica do Setor Palotina, Universidade Federal do Paraná",taxonline,Animalia,cesp_ufpr_01,https://ipt.sibbr.gov.br/taxonline/
+Coleção Entomológica do Setor Palotina Universidade Federal do Paraná,taxonline,Animalia,cesp_ufpr_01,https://ipt.sibbr.gov.br/taxonline/
 Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Aphidoidea,taxonline,Animalia,ufpr_dzup_aphoidea_01,https://ipt.sibbr.gov.br/taxonline/
 Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Coleoptera,taxonline,Animalia,ufpr_dzup_coleoptera_01,https://ipt.sibbr.gov.br/taxonline/
 Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Dermaptera,taxonline,Animalia,ufpr_dzup_dermaptera_01,https://ipt.sibbr.gov.br/taxonline/
@@ -368,7 +368,7 @@ Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Phasmida,taxonline,A
 Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Plecoptera,taxonline,Animalia,ufpr_dzup_plecoptera_01,https://ipt.sibbr.gov.br/taxonline/
 Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Psocoptera,taxonline,Animalia,ufpr_dzup_psocoptera_02,https://ipt.sibbr.gov.br/taxonline/
 Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Trichoptera,taxonline,Animalia,ufpr_dzup_trichoptera_01,https://ipt.sibbr.gov.br/taxonline/
-"Coleção Ictiológica da Universidade Tecnológica Federal do Paraná, UTFPR, campus Santa Helena",taxonline,Animalia,utfpr_ictiologia_01,https://ipt.sibbr.gov.br/taxonline/
+Coleção Ictiológica da Universidade Tecnológica Federal do Paraná UTFPR campus Santa Helena,taxonline,Animalia,utfpr_ictiologia_01,https://ipt.sibbr.gov.br/taxonline/
 IRATI - Herbário da Universidade Estadual do Centro-Oeste,taxonline,Plantae,herb_irati,https://ipt.sibbr.gov.br/taxonline/
 UEL - Coleção de Peixes - Museu de Zoologia da Universidade Estadual de Londrina,taxonline,Animalia,uel_mzuel_peixes_01,https://ipt.sibbr.gov.br/taxonline/
 UEL - Coleção Ficológica da Universidade Estadual de Londrina (FUEL-Algae),taxonline,Plantae,uel_fuel_algae_01,https://ipt.sibbr.gov.br/taxonline/
@@ -390,12 +390,12 @@ HUEMG herbarium - Universidade do Estado de Minas Gerais - Campus Carangola - He
 HVASF herbarium - Fundação Universidade Federal do Vale do São Francisco - Herbário Virtual REFLORA,reflora,Plantae,hvasf,https://ipt.jbrj.gov.br/reflora/
 IAN herbarium - Embrapa Amazônia Oriental - Herbário Virtual REFLORA,reflora,Plantae,ian,https://ipt.jbrj.gov.br/reflora/
 ICN herbarium - Universidade Federal do Rio Grande Do Sul - Herbário Virtual REFLORA,reflora,Plantae,icn,https://ipt.jbrj.gov.br/reflora/
-"K herbarium - Royal Botanic Gardens, Kew - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA",reflora,Plantae,k_reflora,https://ipt.jbrj.gov.br/reflora/
+K herbarium - Royal Botanic Gardens Kew - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,k_reflora,https://ipt.jbrj.gov.br/reflora/
 MAC herbarium - Instituto do Meio Ambiente do Estado de Alagoas - Herbário Virtual REFLORA,reflora,Plantae,mac,https://ipt.jbrj.gov.br/reflora/
 MG herbarium - Museu Paraense Emílio Goeldi - Herbário Virtual REFLORA,reflora,Plantae,mg_herbarium,https://ipt.jbrj.gov.br/reflora/
 MO herbarium - Missouri Botanical Garden - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,moh,https://ipt.jbrj.gov.br/reflora/
 NY herbarium - The New York Botanical Garden - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,nyh,https://ipt.jbrj.gov.br/reflora/
-"P herbarium - Muséum national d’histoire naturelle, Paris - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA",reflora,Plantae,p_reflora,https://ipt.jbrj.gov.br/reflora/
+P herbarium - Muséum national d’histoire naturelle Paris - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,p_reflora,https://ipt.jbrj.gov.br/reflora/
 PC herbarium - Cryptogamy Collection at the Muséum National d'Histoire Naturelle - Herbário Virtual REFLORA,reflora,Plantae,pc_herb,https://ipt.jbrj.gov.br/reflora/
 PMSP herbarium - Prefeitura do Município de São Paulo - Herbário Virtual REFLORA,reflora,Plantae,pmsp,https://ipt.jbrj.gov.br/reflora/
 REAL herbarium - Universidade Federal da Fronteira Sul - Herbário Virtual REFLORA,reflora,Plantae,real,https://ipt.jbrj.gov.br/reflora/
@@ -406,8 +406,8 @@ US herbarium - Smithsonian Institute - Amostras Brasileiras Repatriadas - Herbá
 W herbarium - Naturhistorisches Museum Wien - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,w_reflora,https://ipt.jbrj.gov.br/reflora/
 UFG herbarium - Herbário da Universidade Federal de Goiás - Herbário Virtual REFLORA,reflora,Plantae,ufg,https://ipt.jbrj.gov.br/reflora/
 Ocorrências no SISBIO - ICMBio,icmbio,"Plantae, Animalia",sisbio_ocorrencia,https://sisbio.sisicmbio.icmbio.gov.br/ipt/
-"An Online Database of the Immatures of Coleoptera (Arthopoda, Insecta) Described from Brazil",sibbr,Animalia,coleoptera_immature_of_brazil,https://ipt.sibbr.gov.br/sibbr/
-"Assessment of the current state of biodiversity data for butterflies and skippers (Lepidoptera: Papilionoidea and Hesperioidea) in the state of Mato Grosso, Brazil",sibbr,Animalia,ufpr_borboletasmt,https://ipt.sibbr.gov.br/sibbr/
+An Online Database of the Immatures of Coleoptera (Arthopoda Insecta) Described from Brazil,sibbr,Animalia,coleoptera_immature_of_brazil,https://ipt.sibbr.gov.br/sibbr/
+Assessment of the current state of biodiversity data for butterflies and skippers (Lepidoptera: Papilionoidea and Hesperioidea) in the state of Mato Grosso Brazil,sibbr,Animalia,ufpr_borboletasmt,https://ipt.sibbr.gov.br/sibbr/
 Base de dados da Coleção científica de Serpentes da FUNED,sibbr,Animalia,funed_01,https://ipt.sibbr.gov.br/sibbr/
 Base de dados da Coleção de Peixes do Instituto de Biodiversidade e Sustentabilidade - NUPEM/UFRJ,sibbr,Animalia,npm_macae01,https://ipt.sibbr.gov.br/sibbr/
 Base de dados da Coleção Ictiológica do LEP-UFRRJ,sibbr,Animalia,sibbr_lepufrrj,https://ipt.sibbr.gov.br/sibbr/
@@ -419,7 +419,7 @@ Coleção de Aves Heretiano Zenaide,sibbr,Animalia,aves_cahz_ufpb01,https://ipt.
 Coleção de Avifauna da UNIR,sibbr,Animalia,unir_avi01,https://ipt.sibbr.gov.br/sibbr/
 Coleção de Herpetofauna do Museu de Ciências Univates,sibbr,Animalia,herpetologia_univates,https://ipt.sibbr.gov.br/sibbr/
 Coleção de Ictiofauna do Museu de Ciências Univates,sibbr,Animalia,univates_ictiologia,https://ipt.sibbr.gov.br/sibbr/
-"Coleção de Ictiofauna, Universidade Federal de Rondônia, Brasil",sibbr,Animalia,ufro_ictiofauna,https://ipt.sibbr.gov.br/sibbr/
+Coleção de Ictiofauna Universidade Federal de Rondônia Brasil,sibbr,Animalia,ufro_ictiofauna,https://ipt.sibbr.gov.br/sibbr/
 Coleção de Ictiologia ABAM do Campus Sinop da UFMT,sibbr,Animalia,ictiologia_abam,https://ipt.sibbr.gov.br/sibbr/
 Coleção de Mamíferos da Unisinos,sibbr,Animalia,unisinos_mammalia_01,https://ipt.sibbr.gov.br/sibbr/
 Coleção de Mamíferos da Universidade Estadual do Norte Fluminense,sibbr,Animalia,uenfmz,https://ipt.sibbr.gov.br/sibbr/
