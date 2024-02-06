@@ -116,6 +116,23 @@ for (const { repositorio, kingdom, tag, url } of iptSources) {
     await safeInsertMany(
       ocorrenciasCol,
       batch.map((ocorrencia) => {
+        if (ocorrencia[1].decimalLatitude && ocorrencia[1].decimalLongitude) {
+          const latitude = +ocorrencia[1].decimalLatitude
+          const longitude = +ocorrencia[1].decimalLongitude
+          if (
+            !isNaN(latitude) &&
+            !isNaN(longitude) &&
+            latitude >= -90 &&
+            latitude <= 90 &&
+            longitude >= -180 &&
+            longitude <= 180
+          ) {
+            ocorrencia[1].geoPoint = {
+              type: 'Point',
+              coordinates: [longitude, latitude]
+            }
+          }
+        }
         const canonicalName = [
           ocorrencia[1].genus,
           ocorrencia[1].genericName,
