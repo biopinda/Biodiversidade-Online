@@ -1,6 +1,7 @@
 import { MongoClient } from 'npm:mongodb'
 import { calculateObjectSize } from 'npm:bson'
 import cliProgress from 'npm:cli-progress'
+import Papa from 'npm:papaparse'
 
 import { getEml, processaEml, processaZip, type DbIpt } from './lib/dwca.ts'
 
@@ -40,9 +41,18 @@ async function safeInsertMany(
   }
 }
 
-const iptSources = await Deno.readTextFile('./referencias/sources.json').then(
-  (contents) => JSON.parse(contents)
-)
+type IptSource = {
+  nome: string
+  repositorio: string
+  kingdom: 'Animalia' | 'Plantae' | 'Fungi'
+  tag: string
+  url: string
+}
+const { data: iptSources } = (await Deno.readTextFile(
+  './referencias/occurrences.csv'
+).then((contents) => Papa.parse(contents, { header: true }))) as {
+  data: IptSource[]
+}
 
 const client = new MongoClient(Deno.env.get('MONGO_URI') as string)
 await client.connect()
@@ -79,80 +89,71 @@ await Promise.all([
   ])
 ])
 
-for (const { ipt: iptName, baseUrl, datasets } of iptSources) {
-  for (const set of datasets) {
-    if (!set) continue
-    console.debug(`Processing ${set}`)
-    const eml = await getEml(`${baseUrl}eml.do?r=${set}`)
-    const ipt = processaEml(eml)
-    const dbVersion = ((await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null)
-      ?.version
-    if (dbVersion === ipt.version) {
-      console.debug(`${set} already on version ${ipt.version}`)
-      continue
-    }
-    console.log(`Version mismatch: DB[${dbVersion}] vs REMOTE[${ipt.version}]`)
-    console.debug(`Downloading ${set} [${baseUrl}archive.do?r=${set}]`)
-    const ocorrencias = await processaZip(
-      `${baseUrl}archive.do?r=${set}`,
-      true,
-      5000
-    )
-    console.debug(`Cleaning ${set}`)
-    console.log(
-      `Deleted ${
-        (await ocorrenciasCol.deleteMany({ iptId: ipt.id })).deletedCount
-      } entries`
-    )
-    const bar = new cliProgress.SingleBar(
-      {},
-      cliProgress.Presets.shades_classic
-    )
-    bar.start(ocorrencias.length, 0)
-    for (const batch of ocorrencias) {
-      if (!batch || !batch.length) break
-      bar.increment(batch.length - Math.floor(batch.length / 4))
-      await safeInsertMany(
-        ocorrenciasCol,
-        batch.map((ocorrencia) => {
-          const canonicalName = [
-            ocorrencia[1].genus,
-            ocorrencia[1].genericName,
-            ocorrencia[1].subgenus,
-            ocorrencia[1].infragenericEpithet,
-            ocorrencia[1].specificEpithet,
-            ocorrencia[1].infraspecificEpithet,
-            ocorrencia[1].cultivarEpiteth
-          ]
-            .filter(Boolean)
-            .join(' ')
-          return {
-            iptId: ipt.id,
-            ipt: iptName,
-            canonicalName,
-            flatScientificName: (
-              (ocorrencia[1].scientificName as string) ?? canonicalName
-            )
-              .replace(/[^a-zA-Z0-9]/g, '')
-              .toLocaleLowerCase(),
-            ...ocorrencia[1]
-          }
-        }),
-        {
-          ordered: false
-        }
-      )
-      bar.increment(Math.floor(batch.length / 4))
-    }
-    bar.stop()
-    console.debug(`Inserting IPT ${set}`)
-    const { id: _id, ...iptDb } = ipt
-    await iptsCol.updateOne(
-      { _id: ipt.id },
-      { $set: { _id, ...iptDb, tag: set, ipt: iptName } },
-      { upsert: true }
-    )
+for (const { repositorio, kingdom, tag, url } of iptSources) {
+  console.debug(`Processing ${repositorio}:${tag}`)
+  const eml = await getEml(`${url}eml.do?r=${tag}`)
+  const ipt = processaEml(eml)
+  const dbVersion = ((await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null)
+    ?.version
+  if (dbVersion === ipt.version) {
+    console.debug(`${repositorio}:${tag} already on version ${ipt.version}`)
+    continue
   }
+  console.log(`Version mismatch: DB[${dbVersion}] vs REMOTE[${ipt.version}]`)
+  console.debug(`Downloading ${repositorio}:${tag} [${url}archive.do?r=${tag}]`)
+  const ocorrencias = await processaZip(`${url}archive.do?r=${tag}`, true, 5000)
+  console.debug(`Cleaning ${repositorio}:${tag}`)
+  console.log(
+    `Deleted ${
+      (await ocorrenciasCol.deleteMany({ iptId: ipt.id })).deletedCount
+    } entries`
+  )
+  const bar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic)
+  bar.start(ocorrencias.length, 0)
+  for (const batch of ocorrencias) {
+    if (!batch || !batch.length) break
+    bar.increment(batch.length - Math.floor(batch.length / 4))
+    await safeInsertMany(
+      ocorrenciasCol,
+      batch.map((ocorrencia) => {
+        const canonicalName = [
+          ocorrencia[1].genus,
+          ocorrencia[1].genericName,
+          ocorrencia[1].subgenus,
+          ocorrencia[1].infragenericEpithet,
+          ocorrencia[1].specificEpithet,
+          ocorrencia[1].infraspecificEpithet,
+          ocorrencia[1].cultivarEpiteth
+        ]
+          .filter(Boolean)
+          .join(' ')
+        return {
+          iptId: ipt.id,
+          ipt: repositorio,
+          canonicalName,
+          flatScientificName: (
+            (ocorrencia[1].scientificName as string) ?? canonicalName
+          )
+            .replace(/[^a-zA-Z0-9]/g, '')
+            .toLocaleLowerCase(),
+          ...ocorrencia[1]
+        }
+      }),
+      {
+        ordered: false
+      }
+    )
+    bar.increment(Math.floor(batch.length / 4))
+  }
+  bar.stop()
+  console.debug(`Inserting IPT ${repositorio}:${tag}`)
+  const { id: _id, ...iptDb } = ipt
+  await iptsCol.updateOne(
+    { _id: ipt.id },
+    { $set: { _id, ...iptDb, tag, ipt: repositorio, kingdom } },
+    { upsert: true }
+  )
 }
+
 console.debug('Done')
 client.close()
