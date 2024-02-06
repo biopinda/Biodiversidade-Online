@@ -1,0 +1,464 @@
+nome,repositorio,kingdom,tag,url,colecao
+Flora e Funga do Brasil,jbrj,Plantae,florafunga,https://ipt.jbrj.gov.br/jbrj/,taxa
+Catálogo Taxonômico da Fauna do Brasil,jbrj,Animalia,catalogo_taxonomico_da_fauna_do_brasil,https://ipt.jbrj.gov.br/jbrj/,taxa
+Acari Collection - Instituto Nacional de Pesquisas da Amazônia,inpa,Animalia,inpa_acari,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Amblypygi Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_amblypygi,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Blattaria Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_blattaria,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Chilopoda Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_chilopoda,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Crustacea Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_crustacea,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Diplopoda Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_diplopoda,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Diptera Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_diptera,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Ephemeroptera Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_ephemenoptera,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Hemiptera Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_hemiptera,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Herbarium - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Plantae,inpa_herbario,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Herpetology Collection - Instituto Nacional de Pesquisas da Amazônia,inpa,Animalia,inpa_herpetologia,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Hymenoptera Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_hymenoptera,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Ictiologia Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_ictiologia,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Myxozoa Collection - Instituto Nacional de Pesquisas da Amazônia,inpa,Animalia,inpa_myxozoa,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Nematoda Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_nematoda,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Onychophora Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_onychophora,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Opiliones Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_opiliones,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Ortopthera Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_orthoptera,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Palpigradi Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_palpigradi,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Pauropoda Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_pauropoda,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Phasmatodea Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_phasmatodea,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Porifera Collection - Instituto Nacional de Pesquisas da Amazônia,inpa,Animalia,inpa_porifera,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Pseudoscorpiones Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_pseudoscorpiones,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Ricinulei Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_ricinulei,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Schizomida Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_schizomida,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Scorpiones Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_scorpiones,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Solifugae Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_solifugae,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Symphyla Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_symphyla,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+Thelyphonida Collection - Instituto Nacional de Pesquisas da Amazônia (INPA),inpa,Animalia,inpa_thelyphonida,https://ipt.sibbr.gov.br/inpa/,ocorrencias
+RB - Rio de Janeiro Botanical Garden Herbarium Collection,jbrj,"Plantae, Fungi",jbrj_rb,https://ipt.jbrj.gov.br/jbrj/,ocorrencias
+Museu Paraense Emilio Goeldi - Acari Collection,mpeg,Animalia,museuparaenseemiliogoeldi-collection-aracnologiaacari2,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Amblypygi Collection,mpeg,Animalia,museuparaenseemiliogoeldi-collection-aracnologiaamblypygi,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Annelida Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-annelida_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Araneae Collection,mpeg,Animalia,museuparaenseemiliogoeldi-collection-aracnologiaaraneae,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Coleoptera Collection,mpeg,Animalia,museuparaenseemiliogoeldi-collection-entomologiacoleoptera,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Hymenoptera Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-hymenoptera_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Lepidoptera Collection,mpeg,Animalia,museu_paraense_emilio_goeldi_lepidoptera_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Ornithology Collection - Anatomic,mpeg,Animalia,museu_paraense_emilio_goeldi_ornithology_collection_alcoholic,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Ornithology Collection - Eggs,mpeg,Animalia,museu_paraense_emilio_goeldi_ornithology_collection_eggs,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Ricinulei Collection,mpeg,Animalia,museuparaenseemiliogoeldi-collection-aracnologiaricinulei,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Scorpiones Collection,mpeg,Animalia,museuparaenseemiliogoeldi-collection-aracnologiascorpiones,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Uropygi Collection,mpeg,Animalia,museuparaenseemiliogoeldi-collection-aracnologiauropygi,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Xiloteca Collection,mpeg,Plantae,museu_paraense_emilio_goeldi_-_xiloteca_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi Herbarium,mpeg,Plantae,museu_paraense_emilio_goeldi-herbarium,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Ichthyology Collection,mpeg,Animalia,museu_paraense_emilio_goeldi_ictiology_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Acanthocephala Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-acanthocephala_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Amphibia Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-amphibia_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Carcinológica Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-crustacea_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Chelonia Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-chelonia_collection_,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Crocodylia Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-crocodilia_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Diptera Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-diptera_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Hexapoda Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-hexapoda_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Lacertilia Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-lacertilia_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Mastozoology Collection,mpeg,Animalia,museu_paraense_emilio_goeldi_mastozoology_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Mollusca Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-mollusca_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Myriapoda Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-myriapoda_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Nematoda Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-nematoda_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Ophidia Collection,mpeg,Animalia,museu_paraense_emilio_goeldi_ophidia_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Opiliones Collection,mpeg,Animalia,museuparaenseemiliogoeldi-collection-aracnologiaopiliones,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Ornithology Collection - Feathers and Skin,mpeg,Animalia,museu_paraense_emilio_goeldi_ornithology_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Ornithology Collection - Osteological,mpeg,Animalia,museu_paraense_emilio_goeldi-ornithology_collection_osteological,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Platyhelminthes Collection,mpeg,Animalia,museu_paraense_emilio_goeldi-platyhelminthes_collection,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Schizomida Collection,mpeg,Animalia,museuparaenseemiliogoeldi-collection-aracnologiaschizomida,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emílio Goeldi - Solifugae Collection,mpeg,Animalia,museuparaenseemiliogoeldi-collection-aracnologiasolifugae,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Ornithology Collection - Nests,mpeg,Animalia,museu_paraense_emilio_goeldi-ornithology_collection_nests,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Museu Paraense Emilio Goeldi - Ornithology Collection - Skin,mpeg,Animalia,museu_paraense_emilio_goeldi_ornithology_collection-skin,https://ipt.sibbr.gov.br/goeldi/,ocorrencias
+Arachnida e Myriapoda Museu Nacional (MNRJ ARAC),mnrj,Animalia,mnrj_arachnidakury,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+"Arachnida,_ordens_menores_do_Museu_Nacional_(MNRJ_ARAC_MINOR)",mnrj,Animalia,arachnida_ordens_menores_do_museu_nacional,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Arachnida_Opiliones_do_Museu_Nacional_(MNRJ_ARAC_OPIL),mnrj,Animalia,arachnida_opiliones_do_museu_nacional,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Anfíbios do Museu Nacional (MNRJ),mnrj,Animalia,mnrj_amphibia,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Ascidiacea do Museu Nacional - UFRJ,mnrj,Animalia,ascidiacea_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Aves do Museu Nacional / UFRJ,mnrj,Animalia,mnrj_ornitologia,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Brachiopoda do Museu Nacional - UFRJ,mnrj,Animalia,brachiopoda_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Bryozoa do Museu Nacional - UFRJ,mnrj,Animalia,bryozoa_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Cnidaria do Museu Nacional (MNRJ),mnrj,Animalia,mnrj_cnidaria,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Crustacea do Museu Nacional (MNRJ - CARCINO),mnrj,Animalia,mnrj_carcinologia,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Echinodermata do Museu Nacional - MNRJ-ECHINO,mnrj,Animalia,mnrj-echino,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Mamíferos do Museu Nacional / UFRJ,mnrj,Animalia,mammnufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Nematoda do Museu Nacional - UFRJ,mnrj,Animalia,nematoda_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Nematomorpha do Museu Nacional - UFRJ,mnrj,Animalia,nematomorpha_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Nemertea do Museu Nacional - UFRJ,mnrj,Animalia,nemertea_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Platyhelminthes do Museu Nacional - UFRJ,mnrj,Animalia,platyhelminthes_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Polychaeta do Museu Nacional,mnrj,Animalia,ufjr_polychaeta,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Porifera do Instituto de Biologia da UFRJ,mnrj,Animalia,ufrj-ib_porifera,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Porifera do Museu Nacional - UFRJ,mnrj,Animalia,porifera_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Répteis do Museu Nacional (MNRJ),mnrj,Animalia,mnrj_reptilia,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Sipuncula do Museu Nacional - UFRJ,mnrj,Animalia,sipuncula_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção de Tardigrada do Museu Nacional - UFRJ,mnrj,Animalia,tardigrada_mn_ufrj,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção Entomológica do MNRJ - Blattaria,mnrj,Animalia,mnrj_entomo_blattaria,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção Entomológica do MNRJ - Coleoptera,mnrj,Animalia,mnrj_entomo_coleoptera_01,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção Entomológica do MNRJ - Diptera,mnrj,Animalia,mnrj_entomo_diptera_01,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção Entomológica do MNRJ - famílias aquáticas de Diptera,mnrj,Animalia,mnrj_entomo_diptera_aquat,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção Entomológica do MNRJ - Hemiptera,mnrj,Animalia,mnrj_entomo_hemiptera,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção Entomológica do MNRJ - Hymenoptera,mnrj,Animalia,mnrj_entomo_hymenoptera,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção Entomológica do MNRJ - Lepidoptera,mnrj,Animalia,mnrj_entomo_lepidoptera,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção Entomológica do MNRJ - Orthoptera,mnrj,Animalia,mnrj_entomo_orthoptera,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção Entomológica do MNRJ - Outras Ordens,mnrj,Animalia,mnrj_entomo_outras_ordens,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Coleção Entomológica do Museu Nacional / UFRJ,mnrj,Animalia,entomologica_1,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+"Coleção Ictiológica (MNRJ), Museu Nacional (MN), Universidade Federal do Rio de Janeiro(UFRJ)",mnrj,Animalia,mnrj_ictiologia,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+"Firefly (Coleoptera: Lampyridae) species from the Atlantic Forest hotspot, Brazil.",mnrj,Animalia,af_fireflies_br_01,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Mollusca Collection - Museu Nacional/UFRJ,mnrj,Animalia,mnrj_mollusca,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Myriapoda_do_Museu_Nacional_(MNRJ_MYRI),mnrj,Animalia,myriapoda_do_museu_nacional,https://ipt.sibbr.gov.br/mnrj/,ocorrencias
+Fiocruz/CAVAISC - Coleção de Artrópodes Vetores Ápteros de Importância em Saúde das Comunidades,fiocruz,Animalia,fiocruz_cavaisc,http://ipt.fiocruz.br/ipt/,ocorrencias
+Fiocruz/CCER - Coleção de Ceratopogonidae,fiocruz,Animalia,fiocruz_ccer,http://ipt.fiocruz.br/ipt/,ocorrencias
+Fiocruz/CCULI - Coleção de Culicidae,fiocruz,Animalia,fiocruz_cculi,http://ipt.fiocruz.br/ipt/,ocorrencias
+Fiocruz/CEIOC - Coleção Entomológica do Instituto Oswaldo Cruz,fiocruz,Animalia,fiocruz_ceioc,http://ipt.fiocruz.br/ipt/,ocorrencias
+Fiocruz/CFAM - Coleção de Fungos da Amazônia,fiocruz,Fungi,fiocruz_cfam,http://ipt.fiocruz.br/ipt/,ocorrencias
+Fiocruz/CHIOC - Coleção Helmintológica do Instituto Oswaldo Cruz,fiocruz,Animalia,fiocruz_chioc,http://ipt.fiocruz.br/ipt/,ocorrencias
+Fiocruz/CMIOC - Coleção de Moluscos do Instituto Oswaldo Cruz,fiocruz,Animalia,fiocruz_cmioc,http://ipt.fiocruz.br/ipt/,ocorrencias
+Fiocruz/CMN - Coleção de Mosquitos Neotropicais,fiocruz,Animalia,fiocruz_cmn,http://ipt.fiocruz.br/ipt/,ocorrencias
+Fiocruz/COLFLEB - Coleção de Flebotomíneos,fiocruz,Animalia,fiocruz_colfleb,http://ipt.fiocruz.br/ipt/,ocorrencias
+Fiocruz/CSIOC - Coleção de Simulídeos do Instituto Oswaldo Cruz,fiocruz,Animalia,fiocruz_csioc,http://ipt.fiocruz.br/ipt/,ocorrencias
+Fiocruz/CTIOC - Coleção de Triatomíneos do Instituto Oswaldo Cruz,fiocruz,Animalia,fiocruz_ctioc,http://ipt.fiocruz.br/ipt/,ocorrencias
+"Levantamento de flebotomíneos da Terra Indígena Suruwaha, Sul do Amazonas, Brasil",fiocruz,Animalia,fiocruz_suruwaha_01,http://ipt.fiocruz.br/ipt/,ocorrencias
+"Levantamento de flebotomíneos da Terra Indígena Wajãpi, Amazônia Oriental, Brasil",fiocruz,Animalia,fiocruz_wajapi_01,http://ipt.fiocruz.br/ipt/,ocorrencias
+ACAM - Herbário da Universidade Estadual da Paraíba. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,acam,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+AFR - Herbário Anders Fredrik Regnell. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,afr,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+BHCB - Herbário da Universidade Federal Minas Gerais. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,bhcb,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+BRBA - Herbário da Universidade Federal do Oeste da Bahia. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,brba,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+CAP - Herbário da Universidade Federal do Espírito Santo. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,cap,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+CBPM - Herbário da Coleção Botânica de Plantas Medicinais da Fiocruz. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,cbpm,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+CGMS - Herbário da Fundação Universidade Federal de Mato Grosso do Sul. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,cgms,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+COR - Herbário da Universidade Federal de Mato Grosso do Sul / Campus Pantanal. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,cor,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+CRI - Herbário da Universidade do Extremo Sul Catarinense. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,cri,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+DDMS - Herbário da Universidade Federal da Grande Dourados. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,ddms,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+DVPR - Universidade Tecnológica Federal do Paraná. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,dvpr,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+ECT - Herbário da Embrapa Clima Temperado. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,ect,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+EVB - Herbário Evaldo Buttura. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hevb,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+FCAB - Herbário Friburguense - Pontifícia Universidade Católica do Rio de Janeiro,jabot,Plantae,fcab,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+FLOR - Herbário da Universidade Federal de Santa Catarina. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,flor,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+FURB - Herbário da Universidade Regional de Blumenau. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,furb,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HATM - Herbário Padre José Maria de Albuquerque. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hatm,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HB - Herbarium Bradeanum. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hb_herbarium,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HBR - Herbário Barbosa Rodrigues. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hbr,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HCF - Universidade Tecnológica Federal do Paraná - Campus Campo Mourão,jabot,Plantae,hcf,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HCJS - Herbário de Carajas. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hcjs,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HCP - Herbário da Universidade Federal Rural da Amazônia. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hcp,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HDJF - Universidade Federal dos Vales do Jequitinhonha e Mucuri,jabot,Plantae,hdjf,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HEPH - Herbário Ezechias Paulo Heringuer do Jardim Botânico de Brasília. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,heph,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HERBAM - Herbário da Amazônia Meridional. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,herbam,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HF - Herbário da Universidade Federal do Pará. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hf_herbarium,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HIPE - Herbário Ipê - Jardim Botânico Municipal de São José,jabot,Plantae,hipe,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HISA - Herbário da Universidade Estadual Paulista. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hisa,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HJ - Herbário da Universidade Federal de Jataí. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hj_herbarium,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HRB - Herbário RADAMBRASIL. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hrb,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HRJ - Herbário da Universidade do Estado do Rio de Janeiro. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hrj,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HSTM - Herbário da Universidade Federal do Oeste do Pará. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hstm,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HTO - Herbário do Tocantins - UFT,jabot,Plantae,hto,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HUEG - Herbário da Universidade Estadual de Goiás. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hueg,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HUENF - Herbário da Universidade Estadual do Norte Fluminense. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,huenf,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HUFSP - Herbário da Universidade Federal de São Paulo. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hufsp,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HUNI - Herbário da Universidade Federal do Estado do Rio de Janeiro. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,huni,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HUPG - Universidade Estadual de Ponta Grossa,jabot,Plantae,hupg,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HURB - Herbário da Universidade do Recôncavo da Bahia. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hurb,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HUVA - Herbário da Universidade Estadual Vale do Acaraú. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,huva,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HVAT - Herbário da Universidade do Vale do Taquari. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hvat,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+HVC - Herbário da Universidade Federal da Bahia. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hvc,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+IBGE - Herbário IBGE. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,ibge,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+IBIUEMG - Herbário da Universidade do Estado de Minas Gerais. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,ibiuemg,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+IFRV - Herbário do Instituto Federal Goiano. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,ifrv,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+JABU - Herbário JABOTI da Universidade Estadual Paulista. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,jabu,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+JAR - Herbário José Ângelo Rizzo - UEG,jabot,Plantae,jar,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+JBB - Jardim Botânico de Brasília,jabot,Plantae,jbb,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+JOI - Herbário da Universidade da Região de Joinville. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,joi,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+LAG - Herbário da Universidade do Estado de Santa Caratina. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,lag,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+LPF - Herbário do Laboratório de Produtos Florestais do Serviço Florestal Brasileiro. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,lpf,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+LSPF - Universidade Federal da Fronteira Sul - SFB,jabot,Plantae,lspf,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+LUSC - Herbário Lages da Universidade do Estado de Santa Catarina. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,lusc,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+MBM - Herbário do Museu Botânico Municipal de Curitiba,jabot,Plantae,mbm,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+MBML - Instituto Nacional da Mata Atlântica - INMA,jabot,Plantae,mbml,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+MCCA - Herbário da Universidade Federal de Minas Gerais. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,mcca,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+MFS - Herbário Profª. Drª. Marlene Freitas da Silva da Universidade Estadual do Pará. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,mfs,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+MUFAL - Herbário da Universidade Federal de Alagoas. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,mufal,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+NIT - Herbário da Universidade Federal Fluminense. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,nit,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+PAB - Parque Botânico Ilha Grande - UERJ,jabot,Plantae,pab,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+PEL - Universidade Federal de Pelotas,jabot,Plantae,pel,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+PERD - Herbário do Parque Estadual do Rio Doce,jabot,Plantae,perd,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+R - Herbário do Museu Nacional. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,r_herbarium,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+RA-LAP - Laboratório de Arqueobotânica e Paisagem. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,ra_lap,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+RBR - Herbário da Universidade Federal Rural do Rio de Janeiro. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,rbr,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+RFA - Herbário da Universidade Federal do Rio de Janeiro. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,rfa,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+RFFP - Herbário da Faculdade de Formação de Professores da Universidade do Estado do Rio de Janeiro. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,rffp,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+RN - Herbário do Parque Estadual Dunas do Natal. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,rn_herbarium,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+RON - Herbário da Universidade Federal de Rondônia. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,ron,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+RSPF - Herbário da Universidade de Passo Fundo. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,rspf,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+SAMES - Herbário da Centro Universitário Norte do Espírito Santo. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,sames,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+SHPR - Herbário da Universidade Tecnológica Federal do Paraná. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,shpr,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+SJRP - Herbário da Universidade Estadual Paulista. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,sjrp,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+SLUI - Herbário Estadual do Maranhão. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,slui,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+SPSC - Herbário da Universidade de São Carlos. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,spsc,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+SRBM - Herbário do Sítio Roberto Burle Marx. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,srbm,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+TEPB - Herbário da Universidade Federal do Piauí. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,tepb,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+UALF - Herbário da Universidade Federal de Alfenas. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,ualf,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+UB - Herbário da Universidade de Brasília. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hub,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+UFOP - Herbário Professor José Badini,jabot,Plantae,oupr,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+UFRN - Herbário da Universidade Federal do Rio Grande do Norte. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,ufrn,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+UFRR - Universidade Federal de Roraima,jabot,Plantae,ufrr,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+UNIP - Herbário da Universidade Paulista. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,unip,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+UNOP - Herbário da Universidade Estadual do Oeste do Paraná. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,unop,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+UPCB - Universidade Federal do Paraná. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,upcb,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+VIES - Herbário da Universidade Federal do Espírito Santo. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,vies,https://ipt.jbrj.gov.br/jabot/,ocorrencias
+ASE - Herbário da Universidade Federal de Sergipe,speciesLink,Plantae,ase,http://ipt1.cria.org.br/ipt,ocorrencias
+BHZB - Herbário do Jardim Botânico da Fundação Zoo-Botânica de Belo Horizonte,speciesLink,Plantae,bhzb,http://ipt1.cria.org.br/ipt,ocorrencias
+BOTU - Herbário Irina Delanova Gemtchújnicov,speciesLink,Plantae,botu,http://ipt1.cria.org.br/ipt,ocorrencias
+BOTU-Fungi - Herbário Irina Delanova Gemtchújnicov - Coleção de Fungos,speciesLink,Fungi,botu-fungi,http://ipt1.cria.org.br/ipt,ocorrencias
+"BOTUw - Xiloteca ""Profa. Dra. Maria Aparecida Mourão Brasil""",speciesLink,Plantae,botuw,http://ipt1.cria.org.br/ipt,ocorrencias
+CE-UFPE - Coleção Entomológica da UFPE,speciesLink,Animalia,ce-ufpe,http://ipt1.cria.org.br/ipt,ocorrencias
+CEN - Herbário da Embrapa Recursos Genéticos e Biotecnologia,speciesLink,Plantae,cen,http://ipt1.cria.org.br/ipt,ocorrencias
+CEPANN - Coleção Entomológica Paulo Nogueira-Neto - IB/USP,speciesLink,Animalia,cepann,http://ipt1.cria.org.br/ipt,ocorrencias
+CNMT - Herbário Centro Norte Mato Grossense,speciesLink,Plantae,cnmt,http://ipt1.cria.org.br/ipt,ocorrencias
+CPAP - Herbário CPAP,speciesLink,Plantae,cpap,http://ipt1.cria.org.br/ipt,ocorrencias
+CVRD - Herbário da Reserva Natural Vale,speciesLink,Plantae,cvrd,http://ipt1.cria.org.br/ipt,ocorrencias
+DCBU - Coleção Taxonômica do Departamento de Ecologia e Biologia Evolutiva da UFSCar,speciesLink,Animalia,dcbu,http://ipt1.cria.org.br/ipt,ocorrencias
+DSEC - Coleção Entomológica do Depto. de Sistemática e Ecologia,speciesLink,Animalia,dsec,http://ipt1.cria.org.br/ipt,ocorrencias
+DZUB - Coleção Entomológica da Universidade de Brasília,speciesLink,Animalia,dzub,http://ipt1.cria.org.br/ipt,ocorrencias
+DZUP-Hymenoptera - Coleção Entomológica Pe. Jesus Santiago Moure (Hymenoptera),speciesLink,Animalia,dzup-hymenoptera,http://ipt1.cria.org.br/ipt,ocorrencias
+"EAFM - Herbário do Instituto Federal de Educação, Ciência e Tecnologia do Amazonas",speciesLink,Plantae,eafm,http://ipt1.cria.org.br/ipt,ocorrencias
+EAN - Herbário Jaime Coelho de Moraes,speciesLink,Plantae,ean,http://ipt1.cria.org.br/ipt,ocorrencias
+EFC - Herbário Escola de Florestas Curitiba,speciesLink,Plantae,efc,http://ipt1.cria.org.br/ipt,ocorrencias
+FNJV - Fonoteca Neotropical Jacques Vielliard,speciesLink,Plantae,fnjv,http://ipt1.cria.org.br/ipt,ocorrencias
+FUEL - Herbário da Universidade Estadual de Londrina,speciesLink,Plantae,fuel,http://ipt1.cria.org.br/ipt,ocorrencias
+FUEL-Algae - Coleção Ficológica do Herbário da Universidade Estadual de Londrina,speciesLink,Plantae,fuel-algae,http://ipt1.cria.org.br/ipt,ocorrencias
+Funed-Pol - Coleção de lâminas de grãos de pólen,speciesLink,Plantae,funed-pol,http://ipt1.cria.org.br/ipt,ocorrencias
+HAMAB - Herbário Amapaense,speciesLink,Plantae,hamab,http://ipt1.cria.org.br/ipt,ocorrencias
+HAS - Herbário Alarich Rudolf Holger Schultz,speciesLink,Plantae,has,http://ipt1.cria.org.br/ipt,ocorrencias
+HAS-Algae-Cyanobacteria - Coleção Ficológica do HAS,speciesLink,Plantae,has-algae,http://ipt1.cria.org.br/ipt,ocorrencias
+HBRA - Herbário do Instituto de Estudos Costeiros da Universidade Federal do Pará,speciesLink,Plantae,hbra,http://ipt1.cria.org.br/ipt,ocorrencias
+HCDAL - Herbário Caririense Dárdano de Andrade-Lima,speciesLink,Plantae,hcdal,http://ipt1.cria.org.br/ipt,ocorrencias
+HDJFw - Xiloteca do Herbário Dendrológico Jeanine Felfili,speciesLink,Plantae,HDJFw,http://ipt1.cria.org.br/ipt,ocorrencias
+HFSL - Herbário Dr. Ary Tupinambá Penna Pinheiro,speciesLink,Plantae,hfsl,http://ipt1.cria.org.br/ipt,ocorrencias
+HFSL-Fungos - Herbário Dr. Ary Tupinambá Penna Pinheiro - Fungos,speciesLink,Fungi,hfsl-fungos,http://ipt1.cria.org.br/ipt,ocorrencias
+"HPAN - Herbário do Pantanal ""Vali Joana Pott""",speciesLink,Plantae,hpan,http://ipt1.cria.org.br/ipt,ocorrencias
+HPBR - Herbário Padre Balduino Rambo,speciesLink,Plantae,hpbr,http://ipt1.cria.org.br/ipt,ocorrencias
+HPL - Herbário do Jardim Botânico Plantarum,speciesLink,Plantae,hpl,http://ipt1.cria.org.br/ipt,ocorrencias
+HST - Herbário Sérgio Tavares,speciesLink,Plantae,hst,http://ipt1.cria.org.br/ipt,ocorrencias
+HTSA - Herbário do Trópico Semiárido,speciesLink,Plantae,htsa,http://ipt1.cria.org.br/ipt,ocorrencias
+HTSA-Carpoteca - Carpoteca do Trópico Semiárido,speciesLink,Plantae,htsa-carpoteca,http://ipt1.cria.org.br/ipt,ocorrencias
+HTSAw - Xiloteca do Trópico Semiárido,speciesLink,Plantae,htsaw,http://ipt1.cria.org.br/ipt,ocorrencias
+HUCO - Herbário da Universidade Estadual do Centro-Oeste,speciesLink,Plantae,huco,http://ipt1.cria.org.br/ipt,ocorrencias
+HUCPE - Herbário da Universidade Católica de Pernambuco,speciesLink,Plantae,hucpe,http://ipt1.cria.org.br/ipt,ocorrencias
+HUCS - Herbário da Universidade de Caxias do Sul,speciesLink,Plantae,hucs,http://ipt1.cria.org.br/ipt,ocorrencias
+HUCS-Liquenoteca - Liquenoteca do Herbário da Universidade de Caxias do Sul,speciesLink,Plantae,hucs-liquenoteca,http://ipt1.cria.org.br/ipt,ocorrencias
+HUCS-Micoteca - Micoteca do Herbário da Universidade de Caxias do Sul,speciesLink,Fungi,hucs-micoteca,http://ipt1.cria.org.br/ipt,ocorrencias
+HUESB - Herbário da Universidade Estadual do Sudoeste da Bahia,speciesLink,Plantae,huesb,http://ipt1.cria.org.br/ipt,ocorrencias
+HUFABC - Herbário da UFABC,speciesLink,Plantae,hufabc,http://ipt1.cria.org.br/ipt,ocorrencias
+HUFSJ - Herbário da Universidade Federal de São João del-Rei,speciesLink,Plantae,hufsj,http://ipt1.cria.org.br/ipt,ocorrencias
+HUFU - Herbarium Uberlandense,speciesLink,Plantae,hufu,http://ipt1.cria.org.br/ipt,ocorrencias
+HUSC - Herbário Unisanta,speciesLink,Plantae,husc,http://ipt1.cria.org.br/ipt,ocorrencias
+HUTO - Herbário da Universidade de Tocantins,speciesLink,Plantae,huto,http://ipt1.cria.org.br/ipt,ocorrencias
+IAC - Herbário do Instituto Agronômico de Campinas,speciesLink,Plantae,iac,http://ipt1.cria.org.br/ipt,ocorrencias
+IPA - Herbário - IPA Dárdano de Andrade Lima,speciesLink,Plantae,ipa,http://ipt1.cria.org.br/ipt,ocorrencias
+IRAI - Herbário do Parque da Ciência Newton Freire Maia,speciesLink,Plantae,irai,http://ipt1.cria.org.br/ipt,ocorrencias
+ISE - Herbário ISE,speciesLink,Plantae,ise,http://ipt1.cria.org.br/ipt,ocorrencias
+JPB - Herbário Lauro Pires Xavier,speciesLink,Plantae,jpb,http://ipt1.cria.org.br/ipt,ocorrencias
+LIRP - Coleção de Peixes do Laboratório de Ictiologia de Ribeirão Preto,speciesLink,Animalia,lirp,http://ipt1.cria.org.br/ipt,ocorrencias
+MAR - Herbário do Maranhão,speciesLink,Plantae,mar,http://ipt1.cria.org.br/ipt,ocorrencias
+MBML-Anfibios - Coleção de Anfíbios MBML,speciesLink,Animalia,mbml-anfibios,http://ipt1.cria.org.br/ipt,ocorrencias
+MBML-Aves - Coleção de Aves MBML,speciesLink,Animalia,mbml-aves,http://ipt1.cria.org.br/ipt,ocorrencias
+MBML-Mamiferos - Coleção de Mamíferos,speciesLink,Animalia,mbml-mamiferos,http://ipt1.cria.org.br/ipt,ocorrencias
+MBML-Peixes - Coleção de Peixes,speciesLink,Animalia,mbml-peixes,http://ipt1.cria.org.br/ipt,ocorrencias
+MBML-Repteis - Coleção de Répteis,speciesLink,Animalia,mbml-repteis,http://ipt1.cria.org.br/ipt,ocorrencias
+MCP - Coleção de Abelhas,speciesLink,Animalia,mcp,http://ipt1.cria.org.br/ipt,ocorrencias
+MCP-Anfibios - Coleção de Anfíbios,speciesLink,Animalia,mcp-anfibios,http://ipt1.cria.org.br/ipt,ocorrencias
+MCP-Aves - Coleção de Aves,speciesLink,Animalia,mcp-aves,http://ipt1.cria.org.br/ipt,ocorrencias
+MCP-Mamiferos - Coleção de Mamíferos,speciesLink,Animalia,mcp-mamiferos,http://ipt1.cria.org.br/ipt,ocorrencias
+MCP-Repteis - Coleção de Répteis,speciesLink,Animalia,mcp-repteis,http://ipt1.cria.org.br/ipt,ocorrencias
+MOSS - Herbário Dárdano de Andrade Lima,speciesLink,Plantae,moss,http://ipt1.cria.org.br/ipt,ocorrencias
+MPUC - Herbário do Museu da Pontifícia Universidade Católica do Rio Grande do Sul,speciesLink,Plantae,mpuc,http://ipt1.cria.org.br/ipt,ocorrencias
+NUP - Coleção Ictiológica do Nupélia,speciesLink,Animalia,nup,http://ipt1.cria.org.br/ipt,ocorrencias
+NX-Criptogamos - Herbário Nova Xavantina,speciesLink,Plantae,nx_herbario,http://ipt1.cria.org.br/ipt,ocorrencias
+NX-Fanerogamas - Herbário Nova Xavantina,speciesLink,Plantae,nx-fanerogamas,http://ipt1.cria.org.br/ipt,ocorrencias
+PACA-AGP - Herbarium Anchieta,speciesLink,Plantae,paca-agp,http://ipt1.cria.org.br/ipt,ocorrencias
+PACA-Algas - Herbarium Anchieta,speciesLink,Plantae,paca-algas,http://ipt1.cria.org.br/ipt,ocorrencias
+PACA-Bryophytes - Herbarium Anchieta - Aloysio Sehnem,speciesLink,Plantae,paca-bryophytes,http://ipt1.cria.org.br/ipt,ocorrencias
+PACA-Fungi - Herbarium Anchieta - Fungi Rickiani,speciesLink,Fungi,paca-fungi,http://ipt1.cria.org.br/ipt,ocorrencias
+PACA-Liquens - Herbarium Anchieta,speciesLink,Plantae,paca-liquens,http://ipt1.cria.org.br/ipt,ocorrencias
+PEUFR - Herbário Professor Vasconcelos Sobrinho,speciesLink,Plantae,peufr,http://ipt1.cria.org.br/ipt,ocorrencias
+R-Fungi - Herbário do Museu Nacional,speciesLink,Fungi,R-Fungi,http://ipt1.cria.org.br/ipt,ocorrencias
+"RPSP - Coleção Entomológica Prof. J.M.F. Camargo, FFCLRP/USP",speciesLink,Animalia,rpsp,http://ipt1.cria.org.br/ipt,ocorrencias
+SJRP-Fungi - Herbário de fungos de São José do Rio Preto,speciesLink,Fungi,sjrp-fungi,http://ipt1.cria.org.br/ipt,ocorrencias
+SMDB - Santa Maria Departamento de Biologia,speciesLink,Plantae,smdb,http://ipt1.cria.org.br/ipt,ocorrencias
+SORO - Herbário do Centro de Ciências e Tecnologias para a Sustentabilidade,speciesLink,Plantae,soro,http://ipt1.cria.org.br/ipt,ocorrencias
+"SP - Herbário do Estado ""Maria Eneyda P. Kaufmann Fidalgo"" - Coleção de Fanerógamas",speciesLink,Plantae,sp_fanerogamas,http://ipt1.cria.org.br/ipt,ocorrencias
+"SP-Algae - Herbário do Estado ""Maria Eneyda P. Kaufmann Fidalgo - Coleção de Algas",speciesLink,Plantae,sp-algae,http://ipt1.cria.org.br/ipt,ocorrencias
+SP-Bryophyta - Maria Eneyda P. Kauffman Fidalgo,speciesLink,Plantae,sp-bryophyta,http://ipt1.cria.org.br/ipt,ocorrencias
+SP-Fungi - Maria Eneyda Pacheco Kauffmann Fidalgo,speciesLink,Fungi,sp-fungi,http://ipt1.cria.org.br/ipt,ocorrencias
+SPFR - Herbário do Departamento de Biologia da FFCLRP-USP,speciesLink,Plantae,spfr,http://ipt1.cria.org.br/ipt,ocorrencias
+SPFw - Xiloteca do Instituto de Biociências da Universidade de São Paulo,speciesLink,Plantae,spfw,http://ipt1.cria.org.br/ipt,ocorrencias
+SPSF - Herbário Dom Bento José Pickel,speciesLink,Plantae,spsf,http://ipt1.cria.org.br/ipt,ocorrencias
+UB - Herbário da Universidade de Brasília,speciesLink,Plantae,ub_herbario,http://ipt1.cria.org.br/ipt,ocorrencias
+UEC - Herbário da Universidade Estadual de Campinas,speciesLink,Plantae,uec,http://ipt1.cria.org.br/ipt,ocorrencias
+UESC - Herbário Universidade Estadual de Santa Cruz,speciesLink,Plantae,uesc,http://ipt1.cria.org.br/ipt,ocorrencias
+UFACPZ - Herbário da Universidade Federal do Acre,speciesLink,Plantae,ufacpz,http://ipt1.cria.org.br/ipt,ocorrencias
+UFMT - Herbário UFMT,speciesLink,Plantae,ufmt,http://ipt1.cria.org.br/ipt,ocorrencias
+UFP - Herbário UFP - Geraldo Mariz,speciesLink,Plantae,ufp,http://ipt1.cria.org.br/ipt,ocorrencias
+UFRN-Fungos - Herbário UFRN - Fungos,speciesLink,Fungi,ufrn-fungos,http://ipt1.cria.org.br/ipt,ocorrencias
+UNOPA - Herbário da Universidade Estadual do Oeste do Paraná,speciesLink,Plantae,unopa,http://ipt1.cria.org.br/ipt,ocorrencias
+URM - Herbário Pe. Camille Torrand,speciesLink,Plantae,urm,http://ipt1.cria.org.br/ipt,ocorrencias
+VIC - Herbário da Universidade Federal de Viçosa,speciesLink,Plantae,vic,http://ipt1.cria.org.br/ipt,ocorrencias
+VIES-Fungi - Herbário Central da Universidade Federal do Espírito Santo - Coleção de Fungos,speciesLink,Fungi,vies-fungi,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-AMP - Coleção de Anfíbios do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-amp,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-API - Coleção de Apicomplexa do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-api,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-APL - Coleção de Aplacophora do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-apl,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-ARA - Coleção de Aracnideos do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ara,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-ASC - Coleção de Ascidiacea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-asc,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-AST - Coleção de Asteroidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ast,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-AVE - Coleção de Aves do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ave,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-BIV - Coleção de Bivalvia do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-biv,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-BRA - Coleção de Brachiopoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-bra,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-BRY - Coleção de Bryozoa do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-bry,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-CEP - Coleção de Cephalopoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cep,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-CLB - Coleção de Collembola do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-clb,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-CNI - Coleção de Cnidaria do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cni,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-COL - Coleção de Coleoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-col,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-CPH - Coleção de Cephalochordata do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cph,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-CRU - Coleção de Crustacea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cru,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-DIP - Coleção de Diptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-dip,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-ECH - Coleção de Echinoidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ech,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-EPH - Coleção de Ephemeroptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-eph,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-GAS - Coleção de Gastropoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-gas,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-GCH - Coleção de Gastrotricha do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-gch,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-HEM - Coleção de Hemiptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-hem,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-HOL - Coleção de Holothuroidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-hol,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-HYM - Coleção de Hymenoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-hym,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-LEP - Coleção de Lepidoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-lep,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-MAM - Coleção de Mamíferos do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-mam,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-MYX - Coleção de Myxozoa do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-myx,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-NEM - Coleção de Nemertea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-nem,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-NEU - Coleção de Neuroptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-neu,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-NMA - Coleção de Nematoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-nma,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-OPH - Coleção de Ophiuroidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-oph,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-ORT - Coleção de Orthoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ort,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-PIS - Coleção de Peixes do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pis,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-PLA - Coleção de Platyhelmintes do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pla,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-POL - Coleção de Polychaeta do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pol,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-POP - Coleção de Polyplacophora do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pop,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-POR - Coleção de Porifera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-por,http://ipt1.cria.org.br/ipt,ocorrencias
+ZUEC-REP - Coleção de Répteis do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-rep,http://ipt1.cria.org.br/ipt,ocorrencias
+Acervo de Estruturas Calcificadas de Peixes - Collection of Fish Calcified Structures,taxonline,Animalia,ufpr_palotina_fishcast_001,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Científica de Mastozoologia da UFPR,taxonline,Animalia,ufpr_mastologia_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Ascidiacea da Universidade Federal do Paraná,taxonline,Animalia,dzup_ascidiacea_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Carcinologia do Museu de Zoologia da UEL,taxonline,Animalia,mzuel_carcinologia_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Herpetofauna do Museu de Zoologia da UEL,taxonline,Animalia,mzuel_herpetologia_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Herpetologia do Museu de História Natural do Capão da Imbuia,taxonline,Animalia,herpetologia_mhnci_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Ictiologia da UNILA,taxonline,Animalia,unila_ictiologia_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Ictiologia do Museu de História Natural Capão da Imbuia,taxonline,Animalia,ictiologia_mhnci_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Ictiologia do Museu de Zoologia da UEL,taxonline,Animalia,mzuel_ictiologia_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Invertebrados Aquáticos e Coleoptera da Universidade Estadual do Centro-Oeste,taxonline,Animalia,unicentro_ciac_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Mastozoologia do Museu de História Natural Capão da Imbuia,taxonline,Animalia,mhnci_05,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Mastozoologia do Museu de Zoologia da UEL,taxonline,Animalia,mzuel_mastozoologia_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção de Ornitologia do Museu de Zoologia da UEL,taxonline,Animalia,mzuel_ornitologia_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Ana Leuch Lozovei,taxonline,Animalia,ufpr_colpar_dpat_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+"Coleção Entomológica do Setor Palotina, Universidade Federal do Paraná",taxonline,Animalia,cesp_ufpr_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Aphidoidea,taxonline,Animalia,ufpr_dzup_aphoidea_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Coleoptera,taxonline,Animalia,ufpr_dzup_coleoptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Dermaptera,taxonline,Animalia,ufpr_dzup_dermaptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Diptera,taxonline,Animalia,ufpr_dzup_diptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Formicidae,taxonline,Animalia,ufpr_dzup_formicidae_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Hemiptera,taxonline,Animalia,ufpr_dzup_hemiptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Hymenoptera,taxonline,Animalia,ufpr_dzup_hymenoptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Lepidoptera,taxonline,Animalia,ufpr_dzup_lepidoptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Mantodea,taxonline,Animalia,ufpr_dzup_mantodea_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Mecoptera,taxonline,Animalia,ufpr_dzup_mecoptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Megaloptera,taxonline,Animalia,ufpr_dzup_megaloptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Neuroptera,taxonline,Animalia,ufpr_dzup_neuroptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Orthoptera,taxonline,Animalia,ufpr_dzup_orthoptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Phasmida,taxonline,Animalia,ufpr_dzup_phasmida_02,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Plecoptera,taxonline,Animalia,ufpr_dzup_plecoptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Psocoptera,taxonline,Animalia,ufpr_dzup_psocoptera_02,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+Coleção Entomológica Padre Jesus Santiago Moure (DZUP) - Trichoptera,taxonline,Animalia,ufpr_dzup_trichoptera_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+"Coleção Ictiológica da Universidade Tecnológica Federal do Paraná, UTFPR, campus Santa Helena",taxonline,Animalia,utfpr_ictiologia_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+IRATI - Herbário da Universidade Estadual do Centro-Oeste,taxonline,Plantae,herb_irati,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+UEL - Coleção de Peixes - Museu de Zoologia da Universidade Estadual de Londrina,taxonline,Animalia,uel_mzuel_peixes_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+UEL - Coleção Ficológica da Universidade Estadual de Londrina (FUEL-Algae),taxonline,Plantae,uel_fuel_algae_01,https://ipt.sibbr.gov.br/taxonline/,ocorrencias
+ALCB herbarium - Universidade Federal da Bahia - Herbário Virtual REFLORA,reflora,Plantae,alcb_herbarium,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+ASE herbarium - Universidade Federal de Sergipe - Herbário Virtual REFLORA,reflora,Plantae,ase_herbarium,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+B herbarium - Botanischer Garten und Botanisches Museum Berlin-Dahlem Herbarium - Herbário Virtual REFLORA,reflora,Plantae,b_herb,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+CEPEC herbarium - Centro de Pesquisas do Cacau - Herbário Virtual REFLORA,reflora,Plantae,cepec_herbarium,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+CESJ herbarium - Universidade Federal de Juiz de Fora UFJF - Herbário Virtual Reflora,reflora,Plantae,cesj,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+E herbarium - Royal Botanic Garden Edinburgh - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,e_hv,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+EAC herbarium - Universidade Federal do Ceará - Herbário Virtual REFLORA,reflora,Plantae,eac_herbarium,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+EBC herbarium - Economic Botany Collection - Herbário Virtual REFLORA,reflora,Plantae,ebc,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+ESA herbarium - Universidade de São Paulo - Herbário Virtual REFLORA,reflora,Plantae,esa_herbarium,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+GH herbarium - Harvard University Herbarium - Herbário Virtual Reflora,reflora,Plantae,gh_herb,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+HRCB herbarium - Universidade Estadual Paulista UNESP - Herbário Virtual Reflora,reflora,Plantae,hrcb,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+HUCP herbarium - Pontífica Universidade Católica do Paraná PUC - Herbário Virtual Reflora,reflora,Plantae,hucp,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+HUEFS herbarium - Universidade Estadual de Feira de Santana - Herbário Virtual REFLORA,reflora,Plantae,huefs,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+HUEM herbarium - Universidade Estadual de Maringá - Herbário Virtual REFLORA,reflora,Plantae,huem,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+HUEMG herbarium - Universidade do Estado de Minas Gerais - Campus Carangola - Herbário Virtual REFLORA,reflora,Plantae,huemg,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+HVASF herbarium - Fundação Universidade Federal do Vale do São Francisco - Herbário Virtual REFLORA,reflora,Plantae,hvasf,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+IAN herbarium - Embrapa Amazônia Oriental - Herbário Virtual REFLORA,reflora,Plantae,ian,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+ICN herbarium - Universidade Federal do Rio Grande Do Sul - Herbário Virtual REFLORA,reflora,Plantae,icn,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+"K herbarium - Royal Botanic Gardens, Kew - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA",reflora,Plantae,k_reflora,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+MAC herbarium - Instituto do Meio Ambiente do Estado de Alagoas - Herbário Virtual REFLORA,reflora,Plantae,mac,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+MG herbarium - Museu Paraense Emílio Goeldi - Herbário Virtual REFLORA,reflora,Plantae,mg_herbarium,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+MO herbarium - Missouri Botanical Garden - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,moh,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+NY herbarium - The New York Botanical Garden - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,nyh,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+"P herbarium - Muséum national d’histoire naturelle, Paris - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA",reflora,Plantae,p_reflora,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+PC herbarium - Cryptogamy Collection at the Muséum National d'Histoire Naturelle - Herbário Virtual REFLORA,reflora,Plantae,pc_herb,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+PMSP herbarium - Prefeitura do Município de São Paulo - Herbário Virtual REFLORA,reflora,Plantae,pmsp,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+REAL herbarium - Universidade Federal da Fronteira Sul - Herbário Virtual REFLORA,reflora,Plantae,real,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+S herbarium - Naturhistoriska Riksmuseet - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,s_reflora,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+SOF herbarium - Swiss Orchid Foundation - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,sof,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+SPF herbarium - Universidade de são Paulo - Herbário Virtual REFLORA,reflora,Plantae,spf_herbarium,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+US herbarium - Smithsonian Institute - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,us_reflora,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+W herbarium - Naturhistorisches Museum Wien - Amostras Brasileiras Repatriadas - Herbário Virtual REFLORA,reflora,Plantae,w_reflora,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+UFG herbarium - Herbário da Universidade Federal de Goiás - Herbário Virtual REFLORA,reflora,Plantae,ufg,https://ipt.jbrj.gov.br/reflora/,ocorrencias
+Ocorrências no SISBIO - ICMBio,icmbio,"Plantae, Animalia",sisbio_ocorrencia,https://sisbio.sisicmbio.icmbio.gov.br/ipt/,ocorrencias
+"An Online Database of the Immatures of Coleoptera (Arthopoda, Insecta) Described from Brazil",sibbr,Animalia,coleoptera_immature_of_brazil,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+"Assessment of the current state of biodiversity data for butterflies and skippers (Lepidoptera: Papilionoidea and Hesperioidea) in the state of Mato Grosso, Brazil",sibbr,Animalia,ufpr_borboletasmt,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Base de dados da Coleção científica de Serpentes da FUNED,sibbr,Animalia,funed_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Base de dados da Coleção de Peixes do Instituto de Biodiversidade e Sustentabilidade - NUPEM/UFRJ,sibbr,Animalia,npm_macae01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Base de dados da Coleção Ictiológica do LEP-UFRRJ,sibbr,Animalia,sibbr_lepufrrj,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Acarológica do Instituto Butantan (IBSP),sibbr,Animalia,acarosibsp,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Biológica do CEPSUL,sibbr,Animalia,cepsul_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Artropodofauna do Museu de Ciências Univates,sibbr,Animalia,univates_artropodofauna_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Aves da Unisinos,sibbr,Animalia,unisinos_aves_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Aves Heretiano Zenaide,sibbr,Animalia,aves_cahz_ufpb01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Avifauna da UNIR,sibbr,Animalia,unir_avi01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Herpetofauna do Museu de Ciências Univates,sibbr,Animalia,herpetologia_univates,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Ictiofauna do Museu de Ciências Univates,sibbr,Animalia,univates_ictiologia,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+"Coleção de Ictiofauna, Universidade Federal de Rondônia, Brasil",sibbr,Animalia,ufro_ictiofauna,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Ictiologia ABAM do Campus Sinop da UFMT,sibbr,Animalia,ictiologia_abam,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Mamíferos da Unisinos,sibbr,Animalia,unisinos_mammalia_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Mamíferos da Universidade Estadual do Norte Fluminense,sibbr,Animalia,uenfmz,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Mamíferos da Universidade Federal de Lavras,sibbr,Animalia,ufla_mamiferos_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Mamíferos da Universidade Federal de Mato Grosso (UFMT) - Mammalia (via seca),sibbr,Animalia,mammalia_via_seca,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Mamíferos da Universidade Federal de Mato Grosso (UFMT) - Mammalia (via úmida),sibbr,Animalia,mammaliaumida,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Mamíferos da Universidade Federal do Espírito Santo (UFES-MAM),sibbr,Animalia,ufes_mam_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Mamíferos do Museu de Ciências Naturais da Universidade de Caxias do Sul,sibbr,Animalia,mamiferos_mucs,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Mastofauna do Museu de Ciências Univates,sibbr,Animalia,univates_mastologia_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Ornitofauna do Museu de Ciências Univates,sibbr,Animalia,univates_ornitologia,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Peixes da Universidade Federal do Tocantins,sibbr,Animalia,uft_unt_peixes_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Peixes do Museu de Ciências Naturais da Universidade de Caxias do Sul,sibbr,Animalia,ucs_peixes_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Tecidos Animais da Universidade Federal do Espírito Santo,sibbr,Animalia,ufes_tec_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção de Vertebrados da Universidade Federal de Mato Grosso (UFMT) - Lissamphibia,sibbr,Animalia,lissamphibia,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Entomológica do Laboratório de Entomologia Integrativa (CELEI),sibbr,Animalia,unicamp_celei_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Helmintológica do Instituto Oswaldo Cruz,sibbr,Animalia,helminthos,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica da Universidade Federal de Mato Grosso do Sul - Amphibia (ZUFMS-AMP),sibbr,Animalia,zufmsamp,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica da Universidade Federal de Mato Grosso do Sul - Crustacea (ZUFMS-CRU),sibbr,Animalia,zufmscru,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica da Universidade Federal de Mato Grosso do Sul - Hemiptera (ZUFMS-HEM),sibbr,Animalia,zufmshem,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica da Universidade Federal de Mato Grosso do Sul - Mollusca (ZUFMS-MOL),sibbr,Animalia,zufmsmol,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica da Universidade Federal de Mato Grosso do Sul - Orthoptera (ZUFMS-ORT),sibbr,Animalia,zufmsort,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica da Universidade Federal de Mato Grosso do Sul - Peixes (ZUFMS-PIS),sibbr,Animalia,zufmspis,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica da Universidade Federal de Mato Grosso do Sul - Reptilia (ZUFMS-REP),sibbr,Animalia,zufmsrep,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica da Universidade Federal de Mato Grosso | Setor de Entomologia (CEMT) - Coleoptera,sibbr,Animalia,coleoptera,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica da Universidade Federal de Mato Grosso | Setor de Entomologia (CEMT) - Scarabaeoidea,sibbr,Animalia,scarabaeoidea,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica de Invertebrados (via úmida) / Aracnídeos,sibbr,Animalia,aracnideos,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica de Referência da Universidade Federal de Mato Grosso do Sul - Chelicerata (ZUFMS-CHE),sibbr,Animalia,zufmsche,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica de Referência da Universidade Federal de Mato Grosso do Sul - Chiroptera (ZUFMS-CHI),sibbr,Animalia,zufmschi,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica de Referência da Universidade Federal de Mato Grosso do Sul - Diptera (ZUFMS-DIP),sibbr,Animalia,zufmsdip,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica de Referência da Universidade Federal de Mato Grosso do Sul - Fósseis (ZUFMS-FOS),sibbr,Animalia,zufmsfos,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica de Referência da Universidade Federal de Mato Grosso do Sul - Hymenoptera (ZUFMS-HYM),sibbr,Animalia,zufmshym,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica de Referência da Universidade Federal de Mato Grosso do Sul - Nematoda (ZUFMS-NEM),sibbr,Animalia,zufmsnem,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica de Referência da Universidade Federal de Mato Grosso do Sul - Tecidos (ZUFMS-TEC),sibbr,Animalia,zufmstec,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica de Vertebrados da Universidade Federal de Mato Grosso (UFMT) - Reptilia,sibbr,Animalia,reptiliaufmt,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Coleção Zoológica Dr. Joachim Adis da Universidade do Estado do Pará (UEPA),sibbr,Animalia,uepa_34,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Levantamento de aracnofauna do Jardim Botânico de Diadêma em São Paulo,sibbr,Animalia,unifesp_arachnida_diadema_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+Levantamento de Ictiofauna do Parque Nacional Nascentes do Rio Parnaíba - LISE UFRN,sibbr,Animalia,ufrn_ciufrn_pnnp01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+UEL - Coleção de Peixes - Museu de Zoologia da Universidade Estadual de Londrina,sibbr,Animalia,uel_mzuel_peixes,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
+ZUEC-HEM - Coleção de Hemiptera do Museu de Zoologia da UNICAMP,sibbr,Animalia,unicamp_hemiptera_01,https://ipt.sibbr.gov.br/sibbr/,ocorrencias
