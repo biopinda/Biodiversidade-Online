@@ -8,7 +8,7 @@ on:
         'src/lib/**',
         'src/ocorrencia.ts',
         '.github/workflows/update-mongodb-occurrences.yml',
-        'referencias/sources.json'
+        'referencias/occurrences.csv'
       ]
   workflow_dispatch:
 
