@@ -90,8 +90,12 @@ await Promise.all([
 ])
 
 for (const { repositorio, kingdom, tag, url } of iptSources) {
-  console.debug(`Processing ${repositorio}:${tag}`)
-  const eml = await getEml(`${url}eml.do?r=${tag}`)
+  console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
+  const eml = await getEml(`${url}eml.do?r=${tag}`).catch((error) => {
+    console.log('Erro baixando/processando eml', error.message)
+    return null
+  })
+  if (!eml) continue
   const ipt = processaEml(eml)
   const dbVersion = ((await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null)
     ?.version
