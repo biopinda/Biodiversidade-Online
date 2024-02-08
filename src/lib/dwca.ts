@@ -345,7 +345,12 @@ type OuterEml = {
 } & RU
 const extractEml = (OuterEml: OuterEml) => OuterEml['eml:eml']
 export const getEml = async (url: string) => {
-  const contents = await fetch(url).then((res) => res.text())
+  const contents = await fetch(url).then((res) => {
+    if (!res.ok) {
+      throw new Error(res.statusText)
+    }
+    return res.text()
+  })
   return extractEml(parse(contents) as OuterEml)
 }
 
