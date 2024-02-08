@@ -199,143 +199,143 @@ UNIP - Herbário da Universidade Paulista. Jabot - Banco de Dados da Flora Brasi
 UNOP - Herbário da Universidade Estadual do Oeste do Paraná. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,unop,https://ipt.jbrj.gov.br/jabot/
 UPCB - Universidade Federal do Paraná. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,upcb,https://ipt.jbrj.gov.br/jabot/
 VIES - Herbário da Universidade Federal do Espírito Santo. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,vies,https://ipt.jbrj.gov.br/jabot/
-ASE - Herbário da Universidade Federal de Sergipe,speciesLink,Plantae,ase,http://ipt1.cria.org.br/ipt
-BHZB - Herbário do Jardim Botânico da Fundação Zoo-Botânica de Belo Horizonte,speciesLink,Plantae,bhzb,http://ipt1.cria.org.br/ipt
-BOTU - Herbário Irina Delanova Gemtchújnicov,speciesLink,Plantae,botu,http://ipt1.cria.org.br/ipt
-BOTU-Fungi - Herbário Irina Delanova Gemtchújnicov - Coleção de Fungos,speciesLink,Fungi,botu-fungi,http://ipt1.cria.org.br/ipt
-BOTUw - Xiloteca Profa. Dra. Maria Aparecida Mourão Brasil,speciesLink,Plantae,botuw,http://ipt1.cria.org.br/ipt
-CE-UFPE - Coleção Entomológica da UFPE,speciesLink,Animalia,ce-ufpe,http://ipt1.cria.org.br/ipt
-CEN - Herbário da Embrapa Recursos Genéticos e Biotecnologia,speciesLink,Plantae,cen,http://ipt1.cria.org.br/ipt
-CEPANN - Coleção Entomológica Paulo Nogueira-Neto - IB/USP,speciesLink,Animalia,cepann,http://ipt1.cria.org.br/ipt
-CNMT - Herbário Centro Norte Mato Grossense,speciesLink,Plantae,cnmt,http://ipt1.cria.org.br/ipt
-CPAP - Herbário CPAP,speciesLink,Plantae,cpap,http://ipt1.cria.org.br/ipt
-CVRD - Herbário da Reserva Natural Vale,speciesLink,Plantae,cvrd,http://ipt1.cria.org.br/ipt
-DCBU - Coleção Taxonômica do Departamento de Ecologia e Biologia Evolutiva da UFSCar,speciesLink,Animalia,dcbu,http://ipt1.cria.org.br/ipt
-DSEC - Coleção Entomológica do Depto. de Sistemática e Ecologia,speciesLink,Animalia,dsec,http://ipt1.cria.org.br/ipt
-DZUB - Coleção Entomológica da Universidade de Brasília,speciesLink,Animalia,dzub,http://ipt1.cria.org.br/ipt
-DZUP-Hymenoptera - Coleção Entomológica Pe. Jesus Santiago Moure (Hymenoptera),speciesLink,Animalia,dzup-hymenoptera,http://ipt1.cria.org.br/ipt
-EAFM - Herbário do Instituto Federal de Educação Ciência e Tecnologia do Amazonas,speciesLink,Plantae,eafm,http://ipt1.cria.org.br/ipt
-EAN - Herbário Jaime Coelho de Moraes,speciesLink,Plantae,ean,http://ipt1.cria.org.br/ipt
-EFC - Herbário Escola de Florestas Curitiba,speciesLink,Plantae,efc,http://ipt1.cria.org.br/ipt
-FNJV - Fonoteca Neotropical Jacques Vielliard,speciesLink,Plantae,fnjv,http://ipt1.cria.org.br/ipt
-FUEL - Herbário da Universidade Estadual de Londrina,speciesLink,Plantae,fuel,http://ipt1.cria.org.br/ipt
-FUEL-Algae - Coleção Ficológica do Herbário da Universidade Estadual de Londrina,speciesLink,Plantae,fuel-algae,http://ipt1.cria.org.br/ipt
-Funed-Pol - Coleção de lâminas de grãos de pólen,speciesLink,Plantae,funed-pol,http://ipt1.cria.org.br/ipt
-HAMAB - Herbário Amapaense,speciesLink,Plantae,hamab,http://ipt1.cria.org.br/ipt
-HAS - Herbário Alarich Rudolf Holger Schultz,speciesLink,Plantae,has,http://ipt1.cria.org.br/ipt
-HAS-Algae-Cyanobacteria - Coleção Ficológica do HAS,speciesLink,Plantae,has-algae,http://ipt1.cria.org.br/ipt
-HBRA - Herbário do Instituto de Estudos Costeiros da Universidade Federal do Pará,speciesLink,Plantae,hbra,http://ipt1.cria.org.br/ipt
-HCDAL - Herbário Caririense Dárdano de Andrade-Lima,speciesLink,Plantae,hcdal,http://ipt1.cria.org.br/ipt
-HDJFw - Xiloteca do Herbário Dendrológico Jeanine Felfili,speciesLink,Plantae,HDJFw,http://ipt1.cria.org.br/ipt
-HFSL - Herbário Dr. Ary Tupinambá Penna Pinheiro,speciesLink,Plantae,hfsl,http://ipt1.cria.org.br/ipt
-HFSL-Fungos - Herbário Dr. Ary Tupinambá Penna Pinheiro - Fungos,speciesLink,Fungi,hfsl-fungos,http://ipt1.cria.org.br/ipt
-HPAN - Herbário do Pantanal Vali Joana Pott,speciesLink,Plantae,hpan,http://ipt1.cria.org.br/ipt
-HPBR - Herbário Padre Balduino Rambo,speciesLink,Plantae,hpbr,http://ipt1.cria.org.br/ipt
-HPL - Herbário do Jardim Botânico Plantarum,speciesLink,Plantae,hpl,http://ipt1.cria.org.br/ipt
-HST - Herbário Sérgio Tavares,speciesLink,Plantae,hst,http://ipt1.cria.org.br/ipt
-HTSA - Herbário do Trópico Semiárido,speciesLink,Plantae,htsa,http://ipt1.cria.org.br/ipt
-HTSA-Carpoteca - Carpoteca do Trópico Semiárido,speciesLink,Plantae,htsa-carpoteca,http://ipt1.cria.org.br/ipt
-HTSAw - Xiloteca do Trópico Semiárido,speciesLink,Plantae,htsaw,http://ipt1.cria.org.br/ipt
-HUCO - Herbário da Universidade Estadual do Centro-Oeste,speciesLink,Plantae,huco,http://ipt1.cria.org.br/ipt
-HUCPE - Herbário da Universidade Católica de Pernambuco,speciesLink,Plantae,hucpe,http://ipt1.cria.org.br/ipt
-HUCS - Herbário da Universidade de Caxias do Sul,speciesLink,Plantae,hucs,http://ipt1.cria.org.br/ipt
-HUCS-Liquenoteca - Liquenoteca do Herbário da Universidade de Caxias do Sul,speciesLink,Plantae,hucs-liquenoteca,http://ipt1.cria.org.br/ipt
-HUCS-Micoteca - Micoteca do Herbário da Universidade de Caxias do Sul,speciesLink,Fungi,hucs-micoteca,http://ipt1.cria.org.br/ipt
-HUESB - Herbário da Universidade Estadual do Sudoeste da Bahia,speciesLink,Plantae,huesb,http://ipt1.cria.org.br/ipt
-HUFABC - Herbário da UFABC,speciesLink,Plantae,hufabc,http://ipt1.cria.org.br/ipt
-HUFSJ - Herbário da Universidade Federal de São João del-Rei,speciesLink,Plantae,hufsj,http://ipt1.cria.org.br/ipt
-HUFU - Herbarium Uberlandense,speciesLink,Plantae,hufu,http://ipt1.cria.org.br/ipt
-HUSC - Herbário Unisanta,speciesLink,Plantae,husc,http://ipt1.cria.org.br/ipt
-HUTO - Herbário da Universidade de Tocantins,speciesLink,Plantae,huto,http://ipt1.cria.org.br/ipt
-IAC - Herbário do Instituto Agronômico de Campinas,speciesLink,Plantae,iac,http://ipt1.cria.org.br/ipt
-IPA - Herbário - IPA Dárdano de Andrade Lima,speciesLink,Plantae,ipa,http://ipt1.cria.org.br/ipt
-IRAI - Herbário do Parque da Ciência Newton Freire Maia,speciesLink,Plantae,irai,http://ipt1.cria.org.br/ipt
-ISE - Herbário ISE,speciesLink,Plantae,ise,http://ipt1.cria.org.br/ipt
-JPB - Herbário Lauro Pires Xavier,speciesLink,Plantae,jpb,http://ipt1.cria.org.br/ipt
-LIRP - Coleção de Peixes do Laboratório de Ictiologia de Ribeirão Preto,speciesLink,Animalia,lirp,http://ipt1.cria.org.br/ipt
-MAR - Herbário do Maranhão,speciesLink,Plantae,mar,http://ipt1.cria.org.br/ipt
-MBML-Anfibios - Coleção de Anfíbios MBML,speciesLink,Animalia,mbml-anfibios,http://ipt1.cria.org.br/ipt
-MBML-Aves - Coleção de Aves MBML,speciesLink,Animalia,mbml-aves,http://ipt1.cria.org.br/ipt
-MBML-Mamiferos - Coleção de Mamíferos,speciesLink,Animalia,mbml-mamiferos,http://ipt1.cria.org.br/ipt
-MBML-Peixes - Coleção de Peixes,speciesLink,Animalia,mbml-peixes,http://ipt1.cria.org.br/ipt
-MBML-Repteis - Coleção de Répteis,speciesLink,Animalia,mbml-repteis,http://ipt1.cria.org.br/ipt
-MCP - Coleção de Abelhas,speciesLink,Animalia,mcp,http://ipt1.cria.org.br/ipt
-MCP-Anfibios - Coleção de Anfíbios,speciesLink,Animalia,mcp-anfibios,http://ipt1.cria.org.br/ipt
-MCP-Aves - Coleção de Aves,speciesLink,Animalia,mcp-aves,http://ipt1.cria.org.br/ipt
-MCP-Mamiferos - Coleção de Mamíferos,speciesLink,Animalia,mcp-mamiferos,http://ipt1.cria.org.br/ipt
-MCP-Repteis - Coleção de Répteis,speciesLink,Animalia,mcp-repteis,http://ipt1.cria.org.br/ipt
-MOSS - Herbário Dárdano de Andrade Lima,speciesLink,Plantae,moss,http://ipt1.cria.org.br/ipt
-MPUC - Herbário do Museu da Pontifícia Universidade Católica do Rio Grande do Sul,speciesLink,Plantae,mpuc,http://ipt1.cria.org.br/ipt
-NUP - Coleção Ictiológica do Nupélia,speciesLink,Animalia,nup,http://ipt1.cria.org.br/ipt
-NX-Criptogamos - Herbário Nova Xavantina,speciesLink,Plantae,nx_herbario,http://ipt1.cria.org.br/ipt
-NX-Fanerogamas - Herbário Nova Xavantina,speciesLink,Plantae,nx-fanerogamas,http://ipt1.cria.org.br/ipt
-PACA-AGP - Herbarium Anchieta,speciesLink,Plantae,paca-agp,http://ipt1.cria.org.br/ipt
-PACA-Algas - Herbarium Anchieta,speciesLink,Plantae,paca-algas,http://ipt1.cria.org.br/ipt
-PACA-Bryophytes - Herbarium Anchieta - Aloysio Sehnem,speciesLink,Plantae,paca-bryophytes,http://ipt1.cria.org.br/ipt
-PACA-Fungi - Herbarium Anchieta - Fungi Rickiani,speciesLink,Fungi,paca-fungi,http://ipt1.cria.org.br/ipt
-PACA-Liquens - Herbarium Anchieta,speciesLink,Plantae,paca-liquens,http://ipt1.cria.org.br/ipt
-PEUFR - Herbário Professor Vasconcelos Sobrinho,speciesLink,Plantae,peufr,http://ipt1.cria.org.br/ipt
-R-Fungi - Herbário do Museu Nacional,speciesLink,Fungi,R-Fungi,http://ipt1.cria.org.br/ipt
-RPSP - Coleção Entomológica Prof. J.M.F. Camargo FFCLRP/USP,speciesLink,Animalia,rpsp,http://ipt1.cria.org.br/ipt
-SJRP-Fungi - Herbário de fungos de São José do Rio Preto,speciesLink,Fungi,sjrp-fungi,http://ipt1.cria.org.br/ipt
-SMDB - Santa Maria Departamento de Biologia,speciesLink,Plantae,smdb,http://ipt1.cria.org.br/ipt
-SORO - Herbário do Centro de Ciências e Tecnologias para a Sustentabilidade,speciesLink,Plantae,soro,http://ipt1.cria.org.br/ipt
-SP - Herbário do Estado Maria Eneyda P. Kaufmann Fidalgo - Coleção de Fanerógamas,speciesLink,Plantae,sp_fanerogamas,http://ipt1.cria.org.br/ipt
-SP-Algae - Herbário do Estado Maria Eneyda P. Kaufmann Fidalgo - Coleção de Algas,speciesLink,Plantae,sp-algae,http://ipt1.cria.org.br/ipt
-SP-Bryophyta - Maria Eneyda P. Kauffman Fidalgo,speciesLink,Plantae,sp-bryophyta,http://ipt1.cria.org.br/ipt
-SP-Fungi - Maria Eneyda Pacheco Kauffmann Fidalgo,speciesLink,Fungi,sp-fungi,http://ipt1.cria.org.br/ipt
-SPFR - Herbário do Departamento de Biologia da FFCLRP-USP,speciesLink,Plantae,spfr,http://ipt1.cria.org.br/ipt
-SPFw - Xiloteca do Instituto de Biociências da Universidade de São Paulo,speciesLink,Plantae,spfw,http://ipt1.cria.org.br/ipt
-SPSF - Herbário Dom Bento José Pickel,speciesLink,Plantae,spsf,http://ipt1.cria.org.br/ipt
-UB - Herbário da Universidade de Brasília,speciesLink,Plantae,ub_herbario,http://ipt1.cria.org.br/ipt
-UEC - Herbário da Universidade Estadual de Campinas,speciesLink,Plantae,uec,http://ipt1.cria.org.br/ipt
-UESC - Herbário Universidade Estadual de Santa Cruz,speciesLink,Plantae,uesc,http://ipt1.cria.org.br/ipt
-UFACPZ - Herbário da Universidade Federal do Acre,speciesLink,Plantae,ufacpz,http://ipt1.cria.org.br/ipt
-UFMT - Herbário UFMT,speciesLink,Plantae,ufmt,http://ipt1.cria.org.br/ipt
-UFP - Herbário UFP - Geraldo Mariz,speciesLink,Plantae,ufp,http://ipt1.cria.org.br/ipt
-UFRN-Fungos - Herbário UFRN - Fungos,speciesLink,Fungi,ufrn-fungos,http://ipt1.cria.org.br/ipt
-UNOPA - Herbário da Universidade Estadual do Oeste do Paraná,speciesLink,Plantae,unopa,http://ipt1.cria.org.br/ipt
-URM - Herbário Pe. Camille Torrand,speciesLink,Plantae,urm,http://ipt1.cria.org.br/ipt
-VIC - Herbário da Universidade Federal de Viçosa,speciesLink,Plantae,vic,http://ipt1.cria.org.br/ipt
-VIES-Fungi - Herbário Central da Universidade Federal do Espírito Santo - Coleção de Fungos,speciesLink,Fungi,vies-fungi,http://ipt1.cria.org.br/ipt
-ZUEC-AMP - Coleção de Anfíbios do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-amp,http://ipt1.cria.org.br/ipt
-ZUEC-API - Coleção de Apicomplexa do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-api,http://ipt1.cria.org.br/ipt
-ZUEC-APL - Coleção de Aplacophora do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-apl,http://ipt1.cria.org.br/ipt
-ZUEC-ARA - Coleção de Aracnideos do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ara,http://ipt1.cria.org.br/ipt
-ZUEC-ASC - Coleção de Ascidiacea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-asc,http://ipt1.cria.org.br/ipt
-ZUEC-AST - Coleção de Asteroidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ast,http://ipt1.cria.org.br/ipt
-ZUEC-AVE - Coleção de Aves do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ave,http://ipt1.cria.org.br/ipt
-ZUEC-BIV - Coleção de Bivalvia do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-biv,http://ipt1.cria.org.br/ipt
-ZUEC-BRA - Coleção de Brachiopoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-bra,http://ipt1.cria.org.br/ipt
-ZUEC-BRY - Coleção de Bryozoa do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-bry,http://ipt1.cria.org.br/ipt
-ZUEC-CEP - Coleção de Cephalopoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cep,http://ipt1.cria.org.br/ipt
-ZUEC-CLB - Coleção de Collembola do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-clb,http://ipt1.cria.org.br/ipt
-ZUEC-CNI - Coleção de Cnidaria do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cni,http://ipt1.cria.org.br/ipt
-ZUEC-COL - Coleção de Coleoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-col,http://ipt1.cria.org.br/ipt
-ZUEC-CPH - Coleção de Cephalochordata do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cph,http://ipt1.cria.org.br/ipt
-ZUEC-CRU - Coleção de Crustacea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cru,http://ipt1.cria.org.br/ipt
-ZUEC-DIP - Coleção de Diptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-dip,http://ipt1.cria.org.br/ipt
-ZUEC-ECH - Coleção de Echinoidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ech,http://ipt1.cria.org.br/ipt
-ZUEC-EPH - Coleção de Ephemeroptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-eph,http://ipt1.cria.org.br/ipt
-ZUEC-GAS - Coleção de Gastropoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-gas,http://ipt1.cria.org.br/ipt
-ZUEC-GCH - Coleção de Gastrotricha do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-gch,http://ipt1.cria.org.br/ipt
-ZUEC-HEM - Coleção de Hemiptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-hem,http://ipt1.cria.org.br/ipt
-ZUEC-HOL - Coleção de Holothuroidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-hol,http://ipt1.cria.org.br/ipt
-ZUEC-HYM - Coleção de Hymenoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-hym,http://ipt1.cria.org.br/ipt
-ZUEC-LEP - Coleção de Lepidoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-lep,http://ipt1.cria.org.br/ipt
-ZUEC-MAM - Coleção de Mamíferos do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-mam,http://ipt1.cria.org.br/ipt
-ZUEC-MYX - Coleção de Myxozoa do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-myx,http://ipt1.cria.org.br/ipt
-ZUEC-NEM - Coleção de Nemertea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-nem,http://ipt1.cria.org.br/ipt
-ZUEC-NEU - Coleção de Neuroptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-neu,http://ipt1.cria.org.br/ipt
-ZUEC-NMA - Coleção de Nematoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-nma,http://ipt1.cria.org.br/ipt
-ZUEC-OPH - Coleção de Ophiuroidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-oph,http://ipt1.cria.org.br/ipt
-ZUEC-ORT - Coleção de Orthoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ort,http://ipt1.cria.org.br/ipt
-ZUEC-PIS - Coleção de Peixes do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pis,http://ipt1.cria.org.br/ipt
-ZUEC-PLA - Coleção de Platyhelmintes do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pla,http://ipt1.cria.org.br/ipt
-ZUEC-POL - Coleção de Polychaeta do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pol,http://ipt1.cria.org.br/ipt
-ZUEC-POP - Coleção de Polyplacophora do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pop,http://ipt1.cria.org.br/ipt
-ZUEC-POR - Coleção de Porifera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-por,http://ipt1.cria.org.br/ipt
-ZUEC-REP - Coleção de Répteis do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-rep,http://ipt1.cria.org.br/ipt
+ASE - Herbário da Universidade Federal de Sergipe,speciesLink,Plantae,ase,http://ipt1.cria.org.br/ipt/
+BHZB - Herbário do Jardim Botânico da Fundação Zoo-Botânica de Belo Horizonte,speciesLink,Plantae,bhzb,http://ipt1.cria.org.br/ipt/
+BOTU - Herbário Irina Delanova Gemtchújnicov,speciesLink,Plantae,botu,http://ipt1.cria.org.br/ipt/
+BOTU-Fungi - Herbário Irina Delanova Gemtchújnicov - Coleção de Fungos,speciesLink,Fungi,botu-fungi,http://ipt1.cria.org.br/ipt/
+BOTUw - Xiloteca Profa. Dra. Maria Aparecida Mourão Brasil,speciesLink,Plantae,botuw,http://ipt1.cria.org.br/ipt/
+CE-UFPE - Coleção Entomológica da UFPE,speciesLink,Animalia,ce-ufpe,http://ipt1.cria.org.br/ipt/
+CEN - Herbário da Embrapa Recursos Genéticos e Biotecnologia,speciesLink,Plantae,cen,http://ipt1.cria.org.br/ipt/
+CEPANN - Coleção Entomológica Paulo Nogueira-Neto - IB/USP,speciesLink,Animalia,cepann,http://ipt1.cria.org.br/ipt/
+CNMT - Herbário Centro Norte Mato Grossense,speciesLink,Plantae,cnmt,http://ipt1.cria.org.br/ipt/
+CPAP - Herbário CPAP,speciesLink,Plantae,cpap,http://ipt1.cria.org.br/ipt/
+CVRD - Herbário da Reserva Natural Vale,speciesLink,Plantae,cvrd,http://ipt1.cria.org.br/ipt/
+DCBU - Coleção Taxonômica do Departamento de Ecologia e Biologia Evolutiva da UFSCar,speciesLink,Animalia,dcbu,http://ipt1.cria.org.br/ipt/
+DSEC - Coleção Entomológica do Depto. de Sistemática e Ecologia,speciesLink,Animalia,dsec,http://ipt1.cria.org.br/ipt/
+DZUB - Coleção Entomológica da Universidade de Brasília,speciesLink,Animalia,dzub,http://ipt1.cria.org.br/ipt/
+DZUP-Hymenoptera - Coleção Entomológica Pe. Jesus Santiago Moure (Hymenoptera),speciesLink,Animalia,dzup-hymenoptera,http://ipt1.cria.org.br/ipt/
+EAFM - Herbário do Instituto Federal de Educação Ciência e Tecnologia do Amazonas,speciesLink,Plantae,eafm,http://ipt1.cria.org.br/ipt/
+EAN - Herbário Jaime Coelho de Moraes,speciesLink,Plantae,ean,http://ipt1.cria.org.br/ipt/
+EFC - Herbário Escola de Florestas Curitiba,speciesLink,Plantae,efc,http://ipt1.cria.org.br/ipt/
+FNJV - Fonoteca Neotropical Jacques Vielliard,speciesLink,Plantae,fnjv,http://ipt1.cria.org.br/ipt/
+FUEL - Herbário da Universidade Estadual de Londrina,speciesLink,Plantae,fuel,http://ipt1.cria.org.br/ipt/
+FUEL-Algae - Coleção Ficológica do Herbário da Universidade Estadual de Londrina,speciesLink,Plantae,fuel-algae,http://ipt1.cria.org.br/ipt/
+Funed-Pol - Coleção de lâminas de grãos de pólen,speciesLink,Plantae,funed-pol,http://ipt1.cria.org.br/ipt/
+HAMAB - Herbário Amapaense,speciesLink,Plantae,hamab,http://ipt1.cria.org.br/ipt/
+HAS - Herbário Alarich Rudolf Holger Schultz,speciesLink,Plantae,has,http://ipt1.cria.org.br/ipt/
+HAS-Algae-Cyanobacteria - Coleção Ficológica do HAS,speciesLink,Plantae,has-algae,http://ipt1.cria.org.br/ipt/
+HBRA - Herbário do Instituto de Estudos Costeiros da Universidade Federal do Pará,speciesLink,Plantae,hbra,http://ipt1.cria.org.br/ipt/
+HCDAL - Herbário Caririense Dárdano de Andrade-Lima,speciesLink,Plantae,hcdal,http://ipt1.cria.org.br/ipt/
+HDJFw - Xiloteca do Herbário Dendrológico Jeanine Felfili,speciesLink,Plantae,HDJFw,http://ipt1.cria.org.br/ipt/
+HFSL - Herbário Dr. Ary Tupinambá Penna Pinheiro,speciesLink,Plantae,hfsl,http://ipt1.cria.org.br/ipt/
+HFSL-Fungos - Herbário Dr. Ary Tupinambá Penna Pinheiro - Fungos,speciesLink,Fungi,hfsl-fungos,http://ipt1.cria.org.br/ipt/
+HPAN - Herbário do Pantanal Vali Joana Pott,speciesLink,Plantae,hpan,http://ipt1.cria.org.br/ipt/
+HPBR - Herbário Padre Balduino Rambo,speciesLink,Plantae,hpbr,http://ipt1.cria.org.br/ipt/
+HPL - Herbário do Jardim Botânico Plantarum,speciesLink,Plantae,hpl,http://ipt1.cria.org.br/ipt/
+HST - Herbário Sérgio Tavares,speciesLink,Plantae,hst,http://ipt1.cria.org.br/ipt/
+HTSA - Herbário do Trópico Semiárido,speciesLink,Plantae,htsa,http://ipt1.cria.org.br/ipt/
+HTSA-Carpoteca - Carpoteca do Trópico Semiárido,speciesLink,Plantae,htsa-carpoteca,http://ipt1.cria.org.br/ipt/
+HTSAw - Xiloteca do Trópico Semiárido,speciesLink,Plantae,htsaw,http://ipt1.cria.org.br/ipt/
+HUCO - Herbário da Universidade Estadual do Centro-Oeste,speciesLink,Plantae,huco,http://ipt1.cria.org.br/ipt/
+HUCPE - Herbário da Universidade Católica de Pernambuco,speciesLink,Plantae,hucpe,http://ipt1.cria.org.br/ipt/
+HUCS - Herbário da Universidade de Caxias do Sul,speciesLink,Plantae,hucs,http://ipt1.cria.org.br/ipt/
+HUCS-Liquenoteca - Liquenoteca do Herbário da Universidade de Caxias do Sul,speciesLink,Plantae,hucs-liquenoteca,http://ipt1.cria.org.br/ipt/
+HUCS-Micoteca - Micoteca do Herbário da Universidade de Caxias do Sul,speciesLink,Fungi,hucs-micoteca,http://ipt1.cria.org.br/ipt/
+HUESB - Herbário da Universidade Estadual do Sudoeste da Bahia,speciesLink,Plantae,huesb,http://ipt1.cria.org.br/ipt/
+HUFABC - Herbário da UFABC,speciesLink,Plantae,hufabc,http://ipt1.cria.org.br/ipt/
+HUFSJ - Herbário da Universidade Federal de São João del-Rei,speciesLink,Plantae,hufsj,http://ipt1.cria.org.br/ipt/
+HUFU - Herbarium Uberlandense,speciesLink,Plantae,hufu,http://ipt1.cria.org.br/ipt/
+HUSC - Herbário Unisanta,speciesLink,Plantae,husc,http://ipt1.cria.org.br/ipt/
+HUTO - Herbário da Universidade de Tocantins,speciesLink,Plantae,huto,http://ipt1.cria.org.br/ipt/
+IAC - Herbário do Instituto Agronômico de Campinas,speciesLink,Plantae,iac,http://ipt1.cria.org.br/ipt/
+IPA - Herbário - IPA Dárdano de Andrade Lima,speciesLink,Plantae,ipa,http://ipt1.cria.org.br/ipt/
+IRAI - Herbário do Parque da Ciência Newton Freire Maia,speciesLink,Plantae,irai,http://ipt1.cria.org.br/ipt/
+ISE - Herbário ISE,speciesLink,Plantae,ise,http://ipt1.cria.org.br/ipt/
+JPB - Herbário Lauro Pires Xavier,speciesLink,Plantae,jpb,http://ipt1.cria.org.br/ipt/
+LIRP - Coleção de Peixes do Laboratório de Ictiologia de Ribeirão Preto,speciesLink,Animalia,lirp,http://ipt1.cria.org.br/ipt/
+MAR - Herbário do Maranhão,speciesLink,Plantae,mar,http://ipt1.cria.org.br/ipt/
+MBML-Anfibios - Coleção de Anfíbios MBML,speciesLink,Animalia,mbml-anfibios,http://ipt1.cria.org.br/ipt/
+MBML-Aves - Coleção de Aves MBML,speciesLink,Animalia,mbml-aves,http://ipt1.cria.org.br/ipt/
+MBML-Mamiferos - Coleção de Mamíferos,speciesLink,Animalia,mbml-mamiferos,http://ipt1.cria.org.br/ipt/
+MBML-Peixes - Coleção de Peixes,speciesLink,Animalia,mbml-peixes,http://ipt1.cria.org.br/ipt/
+MBML-Repteis - Coleção de Répteis,speciesLink,Animalia,mbml-repteis,http://ipt1.cria.org.br/ipt/
+MCP - Coleção de Abelhas,speciesLink,Animalia,mcp,http://ipt1.cria.org.br/ipt/
+MCP-Anfibios - Coleção de Anfíbios,speciesLink,Animalia,mcp-anfibios,http://ipt1.cria.org.br/ipt/
+MCP-Aves - Coleção de Aves,speciesLink,Animalia,mcp-aves,http://ipt1.cria.org.br/ipt/
+MCP-Mamiferos - Coleção de Mamíferos,speciesLink,Animalia,mcp-mamiferos,http://ipt1.cria.org.br/ipt/
+MCP-Repteis - Coleção de Répteis,speciesLink,Animalia,mcp-repteis,http://ipt1.cria.org.br/ipt/
+MOSS - Herbário Dárdano de Andrade Lima,speciesLink,Plantae,moss,http://ipt1.cria.org.br/ipt/
+MPUC - Herbário do Museu da Pontifícia Universidade Católica do Rio Grande do Sul,speciesLink,Plantae,mpuc,http://ipt1.cria.org.br/ipt/
+NUP - Coleção Ictiológica do Nupélia,speciesLink,Animalia,nup,http://ipt1.cria.org.br/ipt/
+NX-Criptogamos - Herbário Nova Xavantina,speciesLink,Plantae,nx_herbario,http://ipt1.cria.org.br/ipt/
+NX-Fanerogamas - Herbário Nova Xavantina,speciesLink,Plantae,nx-fanerogamas,http://ipt1.cria.org.br/ipt/
+PACA-AGP - Herbarium Anchieta,speciesLink,Plantae,paca-agp,http://ipt1.cria.org.br/ipt/
+PACA-Algas - Herbarium Anchieta,speciesLink,Plantae,paca-algas,http://ipt1.cria.org.br/ipt/
+PACA-Bryophytes - Herbarium Anchieta - Aloysio Sehnem,speciesLink,Plantae,paca-bryophytes,http://ipt1.cria.org.br/ipt/
+PACA-Fungi - Herbarium Anchieta - Fungi Rickiani,speciesLink,Fungi,paca-fungi,http://ipt1.cria.org.br/ipt/
+PACA-Liquens - Herbarium Anchieta,speciesLink,Plantae,paca-liquens,http://ipt1.cria.org.br/ipt/
+PEUFR - Herbário Professor Vasconcelos Sobrinho,speciesLink,Plantae,peufr,http://ipt1.cria.org.br/ipt/
+R-Fungi - Herbário do Museu Nacional,speciesLink,Fungi,R-Fungi,http://ipt1.cria.org.br/ipt/
+RPSP - Coleção Entomológica Prof. J.M.F. Camargo FFCLRP/USP,speciesLink,Animalia,rpsp,http://ipt1.cria.org.br/ipt/
+SJRP-Fungi - Herbário de fungos de São José do Rio Preto,speciesLink,Fungi,sjrp-fungi,http://ipt1.cria.org.br/ipt/
+SMDB - Santa Maria Departamento de Biologia,speciesLink,Plantae,smdb,http://ipt1.cria.org.br/ipt/
+SORO - Herbário do Centro de Ciências e Tecnologias para a Sustentabilidade,speciesLink,Plantae,soro,http://ipt1.cria.org.br/ipt/
+SP - Herbário do Estado Maria Eneyda P. Kaufmann Fidalgo - Coleção de Fanerógamas,speciesLink,Plantae,sp_fanerogamas,http://ipt1.cria.org.br/ipt/
+SP-Algae - Herbário do Estado Maria Eneyda P. Kaufmann Fidalgo - Coleção de Algas,speciesLink,Plantae,sp-algae,http://ipt1.cria.org.br/ipt/
+SP-Bryophyta - Maria Eneyda P. Kauffman Fidalgo,speciesLink,Plantae,sp-bryophyta,http://ipt1.cria.org.br/ipt/
+SP-Fungi - Maria Eneyda Pacheco Kauffmann Fidalgo,speciesLink,Fungi,sp-fungi,http://ipt1.cria.org.br/ipt/
+SPFR - Herbário do Departamento de Biologia da FFCLRP-USP,speciesLink,Plantae,spfr,http://ipt1.cria.org.br/ipt/
+SPFw - Xiloteca do Instituto de Biociências da Universidade de São Paulo,speciesLink,Plantae,spfw,http://ipt1.cria.org.br/ipt/
+SPSF - Herbário Dom Bento José Pickel,speciesLink,Plantae,spsf,http://ipt1.cria.org.br/ipt/
+UB - Herbário da Universidade de Brasília,speciesLink,Plantae,ub_herbario,http://ipt1.cria.org.br/ipt/
+UEC - Herbário da Universidade Estadual de Campinas,speciesLink,Plantae,uec,http://ipt1.cria.org.br/ipt/
+UESC - Herbário Universidade Estadual de Santa Cruz,speciesLink,Plantae,uesc,http://ipt1.cria.org.br/ipt/
+UFACPZ - Herbário da Universidade Federal do Acre,speciesLink,Plantae,ufacpz,http://ipt1.cria.org.br/ipt/
+UFMT - Herbário UFMT,speciesLink,Plantae,ufmt,http://ipt1.cria.org.br/ipt/
+UFP - Herbário UFP - Geraldo Mariz,speciesLink,Plantae,ufp,http://ipt1.cria.org.br/ipt/
+UFRN-Fungos - Herbário UFRN - Fungos,speciesLink,Fungi,ufrn-fungos,http://ipt1.cria.org.br/ipt/
+UNOPA - Herbário da Universidade Estadual do Oeste do Paraná,speciesLink,Plantae,unopa,http://ipt1.cria.org.br/ipt/
+URM - Herbário Pe. Camille Torrand,speciesLink,Plantae,urm,http://ipt1.cria.org.br/ipt/
+VIC - Herbário da Universidade Federal de Viçosa,speciesLink,Plantae,vic,http://ipt1.cria.org.br/ipt/
+VIES-Fungi - Herbário Central da Universidade Federal do Espírito Santo - Coleção de Fungos,speciesLink,Fungi,vies-fungi,http://ipt1.cria.org.br/ipt/
+ZUEC-AMP - Coleção de Anfíbios do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-amp,http://ipt1.cria.org.br/ipt/
+ZUEC-API - Coleção de Apicomplexa do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-api,http://ipt1.cria.org.br/ipt/
+ZUEC-APL - Coleção de Aplacophora do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-apl,http://ipt1.cria.org.br/ipt/
+ZUEC-ARA - Coleção de Aracnideos do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ara,http://ipt1.cria.org.br/ipt/
+ZUEC-ASC - Coleção de Ascidiacea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-asc,http://ipt1.cria.org.br/ipt/
+ZUEC-AST - Coleção de Asteroidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ast,http://ipt1.cria.org.br/ipt/
+ZUEC-AVE - Coleção de Aves do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ave,http://ipt1.cria.org.br/ipt/
+ZUEC-BIV - Coleção de Bivalvia do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-biv,http://ipt1.cria.org.br/ipt/
+ZUEC-BRA - Coleção de Brachiopoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-bra,http://ipt1.cria.org.br/ipt/
+ZUEC-BRY - Coleção de Bryozoa do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-bry,http://ipt1.cria.org.br/ipt/
+ZUEC-CEP - Coleção de Cephalopoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cep,http://ipt1.cria.org.br/ipt/
+ZUEC-CLB - Coleção de Collembola do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-clb,http://ipt1.cria.org.br/ipt/
+ZUEC-CNI - Coleção de Cnidaria do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cni,http://ipt1.cria.org.br/ipt/
+ZUEC-COL - Coleção de Coleoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-col,http://ipt1.cria.org.br/ipt/
+ZUEC-CPH - Coleção de Cephalochordata do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cph,http://ipt1.cria.org.br/ipt/
+ZUEC-CRU - Coleção de Crustacea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-cru,http://ipt1.cria.org.br/ipt/
+ZUEC-DIP - Coleção de Diptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-dip,http://ipt1.cria.org.br/ipt/
+ZUEC-ECH - Coleção de Echinoidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ech,http://ipt1.cria.org.br/ipt/
+ZUEC-EPH - Coleção de Ephemeroptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-eph,http://ipt1.cria.org.br/ipt/
+ZUEC-GAS - Coleção de Gastropoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-gas,http://ipt1.cria.org.br/ipt/
+ZUEC-GCH - Coleção de Gastrotricha do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-gch,http://ipt1.cria.org.br/ipt/
+ZUEC-HEM - Coleção de Hemiptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-hem,http://ipt1.cria.org.br/ipt/
+ZUEC-HOL - Coleção de Holothuroidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-hol,http://ipt1.cria.org.br/ipt/
+ZUEC-HYM - Coleção de Hymenoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-hym,http://ipt1.cria.org.br/ipt/
+ZUEC-LEP - Coleção de Lepidoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-lep,http://ipt1.cria.org.br/ipt/
+ZUEC-MAM - Coleção de Mamíferos do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-mam,http://ipt1.cria.org.br/ipt/
+ZUEC-MYX - Coleção de Myxozoa do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-myx,http://ipt1.cria.org.br/ipt/
+ZUEC-NEM - Coleção de Nemertea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-nem,http://ipt1.cria.org.br/ipt/
+ZUEC-NEU - Coleção de Neuroptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-neu,http://ipt1.cria.org.br/ipt/
+ZUEC-NMA - Coleção de Nematoda do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-nma,http://ipt1.cria.org.br/ipt/
+ZUEC-OPH - Coleção de Ophiuroidea do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-oph,http://ipt1.cria.org.br/ipt/
+ZUEC-ORT - Coleção de Orthoptera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-ort,http://ipt1.cria.org.br/ipt/
+ZUEC-PIS - Coleção de Peixes do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pis,http://ipt1.cria.org.br/ipt/
+ZUEC-PLA - Coleção de Platyhelmintes do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pla,http://ipt1.cria.org.br/ipt/
+ZUEC-POL - Coleção de Polychaeta do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pol,http://ipt1.cria.org.br/ipt/
+ZUEC-POP - Coleção de Polyplacophora do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pop,http://ipt1.cria.org.br/ipt/
+ZUEC-POR - Coleção de Porifera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-por,http://ipt1.cria.org.br/ipt/
+ZUEC-REP - Coleção de Répteis do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-rep,http://ipt1.cria.org.br/ipt/
 Acervo de Estruturas Calcificadas de Peixes - Collection of Fish Calcified Structures,taxonline,Animalia,ufpr_palotina_fishcast_001,https://ipt.sibbr.gov.br/taxonline/
 Coleção Científica de Mastozoologia da UFPR,taxonline,Animalia,ufpr_mastologia_01,https://ipt.sibbr.gov.br/taxonline/
 Coleção de Ascidiacea da Universidade Federal do Paraná,taxonline,Animalia,dzup_ascidiacea_01,https://ipt.sibbr.gov.br/taxonline/
