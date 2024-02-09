@@ -34,6 +34,17 @@ export async function listTaxa(
     .toArray()
 }
 
+export async function listOccurrences(
+  filter: Record<string, unknown> = {},
+  _projection: Record<string, unknown> = {}
+) {
+  const occurrences = await getCollection('dwc2json', 'ocorrencias')
+  return await occurrences
+    .find(filter)
+    // .project(projection)
+    .toArray()
+}
+
 export async function listTaxaPaginated(
   filter: Record<string, unknown> = {},
   page = 0,
