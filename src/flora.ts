@@ -73,6 +73,17 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
         ).split(';')[1]
       }
 
+      ;(
+        taxon.vernacularname as { vernacularName: string; language: string }[]
+      )?.forEach((entry) => {
+        entry.vernacularName = entry.vernacularName
+          .toLowerCase()
+          .replace(/ /g, '-')
+        entry.language =
+          entry.language.charAt(0).toUpperCase() +
+          entry.language.slice(1).toLowerCase()
+      })
+
       taxon.canonicalName = [
         taxon.genus,
         taxon.genericName,
