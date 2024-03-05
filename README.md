@@ -12,7 +12,7 @@ Com a publicação dos dados do [Catálogo Taxonômico da Fauna do Brasil](http:
 
 Uma vez que o código implementado era genérico o suficiente para reconhecer e automatizar a conversão de diferentes "cores", como o de "ocorrências", surgiu a ideia então de criar uma coleção no mesmo banco de dados dedicado para ficha de ocorrências da flora e da fauna, nos diferentes IPTs públicos.
 
-Desta forma, o banco criado por esta ferramenta hoje conta com cerca de 278 mil nomes de espécie e 9.3 milhões de fichas de ocorrências, provenientes de 417 recursos publicados em 9 diferentes IPTs.
+Desta forma, o banco criado por esta ferramenta hoje conta com cerca de 278 mil nomes de espécie e cerca de 12 milhões de fichas de ocorrências, provenientes de [458](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/occurrences.csv) recursos publicados em 10 diferentes IPTs.
 
 Um dos aspectos mais significativos desta proposta é que todo o banco de dados é atualizado em poucos minutos, apenas clicando nas "[actions](https://github.com/edalcin/DarwinCoreJSON/actions)" de atualização da fauna, flora e ocorrências.
 
