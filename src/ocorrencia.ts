@@ -75,7 +75,8 @@ await Promise.all([
       name: 'ipt'
     },
     { key: { canonicalName: 1 }, name: 'canonicalName' },
-    { key: { flatScientificName: 1 }, name: 'flatScientificName' }
+    { key: { flatScientificName: 1 }, name: 'flatScientificName' },
+    { key: { iptKingdoms: 1 }, name: 'iptKingdoms' }
   ]),
   iptsCol.createIndexes([
     {
@@ -148,10 +149,12 @@ for (const { repositorio, kingdom, tag, url } of iptSources) {
         ]
           .filter(Boolean)
           .join(' ')
+        const iptKingdoms = kingdom.split(/, ?/)
         return {
           iptId: ipt.id,
           ipt: repositorio,
           canonicalName,
+          iptKingdoms,
           flatScientificName: (
             (ocorrencia[1].scientificName as string) ?? canonicalName
           )
