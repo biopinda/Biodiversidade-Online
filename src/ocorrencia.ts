@@ -54,6 +54,8 @@ const { data: iptSources } = (await Deno.readTextFile(
   data: IptSource[]
 }
 
+console.debug('Connecting to MongoDB', Deno.env.get('MONGO_URI'))
+
 const client = new MongoClient(Deno.env.get('MONGO_URI') as string)
 await client.connect()
 const iptsCol = client.db('dwc2json').collection<DbIpt>('ipts')
