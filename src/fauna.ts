@@ -1,4 +1,4 @@
-import { MongoClient } from 'https://deno.land/x/mongo@v0.31.2/mod.ts'
+import { MongoClient } from 'https://deno.land/x/mongo@v0.32.0/mod.ts'
 import { processaZip, type DbIpt } from './lib/dwca.ts'
 
 export const findTaxonByName = (
