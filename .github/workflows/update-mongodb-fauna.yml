@@ -10,6 +10,8 @@ on:
         '.github/workflows/update-mongodb-fauna.yml'
       ]
   workflow_dispatch:
+  schedule:
+    - cron: '30 2 * * 0'
 
 env:
   DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=catalogo_taxonomico_da_fauna_do_brasil

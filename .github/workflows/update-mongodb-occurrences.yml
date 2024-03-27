@@ -11,6 +11,8 @@ on:
         'referencias/occurrences.csv'
       ]
   workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 0'
 
 jobs:
   update-db:
