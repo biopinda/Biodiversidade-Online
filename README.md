@@ -1,3 +1,6 @@
+[![Update MongoDB - Flora](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-flora.yml/badge.svg)](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-flora.yml)
+[![Update MongoDB - Fauna](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml/badge.svg)](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml)
+[![Update MongoDB - Ocorrências](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml)
 # ___Darwin Core Archive to JSON___
 
 [Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)
