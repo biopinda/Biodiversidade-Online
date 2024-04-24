@@ -1,6 +1,6 @@
 name: Deno Deploy (Staging)
 on:
-  pull_request:
+  pull_request_target:
     paths: ['web/**', '.github/workflows/deno-deploy-staging.yml']
 
 jobs:
