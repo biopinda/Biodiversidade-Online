@@ -91,6 +91,7 @@ await Promise.all([
 ])
 
 for (const { repositorio, kingdom, tag, url } of iptSources) {
+  if (!repositorio || !tag) continue;
   console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
   const eml = await getEml(`${url}eml.do?r=${tag}`).catch((error) => {
     console.log('Erro baixando/processando eml', error.message)
