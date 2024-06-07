@@ -78,7 +78,7 @@ export async function countTaxaRegions() {
     .aggregate([
       {
         $match: {
-          taxonomicStatus: 'NOME ACEITO'
+          taxonomicStatus: /NOME[_ ]ACEITO/
         }
       },
       {
