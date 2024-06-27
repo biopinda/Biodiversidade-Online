@@ -18,6 +18,18 @@ const sorterByCount = (data: [string, any][]) =>
 
 <script type="module">
   import 'https://cdn.skypack.dev/@google-web-components/google-chart'
+
+  const handleResize = () => {
+    document.querySelectorAll('google-chart').forEach((chart) => {
+      chart.redraw()
+    })
+  }
+
+  if (!window.__hasGoogleChartResizeListener) {
+    window.__hasGoogleChartResizeListener = true
+
+    window.addEventListener('resize', handleResize)
+  }
 </script>
 
 <google-chart
