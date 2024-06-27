@@ -7,13 +7,21 @@ const prepareData = (data: any[]) => {
   return data.map(({ _id, count }) => [`${_id}`, count] as [string, number])
 }
 
-const plantae = await getTaxonomicStatusPerKingdom('Plantae')
-const fungi = await getTaxonomicStatusPerKingdom('Fungi')
-const animalia = await getTaxonomicStatusPerKingdom('Animalia')
-
-const familyPerKingdomPlantae = await getFamilyPerKingdom('Plantae')
-const familyPerKingdomFungi = await getFamilyPerKingdom('Fungi')
-const familyPerKingdomAnimalia = await getFamilyPerKingdom('Animalia')
+const [
+  plantae,
+  fungi,
+  animalia,
+  familyPerKingdomPlantae,
+  familyPerKingdomFungi,
+  familyPerKingdomAnimalia
+] = await Promise.all([
+  getTaxonomicStatusPerKingdom('Plantae'),
+  getTaxonomicStatusPerKingdom('Fungi'),
+  getTaxonomicStatusPerKingdom('Animalia'),
+  getFamilyPerKingdom('Plantae'),
+  getFamilyPerKingdom('Fungi'),
+  getFamilyPerKingdom('Animalia')
+])
 ---
 
 <Layout title="Dashboard">
