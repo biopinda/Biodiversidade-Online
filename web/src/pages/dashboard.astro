@@ -1,0 +1,42 @@
+---
+import Pie from '../components/Pie.astro'
+import Layout from '../layouts/base.astro'
+import { getFamilyPerKingdom, getTaxonomicStatusPerKingdom } from '../lib/mongo'
+
+const prepareData = (data: any[]) => {
+  return data.map(({ _id, count }) => [`${_id}`, count] as [string, number])
+}
+
+const plantae = await getTaxonomicStatusPerKingdom('Plantae')
+const fungi = await getTaxonomicStatusPerKingdom('Fungi')
+const animalia = await getTaxonomicStatusPerKingdom('Animalia')
+
+const familyPerKingdomPlantae = await getFamilyPerKingdom('Plantae')
+const familyPerKingdomFungi = await getFamilyPerKingdom('Fungi')
+const familyPerKingdomAnimalia = await getFamilyPerKingdom('Animalia')
+---
+
+<Layout title="Dashboard">
+  <div
+    class="grid grid-cols-3 grid-rows-2 h-screen w-screen gap-2 p-2 [&>*]:rounded-sm [&>*]:bg-white [&>*]:border [&>*]:border-slate-300 [&>*]:shadow-lg"
+  >
+    <Pie title="Plantae" data={prepareData(plantae)} sortByName />
+    <Pie title="Fungi" data={prepareData(fungi)} sortByName />
+    <Pie title="Animalia" data={prepareData(animalia)} sortByName />
+    <Pie
+      title="Famílias Plantae"
+      data={prepareData(familyPerKingdomPlantae)}
+      sortByCount
+    />
+    <Pie
+      title="Phylum Fungi"
+      data={prepareData(familyPerKingdomFungi)}
+      sortByCount
+    />
+    <Pie
+      title="Famílias Animalia"
+      data={prepareData(familyPerKingdomAnimalia)}
+      sortByCount
+    />
+  </div>
+</Layout>

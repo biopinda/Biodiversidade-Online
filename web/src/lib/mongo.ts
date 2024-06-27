@@ -98,6 +98,63 @@ export async function countTaxaRegions() {
     .toArray()
 }
 
+export async function getTaxonomicStatusPerKingdom(kingdom: string) {
+  const taxa = await getCollection('dwc2json', 'taxa')
+  return await taxa
+    .aggregate([
+      {
+        $match: {
+          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $ifNull: ["$taxonomicStatus", "$nomenclaturalStatus"]
+          },
+          count: {
+            $count: {}
+          }
+        }
+      }
+    ])
+    .toArray()
+}
+
+export async function getFamilyPerKingdom(kingdom: string) {
+  const taxa = await getCollection('dwc2json', 'taxa')
+  return await taxa
+    .aggregate([
+      {
+        $match: {
+          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+          taxonomicStatus: /NOME[_ ]ACEITO/,
+          taxonRank: 'ESPECIE'
+        }
+      },
+      {
+        $addFields: {
+          family: {
+            $cond: {
+              if: { $eq: ['$higherClassification', 'Algas'] },
+              then: { $concat: ['[Algae]: ', '$class'] },
+              else: '$family'
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: kingdom.toLocaleLowerCase() === 'fungi' ? '$phylum' : '$family',
+          count: {
+            $count: {}
+          }
+        }
+      }
+    ])
+    .toArray()
+}
+
 export async function getTaxon(
   kingdom: 'Plantae' | 'Fungi' | 'Animalia',
   id: string,
