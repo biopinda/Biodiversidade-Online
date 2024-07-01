@@ -13,7 +13,7 @@
           {
             "name": "scientificName",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string"
             },
