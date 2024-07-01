@@ -3,11 +3,11 @@ import partytown from '@astrojs/partytown'
 import tailwind from '@astrojs/tailwind'
 import { defineConfig } from 'astro/config'
 
-import preact from '@astrojs/preact'
+import react from '@astrojs/react'
 
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
-  integrations: [tailwind(), partytown(), preact()],
+  integrations: [tailwind(), partytown(), react()],
   adapter: deno()
 })
