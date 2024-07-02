@@ -19,6 +19,8 @@ Desta forma, o banco criado por esta ferramenta hoje conta com cerca de 278 mil 
 
 Um dos aspectos mais significativos desta proposta é que todo o banco de dados é atualizado em poucos minutos, apenas clicando nas "[actions](https://github.com/edalcin/DarwinCoreJSON/actions)" de atualização da fauna, flora e ocorrências.
 
-Estamos experimentado ofertar o acesso público ao banco de dados, e ainda há muito trabalho a ser feito na estruturação e incorporação dos dados à base, bem como na interface de acesso aos dados.
+Um conjunto de APIs está disponível aqui para consulta a base de dados:
+
+https://dwca2json.deno.dev/api
 
 Criticas, sugestões e "[issues](https://github.com/edalcin/DarwinCoreJSON/issues)" são sempre bem-vindas!
