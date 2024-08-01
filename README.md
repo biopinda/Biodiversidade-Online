@@ -23,4 +23,6 @@ Um conjunto de APIs está disponível aqui para consulta a base de dados:
 
 https://dwca2json.deno.dev/api
 
+https://dwca2json.deno.dev/mapa
+
 Criticas, sugestões e "[issues](https://github.com/edalcin/DarwinCoreJSON/issues)" são sempre bem-vindas!
