@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks'
+import { useState } from 'react'
 
 type Props = {
   occurrences: Record<string, unknown>[]
@@ -14,10 +14,13 @@ function TableHeader({
   sorted?: number | undefined
 }) {
   return (
-    <th class="sticky top-0 px-2 z-10 bg-gray-200 text-left" onClick={onClick}>
+    <th
+      className="sticky top-0 px-2 z-10 bg-gray-200 text-left"
+      onClick={onClick}
+    >
       {title}
       {sorted ? (
-        <span class="text-slate-600"> {sorted === 1 ? '▲' : '▼'}</span>
+        <span className="text-slate-600"> {sorted === 1 ? '▲' : '▼'}</span>
       ) : (
         ''
       )}
@@ -31,12 +34,14 @@ export default function Ocorrencias({ occurrences }: Props) {
 
   const resortOccurrences = (byField: string) => {
     const direction = sortedBy.field === byField ? sortedBy.direction * -1 : 1
+    console.log({ byField, direction })
     const sorted = [...occurrences].sort((a, b) => {
-      if ((a[byField] as string) < (b[byField] as string)) return -1 * direction
-      if ((a[byField] as string) > (b[byField] as string)) return 1 * direction
+      if ((a[byField] ?? '') < (b[byField] ?? '')) return -1 * direction
+      if ((a[byField] ?? '') > (b[byField] ?? '')) return 1 * direction
       return 0
     })
     setSortedOccurrences(sorted)
+    console.log(sorted)
     setSortedBy({ field: byField, direction })
   }
 
@@ -44,9 +49,9 @@ export default function Ocorrencias({ occurrences }: Props) {
     (occurrence) => occurrence._id === selectedOccurrence
   )
   return (
-    <div class="grid gap-2 grid-cols-1 lg:grid-cols-2 border border-slate-200 h-full overflow-y-auto">
-      <div class="overflow-auto h-64 lg:h-auto border-b lg:border-r lg:border-b-0 border-slate-200 lg:row-span-2">
-        <table class="border-collapse w-full cursor-default">
+    <div className="grid gap-2 grid-cols-1 lg:grid-cols-2 border border-slate-200 h-full overflow-y-auto">
+      <div className="overflow-auto h-64 lg:h-auto border-b lg:border-r lg:border-b-0 border-slate-200 lg:row-span-2">
+        <table className="border-collapse w-full cursor-default">
           <thead>
             <tr>
               <TableHeader
@@ -105,8 +110,8 @@ export default function Ocorrencias({ occurrences }: Props) {
           <tbody>
             {sortedOccurrences.map((occurrence) => (
               <tr
-                key={occurrence._id}
-                class={
+                key={occurrence._id as string}
+                className={
                   selectedOccurrence === occurrence._id
                     ? 'bg-blue-600 text-white sticky top-6 bottom-0'
                     : ''
@@ -115,11 +120,11 @@ export default function Ocorrencias({ occurrences }: Props) {
                   setSelectedOccurrence(occurrence._id as string)
                 }}
               >
-                <td class="px-2">{occurrence.ipt as string}</td>
-                <td class="px-2">{occurrence.institutionCode as string}</td>
-                <td class="px-2">{occurrence.country as string}</td>
-                <td class="px-2">{occurrence.stateProvince as string}</td>
-                <td class="px-2">{occurrence.municipality as string}</td>
+                <td className="px-2">{occurrence.ipt as string}</td>
+                <td className="px-2">{occurrence.institutionCode as string}</td>
+                <td className="px-2">{occurrence.country as string}</td>
+                <td className="px-2">{occurrence.stateProvince as string}</td>
+                <td className="px-2">{occurrence.municipality as string}</td>
               </tr>
             ))}
           </tbody>
@@ -131,7 +136,7 @@ export default function Ocorrencias({ occurrences }: Props) {
             <span className="font-bold">{key}: </span>
             {Array.isArray(value) ? (
               value.map((item: Record<string, string>) => (
-                <div class="border-l-4 border-slate-800 ml-2 pl-2">
+                <div className="border-l-4 border-slate-800 ml-2 pl-2">
                   {Object.entries(item).map(([_key, _value]) => (
                     <div>
                       <span className="font-bold">{_key}: </span>
@@ -143,18 +148,18 @@ export default function Ocorrencias({ occurrences }: Props) {
             ) : typeof value === 'object' ? (
               <span>{JSON.stringify(value)}</span>
             ) : (
-              <span>{value}</span>
+              <span>{value as string}</span>
             )}
           </div>
         ))}
       </div>
-      <div class="grid gap-2 items-start grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid gap-2 items-start grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {(occurrence?.multimedia as Record<string, string>[])?.map(
           ({ identifier, rightsHolder, created }) => (
-            <div class="relative">
+            <div className="relative">
               <a href={`https://${identifier}`} target="_blank">
                 <img src={`https://${identifier}`} alt={rightsHolder} />
-                <div class="absolute bottom-0 right-0 left-0 bg-gray-200 text-xs px-2">
+                <div className="absolute bottom-0 right-0 left-0 bg-gray-200 text-xs px-2">
                   {created}
                 </div>
               </a>
