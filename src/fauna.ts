@@ -36,8 +36,7 @@ export const processaFauna = (dwcJson: FaunaJson): FaunaJson => {
         taxon.distribution = {
           origin: distribution[0]?.establishmentMeans,
           occurrence: distribution[0]?.locality
-            ?.split(';')
-            .map((l) => `BR-${l}`),
+            ?.split(';'),
           countryCode: distribution[0]?.countryCode?.split(';')
         }
       }
