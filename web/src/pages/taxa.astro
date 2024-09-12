@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/base.astro'
 import { countTaxa, listTaxaPaginated } from '../lib/mongo'
 
-const taxaNum = await countTaxa()
+const taxaNum = (await countTaxa()) ?? 0
 
 const searchParams: Record<string, string> = Object.fromEntries(
   Array.from(Astro.url.searchParams.entries())
@@ -23,7 +23,7 @@ if (Object.keys(searchParams).length > 0) {
     data: taxa,
     total,
     totalPages
-  } = await listTaxaPaginated(
+  } = (await listTaxaPaginated(
     filter,
     searchParams.page ? +searchParams.page - 1 : 0,
     {
@@ -31,7 +31,7 @@ if (Object.keys(searchParams).length > 0) {
       scientificName: 1,
       _id: 0
     }
-  ))
+  )) ?? { data: [], total: 0, totalPages: 0 })
 }
 
 const searchParamsWithPage = (page: number) => {

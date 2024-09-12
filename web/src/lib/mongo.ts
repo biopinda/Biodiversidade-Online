@@ -1,4 +1,5 @@
 const isDeno = typeof Deno !== 'undefined'
+import type { Collection } from 'mongodb'
 const { MongoClient } = await import(
   //TODO: harcoding to true because I can't get astro to build otherwise
   isDeno ? 'https://deno.land/x/mongo@v0.32.0/mod.ts' : 'mongodb'
@@ -18,8 +19,16 @@ if (!url) {
 const client = isDeno ? new MongoClient() : new MongoClient(url)
 
 async function getCollection(dbName: string, collection: string) {
-  await client.connect(isDeno ? url : undefined)
-  return client[isDeno ? 'database' : 'db'](dbName).collection(collection)
+  const success = await client
+    .connect(isDeno ? url : undefined)
+    .then(() => true)
+    .catch(() => false)
+  if (!success) {
+    return null
+  }
+  return client[isDeno ? 'database' : 'db'](dbName).collection(
+    collection
+  ) as Collection
 }
 
 export async function listTaxa(
@@ -27,6 +36,7 @@ export async function listTaxa(
   _projection: Record<string, unknown> = {}
 ) {
   const taxa = await getCollection('dwc2json', 'taxa')
+  if (!taxa) return null
   return await taxa
     .find(filter)
     // .project(projection)
@@ -39,6 +49,7 @@ export async function listOccurrences(
   _projection: Record<string, unknown> = {}
 ) {
   const occurrences = await getCollection('dwc2json', 'ocorrencias')
+  if (!occurrences) return null
   return await occurrences
     .find(filter)
     // .project(projection)
@@ -51,6 +62,7 @@ export async function listTaxaPaginated(
   _projection: Record<string, unknown> = {}
 ) {
   const taxa = await getCollection('dwc2json', 'taxa')
+  if (!taxa) return null
   const total = await taxa.countDocuments(filter)
   const totalPages = Math.ceil(total / 50)
   const data = await taxa
@@ -69,11 +81,13 @@ export async function listTaxaPaginated(
 
 export async function countTaxa(filter: Record<string, unknown> = {}) {
   const taxa = await getCollection('dwc2json', 'taxa')
+  if (!taxa) return null
   return await taxa.countDocuments(filter)
 }
 
 export async function countTaxaRegions() {
   const taxa = await getCollection('dwc2json', 'taxa')
+  if (!taxa) return null
   return await taxa
     .aggregate([
       {
@@ -100,6 +114,7 @@ export async function countTaxaRegions() {
 
 export async function getTaxonomicStatusPerKingdom(kingdom: string) {
   const taxa = await getCollection('dwc2json', 'taxa')
+  if (!taxa) return null
   return await taxa
     .aggregate([
       {
@@ -110,7 +125,7 @@ export async function getTaxonomicStatusPerKingdom(kingdom: string) {
       {
         $group: {
           _id: {
-            $ifNull: ["$taxonomicStatus", "$nomenclaturalStatus"]
+            $ifNull: ['$taxonomicStatus', '$nomenclaturalStatus']
           },
           count: {
             $count: {}
@@ -123,6 +138,7 @@ export async function getTaxonomicStatusPerKingdom(kingdom: string) {
 
 export async function getFamilyPerKingdom(kingdom: string) {
   const taxa = await getCollection('dwc2json', 'taxa')
+  if (!taxa) return null
   return await taxa
     .aggregate([
       {
@@ -161,6 +177,7 @@ export async function getTaxon(
   includeOccurrences = false
 ) {
   const taxa = await getCollection('dwc2json', 'taxa')
+  if (!taxa) return null
   return includeOccurrences
     ? (
         await taxa

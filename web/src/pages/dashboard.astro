@@ -22,6 +22,17 @@ const [
   getFamilyPerKingdom('Fungi'),
   getFamilyPerKingdom('Animalia')
 ])
+
+if (
+  !plantae ||
+  !fungi ||
+  !animalia ||
+  !familyPerKingdomPlantae ||
+  !familyPerKingdomFungi ||
+  !familyPerKingdomAnimalia
+) {
+  return new Response(null, { status: 503 })
+}
 ---
 
 <Layout title="Dashboard">
