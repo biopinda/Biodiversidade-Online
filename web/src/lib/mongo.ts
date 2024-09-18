@@ -18,12 +18,29 @@ if (!url) {
 }
 const client = isDeno ? new MongoClient() : new MongoClient(url)
 
+function connectClientWithTimeout(timeout = 5000) {
+  return new Promise((resolve) => {
+    const timeoutTimer = setTimeout(() => {
+      resolve(false)
+    }, timeout)
+    client
+      .connect(isDeno ? url : undefined)
+      .then(
+        () => {
+          resolve(true)
+        },
+        () => {
+          resolve(false)
+        }
+      )
+      .finally(() => {
+        clearTimeout(timeoutTimer)
+      })
+  })
+}
+
 async function getCollection(dbName: string, collection: string) {
-  const success = await client
-    .connect(isDeno ? url : undefined)
-    .then(() => true)
-    .catch(() => false)
-  if (!success) {
+  if (!(await connectClientWithTimeout())) {
     return null
   }
   return client[isDeno ? 'database' : 'db'](dbName).collection(
