@@ -21,8 +21,8 @@ Um dos aspectos mais significativos desta proposta é que todo o banco de dados 
 
 Um conjunto de APIs está disponível aqui para consulta a base de dados:
 
-https://dwca2json.deno.dev/api
-
-https://dwca2json.deno.dev/mapa
+* https://dwca2json.deno.dev/api
+* https://dwca2json.deno.dev/mapa
+* https://dwca2json.deno.dev/dashboard
 
 Criticas, sugestões e "[issues](https://github.com/edalcin/DarwinCoreJSON/issues)" são sempre bem-vindas!
