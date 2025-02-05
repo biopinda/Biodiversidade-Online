@@ -1,22 +1,16 @@
-const isDeno = typeof Deno !== 'undefined'
-import type { Collection } from 'mongodb'
-const { MongoClient } = await import(
-  //TODO: harcoding to true because I can't get astro to build otherwise
-  isDeno ? 'https://deno.land/x/mongo@v0.32.0/mod.ts' : 'mongodb'
-)
+import { type Collection, MongoClient } from 'mongodb'
 
 const url =
   // @ts-ignore astro stuff
   import.meta.env.MONGO_URI ??
   // @ts-ignore ignore node stuff
-  process.env.MONGO_URI ??
-  Deno.env.get('MONGO_URI')
+  process.env.MONGO_URI
 if (!url) {
   throw new Error(
     'Please define the MONGO_URI environment variable inside .env.local'
   )
 }
-const client = isDeno ? new MongoClient() : new MongoClient(url)
+const client = new MongoClient(url)
 
 function connectClientWithTimeout(timeout = 5000) {
   return new Promise((resolve) => {
@@ -24,7 +18,7 @@ function connectClientWithTimeout(timeout = 5000) {
       resolve(false)
     }, timeout)
     client
-      .connect(isDeno ? url : undefined)
+      .connect()
       .then(
         () => {
           resolve(true)
@@ -43,9 +37,7 @@ async function getCollection(dbName: string, collection: string) {
   if (!(await connectClientWithTimeout())) {
     return null
   }
-  return client[isDeno ? 'database' : 'db'](dbName).collection(
-    collection
-  ) as Collection
+  return client.db(dbName).collection(collection) as Collection
 }
 
 export async function listTaxa(
@@ -92,7 +84,7 @@ export async function listTaxaPaginated(
   return {
     data,
     total,
-    totalPages
+    totalPages,
   }
 }
 
@@ -109,22 +101,22 @@ export async function countTaxaRegions() {
     .aggregate([
       {
         $match: {
-          taxonomicStatus: /NOME[_ ]ACEITO/
-        }
+          taxonomicStatus: /NOME[_ ]ACEITO/,
+        },
       },
       {
         $unwind: {
-          path: '$distribution.occurrence'
-        }
+          path: '$distribution.occurrence',
+        },
       },
       {
         $group: {
           _id: '$distribution.occurrence',
           count: {
-            $count: {}
-          }
-        }
-      }
+            $count: {},
+          },
+        },
+      },
     ])
     .toArray()
 }
@@ -136,19 +128,19 @@ export async function getTaxonomicStatusPerKingdom(kingdom: string) {
     .aggregate([
       {
         $match: {
-          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
-        }
+          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+        },
       },
       {
         $group: {
           _id: {
-            $ifNull: ['$taxonomicStatus', '$nomenclaturalStatus']
+            $ifNull: ['$taxonomicStatus', '$nomenclaturalStatus'],
           },
           count: {
-            $count: {}
-          }
-        }
-      }
+            $count: {},
+          },
+        },
+      },
     ])
     .toArray()
 }
@@ -162,8 +154,8 @@ export async function getFamilyPerKingdom(kingdom: string) {
         $match: {
           kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
           taxonomicStatus: /NOME[_ ]ACEITO/,
-          taxonRank: 'ESPECIE'
-        }
+          taxonRank: 'ESPECIE',
+        },
       },
       {
         $addFields: {
@@ -171,19 +163,19 @@ export async function getFamilyPerKingdom(kingdom: string) {
             $cond: {
               if: { $eq: ['$higherClassification', 'Algas'] },
               then: { $concat: ['[Algae]: ', '$class'] },
-              else: '$family'
-            }
-          }
-        }
+              else: '$family',
+            },
+          },
+        },
       },
       {
         $group: {
           _id: kingdom.toLocaleLowerCase() === 'fungi' ? '$phylum' : '$family',
           count: {
-            $count: {}
-          }
-        }
-      }
+            $count: {},
+          },
+        },
+      },
     ])
     .toArray()
 }
@@ -202,17 +194,17 @@ export async function getTaxon(
             {
               $match: {
                 kingdom,
-                taxonID: id
-              }
+                taxonID: id,
+              },
             },
             {
               $lookup: {
                 from: 'ocorrencias',
                 localField: 'scientificName',
                 foreignField: 'scientificName',
-                as: 'occurrences'
-              }
-            }
+                as: 'occurrences',
+              },
+            },
           ])
           .toArray()
       )[0]

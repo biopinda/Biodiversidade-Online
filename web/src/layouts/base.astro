@@ -1,6 +1,7 @@
 ---
-import { ViewTransitions } from 'astro:transitions'
+import { ClientRouter } from 'astro:transitions'
 const { title, useTransition, metaDescription, bodyClasses } = Astro.props
+import '../styles/global.css'
 ---
 
 <!doctype html>
@@ -38,7 +39,7 @@ const { title, useTransition, metaDescription, bodyClasses } = Astro.props
       })()
     </script> -->
     <!-- End Matomo Code -->
-    {useTransition && <ViewTransitions />}
+    {useTransition && <ClientRouter />}
   </head>
   <body class={bodyClasses ?? ''}>
     <slot />

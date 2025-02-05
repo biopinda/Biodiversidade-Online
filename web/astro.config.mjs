@@ -1,13 +1,19 @@
-import deno from '@deno/astro-adapter'
-import partytown from '@astrojs/partytown'
-import tailwind from '@astrojs/tailwind'
 import { defineConfig } from 'astro/config'
+import partytown from '@astrojs/partytown'
+import tailwindcss from '@tailwindcss/vite'
 
-import react from '@astrojs/react'
+import node from '@astrojs/node'
+
+import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
-  integrations: [tailwind(), partytown(), react()],
-  adapter: deno()
+  vite: {
+    plugins: [tailwindcss()],
+  },
+  integrations: [partytown(), react()],
+  adapter: node({
+    mode: 'standalone',
+  }),
 })
