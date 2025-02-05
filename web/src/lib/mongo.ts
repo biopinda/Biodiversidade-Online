@@ -1,4 +1,5 @@
 import { type Collection, MongoClient } from 'mongodb'
+import process from 'node:process'
 
 const url =
   // @ts-ignore astro stuff
