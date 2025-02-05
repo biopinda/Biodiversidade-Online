@@ -50,6 +50,6 @@ jobs:
       - name: Upload to Deno Deploy
         working-directory: ./web
         run: |
-          deno install --allow-all --no-check -r -f https://deno.land/x/deploy/deployctl.ts
+          deno install --allow-all --no-check --global -r -f https://deno.land/x/deploy/deployctl.ts
           cd dist
           deployctl deploy --project=${{secrets.DENO_DEPLOY_PROJECT}} --token=${{secrets.DENO_DEPLOY_TOKEN}} --prod ./server/entry.mjs

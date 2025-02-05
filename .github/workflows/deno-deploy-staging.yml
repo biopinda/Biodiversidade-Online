@@ -46,7 +46,7 @@ jobs:
           deno-version: v2.x
 
       - name: Install deployctl
-        run: deno install --allow-all --no-check -r -f https://deno.land/x/deploy/deployctl.ts
+        run: deno install --allow-all --no-check --global -r -f https://deno.land/x/deploy/deployctl.ts
 
       - id: deploy
         name: Upload to Deno Deploy
