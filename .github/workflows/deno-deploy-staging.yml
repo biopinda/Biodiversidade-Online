@@ -1,7 +1,7 @@
 name: Deno Deploy (Staging)
 on:
   pull_request_target:
-    paths: ['web/**', '.github/workflows/deno-deploy-staging.yml']
+    paths: ["web/**", ".github/workflows/deno-deploy-staging.yml"]
 
 jobs:
   deploy:
@@ -14,33 +14,36 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup node and cache
-        uses: actions/setup-node@v3
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
         with:
-          node-version: 18
-          cache: yarn
-          cache-dependency-path: web/yarn.lock
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+            ${{ runner.os }}-
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       - name: Install dependencies
         working-directory: ./web
-        run: yarn
-
-      - name: Setup deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v2.x
-
-      - name: Hackfix to build astro
-        working-directory: ./web
-        run: deno run -A ./hackfix_astrobuild.ts build
+        run: bun i --yarn --no-save
 
       - name: Build Astro
         working-directory: ./web
         env:
           MONGO_URI: ${{secrets.MONGO_URI}}
-        run: yarn run build
+        run: bun run build
+
+      - name: Setup deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.x
 
       - name: Install deployctl
         run: deno install --allow-all --no-check -r -f https://deno.land/x/deploy/deployctl.ts
