@@ -1,5 +1,6 @@
 import { type Collection, MongoClient } from 'mongodb'
 import process from 'node:process'
+import { Regex } from 'lucide-react'
 
 const url =
   // @ts-ignore astro stuff
@@ -85,7 +86,7 @@ export async function listTaxaPaginated(
   return {
     data,
     total,
-    totalPages,
+    totalPages
   }
 }
 
@@ -95,29 +96,44 @@ export async function countTaxa(filter: Record<string, unknown> = {}) {
   return await taxa.countDocuments(filter)
 }
 
-export async function countTaxaRegions() {
+export interface TaxaFilter {
+  kingdom?: string
+  family?: string
+}
+
+export async function countTaxaRegions(filter: TaxaFilter = {}) {
   const taxa = await getCollection('dwc2json', 'taxa')
   if (!taxa) return null
+
+  const matchStage: Record<string, unknown> = {
+    taxonomicStatus: /NOME[_ ]ACEITO/
+  }
+
+  if (filter.kingdom) {
+    matchStage.kingdom = new RegExp(filter.kingdom, 'i')
+  }
+  if (filter.family) {
+    matchStage.family = new RegExp(filter.family, 'i')
+  }
+
   return await taxa
     .aggregate([
       {
-        $match: {
-          taxonomicStatus: /NOME[_ ]ACEITO/,
-        },
+        $match: matchStage
       },
       {
         $unwind: {
-          path: '$distribution.occurrence',
-        },
+          path: '$distribution.occurrence'
+        }
       },
       {
         $group: {
           _id: '$distribution.occurrence',
           count: {
-            $count: {},
-          },
-        },
-      },
+            $count: {}
+          }
+        }
+      }
     ])
     .toArray()
 }
@@ -129,19 +145,19 @@ export async function getTaxonomicStatusPerKingdom(kingdom: string) {
     .aggregate([
       {
         $match: {
-          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-        },
+          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
+        }
       },
       {
         $group: {
           _id: {
-            $ifNull: ['$taxonomicStatus', '$nomenclaturalStatus'],
+            $ifNull: ['$taxonomicStatus', '$nomenclaturalStatus']
           },
           count: {
-            $count: {},
-          },
-        },
-      },
+            $count: {}
+          }
+        }
+      }
     ])
     .toArray()
 }
@@ -155,8 +171,8 @@ export async function getFamilyPerKingdom(kingdom: string) {
         $match: {
           kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
           taxonomicStatus: /NOME[_ ]ACEITO/,
-          taxonRank: 'ESPECIE',
-        },
+          taxonRank: 'ESPECIE'
+        }
       },
       {
         $addFields: {
@@ -164,19 +180,19 @@ export async function getFamilyPerKingdom(kingdom: string) {
             $cond: {
               if: { $eq: ['$higherClassification', 'Algas'] },
               then: { $concat: ['[Algae]: ', '$class'] },
-              else: '$family',
-            },
-          },
-        },
+              else: '$family'
+            }
+          }
+        }
       },
       {
         $group: {
           _id: kingdom.toLocaleLowerCase() === 'fungi' ? '$phylum' : '$family',
           count: {
-            $count: {},
-          },
-        },
-      },
+            $count: {}
+          }
+        }
+      }
     ])
     .toArray()
 }
@@ -195,17 +211,17 @@ export async function getTaxon(
             {
               $match: {
                 kingdom,
-                taxonID: id,
-              },
+                taxonID: id
+              }
             },
             {
               $lookup: {
                 from: 'ocorrencias',
                 localField: 'scientificName',
                 foreignField: 'scientificName',
-                as: 'occurrences',
-              },
-            },
+                as: 'occurrences'
+              }
+            }
           ])
           .toArray()
       )[0]

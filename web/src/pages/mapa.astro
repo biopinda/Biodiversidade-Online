@@ -1,19 +1,5 @@
 ---
-import Map from '../components/Map.astro'
-import { countTaxaRegions } from '../lib/mongo'
-
-const taxaRegions: { _id: string; count: number }[] =
-  (await countTaxaRegions()) ?? [{ _id: '', count: 0 }]
+import MapPage from '../components/MapPage.tsx'
 ---
 
-<div
-  class="h-screen w-screen flex items-stretch justify-stretch overflow-hidden"
->
-  <Map
-    full
-    data={[
-      ['Estado', 'Taxa'],
-      ...taxaRegions.map(({ _id, count }) => [_id, count] as [string, number])
-    ]}
-  />
-</div>
+<MapPage client:idle />
