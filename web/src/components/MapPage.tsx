@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import Map from '@/components/Map.tsx'
 import MapFilter from '@/components/MapFilter.tsx'
-import '@/styles/global.css'
 
 interface RegionData {
   _id: string
