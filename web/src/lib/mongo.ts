@@ -169,7 +169,7 @@ export async function getFamilyPerKingdom(kingdom: string) {
       {
         $match: {
           kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-          taxonomicStatus: /NOME[_ ]ACEITO/,
+          taxonomicStatus: 'NOME_ACEITO',
           taxonRank: 'ESPECIE'
         }
       },
@@ -186,7 +186,8 @@ export async function getFamilyPerKingdom(kingdom: string) {
       },
       {
         $group: {
-          _id: kingdom.toLocaleLowerCase() === 'fungi' ? '$phylum' : '$family',
+          // _id: kingdom.toLocaleLowerCase() === 'fungi' ? '$phylum' : '$family',
+          _id: '$family',
           count: {
             $count: {}
           }
