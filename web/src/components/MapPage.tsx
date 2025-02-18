@@ -7,10 +7,15 @@ interface RegionData {
   count: number
 }
 
+interface TaxaResponse {
+  total: number
+  regions: RegionData[]
+}
+
 type Kingdom = 'Plantae' | 'Fungi' | 'Animalia'
 
 export default function MapPage() {
-  const [taxaRegions, setTaxaRegions] = useState<RegionData[]>([])
+  const [taxaData, setTaxaData] = useState<TaxaResponse>({ total: 0, regions: [] })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -30,7 +35,7 @@ export default function MapPage() {
         throw new Error('Falha ao carregar dados dos estados')
       }
       const data = await response.json()
-      setTaxaRegions(data)
+      setTaxaData(data)
     } catch (err) {
       setError(
         err instanceof Error
@@ -44,7 +49,6 @@ export default function MapPage() {
 
   const handleFilterChange = useCallback(
     (kingdom: Kingdom | null, family: string | null) => {
-      console.log('filterChange', kingdom, family)
       fetchRegions(kingdom, family)
     },
     []
@@ -57,7 +61,10 @@ export default function MapPage() {
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden">
-      <MapFilter onFilterChange={handleFilterChange} />
+      <MapFilter 
+        onFilterChange={handleFilterChange} 
+        totalCount={taxaData.total}
+      />
       {error ? (
         <div className="flex-1 flex items-center justify-center text-red-500">
           {error}
@@ -68,7 +75,7 @@ export default function MapPage() {
           full
           data={[
             ['Estado', 'Taxa'],
-            ...taxaRegions.map(
+            ...taxaData.regions.map(
               ({ _id, count }) => [_id, count] as [string, number]
             )
           ]}

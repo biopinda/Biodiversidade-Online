@@ -1,5 +1,4 @@
 import { type Collection, MongoClient } from 'mongodb'
-import process from 'node:process'
 
 const url =
   // @ts-ignore astro stuff
@@ -115,26 +114,49 @@ export async function countTaxaRegions(filter: TaxaFilter = {}) {
     matchStage.family = new RegExp(filter.family, 'i')
   }
 
-  return await taxa
+  const [result] = await taxa
     .aggregate([
       {
         $match: matchStage
       },
       {
-        $unwind: {
-          path: '$distribution.occurrence'
-        }
-      },
-      {
-        $group: {
-          _id: '$distribution.occurrence',
-          count: {
-            $count: {}
-          }
+        $facet: {
+          total: [
+            {
+              $count: 'count'
+            }
+          ],
+          byRegion: [
+            {
+              $unwind: {
+                path: '$distribution.occurrence'
+              }
+            },
+            {
+              $group: {
+                _id: '$distribution.occurrence',
+                count: {
+                  $count: {}
+                }
+              }
+            }
+          ]
         }
       }
     ])
     .toArray()
+
+  if (!result) {
+    return {
+      total: 0,
+      regions: []
+    }
+  }
+
+  return {
+    total: result.total[0]?.count || 0,
+    regions: result.byRegion
+  }
 }
 
 export async function getTaxonomicStatusPerKingdom(kingdom: string) {
