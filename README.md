@@ -10,6 +10,10 @@ Este projeto iniciou com a proposta de converter dados de ocorrência e de lista
 
 ```mermaid
 flowchart TD
+    0[IPTs institucionais] --> 1
+    0 --> 2
+    0 --> 3
+    0 --> 4
     1[Espécies da Flora em DwC] --> A[Espécies no MongoDB]
     2[Espécies da Fauna em DwC] --> A
     3[Ocorrencias de Fauna] --> B[Ocorrencias no Mongo]
