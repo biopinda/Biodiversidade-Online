@@ -6,11 +6,10 @@ export const GET: APIRoute = async ({ url }) => {
     const params = url.searchParams
     const filter: TaxaFilter = {}
 
-    if (params.has('kingdom')) {
-      filter.kingdom = params.get('kingdom')!
-    }
-    if (params.has('family')) {
-      filter.family = params.get('family')!
+    for (const [key, value] of params.entries()) {
+      if (value.trim()) {
+        filter[key] = value.trim()
+      }
     }
 
     const regions = await countTaxaRegions(filter)

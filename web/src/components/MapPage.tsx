@@ -15,20 +15,15 @@ interface TaxaResponse {
 type Kingdom = 'Plantae' | 'Fungi' | 'Animalia'
 
 export default function MapPage() {
-  const [taxaData, setTaxaData] = useState<TaxaResponse>({ total: 0, regions: [] })
-  const [isLoading, setIsLoading] = useState(true)
+  const [taxaData, setTaxaData] = useState<TaxaResponse>({
+    total: 0,
+    regions: []
+  })
   const [error, setError] = useState<string | null>(null)
 
-  const fetchRegions = async (
-    kingdom: Kingdom | null,
-    family: string | null
-  ) => {
-    setIsLoading(true)
+  const fetchRegions = async (filter: Record<string, string>) => {
     try {
-      const params = new URLSearchParams({
-        ...(kingdom && { kingdom }),
-        ...(family && { family })
-      })
+      const params = new URLSearchParams(filter)
 
       const response = await fetch(`/api/taxaCountByState?${params.toString()}`)
       if (!response.ok) {
@@ -42,27 +37,22 @@ export default function MapPage() {
           ? err.message
           : 'Falha ao carregar dados dos estados'
       )
-    } finally {
-      setIsLoading(false)
     }
   }
 
-  const handleFilterChange = useCallback(
-    (kingdom: Kingdom | null, family: string | null) => {
-      fetchRegions(kingdom, family)
-    },
-    []
-  )
+  const handleFilterChange = useCallback((filters: Record<string, string>) => {
+    fetchRegions(filters)
+  }, [])
 
   // Initial load
   useEffect(() => {
-    fetchRegions(null, null)
+    fetchRegions({})
   }, [])
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden">
-      <MapFilter 
-        onFilterChange={handleFilterChange} 
+      <MapFilter
+        onFilterChange={handleFilterChange}
         totalCount={taxaData.total}
       />
       {error ? (
@@ -80,11 +70,6 @@ export default function MapPage() {
             )
           ]}
         />
-      )}
-      {isLoading && (
-        <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
-          Carregando...
-        </div>
       )}
     </div>
   )

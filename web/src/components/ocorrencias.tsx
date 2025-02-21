@@ -34,14 +34,12 @@ export default function Ocorrencias({ occurrences }: Props) {
 
   const resortOccurrences = (byField: string) => {
     const direction = sortedBy.field === byField ? sortedBy.direction * -1 : 1
-    console.log({ byField, direction })
     const sorted = [...occurrences].sort((a, b) => {
       if ((a[byField] ?? '') < (b[byField] ?? '')) return -1 * direction
       if ((a[byField] ?? '') > (b[byField] ?? '')) return 1 * direction
       return 0
     })
     setSortedOccurrences(sorted)
-    console.log(sorted)
     setSortedBy({ field: byField, direction })
   }
 

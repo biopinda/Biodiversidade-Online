@@ -95,8 +95,7 @@ export async function countTaxa(filter: Record<string, unknown> = {}) {
 }
 
 export interface TaxaFilter {
-  kingdom?: string
-  family?: string
+  [key: string]: string | RegExp
 }
 
 export async function countTaxaRegions(filter: TaxaFilter = {}) {
@@ -107,12 +106,20 @@ export async function countTaxaRegions(filter: TaxaFilter = {}) {
     taxonomicStatus: /NOME[_ ]ACEITO/
   }
 
-  if (filter.kingdom) {
-    matchStage.kingdom = new RegExp(filter.kingdom, 'i')
-  }
-  if (filter.family) {
-    matchStage.family = new RegExp(filter.family, 'i')
-  }
+  // Add all filters as case-insensitive regex
+  Object.entries(filter).forEach(([key, value]) => {
+    if (value) {
+      if (key === 'genus' || key === 'specificEpithet') {
+        matchStage[key] =
+          value instanceof RegExp ? value : new RegExp(`^${value.trim()}$`, 'i')
+      } else {
+        matchStage[key] =
+          value instanceof RegExp
+            ? value
+            : new RegExp(`\\b${value.trim()}\\b`, 'i')
+      }
+    }
+  })
 
   const [result] = await taxa
     .aggregate([
