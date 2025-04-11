@@ -1,8 +1,9 @@
 import { parse } from 'https://deno.land/x/xml@2.1.0/mod.ts'
 import { download } from 'https://deno.land/x/download@v2.0.2/mod.ts'
-import { decompress } from 'https://deno.land/x/zip@v1.2.5/mod.ts'
-import { DB } from 'https://deno.land/x/sqlite@v3.8/mod.ts'
+import extract from 'npm:extract-zip'
+import { DatabaseSync } from 'node:sqlite'
 import cliProgress from 'npm:cli-progress'
+import path from 'node:path'
 
 type WithAttribute<A extends string, T> = {
   [key in `@${A}`]: T
@@ -28,13 +29,13 @@ type DwcJson = Record<
 >
 
 const _parseJsonEntry = (entry: CoreSpec | ExtensionSpec) => {
-  const fields = []
+  const fields: string[] = []
   fields[(entry.id ?? entry.coreid)['@index']] = 'INDEX'
   if (!Array.isArray(entry.field)) {
     entry.field = [entry.field]
   }
   entry.field.forEach((field) => {
-    fields[field['@index']] = field['@term'].split('/').pop()
+    fields[field['@index']] = field['@term'].split('/').pop()!
   })
   return { file: entry.files.location, fields }
 }
@@ -138,14 +139,14 @@ export const buildJson = async (folder: string) => {
   }
   const ref = {
     core: _parseJsonEntry(archive.core),
-    extensions: archive.extension.map(_parseJsonEntry)
+    extensions: archive.extension.map(_parseJsonEntry),
   }
   const root = await getFileFields(
-    `${folder}/${ref.core.file}`,
-    ref.core.fields
+    `${folder}/${ref.core!.file}`,
+    ref.core!.fields
   )
   for (const extension of ref.extensions) {
-    await addExtension(root, `${folder}/${extension.file}`, extension.fields)
+    await addExtension(root, `${folder}/${extension!.file}`, extension!.fields)
   }
   return {
     json: root,
@@ -153,12 +154,12 @@ export const buildJson = async (folder: string) => {
       extractEml(
         parse(await Deno.readTextFile(`${folder}/eml.xml`)) as OuterEml
       )
-    )
+    ),
   }
 }
 
 const _addLineToTable = (
-  db: InstanceType<typeof DB>,
+  db: InstanceType<typeof DatabaseSync>,
   line: string,
   fields: string[],
   table: string
@@ -172,14 +173,17 @@ const _addLineToTable = (
         obj[field] = values[index]
       }
     })
-    db.query(`INSERT INTO ${table} VALUES (?, ?)`, [id, JSON.stringify(obj)])
+    db.prepare(`INSERT INTO ${table} VALUES (?, ?)`).run(
+      id,
+      JSON.stringify(obj)
+    )
   }
 }
 
 export const buildSqlite = async (folder: string, chunkSize = 5000) => {
   {
-    const db = new DB(':memory:')
-    db.execute('CREATE TABLE core (id TEXT PRIMARY KEY, json JSON)')
+    const db = new DatabaseSync(':memory:')
+    db.exec('CREATE TABLE core (id TEXT PRIMARY KEY, json JSON)')
     const contents = await Deno.readTextFile(`${folder}/meta.xml`)
     const { archive } = parse(contents) as unknown as {
       archive: { core: CoreSpec; extension: ExtensionSpec[] }
@@ -189,32 +193,35 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
       extensions: (Array.isArray(archive.extension)
         ? archive.extension
         : [archive.extension].filter(Boolean)
-      ).map(_parseJsonEntry)
+      ).map(_parseJsonEntry),
     }
     const multibar = new cliProgress.MultiBar(
       {
         clearOnComplete: false,
         hideCursor: true,
-        format: ' {bar} | {filename} | {value}/{total}'
+        format: ' {bar} | {filename} | {value}/{total}',
       },
       cliProgress.Presets.shades_grey
     )
     const b1 = multibar.create(ref.extensions.length + 1, 0)
     let lineCount = 0
-    await streamProcessor(`${folder}/${ref.core.file}`, (_line) => {
+    await streamProcessor(`${folder}/${ref.core!.file}`, (_line) => {
       lineCount++
     })
-    const b2 = multibar.create(lineCount, 0, { filename: ref.core.file })
-    b1.increment(1, { filename: ref.core.file })
-    await streamProcessor(`${folder}/${ref.core.file}`, (line) => {
-      _addLineToTable(db, line, ref.core.fields, 'core')
+    const b2 = multibar.create(lineCount, 0, { filename: ref.core!.file })
+    b1.increment(1, { filename: ref.core!.file })
+    await streamProcessor(`${folder}/${ref.core!.file}`, (line) => {
+      _addLineToTable(db, line, ref.core!.fields, 'core')
       b2.increment()
     })
     for (const extension of ref.extensions) {
+      if (!extension) {
+        continue
+      }
       const tableName = extension.file.split('.')[0] as string
       // console.log(`prepping EXT:${tableName}`)
-      db.execute(`CREATE TABLE ${tableName} (id, json JSON)`)
-      db.execute(`CREATE INDEX idx_${tableName}_id ON ${tableName} (id)`)
+      db.exec(`CREATE TABLE ${tableName} (id, json JSON)`)
+      db.exec(`CREATE INDEX idx_${tableName}_id ON ${tableName} (id)`)
       b1.increment(1, { filename: extension.file })
       let lineCount = 0
       await streamProcessor(`${folder}/${extension.file}`, (_line) => {
@@ -229,11 +236,15 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
       // console.log(db.query(`SELECT COUNT(*) FROM ${tableName}`)[0][0])
     }
     multibar.stop()
-    const extensionNames = ref.extensions.map((ext) => ext.file.split('.')[0])
+    const extensionNames = ref.extensions.map((ext) => ext!.file.split('.')[0])
 
     return {
       get length() {
-        return db.query(`SELECT COUNT(id) FROM core`)[0][0] as number
+        return (
+          db.prepare(`SELECT COUNT(id) count FROM core`).get() as {
+            count: number
+          }
+        ).count as number
       },
       *[Symbol.iterator]() {
         let batch: [string, RU][] = []
@@ -260,7 +271,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
               GROUP BY id
           )
           `
-            )
+            ),
           ].join(', ')}
           SELECT
           c.id,
@@ -285,9 +296,9 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
         GROUP BY
             c.id;`
           try {
-            batch = db
-              .query(queryString)
-              .map(([id, json]) => [id, JSON.parse(json as string)]) as [
+            batch = (
+              db.prepare(queryString).all() as { id: string; json: string }[]
+            ).map(({ id, json }) => [id, JSON.parse(json as string)]) as [
               string,
               RU
             ][]
@@ -302,7 +313,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
         } while (batch.length > 0)
         db.close()
         return null
-      }
+      },
     }
   }
 }
@@ -324,7 +335,7 @@ export async function processaZip(
   chunkSize = 5000
 ): Promise<ReturnType<typeof buildJson> | ReturnType<typeof buildSqlite>> {
   await download(url, { file: 'temp.zip', dir: '.temp' })
-  await decompress('.temp/temp.zip', '.temp')
+  await extract('.temp/temp.zip', { dir: path.resolve('.temp') })
   const ret = sqlite
     ? await buildSqlite('.temp', chunkSize)
     : await buildJson('.temp')
