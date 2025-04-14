@@ -14,7 +14,7 @@ on:
     - cron: '0 2 * * 0'
 
 env:
-  DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=florafunga
+  DWCA_URL: https://ipt.jbrj.gov.br/jbrj/resource?r=lista_especies_flora_brasil
 
 jobs:
   update-db:
