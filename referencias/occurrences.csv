@@ -113,8 +113,7 @@ Fiocruz/CSIOC - Coleção de Simulídeos do Instituto Oswaldo Cruz,fiocruz,Anima
 Fiocruz/CTIOC - Coleção de Triatomíneos do Instituto Oswaldo Cruz,fiocruz,Animalia,fiocruz_ctioc,http://ipt.fiocruz.br/ipt/
 Levantamento de flebotomíneos da Terra Indígena Suruwaha Sul do Amazonas Brasil,fiocruz,Animalia,fiocruz_suruwaha_01,http://ipt.fiocruz.br/ipt/
 Levantamento de flebotomíneos da Terra Indígena Wajãpi Amazônia Oriental Brasil,fiocruz,Animalia,fiocruz_wajapi_01,http://ipt.fiocruz.br/ipt/
-IRATI - Herbário da Universidade Estadual do Centro-Oeste. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,irati,https://ipt.jbrj.gov.br/jabot/
-HACAM - Herbário da Universidade Estadual da Paraíba. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,hacam,https://ipt.jbrj.gov.br/jabot/
+ACAM - Herbário da Universidade Estadual da Paraíba. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,acam,https://ipt.jbrj.gov.br/jabot/
 AFR - Herbário Anders Fredrik Regnell. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,afr,https://ipt.jbrj.gov.br/jabot/
 BHCB - Herbário da Universidade Federal Minas Gerais. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,bhcb,https://ipt.jbrj.gov.br/jabot/
 BRBA - Herbário da Universidade Federal do Oeste da Bahia. Jabot - Banco de Dados da Flora Brasileira,jabot,Plantae,brba,https://ipt.jbrj.gov.br/jabot/
@@ -458,4 +457,38 @@ Levantamento de Ictiofauna do Parque Nacional Nascentes do Rio Parnaíba - LISE 
 UEL - Coleção de Peixes - Museu de Zoologia da Universidade Estadual de Londrina,sibbr,Animalia,uel_mzuel_peixes,https://ipt.sibbr.gov.br/sibbr/
 ZUEC-HEM - Coleção de Hemiptera do Museu de Zoologia da UNICAMP,sibbr,Animalia,unicamp_hemiptera_01,https://ipt.sibbr.gov.br/sibbr/
 BHZB - Herbário da Fundação de Parques Municipais e Zoobotânica de Belo Horizonte / Jardim Botânico,jabot,Plantae,bhzb,https://ipt.jbrj.gov.br/jabot/
-HURG - Herbário da Universidade Federal do Rio Grande,jabot,Plantae,hurg,https://ipt.jbrj.gov.br/jabot/
+SETE - Herbário da Universidade Federal de São João del-Rei, Campus Sete Lagoas,jabot,Plantae,sete,https://ipt.jbrj.gov.br/jabot/
+Coleção de Archaeognatha do MZUSP,mzusp,Animalia,mzusp_archaeognatha_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Blattodea do MZUSP,mzusp,Animalia,mzusp_blattodea_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Carcinologia do MZUSP,mzusp,Animalia,mzusp_carcinologia_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Coleoptera (Imatures) do MZUSP,mzusp,Animalia,mzusp_coleoptera_imatures_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Coleoptera do MZUSP,mzusp,Animalia,mzusp_coleoptera_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Collembola do MZUSP,mzusp,Animalia,mzusp_collembola_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Dermaptera do MZUSP,mzusp,Animalia,mzusp_dermaptera_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Diplura do MZUSP,mzusp,Animalia,mzusp_diplura,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Diptera do MZUSP,mzusp,Animalia,mzusp_diptera,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Embioptera do MZUSP,mzusp,Animalia,mzusp_embioptera,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Ephemeroptera do MZUSP,mzusp,Animalia,mzusp_ephemeroptera,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Hemiptera do MZUSP,mzusp,Animalia,mzusp_hemiptera,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Herpetologia (Amphibians) do MZUSP,mzusp,Animalia,mzusp_herpetologia_amphibians_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Herpetologia (Crocodiles) do MZUSP,mzusp,Animalia,mzusp_herpetologia_crocodiles_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Herpetologia (Lizards) do MZUSP),mzusp,Animalia,mzusp_herpetologia_lizards_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Herpetologia (Serpentes) do MZUSP,mzusp,Animalia,mzusp_herpetologia_serpentes_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Herpetologia (Turtles) do MZUSP,mzusp,Animalia,mzusp_herpetologia_turtles,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Hymenoptera do MZUSP,mzusp,Animalia,mzusp_hymenoptera_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Ictiologia do MZUSP,mzusp,Animalia,mzusp_ictiologia,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Isoptera do MZUSP,mzusp,Animalia,mzusp_isoptera_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Lepidoptera do MZUSP,mzusp,Animalia,mzuso_lepidoptera,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Malacologia do MZSUP,mzusp,Animalia,mzusp_malacologia,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Mantodea do MZUSP,mzusp,Animalia,mzusp_mantodea,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Mastozoologia do MZUSP,mzusp,Animalia,mzusp_mastozoologia_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Ornitologia do MZUSP,mzusp,Animalia,mzusp_ornitologia_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Orthoptera do MZUSP,mzusp,Animalia,mzusp_orthoptera_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Paleontologia do MZSUP,mzusp,Animalia,mzusp_paleontologia_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Phthiraptera do MZUSP,mzusp,Animalia,mzusp_phthiraptera_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Plecoptera do MZSUP,mzusp,Animalia,mzusp_plecoptera_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Protura do MZUSP,mzusp,Animalia,mzusp_protura_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Psocoptera do MZUSP,mzusp,Animalia,mzusp_psocoptera,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Siphonaptera do MZUSP,mzusp,Animalia,mzusp_siphonaptera_01,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Trichoptera do MZUSP,mzusp,Animalia,mzusp_trichoptera,https://ipt.sibbr.gov.br/mzusp/
+Coleção de Zygentoma do MZUSP,mzusp,Animalia,mzusp_zygentoma_01,https://ipt.sibbr.gov.br/mzusp/
