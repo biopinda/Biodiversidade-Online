@@ -28,6 +28,7 @@ flowchart LR
     1 --> 11[MN]
     1 --> 12[MPEG]
     1 --> 13[INPA]
+    1 --> 14[MUZUSP]
     1 --> C
 
     11 --> C
@@ -35,6 +36,7 @@ flowchart LR
     12 --> D
     13 --> D
     13 --> C
+    14 --> C
     2 --> A
     2 --> B
     2 --> D
