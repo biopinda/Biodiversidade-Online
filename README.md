@@ -4,51 +4,25 @@
 [![Docker Image](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/docker.yml/badge.svg)](https://github.com/edalcin/DarwinCoreJSON/pkgs/container/darwincorejson)
 
 # Base de Dados Integrada da Biodiversidade Brasileira
-[Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)
-
+# (DwC2JSON V4.0)
+[Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)<br>
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10782707.svg)](https://doi.org/10.5281/zenodo.10782707)
 
 ## Histórico do Projeto
 
-Este projeto iniciou com a proposta de converter dados de ocorrência e de lista de espécies no formato [Darwin Core (DwC)](), disponíveis nos [IPTs] de diferentes instituições nacionais, para o formato [JSON]() e carregar os dados em um banco de dados [MongoDB](). A motivação para o projeto era a de facilitar o acesso aos dados, transformando-os de um formato de tabelas relacionadas, no [DwC Archive](), para um formato de documentos JSON, armazenados em um banco de dados orientado a documentos, como o MongoDB.
+Este projeto iniciou em novembro de 2023 com a proposta de converter dados da [Flora e Funga do Brasil](http://floradobrasil.jbrj.gov.br/reflora/listaBrasil/ConsultaPublicaUC/ConsultaPublicaUC.do), do formato [___Darwin Core Archive___ (DwC-A)](https://www.gbif.org/pt/darwin-core), [disponível](https://ipt.jbrj.gov.br/jbrj/resource?r=lista_especies_flora_brasil) no IPT do JBRJ, para o [formato JSON](https://pt.wikipedia.org/wiki/JSON) e criar uma base de dados neste formato no [MongoDB](https://www.mongodb.com/).
+
+Após esta etapa, decidimos agregar à base de dados no MongoDB o [Catálogo Taxonômico da Fauna do Brasil](http://fauna.jbrj.gov.br/), também [disponível](https://ipt.jbrj.gov.br/jbrj/resource?r=catalogo_taxonomico_da_fauna_do_brasil) no IPT do JBRJ.
+
+Com a agregação das duas fontes de dados - flora (+fungi) e fauna, um conjunto de dados taxonômicos com mais de 290 mil nomes passou a ficar disponível e, como prova de conceito, algumas interfaces para estes conjuntos de dados foram criadas:
+
+* [Busca por gênero ou espécie](https://dwc2json.dalc.in/taxa)
+* [Conjunto de APIs](https://dwc2json.dalc.in/api)
+* [Mapa de Distribuição](https://dwc2json.dalc.in/mapa)
+* [Dashboard](https://dwc2json.dalc.in/dashboard)
+
+Na terceira etapa, resolvemos agregar dados de ocorrência, provenientes se 15 diferentes [IPTs](https://www.gbif.org/pt/ipt), disponibilizando 493 conjuntos de dados de ocorrências ([lista](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/occurrences.csv)). Vale notar que os conjuntos de dados passam por uma curadoria, evitando a duplicação de dados na base do MongoDB, por conjuntos de dados que estão publicados em diferentes IPTs (ver ["matriz de seleção"](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/matrizSelecaoFontes.md)).
+
+Um diferencial desta base de dados é que todo o domingo 3 "actions" de atualização da base de dados no MongoDB são acionadas, percorrendo [uma rotina]() que atualiza a base de dados taxonômica e de ocorrências, com base nas últimas versões dos conjuntos de dados disponíveis nos IPTs.
 
 
-
-
-
-```mermaid
-flowchart LR
-    0[IPTs institucionais] --> 1[SiBBr]
-    
-    0 --> 2[JBRJ]
-    2 --> 3[JABOT]
-    2 --> 4[REFLORA]
-    0 --> 5[FIOCRUZ]
-    0 --> 6[CRIA]
-    0 --> 7[TAXONLINE]
-    1 --> 11[MN]
-    1 --> 12[MPEG]
-    1 --> 13[INPA]
-    1 --> 14[MUZUSP]
-    1 --> C
-
-    11 --> C
-    12 --> C
-    12 --> D
-    13 --> D
-    13 --> C
-    14 --> C
-    2 --> A
-    2 --> B
-    2 --> D
-    3 --> D
-    4 --> D
-    5 --> C
-    6 --> C
-    6 --> D
-    7 --> C
-
-    A[Espécies da Flora em DwC] --> A1[Taxa no MongoDB]
-    B[Espécies da Fauna em DwC] --> A1
-    C[Ocorrencias de Fauna] --> C1[Ocorrencias no MongoDB]
-    D[Ocorrencia de Flora] --> C1
-```
