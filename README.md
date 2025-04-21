@@ -23,6 +23,18 @@ Com a agregação das duas fontes de dados - flora (+fungi) e fauna, um conjunto
 
 Na terceira etapa, resolvemos agregar dados de ocorrência, provenientes se 15 diferentes [IPTs](https://www.gbif.org/pt/ipt), disponibilizando 493 conjuntos de dados de ocorrências ([lista](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/occurrences.csv)). Vale notar que os conjuntos de dados passam por uma curadoria, evitando a duplicação de dados na base do MongoDB, por conjuntos de dados que estão publicados em diferentes IPTs (ver ["matriz de seleção"](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/matrizSelecaoFontes.md)).
 
-Um diferencial desta base de dados é que todo o domingo 3 "actions" de atualização da base de dados no MongoDB são acionadas, percorrendo [uma rotina]() que atualiza a base de dados taxonômica e de ocorrências, com base nas últimas versões dos conjuntos de dados disponíveis nos IPTs.
+Um diferencial desta base de dados é que todo o domingo 3 "actions" de atualização da base de dados no MongoDB são acionadas, percorrendo [uma rotina](https://github.com/edalcin/DarwinCoreJSON/blob/main/atualizacao.md) que atualiza a base de dados taxonômica e de ocorrências, com base nas últimas versões dos conjuntos de dados disponíveis nos IPTs.
 
+## Versão atual da proposta do projeto - versão 4.0
 
+Acreditamos que uma versão integrada destes conjuntos de dados - fauna, flora, fungos, e suas ocorrências, em uma base atualizada, de dados de acesso aberto e gratuito, é um recurso valioso, que pode:
+
+* servir para gerar informação relevante para a conservação e uso sustentável e socialmente justo da biodiversidade;
+* possibilitar a agregação de outros conjuntos de dados relevantes, como dados de espécies invasoras,dados de avaliação de risco de extinção, dados de interação entre animais e plantas, dados de diversidade química e genética, dado de usos por comunidades tradicionais etc., aumentando significativamente o potencial de gerar informação relevante com estes conjuntos de dados;
+* ser utilizado para treinar modelos de inteligência artificial, aumentando a precisão e confiabilidade, possibilitar uma generalização mais eficaz, reduzir o viés e melhorar o desempenho e eficiência destes modelos.
+
+## Evolução da proposta e do projeto
+
+Uma vez que o produto deste projeto são os dois conjuntos de dados em formato JSON, gerenciados pelo MongoDB - "taxa" e "ocorrencias", pensamos que o futuro da proposta pode ser direcionado para agregar qualidade nestes conjuntos de dados, em espacial nos dados de ocorrência, [notoriamente de baixa qualidade](https://www.ibge.gov.br/geociencias/investigacoes-experimentais-geo/informacoes-geocientificas-experimentais/38371-avaliacao-dos-dados-sobre-a-biodiversidade-brasileira.html).
+
+Comentários e sugestões são muito bem-vindos, na [área de "issues"](https://github.com/edalcin/DarwinCoreJSON/issues).
