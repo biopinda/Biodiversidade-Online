@@ -6,7 +6,7 @@
 # Base de Dados Integrada da Biodiversidade Brasileira
 # (DwC2JSON V4.0)
 [Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)<br>
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10782707.svg)](https://doi.org/10.5281/zenodo.10782707)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15261018.svg)](https://doi.org/10.5281/zenodo.15261018)
 
 ## Histórico do Projeto
 
