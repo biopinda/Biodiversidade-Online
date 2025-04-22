@@ -30,8 +30,8 @@ Um diferencial desta base de dados é que todo o domingo 3 "actions" de atualiza
 Acreditamos que uma versão integrada destes conjuntos de dados - fauna, flora, fungos, e suas ocorrências, em uma base atualizada, de dados de acesso aberto e gratuito, é um recurso valioso, que pode:
 
 * servir para gerar informação relevante para a conservação e uso sustentável e socialmente justo da biodiversidade;
-* possibilitar a agregação de outros conjuntos de dados relevantes, como dados de espécies invasoras,dados de avaliação de risco de extinção, dados de interação entre animais e plantas, dados de diversidade química e genética, dado de usos por comunidades tradicionais etc., aumentando significativamente o potencial de gerar informação relevante com estes conjuntos de dados;
-* ser utilizado para treinar modelos de inteligência artificial, aumentando a precisão e confiabilidade, possibilitar uma generalização mais eficaz, reduzir o viés e melhorar o desempenho e eficiência destes modelos.
+* possibilitar a agregação de outros conjuntos de dados relevantes como dados de espécies invasoras, dados de avaliação de risco de extinção, dados de interação entre animais e plantas, dados de diversidade química e genética, dado de usos por comunidades tradicionais etc., aumentando significativamente o potencial de gerar informação relevante com estes conjuntos de dados;
+* ser utilizado para treinar modelos de inteligência artificial, aumentando a precisão e confiabilidade, possibilitando uma generalização mais eficaz, reduzindo o viés e melhorando o desempenho e eficiência destes modelos.
 
 ## Evolução da proposta e do projeto
 
