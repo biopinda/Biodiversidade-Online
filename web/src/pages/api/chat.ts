@@ -185,8 +185,9 @@ export async function POST({ request }: APIContext) {
     apiKey
   })
 
-  const mongoDBonnectionString = import.meta.env.MONGODB_URI_READONLY
-  if (!mongoDBonnectionString) {
+  const mongoDBConnectionString =
+    import.meta.env.MONGODB_URI_READONLY ?? process.env.MONGODB_URI_READONLY
+  if (!mongoDBConnectionString) {
     return new Response('Setup needed: MongoDB Connection string missing', {
       status: 500,
       headers: { 'Content-Type': 'text/plain' }
@@ -195,7 +196,7 @@ export async function POST({ request }: APIContext) {
 
   const mongodbTransport = new Experimental_StdioMCPTransport({
     command: 'bunx',
-    args: ['mongodb-mcp-server', '--connectionString', mongoDBonnectionString!]
+    args: ['mongodb-mcp-server', '--connectionString', mongoDBConnectionString!]
   })
   const mongodbClient = await experimental_createMCPClient({
     transport: mongodbTransport
