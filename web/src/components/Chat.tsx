@@ -108,6 +108,9 @@ function ChatBubble({
 export default function Chat() {
   const [isConfiguring, setIsConfiguring] = useState(false)
   const [apiKey, setApiKey] = useState<string | null | -1>(-1)
+  const [strongModel, setStrongModel] = useState(false)
+
+  const model = strongModel ? 'gpt-4.1' : 'gpt-4.1-mini'
 
   useEffect(() => {
     if (apiKey === -1) {
@@ -132,7 +135,7 @@ export default function Chat() {
     stop
   } = useChat({
     api: '/api/chat',
-    body: { apiKey }
+    body: { apiKey, model }
   })
 
   const isMac =
@@ -205,7 +208,10 @@ export default function Chat() {
                   // text parts:
                   if (part.type === 'text') {
                     return (
-                      <div key={index} className="prose prose-td:py-0 prose-custom-code">
+                      <div
+                        key={index}
+                        className="prose prose-td:py-0 prose-custom-code"
+                      >
                         <Markdown remarkPlugins={[remarkGfm]}>
                           {part.text}
                         </Markdown>
@@ -269,20 +275,25 @@ export default function Chat() {
             />
           )}
 
-          <Button
-            className={cn(
-              'absolute right-full mr-2 bottom-0',
-              isConfiguring && 'outline outline-slate-800'
-            )}
-            variant={isConfiguring ? 'default' : 'ghost'}
-            onClick={() => {
-              if (apiKey && apiKey !== -1) {
-                setIsConfiguring((prev) => !prev)
-              }
-            }}
-          >
-            <CogIcon />
-          </Button>
+          <div className="absolute right-full mr-2 bottom-0 flex flex-col gap-0 items-center">
+            <Button
+              className="[writing-mode:sideways-lr] h-auto text-[50%] p-1 px-2"
+              variant={strongModel ? 'default' : 'ghost'}
+              onClick={() => setStrongModel((prev) => !prev)}
+            >
+              TURBO
+            </Button>
+            <Button
+              variant={isConfiguring ? 'default' : 'ghost'}
+              onClick={() => {
+                if (apiKey && apiKey !== -1) {
+                  setIsConfiguring((prev) => !prev)
+                }
+              }}
+            >
+              <CogIcon />
+            </Button>
+          </div>
         </div>
         {!isConfiguring && apiKey && apiKey !== -1 && (
           <div className="flex flex-col gap-2 justify-end">
