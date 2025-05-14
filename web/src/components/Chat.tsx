@@ -3,7 +3,14 @@
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useChat } from '@ai-sdk/react'
-import { CogIcon, Eye, EyeOff, InfoIcon } from 'lucide-react'
+import {
+  CogIcon,
+  CommandIcon,
+  CornerDownRightIcon,
+  Eye,
+  EyeOff,
+  InfoIcon
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -128,6 +135,11 @@ export default function Chat() {
     body: { apiKey }
   })
 
+  const isMac =
+    typeof window !== 'undefined' &&
+    (window.navigator?.userAgent?.includes('Mac') ||
+      window.navigator?.userAgent?.includes('iPad'))
+
   return (
     <div className="py-4 mx-auto max-w-screen-md flex flex-col h-screen gap-4">
       <div className="flex-1 overflow-y-auto flex flex-col-reverse">
@@ -245,6 +257,12 @@ export default function Chat() {
           ) : (
             <Textarea
               value={input}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                  e.preventDefault()
+                  handleSubmit(e)
+                }
+              }}
               onChange={handleInputChange}
               disabled={error != null || status === 'streaming'}
               className="field-sizing-content min-h-20"
@@ -277,7 +295,10 @@ export default function Chat() {
               type="submit"
               disabled={!input || error != null || status === 'streaming'}
             >
-              Enviar
+              <div className="flex gap-2 items-center">
+                <span>{isMac ? <CommandIcon /> : 'Ctrl'}</span>
+                <CornerDownRightIcon className="-rotate-90" />
+              </div>
             </Button>
           </div>
         )}
