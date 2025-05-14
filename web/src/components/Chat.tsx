@@ -111,7 +111,6 @@ export default function Chat() {
       }
     } else if (apiKey) {
       localStorage.setItem('apiKey', apiKey)
-      setIsConfiguring(false)
     }
   }, [apiKey])
 
@@ -238,7 +237,10 @@ export default function Chat() {
           {isConfiguring ? (
             <ConfigForm
               initialKey={apiKey && apiKey !== -1 ? apiKey : ''}
-              onSetKey={setApiKey}
+              onSetKey={(key) => {
+                setApiKey(key)
+                setIsConfiguring(false)
+              }}
             />
           ) : (
             <Textarea
