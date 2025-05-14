@@ -195,7 +195,7 @@ export async function POST({ request }: APIContext) {
   }
 
   const mongodbTransport = new Experimental_StdioMCPTransport({
-    command: 'bunx',
+    command: 'npx',
     args: ['mongodb-mcp-server', '--connectionString', mongoDBConnectionString!]
   })
   const mongodbClient = await experimental_createMCPClient({

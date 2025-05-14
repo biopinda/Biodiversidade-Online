@@ -19,13 +19,14 @@ RUN $HOME/.bun/bin/bun i
 RUN $HOME/.bun/bin/bun run build
 
 
-FROM oven/bun:alpine AS runner
+FROM node:slim AS runner
 
 WORKDIR /app
 
 COPY --from=base /app/package.json /app/bun.lock /app/
+COPY --from=base /app/node_modules /app/node_modules
 COPY --from=base /app/dist /app/dist
 
 EXPOSE 4321/tcp
 
-ENTRYPOINT [ "sh", "-c", "bun install && bun run dist/server/entry.mjs" ]
+ENTRYPOINT [ "sh", "-c", "node dist/server/entry.mjs" ]
