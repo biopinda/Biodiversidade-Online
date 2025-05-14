@@ -193,7 +193,7 @@ export default function Chat() {
                   // text parts:
                   if (part.type === 'text') {
                     return (
-                      <div key={index} className="prose prose-td:py-0">
+                      <div key={index} className="prose prose-td:py-0 prose-custom-code">
                         <Markdown remarkPlugins={[remarkGfm]}>
                           {part.text}
                         </Markdown>

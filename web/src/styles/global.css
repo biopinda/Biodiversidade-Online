@@ -99,3 +99,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+.prose-custom-code code::before,
+.prose-custom-code code::after {
+  content: ""; /* This removes the backticks */
+}
