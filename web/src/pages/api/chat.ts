@@ -1,10 +1,39 @@
 import { createOpenAI } from '@ai-sdk/openai'
-import { experimental_createMCPClient, streamText } from 'ai'
+import { experimental_createMCPClient, streamText, type Tool } from 'ai'
 import { Experimental_StdioMCPTransport } from 'ai/mcp-stdio'
 import dedent from 'dedent'
 
 import type { APIContext } from 'astro'
 import { z } from 'zod'
+
+function safeTools<T extends Record<string, Tool<any, any>>>(tools: T): T {
+  // wrapped has the exact same keys & types as T
+  const wrapped = {} as { [K in keyof T]: T[K] }
+
+  // iterate only over your own keys
+  ;(Object.keys(tools) as Array<keyof T>).forEach((key) => {
+    const original = tools[key]!
+
+    wrapped[key] = {
+      ...original,
+      execute: async (args: any, options: any) => {
+        try {
+          // call the real tool
+          return await original.execute!(args, options)
+        } catch (err: any) {
+          // return an { error } object instead of throwing
+          return {
+            content: [
+              { text: err instanceof Error ? err.message : String(err) }
+            ]
+          }
+        }
+      }
+    } as T[typeof key]
+  })
+
+  return wrapped
+}
 
 const input = z.object({
   messages: z.array(
@@ -47,7 +76,7 @@ const systemPrompt = dedent`
     • \`family\` (string)  
     • \`genus\` (string)  
     • \`specificEpithet\` (string)  
-    • \`taxonRank\` (string)  
+    • \`taxonRank\` (enum: ESPECIE | FORMA | SUB_ESPECIE | VARIEDADE)  
     • \`scientificNameAuthorship\` (string)  
     • \`taxonomicStatus\` (string)  
     • \`nomenclaturalStatus\` (string)  
@@ -63,14 +92,14 @@ const systemPrompt = dedent`
     • \`distribution.phytogeographicDomains[]\` (string)  
     • \`distribution.occurrence[]\` (string)  
     • \`distribution.vegetationType[]\` (string)  
-    • \`canonicalName\` (string)  
+    • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
     • \`flatScientificName\` (string)  
 
     **Campos de \`ocorrencias\`:**  
     • \`_id.$oid\` (string)  
     • \`iptId\` (string)  
     • \`ipt\` (string)  
-    • \`canonicalName\` (string)  
+    • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
     • \`flatScientificName\` (string)  
     • \`type\` (string)  
     • \`modified\` (string, datetime)  
@@ -104,10 +133,11 @@ const systemPrompt = dedent`
 
     **Regras para consultas**
     1. Use sempre a ferramenta **aggregate** para contagens.  
-    • Inclua \`{$match:{taxonomicStatus:"NOME_ACEITO"}}\` quando contar em \`taxa\`.  
+      • Inclua \`{$match:{taxonomicStatus:"NOME_ACEITO"}}\` quando contar em \`taxa\`.
+      • Sempre é necessário incluir uma pipeline ao usar \`aggregate\`.
     2. Nunca use a ferramenta **count**.  
     3. Para buscar espécies pelo nome utilize \`canonicalName\`.  
-    • Como ele pode estar vazio, ao fazer \`find\` ou \`aggregate\` use \`limit: 2\` e descarte documentos sem nome.  
+      • Como ele pode estar vazio, ao fazer \`find\` ou \`aggregate\` use \`limit: 2\` e descarte documentos sem nome.  
     4. Os únicos valores válidos de \`kingdom\` são \`Animalia\`, \`Plantae\`, \`Fungi\`.
 
     **Estilo de resposta**
@@ -158,14 +188,23 @@ export async function POST({ request }: APIContext) {
   const result = streamText({
     model: openai(model),
     maxSteps,
-    messages: [
-      {
-        role: 'system',
-        content: systemPrompt
-      },
-      ...messages
-    ],
-    tools
+    system: systemPrompt,
+    messages,
+    tools: safeTools(tools),
+    onError: (error) => {
+      console.error(error)
+    },
+    experimental_activeTools: ['find', 'aggregate'],
+    ...(model.startsWith('0')
+      ? {
+          providerOptions: {
+            openai: {
+              reasoningEffort: 'low',
+              reasoningSummary: 'auto'
+            }
+          }
+        }
+      : {})
   })
 
   return result.toDataStreamResponse()
