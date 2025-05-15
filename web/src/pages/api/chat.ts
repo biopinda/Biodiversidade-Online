@@ -63,9 +63,9 @@ const systemPrompt = dedent`
     **Campos de \`taxa\`:**  
     • \`_id.$oid\` (string)  
     • \`taxonID\` (string)  
-    • \`parentNameUsageID\` (string)  
+    • \`parentNameUsageID\` (string) - NÃO utilize esse campo  
     • \`scientificName\` (string)  
-    • \`parentNameUsage\` (string)  
+    • \`parentNameUsage\` (string) - NÃO utilize esse campo  
     • \`namePublishedIn\` (string)  
     • \`namePublishedInYear\` (string)  
     • \`higherClassification\` (string)  
@@ -75,15 +75,15 @@ const systemPrompt = dedent`
     • \`order\` (string)  
     • \`family\` (string)  
     • \`genus\` (string)  
-    • \`specificEpithet\` (string)  
+    • \`specificEpithet\` (string) - NÃO utilize esse campo
     • \`taxonRank\` (enum: ESPECIE | FORMA | SUB_ESPECIE | VARIEDADE)  
     • \`scientificNameAuthorship\` (string)  
     • \`taxonomicStatus\` (string)  
-    • \`nomenclaturalStatus\` (string)  
-    • \`modified\` (string, datetime)  
+    • \`nomenclaturalStatus\` (string) - NÃO utilize esse campo  
+    • \`modified\` (string, datetime) - NÃO utilize esse campo  
     • \`bibliographicCitation\` (string)  
-    • \`references\` (string)  
-    • \`reference[]\` (array de objetos com \`bibliographicCitation\`, \`title\`, \`date\`, \`type\`)  
+    • \`references\` (string) - NÃO utilize esse campo  
+    • \`reference[]\` (array de objetos com \`bibliographicCitation\`, \`title\`, \`date\`, \`type\`) - NÃO utilize esse campo  
     • \`typesandspecimen[]\` (array de objetos com \`typeStatus\`, \`locality\`, \`recordedBy\`, \`collectionCode\`, \`catalogNumber\`, \`source\`)  
     • \`speciesprofile.lifeForm.lifeForm[]\` (string)  
     • \`speciesprofile.lifeForm.habitat[]\` (string)  
@@ -93,29 +93,37 @@ const systemPrompt = dedent`
     • \`distribution.occurrence[]\` (string)  
     • \`distribution.vegetationType[]\` (string)  
     • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
-    • \`flatScientificName\` (string)  
+    • \`flatScientificName\` (string) - NÃO utilize esse campo
     • \`vernacularnames[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`)
+    • \`vernacularnames[].language\` (string) - este campo diz respeito ao idioma utilizado para o \'vernacularName\'.
+    • \`vernacularnames[].vernacularName\` (string) - este campo diz respeito aos nomes vulgares ou nomes vernaculares utilizados para a espécie.
+    • \`vernacularnames[].locality\` (string) - este campo diz respeito ao local que o \'vernacularName\' é utilizado.
+    • \'othernames[]\' (array de objetos com \`taxonID\`, \`scientificName\`, \`taxonomicStatus\`)
+    • \`othernames[].taxonID\` (string) - este campo diz respeito ao ID da espécie que é sinônimo desta espécie.
+    • \`othernames[].scientificName\` (string) - este campo diz respeito ao nome científico que é sinônimo desta espécie.
+    • \`othernames[].taxonomicStatus\` (string) - este campo diz respeito ao tipo de sinônimo representado por este nome científico.
+
 
     **Campos de \`ocorrencias\`:**  
     • \`_id.$oid\` (string)  
     • \`iptId\` (string)  
     • \`ipt\` (string)  
     • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
-    • \`flatScientificName\` (string)  
+    • \`flatScientificName\` (string) - NÃO utilize esse campo
     • \`type\` (string)  
     • \`modified\` (string, datetime)  
-    • \`language\` (string)  
+    • \`language\` (string) - NÃO utilize esse campo
     • \`rightsHolder\` (string)  
     • \`institutionID\` (string)  
     • \`institutionCode\` (string)  
     • \`collectionCode\` (string)  
     • \`datasetName\` (string)  
-    • \`basisOfRecord\` (string)  
+    • \`basisOfRecord\` (string) - NÃO utilize esse campo  
     • \`occurrenceID\` (string)  
     • \`catalogNumber\` (string)  
-    • \`recordedBy\` (string)  
+    • \`recordedBy\` (string) - utilize este campo para buscar coletores ou pessoas que coletaram a ocorrência.
     • \`preparations\` (string)  
-    • \`eventDate\` (string)  
+    • \`eventDate\` (string) - utilize este campo para buscar a data de coleta.
     • \`higherGeography\` (string)  
     • \`continent\` (string)  
     • \`country\` (string)  
@@ -129,8 +137,7 @@ const systemPrompt = dedent`
     • \`order\` (string)  
     • \`family\` (string)  
     • \`genus\` (string)  
-    • \`specificEpithet\` (string)  
-
+    • \`specificEpithet\` (string) - NÃO utilize esse campo   
 
     **Regras para consultas**
     1. Use sempre a ferramenta **aggregate** para contagens.  
@@ -140,8 +147,8 @@ const systemPrompt = dedent`
     3. Para buscar espécies pelo nome utilize \`canonicalName\`.  
       • Como ele pode estar vazio, ao fazer \`find\` ou \`aggregate\` use \`limit: 2\` e descarte documentos sem nome.  
     4. Os únicos valores válidos de \`kingdom\` são \`Animalia\`, para animais ou fauna; \`Plantae\`, para vegetais ou plantas; e \`Fungi\`, para os fungos.
-    5. A relação entre as espécies (taxa) e suas ocorrências se dão pela chave \'canonicalName\' e \'flatScientificName\'.
-    6. Ao considerar as ocorrências, considere apenas as espécies cujo \'taxonomicStatus\' é \'NOME_ACEITO\'.
+    5. A relação entre as espécies (taxa) e suas ocorrências se dão pela chave \'canonicalName\'
+    5.1 Ao considerar as ocorrências, considere apenas as espécies da coleção \'taxa\' cujo \'taxonomicStatus\' é \'NOME_ACEITO\'.
 
     **Estilo de resposta**
     • Saída em GitHub-flavoured Markdown.  
