@@ -94,6 +94,7 @@ const systemPrompt = dedent`
     • \`distribution.vegetationType[]\` (string)  
     • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
     • \`flatScientificName\` (string)  
+    • \`vernacularnames[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`)
 
     **Campos de \`ocorrencias\`:**  
     • \`_id.$oid\` (string)  
