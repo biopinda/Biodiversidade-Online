@@ -57,7 +57,7 @@ const systemPrompt = dedent`
 
     **Fonte de dados (MongoDB dwc2json)**
     Coleções:
-    1. \`taxa\` – espécies  
+    1. \`taxa\` – espécies e suas características  
     2. \`ocorrencias\` – registros de coletas/ocorrências
 
     **Campos de \`taxa\`:**  
@@ -139,6 +139,8 @@ const systemPrompt = dedent`
     3. Para buscar espécies pelo nome utilize \`canonicalName\`.  
       • Como ele pode estar vazio, ao fazer \`find\` ou \`aggregate\` use \`limit: 2\` e descarte documentos sem nome.  
     4. Os únicos valores válidos de \`kingdom\` são \`Animalia\`, para animais ou fauna; \`Plantae\`, para vegetais ou plantas; e \`Fungi\`, para os fungos.
+    5. A relação entre as espécies (taxa) e suas ocorrências se dão pela chave \'canonicalName\' e \'flatScientificName\'.
+    6. Ao considerar as ocorrências, considere apenas as espécies cujo \'taxonomicStatus\' é \'NOME_ACEITO\'.
 
     **Estilo de resposta**
     • Saída em GitHub-flavoured Markdown.  
