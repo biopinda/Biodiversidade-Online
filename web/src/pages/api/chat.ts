@@ -96,7 +96,7 @@ const systemPrompt = dedent`
     • \`flatScientificName\` (string) - NÃO utilize esse campo
     • \`vernacularnames[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`)
     • \`vernacularnames[].language\` (string) - este campo diz respeito ao idioma utilizado para o \'vernacularName\'.
-    • \`vernacularnames[].vernacularName\` (string) - este campo diz respeito aos nomes vulgares ou nomes vernaculares utilizados para a espécie.
+    • \`vernacularnames[].vernacularName\` (string) - este campo diz respeito aos nomes vulgares, nomes populares ou nomes vernaculares utilizados para a espécie.
     • \`vernacularnames[].locality\` (string) - este campo diz respeito ao local que o \'vernacularName\' é utilizado.
     • \'othernames[]\' (array de objetos com \`taxonID\`, \`scientificName\`, \`taxonomicStatus\`)
     • \`othernames[].taxonID\` (string) - este campo diz respeito ao ID da espécie que é sinônimo desta espécie.
