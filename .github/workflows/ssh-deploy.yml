@@ -1,0 +1,18 @@
+name: Deploy new version via SSH
+
+on:
+  push:
+
+jobs:
+  test-ssh-connection:
+    runs-on: self-hosted
+    steps:
+      - name: Deploy new version via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_DEPLOY_KEY }}
+          script: |
+            docker run -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower DwC2JSON --run-once
+
