@@ -94,12 +94,12 @@ const systemPrompt = dedent`
     • \`distribution.vegetationType[]\` (string)  
     • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
     • \`flatScientificName\` (string) - NÃO utilize esse campo
-    • \`vernacularnames[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`)
+    • \`vernacularnames[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`) - este campo lista os nomes vulgares, nomes populares ou nomes vernaculares utilizados para a espécie.
     • \`vernacularnames[].language\` (string) - este campo diz respeito ao idioma utilizado para o \'vernacularName\'.
     • \`vernacularnames[].vernacularName\` (string) - este campo diz respeito aos nomes vulgares, nomes populares ou nomes vernaculares utilizados para a espécie.
     • \`vernacularnames[].locality\` (string) - este campo diz respeito ao local que o \'vernacularName\' é utilizado.
-    • \'othernames[]\' (array de objetos com \`taxonID\`, \`scientificName\`, \`taxonomicStatus\`)
-    • \`othernames[].taxonID\` (string) - este campo diz respeito ao ID da espécie que é sinônimo desta espécie.
+    • \'othernames[]\' (array de objetos com \`taxonID\`, \`scientificName\`, \`taxonomicStatus\`) - este campo diz respeito aos sinônimos desta espécie.
+    • \`othernames[].taxonID\` (string) - NÃO utilize esse campo
     • \`othernames[].scientificName\` (string) - este campo diz respeito ao nome científico que é sinônimo desta espécie.
     • \`othernames[].taxonomicStatus\` (string) - este campo diz respeito ao tipo de sinônimo representado por este nome científico.
 
