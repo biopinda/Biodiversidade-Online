@@ -56,6 +56,9 @@ const systemPrompt = dedent`
     • Se perguntarem algo fora desse escopo, explique educadamente que não pode responder.
 
     **Fonte de dados (MongoDB dwc2json)**
+    Bases de dados:
+    1. \`dwc2json\`
+    
     Coleções:
     1. \`taxa\` – espécies e suas características  
     2. \`ocorrencias\` – registros de coletas/ocorrências
