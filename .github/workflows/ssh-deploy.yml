@@ -1,7 +1,7 @@
 name: Deploy new version via SSH
 
 on:
-  push:
+  workflow_dispatch:
 
 jobs:
   test-ssh-connection:
