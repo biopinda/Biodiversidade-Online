@@ -87,7 +87,7 @@ const systemPrompt = dedent`
     • \`specificEpithet\` (string) - NÃO utilize esse campo
     • \`taxonRank\` (enum: ESPECIE | FORMA | SUB_ESPECIE | VARIEDADE)  
     • \`scientificNameAuthorship\` (string)  
-    • \`taxonomicStatus\` (string)  
+    • \`taxonomicStatus\` (enum: NOME_ACEITO | SINONIMO)  
     • \`nomenclaturalStatus\` (string) - NÃO utilize esse campo  
     • \`modified\` (string, datetime) - NÃO utilize esse campo  
     • \`bibliographicCitation\` (string)  
@@ -96,11 +96,11 @@ const systemPrompt = dedent`
     • \`typesandspecimen[]\` (array de objetos com \`typeStatus\`, \`locality\`, \`recordedBy\`, \`collectionCode\`, \`catalogNumber\`, \`source\`)  
     • \`speciesprofile.lifeForm.lifeForm[]\` (string)  
     • \`speciesprofile.lifeForm.habitat[]\` (string)  
-    • \`distribution.origin\` (string)  
-    • \`distribution.Endemism\` (string)  
-    • \`distribution.phytogeographicDomains[]\` (string)  
-    • \`distribution.occurrence[]\` (string)  
-    • \`distribution.vegetationType[]\` (string)  
+    • \`distribution.origin\` (enum: Nativa | Criptogênica | Cultivada | Naturalizada) - este campo informa se a espécie é nativa, cultivada ou naturalizada no Brasil.  
+    • \`distribution.Endemism\` (enum: Não endemica | Endemica) - este campo diz respeito ao endemismo da espécie. Se é endêmica ou não endêmica do Brasil.
+    • \`distribution.phytogeographicDomains[]\` (string) - este campo informa os biomas onde a espécie ocorre.  
+    • \`distribution.occurrence[]\` (enum: BR-AC | BR-AL | BR-AP | BR-AM | BR-BA | BR-CE | BR-DF | BR-ES | BR-GO | BR-MA | BR-MT | BR-MS | BR-MG | BR-PA | BR-PB | BR-PR | BR-PE | BR-PI | BR-RJ | BR-RN | BR-RS | BR-RO | BR-RR | BR-SC | BR-SP | BR-SE | BR-TO) - este campo informa os estados brasileiros onde a espécie ocorre.
+    • \`distribution.vegetationType[]\` (string) - este campo informa o tipo de vegetação onde a espécie ocorre.
     • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
     • \`flatScientificName\` (string) - NÃO utilize esse campo
     • \`vernacularnames[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`) - este campo lista os nomes vulgares, nomes populares ou nomes vernaculares utilizados para a espécie.
