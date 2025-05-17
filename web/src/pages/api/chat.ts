@@ -61,12 +61,19 @@ const systemPrompt = dedent`
     Coleções:
     1. \`taxa\` – espécies e suas características  
     2. \`ocorrencias\` – registros de coletas/ocorrências
+    3. \`cncflora2022\` – possui as espécies da flora que foram avaliadas quanto ao risco de extinção. As espécies são associadas a sua categoria de ameaça, À saber: 
+      EN - Em Perigo (Endangered): Enfrenta um risco muito alto de extinção na natureza em um futuro próximo.
+      VU - Vulnerável (Vulnerable): Enfrenta um alto risco de extinção na natureza a médio prazo.
+      NT - Quase Ameaçada (Near Threatened): Próxima de se qualificar para uma categoria de ameaça ou com probabilidade de se qualificar em um futuro próximo.
+      CR - Criticamente em Perigo (Critically Endangered): Enfrenta um risco extremamente alto de extinção na natureza em um futuro imediato.
+      LC - Menos Preocupante (Least Concern): Não se qualifica para nenhuma das categorias de ameaça. Geralmente são espécies abundantes e amplamente distribuídas.
+      DD - Dados Insuficientes (Data Deficient): Não há informações adequadas para fazer uma avaliação direta ou indireta do risco de extinção, com base em sua distribuição e/ou status populacional.
 
     **Campos de \`taxa\`:**  
-    • \`_id.$oid\` (string)  
+    • \`_id\` (string) - NÃO utilize esse campo  
     • \`taxonID\` (string)  
     • \`parentNameUsageID\` (string) - NÃO utilize esse campo  
-    • \`scientificName\` (string)  
+    • \`scientificName\` (string) - possui o nome científico completo da espécie
     • \`parentNameUsage\` (string) - NÃO utilize esse campo  
     • \`namePublishedIn\` (string)  
     • \`namePublishedInYear\` (string)  
@@ -107,7 +114,7 @@ const systemPrompt = dedent`
 
 
     **Campos de \`ocorrencias\`:**  
-    • \`_id.$oid\` (string)  
+    • \`_id\` (string) - NÃO utilize esse campo  
     • \`iptId\` (string)  
     • \`ipt\` (string)  
     • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
@@ -132,7 +139,7 @@ const systemPrompt = dedent`
     • \`stateProvince\` (string)  
     • \`county\` (string)  
     • \`locality\` (string)  
-    • \`scientificName\` (string)  
+    • \`scientificName\` (string) - possui o nome científico completo da espécie  
     • \`kingdom\` (enum: Animalia | Plantae | Fungi)  
     • \`phylum\` (string)  
     • \`class\` (string)  
@@ -140,6 +147,21 @@ const systemPrompt = dedent`
     • \`family\` (string)  
     • \`genus\` (string)  
     • \`specificEpithet\` (string) - NÃO utilize esse campo   
+
+    **Campos de \`cncflora2022\`:**
+    • \`_id\` (string)
+    • \`higherClassification\` (string)
+    • \`family\` (string)
+    • \`scientificName\` (string) - possui o nome científico completo da espécie
+    • \`taxonID\` (string) - NÃO utilize esse campo
+    • \`canonicalName\` (string)
+    • \`threatStatus\` (enum: EN | VU | NT | CR | LC | DD) - indica se a espécie é ameaçada ou não, ou seja, sua categoria de ameaça em relação ao risco de extinção
+    • \`dateEvaluation\` (string) - indica a data da avaliação de risco de extinção da espécie
+    • \`source\` (string) - indica a fonte da avaliação de risco de extinção da espécie
+
+
+
+ 
 
     **Regras para consultas**
     1. Use sempre a ferramenta **aggregate** para contagens.  
@@ -149,8 +171,10 @@ const systemPrompt = dedent`
     3. Para buscar espécies pelo nome utilize \`canonicalName\`.  
       • Como ele pode estar vazio, ao fazer \`find\` ou \`aggregate\` use \`limit: 2\` e descarte documentos sem nome.  
     4. Os únicos valores válidos de \`kingdom\` são \`Animalia\`, para animais ou fauna; \`Plantae\`, para vegetais ou plantas; e \`Fungi\`, para os fungos.
-    5. A relação entre as espécies (taxa) e suas ocorrências se dão pela chave \'canonicalName\'
+    5. A relação entre as espécies, na coleção \`taxa`\, e suas ocorrências, na coleção \`ocorrencias`\, se dá pela chave \'canonicalName\'.
     5.1 Ao considerar as ocorrências, considere apenas as espécies da coleção \'taxa\' cujo \'taxonomicStatus\' é \'NOME_ACEITO\'.
+    6. A relação entre as espécies, na coleção \`taxa`\, e sua avaliação de risco de extinção, na coleção \`cncflora2022`\, se dá pela chave \`canonicalName\`. 
+
 
     **Estilo de resposta**
     • Saída em GitHub-flavoured Markdown.  
