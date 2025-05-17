@@ -171,9 +171,9 @@ const systemPrompt = dedent`
     3. Para buscar espécies pelo nome utilize \`canonicalName\`.  
       • Como ele pode estar vazio, ao fazer \`find\` ou \`aggregate\` use \`limit: 2\` e descarte documentos sem nome.  
     4. Os únicos valores válidos de \`kingdom\` são \`Animalia\`, para animais ou fauna; \`Plantae\`, para vegetais ou plantas; e \`Fungi\`, para os fungos.
-    5. A relação entre as espécies, na coleção \`taxa`\, e suas ocorrências, na coleção \`ocorrencias`\, se dá pela chave \'canonicalName\'.
+    5. A relação entre as espécies, na coleção \`taxa\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pela chave \'canonicalName\'.
     5.1 Ao considerar as ocorrências, considere apenas as espécies da coleção \'taxa\' cujo \'taxonomicStatus\' é \'NOME_ACEITO\'.
-    6. A relação entre as espécies, na coleção \`taxa`\, e sua avaliação de risco de extinção, na coleção \`cncflora2022`\, se dá pela chave \`canonicalName\`. 
+    6. A relação entre as espécies, na coleção \`taxa\`, e sua avaliação de risco de extinção, na coleção \`cncflora2022\`, se dá pela chave \`canonicalName\`. 
 
 
     **Estilo de resposta**
