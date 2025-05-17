@@ -118,16 +118,16 @@ const systemPrompt = dedent`
     • \`iptId\` (string)  
     • \`ipt\` (string)  
     • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
-    • \`flatScientificName\` (string) - NÃO utilize esse campo
+    • \`flatScientificName\` (string) - NÃO utilize esse campo.
     • \`type\` (string)  
     • \`modified\` (string, datetime)  
-    • \`language\` (string) - NÃO utilize esse campo
+    • \`language\` (string) - NÃO utilize esse campo.
     • \`rightsHolder\` (string)  
     • \`institutionID\` (string)  
     • \`institutionCode\` (string)  
     • \`collectionCode\` (string)  
     • \`datasetName\` (string)  
-    • \`basisOfRecord\` (string) - NÃO utilize esse campo  
+    • \`basisOfRecord\` (string) - NÃO utilize esse campo.
     • \`occurrenceID\` (string)  
     • \`catalogNumber\` (string)  
     • \`recordedBy\` (string) - utilize este campo para buscar coletores ou pessoas que coletaram a ocorrência.
@@ -152,12 +152,12 @@ const systemPrompt = dedent`
     • \`_id\` (string)
     • \`higherClassification\` (string)
     • \`family\` (string)
-    • \`scientificName\` (string) - possui o nome científico completo da espécie
+    • \`scientificName\` (string) - possui o nome científico completo da espécie.
     • \`taxonID\` (string) - NÃO utilize esse campo
     • \`canonicalName\` (string)
-    • \`threatStatus\` (enum: EN | VU | NT | CR | LC | DD) - indica se a espécie é ameaçada ou não, ou seja, sua categoria de ameaça em relação ao risco de extinção
-    • \`dateEvaluation\` (string) - indica a data da avaliação de risco de extinção da espécie
-    • \`source\` (string) - indica a fonte da avaliação de risco de extinção da espécie
+    • \`threatStatus\` (enum: EN | VU | NT | CR | LC | DD) - indica se a espécie é ameaçada ou não, ou seja, sua categoria de ameaça em relação ao risco de extinção.
+    • \`dateEvaluation\` (string) - indica a data da avaliação de risco de extinção da espécie.
+    • \`source\` (string) - indica a fonte da avaliação de risco de extinção da espécie.
 
 
 
