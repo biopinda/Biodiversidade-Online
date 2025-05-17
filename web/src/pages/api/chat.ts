@@ -1,5 +1,11 @@
 import { createOpenAI } from '@ai-sdk/openai'
-import { experimental_createMCPClient, streamText, type Tool } from 'ai'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import {
+  APICallError,
+  experimental_createMCPClient,
+  streamText,
+  type Tool
+} from 'ai'
 import { Experimental_StdioMCPTransport } from 'ai/mcp-stdio'
 import dedent from 'dedent'
 
@@ -43,7 +49,15 @@ const input = z.object({
     })
   ),
   apiKey: z.string(),
-  model: z.string().default('gpt-4.1-mini'),
+  model: z
+    .object({
+      provider: z.enum(['openai', 'google']),
+      model: z.string()
+    })
+    .default({
+      provider: 'openai',
+      model: 'gpt-4.1-mini'
+    }),
   maxSteps: z.number().default(10)
 })
 
@@ -352,9 +366,12 @@ export async function POST({ request }: APIContext) {
     })
   }
 
-  const { messages, apiKey, model, maxSteps } = data
+  const { messages, apiKey, model: modelSpec, maxSteps } = data
 
   const openai = createOpenAI({
+    apiKey
+  })
+  const google = createGoogleGenerativeAI({
     apiKey
   })
 
@@ -368,24 +385,39 @@ export async function POST({ request }: APIContext) {
   }
 
   const mongodbTransport = new Experimental_StdioMCPTransport({
-    command: 'npx',
-    args: ['mongodb-mcp-server', '--connectionString', mongoDBConnectionString!]
+    command: 'node',
+    args: [
+      './node_modules/mongodb-mcp-server',
+      '--connectionString',
+      mongoDBConnectionString!
+    ]
   })
   const mongodbClient = await experimental_createMCPClient({
     transport: mongodbTransport
   })
   const tools = await mongodbClient.tools()
+
+  const model =
+    modelSpec.provider === 'openai'
+      ? openai(modelSpec.model)
+      : google(modelSpec.model)
   const result = streamText({
-    model: openai(model),
+    model,
     maxSteps,
     system: systemPrompt,
     messages,
     tools: safeTools(tools),
-    onError: (error) => {
-      console.error(error)
+    onError: (error: unknown) => {
+      if (error instanceof APICallError) {
+        console.error('API Call Error', error.url)
+        console.dir(error.requestBodyValues, { depth: null })
+        console.dir(error.data, { depth: null })
+      } else {
+        console.dir(error, { depth: null })
+      }
     },
     experimental_activeTools: ['find', 'aggregate'],
-    ...(model.startsWith('0')
+    ...(modelSpec.model.startsWith('o')
       ? {
           providerOptions: {
             openai: {
@@ -397,5 +429,7 @@ export async function POST({ request }: APIContext) {
       : {})
   })
 
-  return result.toDataStreamResponse()
+  return result.toDataStreamResponse({
+    sendReasoning: true
+  })
 }

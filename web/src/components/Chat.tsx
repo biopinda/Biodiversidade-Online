@@ -7,81 +7,96 @@ import {
   CogIcon,
   CommandIcon,
   CornerDownRightIcon,
-  Eye,
-  EyeOff,
   InfoIcon
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import ModelSelector, { type Provider } from './ModelSelector'
+import PasswordInput from './PasswordInput'
 import { Badge } from './ui/badge'
-import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
 
 function ConfigForm({
-  initialKey = '',
-  onSetKey
+  initialKeys,
+  onSetKeys
 }: {
-  initialKey: string
-  onSetKey: (key: string) => void
+  initialKeys: { openAIKey: string; geminiKey: string }
+  onSetKeys: (keys: { openAIKey: string; geminiKey: string }) => void
 }) {
   const [showInfo, setShowInfo] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    inputRef.current?.focus()
-  }, [])
+  const openAIKeyRef = useRef<HTMLInputElement>(null)
+  const geminiKeyRef = useRef<HTMLInputElement>(null)
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex gap-2 text-sm items-center">
-        Insira sua chave de API OpenAI.{' '}
-        <i>
-          Obtenha uma em{' '}
-          <a
-            className="hover:underline text-black"
-            href="https://platform.openai.com/api-keys"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex gap-2 items-end">
+      <div className="flex flex-col gap-2 flex-1">
+        <div className="flex gap-2 text-sm items-center">
+          Defina suas chaves de API aqui.
+          <Button
+            className="py-1 !px-1 h-auto"
+            variant={showInfo ? 'default' : 'ghost'}
+            onClick={() => setShowInfo((prev) => !prev)}
           >
-            https://platform.openai.com/api-keys
-          </a>
-        </i>
-        <Button
-          variant={showInfo ? 'default' : 'ghost'}
-          onClick={() => setShowInfo((prev) => !prev)}
-        >
-          <InfoIcon />
-        </Button>
-      </div>
-      {showInfo && (
-        <div className="bg-slate-800 rounded-md p-2 text-white text-sm self-start">
-          Uma chave de API é necessária para usar o chat. Ela é armazenada
-          apenas no seu navegador.
+            <InfoIcon />
+          </Button>
         </div>
-      )}
-      <div className="flex gap-2">
-        <Input
-          ref={inputRef}
-          defaultValue={initialKey}
-          type={showPassword ? 'text' : 'password'}
-          autoComplete="existing-password"
+        {showInfo && (
+          <div className="bg-slate-800 rounded-md p-2 text-white text-sm self-start">
+            Uma chave de API é necessária para usar o chat. Elas são armazenadas
+            apenas no seu navegador.
+          </div>
+        )}
+        <div className="flex gap-2 text-sm items-center">
+          <b>OpenAI</b>{' '}
+          <i>
+            Obtenha uma em{' '}
+            <a
+              className="hover:underline text-black"
+              href="https://platform.openai.com/api-keys"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              https://platform.openai.com/api-keys
+            </a>
+          </i>
+        </div>
+        <PasswordInput
+          ref={openAIKeyRef}
+          initialValue={initialKeys.openAIKey}
           placeholder="Chave de API OpenAI"
         />
-        <Button
-          variant="ghost"
-          onClick={() => setShowPassword((prev) => !prev)}
-        >
-          {showPassword ? <Eye /> : <EyeOff />}
-        </Button>
-        <Button
-          type="button"
-          onClick={() => onSetKey(inputRef.current?.value ?? '')}
-        >
-          OK
-        </Button>
+        <div className="flex gap-2 text-sm items-center">
+          <b>Google Gemini</b>{' '}
+          <i>
+            Obtenha uma em{' '}
+            <a
+              className="hover:underline text-black"
+              href="https://aistudio.google.com/app/apikey"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              https://aistudio.google.com/app/apikey
+            </a>
+          </i>
+        </div>
+        <PasswordInput
+          ref={geminiKeyRef}
+          initialValue={initialKeys.geminiKey}
+          placeholder="Chave de API Google Gemini"
+        />
       </div>
+      <Button
+        type="button"
+        onClick={() =>
+          onSetKeys({
+            openAIKey: openAIKeyRef.current?.value ?? '',
+            geminiKey: geminiKeyRef.current?.value ?? ''
+          })
+        }
+      >
+        OK
+      </Button>
     </div>
   )
 }
@@ -105,24 +120,113 @@ function ChatBubble({
   )
 }
 
+function ToolCall({
+  toolCall
+}: {
+  toolCall: {
+    toolName: string
+    state: string
+    result: { content: { text: string }[] }
+    args: unknown
+  }
+}) {
+  {
+    const [showDetails, setShowDetails] = useState(false)
+
+    const results = toolCall.result?.content
+    const waiting = toolCall.state !== 'result'
+    return (
+      <div
+        className={cn(
+          'flex flex-col gap-2 max-w-full',
+          showDetails && 'w-full'
+        )}
+      >
+        <div className="flex" onClick={() => setShowDetails((prev) => !prev)}>
+          <Badge
+            className={cn(
+              'text-xs cursor-default',
+              waiting && 'animate-pulse',
+              results?.length > 0 && 'rounded-e-none'
+            )}
+            title={JSON.stringify(toolCall.args)}
+          >
+            {toolCall.toolName}
+          </Badge>
+          {results?.length > 0 && (
+            <Badge
+              className="text-xs cursor-default bg-slate-50 text-slate-800 rounded-s-none"
+              title={results
+                .map((content: { text: string }) => content?.text)
+                .join('\n')}
+            >
+              {results.length}
+            </Badge>
+          )}
+        </div>
+        {showDetails && (
+          <div className="flex gap-1 justify-between">
+            <div className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
+              <pre className="whitespace-pre-wrap break-all">
+                {JSON.stringify(toolCall.args, null, 2)}
+              </pre>
+            </div>
+            <div className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
+              {toolCall.result.content.map(({ text }) => {
+                try {
+                  const json = JSON.parse(text)
+                  return (
+                    <pre className="whitespace-pre-wrap break-all">
+                      {JSON.stringify(json, null, 2)}
+                    </pre>
+                  )
+                } catch (e) {
+                  return text
+                }
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+}
+
 export default function Chat() {
   const [isConfiguring, setIsConfiguring] = useState(false)
-  const [apiKey, setApiKey] = useState<string | null | -1>(-1)
-  const [strongModel, setStrongModel] = useState(false)
-
-  const model = strongModel ? 'gpt-4.1' : 'gpt-4.1-mini'
+  const [localConfigLoaded, setLocalConfigLoaded] = useState(false)
+  const [apiKeys, setApiKeys] = useState<{
+    openAIKey: string
+    geminiKey: string
+  }>({
+    openAIKey: '',
+    geminiKey: ''
+  })
+  const [selectedModel, setSelectedModel] = useState<{
+    provider: 'openai' | 'google'
+    model: string
+  } | null>(null)
 
   useEffect(() => {
-    if (apiKey === -1) {
-      const _apiKey = localStorage.getItem('apiKey') || null
-      setApiKey(_apiKey)
-      if (!_apiKey) {
-        setIsConfiguring(true)
+    if (!localConfigLoaded) {
+      const _apiKeys = localStorage.getItem('apiKeys')
+      if (_apiKeys) {
+        setApiKeys(JSON.parse(_apiKeys))
       }
-    } else if (apiKey) {
-      localStorage.setItem('apiKey', apiKey)
+      const _selectedModel = localStorage.getItem('model')
+      if (_selectedModel) {
+        setSelectedModel(JSON.parse(_selectedModel))
+      }
+      setLocalConfigLoaded(true)
+    } else {
+      localStorage.setItem('apiKeys', JSON.stringify(apiKeys))
+      localStorage.setItem('model', JSON.stringify(selectedModel))
     }
-  }, [apiKey])
+  }, [apiKeys, selectedModel, localConfigLoaded])
+
+  const hasApiKey = apiKeys.openAIKey !== '' || apiKeys.geminiKey !== ''
+  const apiKey =
+    selectedModel?.provider === 'openai' ? apiKeys.openAIKey : apiKeys.geminiKey
 
   const {
     messages,
@@ -132,11 +236,22 @@ export default function Chat() {
     error,
     reload,
     status,
-    stop
+    stop,
+    setInput,
+    setMessages
   } = useChat({
     api: '/api/chat',
-    body: { apiKey, model }
+    body: { apiKey, model: selectedModel }
   })
+
+  useEffect(() => {
+    if (status === 'ready') {
+      const lastMessage = messages.at(-1)
+      if (lastMessage?.role === 'assistant' && lastMessage?.content === '') {
+        setMessages(messages.slice(0, -1))
+      }
+    }
+  }, [status, messages])
 
   const isMac =
     typeof window !== 'undefined' &&
@@ -144,7 +259,7 @@ export default function Chat() {
       window.navigator?.userAgent?.includes('iPad'))
 
   return (
-    <div className="py-4 mx-auto max-w-screen-md flex flex-col h-screen gap-4">
+    <div className="py-4 mx-auto max-w-screen-lg flex flex-col h-screen gap-4">
       <div className="flex-1 overflow-y-auto flex flex-col-reverse">
         <div className="flex flex-col gap-3">
           {messages.map((message) => {
@@ -171,37 +286,9 @@ export default function Chat() {
               >
                 {toolInvocationParts.length > 0 && (
                   <div className="flex flex-wrap gap-2">
-                    {toolInvocationParts.map((part, index) => {
-                      const results = part.toolInvocation.result?.content
-                      const waiting = part.toolInvocation.state !== 'result'
-                      return (
-                        <div className="flex">
-                          <Badge
-                            key={index}
-                            className={cn(
-                              'text-xs cursor-default',
-                              waiting && 'animate-pulse',
-                              results?.length > 0 && 'rounded-e-none'
-                            )}
-                            title={JSON.stringify(part.toolInvocation.args)}
-                          >
-                            {part.toolInvocation.toolName}
-                          </Badge>
-                          {results?.length > 0 && (
-                            <Badge
-                              className="text-xs cursor-default bg-slate-50 text-slate-800 rounded-s-none"
-                              title={results
-                                .map(
-                                  (content: { text: string }) => content?.text
-                                )
-                                .join('\n')}
-                            >
-                              {results.length}
-                            </Badge>
-                          )}
-                        </div>
-                      )
-                    })}
+                    {toolInvocationParts.map((part, index) => (
+                      <ToolCall key={index} toolCall={part.toolInvocation} />
+                    ))}
                   </div>
                 )}
                 {message.parts.map((part, index) => {
@@ -210,7 +297,7 @@ export default function Chat() {
                     return (
                       <div
                         key={index}
-                        className="prose prose-td:py-0 prose-custom-code"
+                        className="prose prose-td:py-0 prose-custom-code max-w-full"
                       >
                         <Markdown remarkPlugins={[remarkGfm]}>
                           {part.text}
@@ -222,11 +309,19 @@ export default function Chat() {
                   // reasoning parts:
                   if (part.type === 'reasoning') {
                     return (
-                      <pre key={index}>
-                        {part.details.map((detail) =>
-                          detail.type === 'text' ? detail.text : '<redacted>'
-                        )}
-                      </pre>
+                      <div
+                        key={index}
+                        className="prose prose-td:py-0 prose-custom-code rounded-md border border-slate-300 p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto"
+                      >
+                        <Markdown remarkPlugins={[remarkGfm]}>
+                          {[
+                            part.reasoning,
+                            ...part.details.map((detail) =>
+                              detail.type === 'text' ? detail.text : detail.data
+                            )
+                          ].join(' ')}
+                        </Markdown>
+                      </div>
                     )
                   }
                   return null
@@ -238,7 +333,7 @@ export default function Chat() {
       </div>
 
       {error && (
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <div>Ocorreu um erro.</div>
           <Button type="button" onClick={() => reload()} variant="outline">
             Tentar novamente
@@ -246,41 +341,53 @@ export default function Chat() {
         </div>
       )}
 
-      {(status === 'submitted' || status === 'streaming') && (
-        <div>{status === 'submitted' && <span>...</span>}</div>
-      )}
-
       <form onSubmit={handleSubmit} className="flex gap-2 items-end">
-        <div className="relative w-full">
-          {isConfiguring ? (
+        <div className="relative w-full mt-8">
+          {localConfigLoaded && (isConfiguring || !hasApiKey) ? (
             <ConfigForm
-              initialKey={apiKey && apiKey !== -1 ? apiKey : ''}
-              onSetKey={(key) => {
-                setApiKey(key)
+              initialKeys={apiKeys}
+              onSetKeys={(keys) => {
+                setApiKeys(keys)
                 setIsConfiguring(false)
               }}
             />
           ) : (
-            <Textarea
-              value={input}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                  e.preventDefault()
-                  handleSubmit(e)
-                }
-              }}
-              onChange={handleInputChange}
-              disabled={error != null || status === 'streaming'}
-              className="field-sizing-content min-h-20"
-            />
+            <div className="relative">
+              {localConfigLoaded && (
+                <div className="absolute bottom-full left-0 mb-2">
+                  <ModelSelector
+                    availableProviders={['openai', 'google']}
+                    onModelChange={(model: {
+                      provider: Provider
+                      model: string
+                    }) => {
+                      setSelectedModel(model)
+                    }}
+                    initialModel={selectedModel ?? undefined}
+                  />
+                </div>
+              )}
+              <Textarea
+                value={input}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault()
+                    handleSubmit(e)
+                  }
+                }}
+                onChange={handleInputChange}
+                disabled={error != null || status === 'streaming'}
+                className="field-sizing-content min-h-20"
+              />
+            </div>
           )}
 
           <div className="absolute right-full mr-2 bottom-0 flex flex-col gap-0 items-center">
-            
             <Button
-              variant={isConfiguring ? 'default' : 'ghost'}
+              variant={isConfiguring || !hasApiKey ? 'default' : 'ghost'}
+              disabled={!hasApiKey}
               onClick={() => {
-                if (apiKey && apiKey !== -1) {
+                if (hasApiKey) {
                   setIsConfiguring((prev) => !prev)
                 }
               }}
@@ -289,9 +396,9 @@ export default function Chat() {
             </Button>
           </div>
         </div>
-        {!isConfiguring && apiKey && apiKey !== -1 && (
+        {!isConfiguring && apiKey && (
           <div className="flex flex-col gap-2 justify-end">
-            {status === 'streaming' && (
+            {(status === 'streaming' || status === 'submitted') && (
               <Button type="button" onClick={() => stop()} variant="outline">
                 Stop
               </Button>
