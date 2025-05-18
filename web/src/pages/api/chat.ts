@@ -60,7 +60,7 @@ const systemPrompt = dedent`
     1. \`dwc2json\` – espécies, suas ocorrências e suas características
     Coleções:
     1. \`taxa\` – espécies e suas características  
-    2. \`ocorrencias\` – registros de coletas/ocorrências
+    2. \`ocorrencias\` – registros de coletas ou ocorrências de espécies
     3. \`invasoras\` – espécies invasoras e suas características
     4. \`cncflora2022\` – possui as espécies da flora que foram avaliadas quanto ao risco de extinção. As espécies são associadas a sua categoria de ameaça, À saber: 
       EN - Em Perigo (Endangered): Enfrenta um risco muito alto de extinção na natureza em um futuro próximo.
@@ -168,28 +168,28 @@ const systemPrompt = dedent`
     • \`oorder\` (string)
     • \`family\` (string)
     • \`genus\` (string)
-    • \`scientific_name\` (string) - equivalente ao \`canonicalName\` nas coleções \`taxa\`, \`cncflora2022\` e \`ocorrencias\`.
-    • \`author\` (string)
+    • \`scientific_name\` (string) - equivalente ao \`canonicalName\` nas coleções \`taxa\`, \`cncflora2022\` e \`ocorrencias\`. usar como chave para relação com as coleções \`taxa\`, \`cncflora2022\` e \`ocorrencias\`.
+    • \`author\` (string) - NÃO utilize esse campo
     • \`native_distribution_area\` (string)
     • \`origin\` (string)
     • \`natural_environment\` (string)
     • \`economic_use\` (string) - informa o uso econômico da espécie.
     • \`world_invasive_places\` (string)
     • \`invasion_preferential_environments\` (string) - informa os ambientes de invasão preferenciais da espécie.
-    • \`biodiversity_impact\` (string)
-    • \`economic_impact\` (string)
+    • \`biodiversity_impact\` (string) - informa o impacto da espécie sobre a biodiversidade.
+    • \`economic_impact\` (string) - informa o impacto econômico da espécie.
     • \`common_name\` (string) - informa o nome comum, vernacular ou popular da espécie.
-    • \`morphophysiology_description\` (string)
+    • \`morphophysiology_description\` (string) - informa a descrição morfológica da espécie.
     • \`voc_form\` (string) - informa a forma de vida da espécie.
     • \`voc_reproduction\` (string) - informa a forma de reprodução da espécie.
     • \`voc_spread\` (string) informa a forma de propagação da espécie.
     • \`voc_diet\` (string)
-    • \`prevention\` (string)
+    • \`prevention\` (string) - informa a forma de prevenção contra a invasão da espécie.
     • \`physical_control\` (string) - informa a forma de controle físico da espécie.
     • \`chemical_control\` (string) - informa a forma de controle químico da espécie.
     • \`voc_dispersal_routes\` (string)
-    • \`voc_dispersion_vectors\` (string)
-    • \`voc_economical_use\` (string)
+    • \`voc_dispersion_vectors\` (string) - informa
+    • \`voc_economical_use\` (string) - informa o uso econômico da espécie.
     • \`early_detection_measures\` (string)
     • \`vocEicatStr\`(string)
  
@@ -203,11 +203,12 @@ const systemPrompt = dedent`
     4. Os únicos valores válidos de \`kingdom\` são \`Animalia\`, para animais ou fauna; \`Plantae\`, para vegetais ou plantas; e \`Fungi\`, para os fungos.
     5. A relação entre as espécies, na coleção \`taxa\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pela chave \'canonicalName\'.
     5.1 Ao considerar as ocorrências, considere apenas as espécies da coleção \'taxa\' cujo \'taxonomicStatus\' é \'NOME_ACEITO\'.
-    6. A relação entre as espécies, na coleção \`taxa\`, e sua avaliação de risco de extinção, na coleção \`cncflora2022\`, se dá pela chave \`scientific_name\`.
-    7. A relação entre as espécies, na coleção \`invasoras\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pela chave \`scientific_name\`.
-    8. A relação entre as espécies, na coleção \`invasoras\`, e sua avaliação de risco de extinção, na coleção \`cncflora2022\`, se dá pela chave \`scientific_name\`.
-    9. A relação entre as espécies, na coleção \`invasoras\`, e suas características, na coleção \`taxa\`, se dá pela chave \`scientific_name\`.
-
+    6. A relação entre as espécies, na coleção \`taxa\`, e sua avaliação de risco de extinção, na coleção \`cncflora2022\`, se dá pela chave \`canonicalName\`.
+    7. A relação entre as espécies, na coleção \`invasoras\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pelas chaves \`scientific_name\`, na coleção \`invasoras\`, e \`canonicalName\`, na coleção \`taxa\`.
+    8. A relação entre as espécies, na coleção \`invasoras\`, e sua avaliação de risco de extinção, na coleção \`cncflora2022\`, se dá pelas chaves \`scientific_name\`, na coleção \`invasoras\`, e \`canonicalName\`, na coleção \`taxa\`.
+    9. A relação entre as espécies, na coleção \`invasoras\`, e suas características, na coleção \`taxa\`, se dá pelas chaves \`scientific_name\`, na coleção \`invasoras\`, e \`canonicalName\`, na coleção \`taxa\`.
+    10. Perguntas sobre ocorrência de espécies deve inicialmente consultar a coleção \`taxa\`, usando o campo \`distribution.occurrence\`.
+    11. Pedidos para listar ocorrências de espécies devem consultar a coleção \`ocorrencias\`.
     
     **Estilo de resposta**
     • Saída em GitHub-flavoured Markdown.  
