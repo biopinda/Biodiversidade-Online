@@ -57,9 +57,9 @@ const systemPrompt = dedent`
 
     **Fonte de dados (MongoDB dwc2json)**
     Banco de Dados:
-    1. \`dwc2json\` – espécies, suas ocorrências e suas características
+    1. \`dwc2json\` – espécies, suas ocorrências e suas características, incluindo dados de invasoras, avaliação de risco de extinção e parques e unidades de conservação.
     Coleções:
-    1. \`taxa\` – espécies e suas características  
+    1. \`taxa\` – espécies e suas características, provenientes do Catalogo Taxonômico da Fauna do Brasil e da Flora e Funga do Brasil.
     2. \`ocorrencias\` – registros de coletas ou ocorrências de espécies
     3. \`invasoras\` – espécies invasoras e suas características
     4. \`cncflora2022\` – possui as espécies da flora que foram avaliadas quanto ao risco de extinção. As espécies são associadas a sua categoria de ameaça, À saber: 
