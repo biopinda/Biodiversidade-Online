@@ -104,9 +104,9 @@ const systemPrompt = dedent`
     • \`distribution.vegetationType[]\` (string) - este campo informa o tipo de vegetação onde a espécie ocorre.
     • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
     • \`flatScientificName\` (string) - NÃO utilize esse campo
-    • \`vernacularnames[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`) - este campo lista os nomes vulgares, nomes populares ou nomes vernaculares utilizados para a espécie.
+    • \`vernacularnames[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`) - este campo lista os nomes vulgares, nomes populares ou nomes vernaculares utilizados para a espécie, com a linguagem e o local onde foram utilizados.
     • \`vernacularnames[].language\` (string) - este campo diz respeito ao idioma utilizado para o \'vernacularName\'.
-    • \`vernacularnames[].vernacularName\` (string) - informa o nome comum, vernacular ou popular da espécie.
+    • \`vernacularnames[].vernacularName\` (string) - informa o nome comum, vernacular ou popular da espécie. Deve ser utilizado prioritariamente para buscar ou listar espécies pelo nome vernacular, popular ou comum.
     • \`vernacularnames[].locality\` (string) - este campo diz respeito ao local que o \'vernacularName\' é utilizado.
     • \'othernames[]\' (array de objetos com \`taxonID\`, \`scientificName\`, \`taxonomicStatus\`) - este campo diz respeito aos sinônimos desta espécie.
     • \`othernames[].taxonID\` (string) - NÃO utilize esse campo
@@ -120,34 +120,41 @@ const systemPrompt = dedent`
     • \`ipt\` (string)  
     • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
     • \`flatScientificName\` (string) - NÃO utilize esse campo.
-    • \`type\` (string)  
-    • \`modified\` (string, datetime)  
+    • \`type\` (string) - NÃO utilize esse campo  
+    • \`modified\` (string, datetime) - NÃO utilize esse campo  
     • \`language\` (string) - NÃO utilize esse campo.
     • \`rightsHolder\` (string)  
     • \`institutionID\` (string)  
-    • \`institutionCode\` (string)  
-    • \`collectionCode\` (string)  
-    • \`datasetName\` (string)  
+    • \`institutionCode\` (string) - informa a sigla da instituição responsável pela coleção 
+    • \`collectionCode\` (string) - informa a sigla do herbário ou coleção onde a coleta está depositada.
+    • \`datasetName\` (string) - informa o nome dop herbário ou coleção onde a coleta está depositada.
     • \`basisOfRecord\` (string) - NÃO utilize esse campo.
     • \`occurrenceID\` (string)  
-    • \`catalogNumber\` (string)  
+    • \`catalogNumber\` (string) - informa o número identificador do material depositado na coleção, dado pela instituição que detêm o material.
     • \`recordedBy\` (string) - utilize este campo para buscar coletores ou pessoas que coletaram a ocorrência.
-    • \`preparations\` (string)  
+    • \`recordNumber\` (string) - informa o número de coleta da ocorrência, dado pelo autor da coleta, ou \`recordedBy\`.
+    • \`preparations\` (string) - informa como o material foi preparado para ser depositado na coleção.
     • \`eventDate\` (string) - utilize este campo para buscar a data de coleta.
-    • \`higherGeography\` (string)  
-    • \`continent\` (string)  
-    • \`country\` (string)  
-    • \`stateProvince\` (string)  
-    • \`county\` (string)  
-    • \`locality\` (string)  
-    • \`scientificName\` (string) - possui o nome científico completo da espécie  
+    • \`year\` (string) - informa o ano de coleta da espécie.
+    • \`month\` (string) - informa o mês de coleta da espécie.
+    • \`day\` (string) - informa o dia de coleta da espécie.
+    • \`habitat\` (string) - informa o tipo de habitat e detalhes sobre o ambiente onde a espécie foi coletada.
+    • \`higherGeography\` (string) - informa o tipo de região geográfica onde a espécie foi coletada, de forma menos específica que o \`locality\`.
+    • \`continent\` (string) - informa o nome do continente onde a espécie foi coletada.
+    • \`country\` (string) - informa o nome do país onde a espécie foi coletada.
+    • \`stateProvince\` (string) -informa o nome do estado ou província onde a espécie foi coletada.
+    • \`county\` (string) - informa o nome do município onde a espécie foi coletada.
+    • \`locality\` (string) - informa detalhes da localidade onde a espécie foi coletada.
+    • \`scientificName\` (string) - possui o nome científico completo da espécie.
     • \`kingdom\` (enum: Animalia | Plantae | Fungi)  
-    • \`phylum\` (string)  
-    • \`class\` (string)  
-    • \`order\` (string)  
-    • \`family\` (string)  
-    • \`genus\` (string)  
-    • \`specificEpithet\` (string) - NÃO utilize esse campo   
+    • \`phylum\` (string) - informa o filo da espécie.    
+    • \`class\` (string) - informa a classe da espécie.
+    • \`order\` (string) - informa o ordem da espécie.
+    • \`family\` (string) - informa o família da espécie.
+    • \`genus\` (string) - informa o gênero da espécie.
+    • \`specificEpithet\` (string) - NÃO utilize esse campo
+    • \`occurrenceRemarks\` (string) - possui informações adicionais sobre a coleta ou ocorrência da espécie. Guarda informações sobre as características do indivíduo coletado, como a cor da flor, se havia presença de frutos, etc. Guarda também informações sobre o material depositado na coleção.
+    
 
     **Campos de \`cncflora2022\`:**
     • \`_id\` (string) - NÃO utilize esse campo
