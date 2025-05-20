@@ -76,15 +76,18 @@ const systemPrompt = dedent`
     • \`parentNameUsageID\` (string) - NÃO utilize esse campo  
     • \`scientificName\` (string) - possui o nome científico completo da espécie
     • \`parentNameUsage\` (string) - NÃO utilize esse campo  
-    • \`namePublishedIn\` (string)  
-    • \`namePublishedInYear\` (string)  
+    • \`namePublishedIn\` (string) - informa o nome da publicação em que a espécie foi publicada.
+    • \`namePublishedInYear\` (string) - informa o ano em que a espécie foi publicada.
     • \`higherClassification\` (string)  
-    • \`kingdom\` (enum: Animalia | Plantae | Fungi)  
-    • \`phylum\` (string)  
-    • \`class\` (string)  
-    • \`order\` (string)  
-    • \`family\` (string)  
-    • \`genus\` (string)  
+    • \`kingdom\` (enum: Animalia | Plantae | Fungi) - informa o reino da espécie.
+    • \`phylum\` (string) - informa o filo da espécie.
+    • \`class\` (string) - informa a classe da espécie.
+    • \`order\` (string) - informa o ordem da espécie.
+    • \`family\` (string) - informa o família da espécie.
+    • \`genus\` (string) - informa o gênero da espécie.
+    • \`order\` (string) - informa o ordem da espécie.
+    • \`family\` (string) - informa o família da espécie.
+    • \`genus\` (string) - informa o gênero da espécie.
     • \`specificEpithet\` (string) - NÃO utilize esse campo
     • \`taxonRank\` (enum: ESPECIE | FORMA | SUB_ESPECIE | VARIEDADE)  
     • \`scientificNameAuthorship\` (string)  
@@ -104,10 +107,10 @@ const systemPrompt = dedent`
     • \`distribution.vegetationType[]\` (string) - este campo informa o tipo de vegetação onde a espécie ocorre.
     • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
     • \`flatScientificName\` (string) - NÃO utilize esse campo
-    • \`vernacularnames[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`) - este campo lista os nomes vulgares, nomes populares ou nomes vernaculares utilizados para a espécie, com a linguagem e o local onde foram utilizados.
-    • \`vernacularnames[].language\` (string) - este campo diz respeito ao idioma utilizado para o \'vernacularName\'.
-    • \`vernacularnames[].vernacularName\` (string) - informa o nome comum, vernacular ou popular da espécie. Deve ser utilizado prioritariamente para buscar ou listar espécies pelo nome vernacular, popular ou comum.
-    • \`vernacularnames[].locality\` (string) - este campo diz respeito ao local que o \'vernacularName\' é utilizado.
+    • \`vernacularname[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`) - este campo lista os nomes vulgares, nomes populares ou nomes vernaculares utilizados para a espécie, com a linguagem e o local onde foram utilizados.
+    • \`vernacularname[].language\` (string) - este campo diz respeito ao idioma utilizado para o \'vernacularName\'.
+    • \`vernacularname[].vernacularName\` (string) - informa o nome comum, vernacular ou popular da espécie. Deve ser utilizado prioritariamente para buscar ou listar espécies pelo nome vernacular, popular ou comum.
+    • \`vernacularname[].locality\` (string) - este campo diz respeito ao local que o \'vernacularName\' é utilizado.
     • \'othernames[]\' (array de objetos com \`taxonID\`, \`scientificName\`, \`taxonomicStatus\`) - este campo diz respeito aos sinônimos desta espécie.
     • \`othernames[].taxonID\` (string) - NÃO utilize esse campo
     • \`othernames[].scientificName\` (string) - este campo diz respeito ao nome científico que é sinônimo desta espécie.
