@@ -8,6 +8,8 @@
 [Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)<br>
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15261018.svg)](https://doi.org/10.5281/zenodo.15261018)
 
+> :warning: **Atenção:** Acompanhe o desenvolvimento do ["ChatBB"](https://github.com/edalcin/DarwinCoreJSON/blob/main/chatbb.md).
+
 ## Histórico do Projeto
 
 Este projeto iniciou em novembro de 2023 com a proposta de converter dados da [Flora e Funga do Brasil](http://floradobrasil.jbrj.gov.br/reflora/listaBrasil/ConsultaPublicaUC/ConsultaPublicaUC.do), do formato [___Darwin Core Archive___ (DwC-A)](https://www.gbif.org/pt/darwin-core), [disponível](https://ipt.jbrj.gov.br/jbrj/resource?r=lista_especies_flora_brasil) no IPT do JBRJ, para o [formato JSON](https://pt.wikipedia.org/wiki/JSON) e criar uma base de dados neste formato no [MongoDB](https://www.mongodb.com/).
