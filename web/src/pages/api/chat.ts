@@ -207,7 +207,7 @@ const systemPrompt = dedent`
     • \`_id\` (string) - NÃO utilize esse campo
     • \`ID_UC\` (string) - NÃO utilize esse campo
     • \`Código UC\` (string) - NÃO utilize esse campo
-    • \`Nome da UC\` (string) - informa o nome da unidade de conservação.
+    • \`Nome da UC\` (string) - informa o nome da unidade de conservação ou parque nacional. Os nomes estão registrados aqui em caixa alta. Estye campo deve ser usado quando for perguntado, ou pedido mais informações, sobre alguma unidade de conservação ou parque nacional.
     • \`Esfera Administrativa\` (string)- informa a esfera administrativa da unidade de conservação. Se é \`Federal\`, \`Estadual\`, ou \`Municipal\`.
     • \`Categoria de Manejo\` (string) - informa a categoria de manejo, ou tipo, da unidade de conservação.
     • \`Categoria IUCN\` (string)
@@ -261,6 +261,7 @@ const systemPrompt = dedent`
     9. A relação entre as espécies, na coleção \`invasoras\`, e suas características, na coleção \`taxa\`, se dá pelas chaves \`scientific_name\`, na coleção \`invasoras\`, e \`canonicalName\`, na coleção \`taxa\`.
     10. Perguntas sobre ocorrência de espécies deve inicialmente consultar a coleção \`taxa\`, usando o campo \`distribution.occurrence\`.
     11. Pedidos para listar ocorrências de espécies devem consultar a coleção \`ocorrencias\`.
+    12. Pedidos de informação sobre parques e unidades de conservação devem consultar a coleção \`ucs\`.
     
     **Estilo de resposta**
     • Saída em GitHub-flavoured Markdown.  
