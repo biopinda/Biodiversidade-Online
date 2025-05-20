@@ -69,6 +69,7 @@ const systemPrompt = dedent`
       CR - Criticamente em Perigo (Critically Endangered): Enfrenta um risco extremamente alto de extinção na natureza em um futuro imediato.
       LC - Menos Preocupante (Least Concern): Não se qualifica para nenhuma das categorias de ameaça. Geralmente são espécies abundantes e amplamente distribuídas.
       DD - Dados Insuficientes (Data Deficient): Não há informações adequadas para fazer uma avaliação direta ou indireta do risco de extinção, com base em sua distribuição e/ou status populacional.
+    5. \`ucs\` (string) - catálogo das unidades de conservação e parques nacionais do Brasil. Possui dados das unidades de conservação e parques nacionais do Brasil, como o nome, a área, o estado, o ano de criação, o ano do ato legal mais recente, os municípios abrangidos, se possui ou não um plano de manejo, se possui ou não um conselho de gestão, o nome do órgão gestor, se possui ou não um bioma, e se possui ou não uma área marinha.
 
     **Campos de \`taxa\`:**  
     • \`_id\` (string) - NÃO utilize esse campo  
@@ -158,7 +159,6 @@ const systemPrompt = dedent`
     • \`specificEpithet\` (string) - NÃO utilize esse campo
     • \`occurrenceRemarks\` (string) - possui informações adicionais sobre a coleta ou ocorrência da espécie. Guarda informações sobre as características do indivíduo coletado, como a cor da flor, se havia presença de frutos, etc. Guarda também informações sobre o material depositado na coleção.
     
-
     **Campos de \`cncflora2022\`:**
     • \`_id\` (string) - NÃO utilize esse campo
     • \`higherClassification\` (string)
@@ -202,6 +202,48 @@ const systemPrompt = dedent`
     • \`voc_economical_use\` (string) - informa o uso econômico da espécie.
     • \`early_detection_measures\` (string)
     • \`vocEicatStr\`(string)
+
+    **Campos de \`ucs\`:**
+    • \`_id\` (string) - NÃO utilize esse campo
+    • \`ID_UC\` (string) - NÃO utilize esse campo
+    • \`Código UC\` (string) - NÃO utilize esse campo
+    • \`Nome da UC\` (string) - informa o nome da unidade de conservação.
+    • \`Esfera Administrativa\` (string)- informa a esfera administrativa da unidade de conservação. Se é \`Federal\`, \`Estadual\`, ou \`Municipal\`.
+    • \`Categoria de Manejo\` (string) - informa a categoria de manejo, ou tipo, da unidade de conservação.
+    • \`Categoria IUCN\` (string)
+    • \`UF\` (string) - informa o estado, ou estados, em que a unidade de conservação está localizada.
+    • \`Ano de Criação\` (Number) - informa o ano de criação da unidade de conservação.
+    • \`Ano do ato legal mais recente\` (Number)
+    • \`Ato Legal de Criação\` (string)
+    • \`Outros atos legais\` (string)
+    • \`Municípios Abrangidos\` (string) - informa os municípios abrangidos pela unidade de conservação.
+    • \`Plano de Manejo\` (string) - informa se possui ou não um plano de manejo.
+    • \`Conselho Gestor\` (string) - informa se possui ou não um conselho de gestão.
+    • \`Órgão Gestor\` (string) - informa o nome do órgão gestor da unidade de conservação.
+    • \`Fonte da Área: (1 = SHP, 0 = Ato legal)\` (Number)
+    • \`Área soma biomas\` (Number) - informa a área da unidade de conservação.
+    • \`Área soma Biomas Continental\` (Number)
+    • \`Área Ato Legal de Criação\` (Number)
+    • \`Amazônia\` (Number) - informa a área da unidade de conservação que é da Amazônia.
+    • \`Caatinga\` (Number) - informa a área da unidade de conservação que é da Caatinga.
+    • \`Cerrado\` (Number) - informa a área da unidade de conservação que é da Cerrado.
+    • \`Mata Atlântica\` (Number) - informa a área da unidade de conservação que é da Mata Atlântica.
+    • \`Pampa\` (Number) - informa a área da unidade de conservação que é da Pampa.
+    • \`Pantanal\` (Number) - informa a área da unidade de conservação que é da Pantanal.
+    • \`Área Marinha\` (Number)- informa a área da unidade de conservação que é marinha.
+    • \`Bioma declarado\` (string)- informa o bioma onde ocorre a unidade de conservação.
+    • \`% Além da linha de costa\` (string)
+    • \`Grupo\` (string) - informa se a unidade de conservação é de \`Uso Sustentável\` ou \`Proteção Integral\`.
+    • \`PI\` (Number) - NÃO utilize esse campo
+    • \`US\` (Number) - NÃO utilize esse campo
+    • \`Mar Territorial\` (Number)
+    • \`Município Costeiro\` (Number)
+    • \`Município Costeiro + Área Marinha\` (Number)
+    • \`Reserva da Biosfera\` (string)
+    • \`Qualidade dos dados georreferenciados\` (string) - NÃO utilize esse campo
+    • \`Código WDPA\` (Number) - NÃO utilize esse campo
+    • \`Data da publicação no CNUC\` (string)
+    • \`Data da última certificação dos dados pelo Órgão Gestor\` (string) - NÃO utilize esse campo
  
     **Regras para consultas**
     1. Use sempre a ferramenta **aggregate** para contagens.  
