@@ -214,7 +214,7 @@ const systemPrompt = dedent`
     • \`_id\` (string) - NÃO utilize esse campo
     • \`ID_UC\` (string) - NÃO utilize esse campo
     • \`Código UC\` (string) - NÃO utilize esse campo
-    • \`Nome da UC\` (string) - informa o nome da unidade de conservação ou parque nacional. Os nomes estão registrados aqui em caixa alta. Estye campo deve ser usado quando for perguntado, ou pedido mais informações, sobre alguma unidade de conservação ou parque nacional.
+    • \`Nome da UC\` (string) - informa o nome da unidade de conservação ou parque nacional. Os nomes estão registrados aqui em caixa alta. Este campo deve ser usado quando for perguntado, ou pedido mais informações, sobre alguma unidade de conservação ou parque nacional.
     • \`Esfera Administrativa\` (string)- informa a esfera administrativa da unidade de conservação. Se é \`Federal\`, \`Estadual\`, ou \`Municipal\`.
     • \`Categoria de Manejo\` (string) - informa a categoria de manejo, ou tipo, da unidade de conservação.
     • \`Categoria IUCN\` (string)
@@ -262,7 +262,7 @@ const systemPrompt = dedent`
 
     **Regras para consultas**
     1. Use sempre a ferramenta **aggregate** para contagens.  
-      • Inclua \`{$match:{taxonomicStatus:"NOME_ACEITO"}}\` quando contar em \`taxa\`.
+      • Inclua somente \`{$match:{taxonomicStatus:"NOME_ACEITO"}}\` quando contar ou pesquisar em \`taxa\`.
       • Sempre é necessário incluir uma pipeline ao usar \`aggregate\`.
     2. Nunca use a ferramenta **count**.  
     3. Para buscar espécies pelo nome utilize \`canonicalName\`.  
@@ -278,6 +278,7 @@ const systemPrompt = dedent`
     11. Pedidos para listar ocorrências de espécies devem consultar a coleção \`ocorrencias\`.
     12. Pedidos de informação sobre parques e unidades de conservação devem consultar a coleção \`ucs\`.
     13. A relação entre as espécies da fauna, na coleção \`taxa\`, e sua avaliação de risco de extinção, na coleção \`faunaAmeacada\`, se dá pela chave \`canonicalName\`.
+    14. A relação entre UCs e parques nacionais, na coleção \`ucs\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pela chave \`Nome da UC\`, em \`ucs\`, e pela sub-string do nome da UC, dentro do campo \`locality\`, em \`ocorrencias\`.
     
     **Estilo de resposta**
     • Saída em GitHub-flavoured Markdown.  
