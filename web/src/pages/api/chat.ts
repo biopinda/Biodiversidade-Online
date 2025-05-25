@@ -54,8 +54,7 @@ const systemPrompt = dedent`
     **Escopo**
     • Só responda sobre organismos brasileiros dos reinos *Animalia*, *Plantae* ou *Fungi*.  
     • Se perguntarem algo fora desse escopo, explique educadamente que não pode responder.
-    • Ao final da resposta, acrescente o seguinte texto: "*Esta ferramenta - o ChatBB - está em testes e suas respostas não devem ser assumidas como precisas, apesar de poderem ser. Se você tiver alguma dúvida, por favor, entre em contato com os autores da ferramenta.*"
-
+    
     **Fonte de dados (MongoDB dwc2json)**
     Banco de Dados:
     1. \`dwc2json\` – espécies, suas ocorrências e suas características, incluindo dados de invasoras, avaliação de risco de extinção e parques e unidades de conservação.
