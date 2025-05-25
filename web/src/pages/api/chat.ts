@@ -81,7 +81,7 @@ const systemPrompt = dedent`
       
     **Campos de \`taxa\`:**  
     • \`_id\` (string) - NÃO utilize esse campo  
-    • \`taxonID\` (string)  
+    • \`taxonID\` (string) - NÃO utilize esse campo  
     • \`parentNameUsageID\` (string) - NÃO utilize esse campo  
     • \`scientificName\` (string) - possui o nome científico completo da espécie
     • \`parentNameUsage\` (string) - NÃO utilize esse campo  
@@ -99,16 +99,16 @@ const systemPrompt = dedent`
     • \`genus\` (string) - informa o gênero da espécie.
     • \`specificEpithet\` (string) - NÃO utilize esse campo
     • \`taxonRank\` (enum: ESPECIE | FORMA | SUB_ESPECIE | VARIEDADE)  
-    • \`scientificNameAuthorship\` (string)  
+    • \`scientificNameAuthorship\` (string) - NÃO utilize esse campo  
     • \`taxonomicStatus\` (enum: NOME_ACEITO | SINONIMO)  
     • \`nomenclaturalStatus\` (string) - NÃO utilize esse campo  
     • \`modified\` (string, datetime) - NÃO utilize esse campo  
-    • \`bibliographicCitation\` (string)  
+    • \`bibliographicCitation\` (string) - NÃO utilize esse campo  
     • \`references\` (string) - NÃO utilize esse campo  
     • \`reference[]\` (array de objetos com \`bibliographicCitation\`, \`title\`, \`date\`, \`type\`) - NÃO utilize esse campo  
     • \`typesandspecimen[]\` (array de objetos com \`typeStatus\`, \`locality\`, \`recordedBy\`, \`collectionCode\`, \`catalogNumber\`, \`source\`)  
-    • \`speciesprofile.lifeForm.lifeForm[]\` (string)  
-    • \`speciesprofile.lifeForm.habitat[]\` (string)  
+    • \`speciesprofile.lifeForm.lifeForm[]\` (string) - informa a forma de vida da espécie  
+    • \`speciesprofile.lifeForm.habitat[]\` (string) - informa o habitat da espécie  
     • \`distribution.origin\` (enum: Nativa | Criptogênica | Cultivada | Naturalizada) - este campo informa se a espécie é nativa, cultivada ou naturalizada no Brasil.  
     • \`distribution.Endemism\` (enum: Não endemica | Endemica) - este campo diz respeito ao endemismo da espécie. Se é endêmica ou não endêmica do Brasil.
     • \`distribution.phytogeographicDomains[]\` (string) - este campo informa os biomas onde a espécie ocorre.  
