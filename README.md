@@ -40,4 +40,4 @@ O ChatBB ainda está em fase de testes e ajustes em seu "prompt" e a ideia é qu
 
 Dúvidas e sugestões podem ser registradas [nos "issues"](https://github.com/edalcin/DarwinCoreJSON/issues).
 
-Citação da ferramenta:[]()
+Citação da ferramenta:[Henrique Pinheiro, & Eduardo Dalcin. (2025). edalcin/DarwinCoreJSON: ChatBB - O "chat" da Biodiversidade Brasileira (DWC2JSON V5.0) (v5.0). Zenodo. https://doi.org/10.5281/zenodo.15511063](https://doi.org/10.5281/zenodo.15511063)
