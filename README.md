@@ -35,6 +35,7 @@ Veja aqui alguns exemplos de perguntas e respostas utilizando o ChatBB:
 * [Qual as 10 famílias de plantas mais coletadas por Filardi?](https://trilium.dalc.in/share/So7cSpBzKg6X)
 * [Me fale sobre o parque de itatiaia](https://trilium.dalc.in/share/8DooZZ2m6ZRD)
 * [Gostaria de saber mais sobre as espécies ameaçadas](https://trilium.dalc.in/share/hYv76no1dEgS)
+* [Me fale sobre os parques nacionais. Quantos são em cada estado?](https://trilium.dalc.in/share/ULXsWsPpnSy1)
 
 O ChatBB ainda está em fase de testes e ajustes em seu "prompt" e a ideia é que seja colocado em produção para os interessados.
 
