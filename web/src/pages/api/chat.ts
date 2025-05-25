@@ -83,7 +83,7 @@ const systemPrompt = dedent`
     • \`_id\` (string) - NÃO utilize esse campo  
     • \`taxonID\` (string) - NÃO utilize esse campo  
     • \`parentNameUsageID\` (string) - NÃO utilize esse campo  
-    • \`scientificName\` (string) - possui o nome científico completo da espécie
+    • \`scientificName\` (string) - possui o nome científico completo da espécie. SEMPRE Utilize este campo nas respostas quando for se referir à uma espécie, evitando usar o \`canonicalName\`.	
     • \`parentNameUsage\` (string) - NÃO utilize esse campo  
     • \`namePublishedIn\` (string) - informa o nome da publicação em que a espécie foi publicada.
     • \`namePublishedInYear\` (string) - informa o ano em que a espécie foi publicada.
@@ -98,23 +98,23 @@ const systemPrompt = dedent`
     • \`family\` (string) - informa o família da espécie.
     • \`genus\` (string) - informa o gênero da espécie.
     • \`specificEpithet\` (string) - NÃO utilize esse campo
-    • \`taxonRank\` (enum: ESPECIE | FORMA | SUB_ESPECIE | VARIEDADE)  
+    • \`taxonRank\` (enum: ESPECIE | FORMA | SUB_ESPECIE | VARIEDADE) - informa o nível taxonômico da espécie.  
     • \`scientificNameAuthorship\` (string) - NÃO utilize esse campo  
-    • \`taxonomicStatus\` (enum: NOME_ACEITO | SINONIMO)  
+    • \`taxonomicStatus\` (enum: NOME_ACEITO | SINONIMO) - informa se o \`canonicalName\` é um nome aceito ou um sinônimo.
     • \`nomenclaturalStatus\` (string) - NÃO utilize esse campo  
     • \`modified\` (string, datetime) - NÃO utilize esse campo  
     • \`bibliographicCitation\` (string) - NÃO utilize esse campo  
     • \`references\` (string) - NÃO utilize esse campo  
     • \`reference[]\` (array de objetos com \`bibliographicCitation\`, \`title\`, \`date\`, \`type\`) - NÃO utilize esse campo  
     • \`typesandspecimen[]\` (array de objetos com \`typeStatus\`, \`locality\`, \`recordedBy\`, \`collectionCode\`, \`catalogNumber\`, \`source\`)  
-    • \`speciesprofile.lifeForm.lifeForm[]\` (string) - informa a forma de vida da espécie  
-    • \`speciesprofile.lifeForm.habitat[]\` (string) - informa o habitat da espécie  
+    • \`speciesprofile.lifeForm.lifeForm[]\` (string) - informa a forma de vida da espécie, como árvore, arbusto, erva, etc.  
+    • \`speciesprofile.lifeForm.habitat[]\` (string) - informa o habitat da espécie, ou seja, o substrato onde a espécie ocorre.
     • \`distribution.origin\` (enum: Nativa | Criptogênica | Cultivada | Naturalizada) - este campo informa se a espécie é nativa, cultivada ou naturalizada no Brasil.  
     • \`distribution.Endemism\` (enum: Não endemica | Endemica) - este campo diz respeito ao endemismo da espécie. Se é endêmica ou não endêmica do Brasil.
     • \`distribution.phytogeographicDomains[]\` (string) - este campo informa os biomas onde a espécie ocorre.  
     • \`distribution.occurrence[]\` (enum: BR-AC | BR-AL | BR-AP | BR-AM | BR-BA | BR-CE | BR-DF | BR-ES | BR-GO | BR-MA | BR-MT | BR-MS | BR-MG | BR-PA | BR-PB | BR-PR | BR-PE | BR-PI | BR-RJ | BR-RN | BR-RS | BR-RO | BR-RR | BR-SC | BR-SP | BR-SE | BR-TO) - este campo informa os estados brasileiros onde a espécie ocorre.
     • \`distribution.vegetationType[]\` (string) - este campo informa o tipo de vegetação onde a espécie ocorre.
-    • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
+    • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome. Chave para buscar informações em \`taxa\`, \`cncflora2022\`, \`faunaAmeacada\` e \`ocorrencias\`.
     • \`flatScientificName\` (string) - NÃO utilize esse campo
     • \`vernacularname[]\` (array de objetos com \`language\`, \`vernacularName\`, \`locality\`) - este campo lista os nomes vulgares, nomes populares ou nomes vernaculares utilizados para a espécie, com a linguagem e o local onde foram utilizados.
     • \`vernacularname[].language\` (string) - este campo diz respeito ao idioma utilizado para o \'vernacularName\'.
@@ -128,20 +128,20 @@ const systemPrompt = dedent`
 
     **Campos de \`ocorrencias\`:**  
     • \`_id\` (string) - NÃO utilize esse campo  
-    • \`iptId\` (string)  
-    • \`ipt\` (string)  
-    • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
+    • \`iptId\` (string) - NÃO utilize esse campo.  
+    • \`ipt\` (string) - NÃO utilize esse campo.  
+    • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome. Chave para buscar informações em \`taxa\`, \`cncflora2022\`, \`faunaAmeacada\` e \`ocorrencias\`.
     • \`flatScientificName\` (string) - NÃO utilize esse campo.
     • \`type\` (string) - NÃO utilize esse campo  
     • \`modified\` (string, datetime) - NÃO utilize esse campo  
     • \`language\` (string) - NÃO utilize esse campo.
-    • \`rightsHolder\` (string)  
-    • \`institutionID\` (string)  
+    • \`rightsHolder\` (string) - informa a instituição que detém o material.  
+    • \`institutionID\` (string) - NÃO utilize esse campo.  
     • \`institutionCode\` (string) - informa a sigla da instituição responsável pela coleção 
     • \`collectionCode\` (string) - informa a sigla do herbário ou coleção onde a coleta está depositada.
     • \`datasetName\` (string) - informa o nome dop herbário ou coleção onde a coleta está depositada.
     • \`basisOfRecord\` (string) - NÃO utilize esse campo.
-    • \`occurrenceID\` (string)  
+    • \`occurrenceID\` (string) - NÃO utilize esse campo.  
     • \`catalogNumber\` (string) - informa o número identificador do material depositado na coleção, dado pela instituição que detêm o material.
     • \`recordedBy\` (string) - utilize este campo para buscar coletores ou pessoas que coletaram a ocorrência.
     • \`recordNumber\` (string) - informa o número de coleta da ocorrência, dado pelo autor da coleta, ou \`recordedBy\`.
@@ -170,10 +170,10 @@ const systemPrompt = dedent`
     **Campos de \`cncflora2022\`:**
     • \`_id\` (string) - NÃO utilize esse campo
     • \`higherClassification\` (string)
-    • \`family\` (string)
+    • \`family\` (string) - informa o família da espécie.
     • \`scientificName\` (string) - possui o nome científico completo da espécie.
     • \`taxonID\` (string) - NÃO utilize esse campo
-    • \`canonicalName\` (string)
+    • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome. Chave para buscar informações em \`taxa\`, \`cncflora2022\`, \`faunaAmeacada\` e \`ocorrencias\`.
     • \`threatStatus\` (enum: EN | VU | NT | CR | LC | DD) - indica se a espécie é ameaçada ou não, ou seja, sua categoria de ameaça em relação ao risco de extinção.
     • \`dateEvaluation\` (string) - indica a data da avaliação de risco de extinção da espécie.
     • \`source\` (string) - indica a fonte da avaliação de risco de extinção da espécie.
@@ -186,7 +186,7 @@ const systemPrompt = dedent`
     • \`oorder\` (string)
     • \`family\` (string)
     • \`genus\` (string)
-    • \`scientific_name\` (string) - equivalente ao \`canonicalName\` nas coleções \`taxa\`, \`cncflora2022\` e \`ocorrencias\`. usar como chave para relação com as coleções \`taxa\`, \`cncflora2022\` e \`ocorrencias\`.
+    • \`scientific_name\` (string) - equivalente ao \`canonicalName\` nas coleções \`taxa\`, \`cncflora2022\` e \`ocorrencias\`. usar como chave para relação com as coleções \`taxa\`, \`cncflora2022\`, \`faunaAmeacada\` e \`ocorrencias\`.
     • \`author\` (string) - NÃO utilize esse campo
     • \`native_distribution_area\` (string)
     • \`origin\` (string)
@@ -206,7 +206,7 @@ const systemPrompt = dedent`
     • \`physical_control\` (string) - informa a forma de controle físico da espécie.
     • \`chemical_control\` (string) - informa a forma de controle químico da espécie.
     • \`voc_dispersal_routes\` (string)
-    • \`voc_dispersion_vectors\` (string) - informa
+    • \`voc_dispersion_vectors\` (string)
     • \`voc_economical_use\` (string) - informa o uso econômico da espécie.
     • \`early_detection_measures\` (string)
     • \`vocEicatStr\`(string)
@@ -231,7 +231,7 @@ const systemPrompt = dedent`
     • \`Fonte da Área: (1 = SHP, 0 = Ato legal)\` (Number)
     • \`Área soma biomas\` (Number) - informa a área da unidade de conservação.
     • \`Área soma Biomas Continental\` (Number)
-    • \`Área Ato Legal de Criação\` (Number)
+    • \`Área Ato Legal de Criação\` (Number) - informa a área da unidade de conservação no ato de criação. 
     • \`Amazônia\` (Number) - informa a área da unidade de conservação que é da Amazônia.
     • \`Caatinga\` (Number) - informa a área da unidade de conservação que é da Caatinga.
     • \`Cerrado\` (Number) - informa a área da unidade de conservação que é da Cerrado.
@@ -240,17 +240,17 @@ const systemPrompt = dedent`
     • \`Pantanal\` (Number) - informa a área da unidade de conservação que é da Pantanal.
     • \`Área Marinha\` (Number)- informa a área da unidade de conservação que é marinha.
     • \`Bioma declarado\` (string)- informa o bioma onde ocorre a unidade de conservação.
-    • \`% Além da linha de costa\` (string)
+    • \`% Além da linha de costa\` (string) - NÃO utilize esse campo
     • \`Grupo\` (string) - informa se a unidade de conservação é de \`Uso Sustentável\` ou \`Proteção Integral\`.
     • \`PI\` (Number) - NÃO utilize esse campo
     • \`US\` (Number) - NÃO utilize esse campo
-    • \`Mar Territorial\` (Number)
-    • \`Município Costeiro\` (Number)
-    • \`Município Costeiro + Área Marinha\` (Number)
-    • \`Reserva da Biosfera\` (string)
+    • \`Mar Territorial\` (Number) - NÃO utilize esse campo
+    • \`Município Costeiro\` (Number) - NÃO utilize esse campo
+    • \`Município Costeiro + Área Marinha\` (Number) - NÃO utilize esse campo
+    • \`Reserva da Biosfera\` (string) - informa o nome da reserva da biosfera.
     • \`Qualidade dos dados georreferenciados\` (string) - NÃO utilize esse campo
     • \`Código WDPA\` (Number) - NÃO utilize esse campo
-    • \`Data da publicação no CNUC\` (string)
+    • \`Data da publicação no CNUC\` (string) - informa a data da publicação no CNUC.
     • \`Data da última certificação dos dados pelo Órgão Gestor\` (string) - NÃO utilize esse campo
 
     **Campos de \`faunaAmeacada\`:**
@@ -258,7 +258,7 @@ const systemPrompt = dedent`
     • \`higherClassification\` (string) - informa o grupo taxonômico superior da espécie.
     • \`order\`  - informa o ordem da espécie.
     • \`family\` (string) - informa o família da espécie.
-    • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome.
+    • \`canonicalName\` (string) - utilize esse campo para buscar espécies pelo nome. Chave para buscar informações em \`taxa\`, \`cncflora2022\`, \`faunaAmeacada\` e \`ocorrencias\`.
     • \`threatStatus\` (enum: Em Perigo (EN) | Vulnerável (VU) | Quase Ameaçada (NT) | Criticamente em Perigo (CR) | Menos Preocupante (LC) | Dados Insuficientes (DD)) - indica se a espécie é ameaçada ou não, ou seja, sua categoria de ameaça em relação ao risco de extinção.
 
     **Regras para consultas**
