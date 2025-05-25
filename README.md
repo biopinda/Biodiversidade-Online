@@ -7,7 +7,7 @@
 # ChatBB - O "chat" da Biodiversidade Brasileira
 # (DwC2JSON V5.0)
 
-Esta nova versão do projeto DWC2JSON (ver histório em [versão1], [versão2], [versão4]), se aproveita do [protocolo MCP](https://www.anthropic.com/news/model-context-protocol), desenvolvido pela empresa Athropic, [implementado recentemente pelos desenvolvedores do MongoDB](https://www.mongodb.com/blog/post/announcing-mongodb-mcp-server), para conectar a [base de dados integrada da biodiversidade brasileira]() com a [plataforma da OpenIA](https://platform.openai.com/docs/overview) e criar o "ChatBB - O Assistente Virtual Inteligente da Biodiversidade Brasileira".
+Esta nova versão do projeto DWC2JSON (ver histórico em [versão1](https://github.com/edalcin/DarwinCoreJSON/blob/main/README.v1.md), [versão2](https://github.com/edalcin/DarwinCoreJSON/blob/main/README.v2..md), [versão4](https://github.com/edalcin/DarwinCoreJSON/blob/main/README.v4.md)), se aproveita do [protocolo MCP](https://www.anthropic.com/news/model-context-protocol), desenvolvido pela empresa Athropic, [implementado recentemente pelos desenvolvedores do MongoDB](https://www.mongodb.com/blog/post/announcing-mongodb-mcp-server), para conectar a [base de dados integrada da biodiversidade brasileira]() com a [plataforma da OpenIA](https://platform.openai.com/docs/overview) e criar o "ChatBB - O Assistente Virtual Inteligente da Biodiversidade Brasileira".
 
 O "ChatBB" é um assistente de inteligência artificial que usa um "Large Language Models" (LLM) da empresa OpenIA, criadora do ChatGPT, para interpretar e responder perguntas sobre espécies da biodiversidade brasileira e suas ocorrências, seu grau de ameaça, espécies invasoras e unidades de conservação em território nacional.
 
@@ -40,4 +40,4 @@ O ChatBB ainda está em fase de testes e ajustes em seu "prompt" e a ideia é qu
 
 Dúvidas e sugestões podem ser registradas [nos "issues"](https://github.com/edalcin/DarwinCoreJSON/issues).
 
-Citação da ferraenta:[]()
+Citação da ferramenta:[]()
