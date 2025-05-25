@@ -16,4 +16,18 @@ As coleções de dados ofertadas pelo banco de dados ao LLM são as seguintes:
 
 A utilização do "ChatBB" usa o LLM da OpenAI (4.1-mini) que requer uma chave de API que consome créditos em UD$. O valor mínimo para colocar de crédito é USD$5, mas com este valor é possível realizar milhares de consultas. O uso de outros LLMs será habilitado conforme a evolução da proposta.
 
+Veja aqui alguns exemplos de perguntas e respostas utilizando o ChatBB:
+
+* [Me fale sobre o gênero vriesea](https://trilium.dalc.in/share/lFMRnEIBR5Yu)
+* [Quais as espécies invasoras de árvores ocorrem nos parques nacionais?](https://trilium.dalc.in/share/I7vFC96GRy73)
+* [Quais as espécies de bromeliaceae ameaçadas de extinção que ocorrem em parques nacionais?](https://trilium.dalc.in/share/nfGgiYw3jhX8)
+* [Existe alguma espécie de mammalia invasora ocorrendo em parque nacional?](https://trilium.dalc.in/share/gq7VrTs1VQw9)
+* [Mammalia no Parque Nacional de Itatiata](https://trilium.dalc.in/share/UP1QHZIKKImI)
+* [Liste as espécies da fauna ameaçada que não estão na coleção taxa. Inclua as informações de filo e classe.](https://trilium.dalc.in/share/dX6Fpw2sC6J2)
+* [Quais as espécies de cactus são endêmicas do rio de janeiro?](https://trilium.dalc.in/share/wHVjLmy2GYZH)
+* [Qual as 10 famílias de plantas mais coletadas por Filardi?](https://trilium.dalc.in/share/So7cSpBzKg6X)
+* [Me fale sobre o parque de itatiaia](https://trilium.dalc.in/share/8DooZZ2m6ZRD)
+* [Gostaria de saber mais sobre as espécies ameaçadas](https://trilium.dalc.in/share/hYv76no1dEgS)
+
+
 Caso tenha interesse em participar da fase de testes, entre em contato com Eduardo Dalcin, pelo seu email institucional.

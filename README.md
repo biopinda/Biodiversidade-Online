@@ -3,40 +3,41 @@
 [![Update MongoDB - Ocorrências](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml)
 [![Docker Image](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/docker.yml/badge.svg)](https://github.com/edalcin/DarwinCoreJSON/pkgs/container/darwincorejson)
 
-# Base de Dados Integrada da Biodiversidade Brasileira
-# (DwC2JSON V4.0)
-[Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)<br>
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15261018.svg)](https://doi.org/10.5281/zenodo.15261018)
 
-> :warning: **Atenção:** Acompanhe o desenvolvimento do ["ChatBB"](https://github.com/edalcin/DarwinCoreJSON/blob/main/chatbb.md).
+# ChatBB - O "chat" da Biodiversidade Brasileira
+# (DwC2JSON V5.0)
 
-## Histórico do Projeto
+Esta nova versão do projeto DWC2JSON (ver histório em [versão1], [versão2], [versão4]), se aproveita do [protocolo MCP](https://www.anthropic.com/news/model-context-protocol), desenvolvido pela empresa Athropic, [implementado recentemente pelos desenvolvedores do MongoDB](https://www.mongodb.com/blog/post/announcing-mongodb-mcp-server), para conectar a [base de dados integrada da biodiversidade brasileira]() com a [plataforma da OpenIA](https://platform.openai.com/docs/overview) e criar o "ChatBB - O Assistente Virtual Inteligente da Biodiversidade Brasileira".
 
-Este projeto iniciou em novembro de 2023 com a proposta de converter dados da [Flora e Funga do Brasil](http://floradobrasil.jbrj.gov.br/reflora/listaBrasil/ConsultaPublicaUC/ConsultaPublicaUC.do), do formato [___Darwin Core Archive___ (DwC-A)](https://www.gbif.org/pt/darwin-core), [disponível](https://ipt.jbrj.gov.br/jbrj/resource?r=lista_especies_flora_brasil) no IPT do JBRJ, para o [formato JSON](https://pt.wikipedia.org/wiki/JSON) e criar uma base de dados neste formato no [MongoDB](https://www.mongodb.com/).
+O "ChatBB" é um assistente de inteligência artificial que usa um "Large Language Models" (LLM) da empresa OpenIA, criadora do ChatGPT, para interpretar e responder perguntas sobre espécies da biodiversidade brasileira e suas ocorrências, seu grau de ameaça, espécies invasoras e unidades de conservação em território nacional.
 
-Após esta etapa, decidimos agregar à base de dados no MongoDB o [Catálogo Taxonômico da Fauna do Brasil](http://fauna.jbrj.gov.br/), também [disponível](https://ipt.jbrj.gov.br/jbrj/resource?r=catalogo_taxonomico_da_fauna_do_brasil) no IPT do JBRJ.
+As coleções de dados ofertadas ao LLM pela base de dados integrada são as seguintes:
 
-Com a agregação das duas fontes de dados - flora (+fungi) e fauna, um conjunto de dados taxonômicos com mais de 290 mil nomes passou a ficar disponível e, como prova de conceito, algumas interfaces para estes conjuntos de dados foram criadas:
+* [Flora e Funga do Brasil](https://floradobrasil.jbrj.gov.br/consulta/).
+* [Catálogo Taxonômico da Fauna do Brasil](http://fauna.jbrj.gov.br/)
+* Banco de dados de espécies invasoras do [Instituto Hórus](https://institutohorus.org.br/).
+* Espécies da flora avaliadas quanto ao risco de extinção pelo [CNCFlora](https://cncflora.jbrj.gov.br/), até 2022.
+* [FAUNA - Lista de Espécies Ameaçadas - 2021](https://dados.mma.gov.br/dataset/especies-ameacadas/resource/544f9312-d4c6-4d12-b6ac-51bf3039bbb7)
+* [Lista das UCs ativas no CNUC com respectivas categorias de manejo, área, esfera de governo, ano de criação e outras informações. Dados atualizados até março/2025](https://dados.mma.gov.br/dataset/unidadesdeconservacao/resource/f6bf9940-cf30-4ef2-927d-2bd278e4c8af).
+* Cerca de 12 milhões de registros de ocorrência da fauna e flora, provenientes de cerca de 490 repositórios (IPTs) - [lista](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/occurrences.csv).
 
-* [Busca por gênero ou espécie](https://dwc2json.dalc.in/taxa)
-* [Conjunto de APIs](https://dwc2json.dalc.in/api)
-* [Mapa de Distribuição](https://dwc2json.dalc.in/mapa)
-* [Dashboard](https://dwc2json.dalc.in/dashboard)
+A utilização do "ChatBB" usa o LLM da OpenAI (4.1-mini) que requer uma chave de API que consome créditos em UD$. O valor mínimo para colocar de crédito é USD$5, mas com este valor é possível realizar milhares de consultas. O uso de outros LLMs será habilitado conforme a evolução da proposta.
 
-Na terceira etapa, resolvemos agregar dados de ocorrência, provenientes se 15 diferentes [IPTs](https://www.gbif.org/pt/ipt), disponibilizando 493 conjuntos de dados de ocorrências ([lista](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/occurrences.csv)). Vale notar que os conjuntos de dados passam por uma curadoria, evitando a duplicação de dados na base do MongoDB, por conjuntos de dados que estão publicados em diferentes IPTs (ver ["matriz de seleção"](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/matrizSelecaoFontes.md)).
+Veja aqui alguns exemplos de perguntas e respostas utilizando o ChatBB:
 
-Um diferencial desta base de dados é que todo o domingo 3 "actions" de atualização da base de dados no MongoDB são acionadas, percorrendo [uma rotina](https://github.com/edalcin/DarwinCoreJSON/blob/main/atualizacao.md) que atualiza a base de dados taxonômica e de ocorrências, com base nas últimas versões dos conjuntos de dados disponíveis nos IPTs.
+* [Me fale sobre o gênero vriesea](https://trilium.dalc.in/share/lFMRnEIBR5Yu)
+* [Quais as espécies invasoras de árvores ocorrem nos parques nacionais?](https://trilium.dalc.in/share/I7vFC96GRy73)
+* [Quais as espécies de bromeliaceae ameaçadas de extinção que ocorrem em parques nacionais?](https://trilium.dalc.in/share/nfGgiYw3jhX8)
+* [Existe alguma espécie de mammalia invasora ocorrendo em parque nacional?](https://trilium.dalc.in/share/gq7VrTs1VQw9)
+* [Mammalia no Parque Nacional de Itatiata](https://trilium.dalc.in/share/UP1QHZIKKImI)
+* [Liste as espécies da fauna ameaçada que não estão na coleção taxa. Inclua as informações de filo e classe.](https://trilium.dalc.in/share/dX6Fpw2sC6J2)
+* [Quais as espécies de cactus são endêmicas do rio de janeiro?](https://trilium.dalc.in/share/wHVjLmy2GYZH)
+* [Qual as 10 famílias de plantas mais coletadas por Filardi?](https://trilium.dalc.in/share/So7cSpBzKg6X)
+* [Me fale sobre o parque de itatiaia](https://trilium.dalc.in/share/8DooZZ2m6ZRD)
+* [Gostaria de saber mais sobre as espécies ameaçadas](https://trilium.dalc.in/share/hYv76no1dEgS)
 
-## Versão atual da proposta do projeto - versão 4.0
+O ChatBB ainda está em fase de testes e ajustes em seu "prompt" e a ideia é que seja colocado em produção para os interessados.
 
-Acreditamos que uma versão integrada destes conjuntos de dados - fauna, flora, fungos, e suas ocorrências, em uma base atualizada, de dados de acesso aberto e gratuito, é um recurso valioso, que pode:
+Dúvidas e sugestões podem ser registradas [nos "issues"](https://github.com/edalcin/DarwinCoreJSON/issues).
 
-* servir para gerar informação relevante para a conservação e uso sustentável e socialmente justo da biodiversidade;
-* possibilitar a agregação de outros conjuntos de dados relevantes como dados de espécies invasoras, dados de avaliação de risco de extinção, dados de interação entre animais e plantas, dados de diversidade química e genética, dado de usos por comunidades tradicionais etc., aumentando significativamente o potencial de gerar informação relevante com estes conjuntos de dados;
-* ser utilizado para treinar modelos de inteligência artificial, aumentando a precisão e confiabilidade, possibilitando uma generalização mais eficaz, reduzindo o viés e melhorando o desempenho e eficiência destes modelos.
-
-## Evolução da proposta e do projeto
-
-Uma vez que o produto deste projeto são os dois conjuntos de dados em formato JSON, gerenciados pelo MongoDB - "taxa" e "ocorrencias", pensamos que o futuro da proposta pode ser direcionado para agregar qualidade nestes conjuntos de dados, em espacial nos dados de ocorrência, [notoriamente de baixa qualidade](https://www.ibge.gov.br/geociencias/investigacoes-experimentais-geo/informacoes-geocientificas-experimentais/38371-avaliacao-dos-dados-sobre-a-biodiversidade-brasileira.html).
-
-Comentários e sugestões são muito bem-vindos, na [área de "issues"](https://github.com/edalcin/DarwinCoreJSON/issues).
+Citação da ferraenta:[]()
