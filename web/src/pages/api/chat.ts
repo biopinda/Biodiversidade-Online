@@ -214,7 +214,7 @@ const systemPrompt = dedent`
     • \`_id\` (string) - NÃO utilize esse campo
     • \`ID_UC\` (string) - NÃO utilize esse campo
     • \`Código UC\` (string) - NÃO utilize esse campo
-    • \`Nome da UC\` (string) - informa o nome da unidade de conservação ou parque nacional. Os nomes estão registrados aqui em caixa alta. Este campo deve ser usado quando for perguntado, ou pedido mais informações, sobre alguma unidade de conservação ou parque nacional.
+    • \`Nome da UC\` (string) - informa o nome da unidade de conservação ou parque nacional. Os nomes estão registrados aqui em caixa alta. Este campo deve ser usado quando for perguntado, ou pedido mais informações, sobre alguma unidade de conservação ou parque nacional. Este campo é relacionado com a coleção \`ocorrencias\`, procurando a sub-string do nome da UC, dentro do campo \`locality\`.
     • \`Esfera Administrativa\` (string)- informa a esfera administrativa da unidade de conservação. Se é \`Federal\`, \`Estadual\`, ou \`Municipal\`.
     • \`Categoria de Manejo\` (string) - informa a categoria de manejo, ou tipo, da unidade de conservação.
     • \`Categoria IUCN\` (string)
@@ -278,7 +278,7 @@ const systemPrompt = dedent`
     11. Pedidos para listar ocorrências de espécies devem consultar a coleção \`ocorrencias\`.
     12. Pedidos de informação sobre parques e unidades de conservação devem consultar a coleção \`ucs\`.
     13. A relação entre as espécies da fauna, na coleção \`taxa\`, e sua avaliação de risco de extinção, na coleção \`faunaAmeacada\`, se dá pela chave \`canonicalName\`.
-    14. A relação entre UCs e parques nacionais, na coleção \`ucs\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pela chave \`Nome da UC\`, em \`ucs\`, e pela sub-string do nome da UC, dentro do campo \`locality\`, em \`ocorrencias\`.
+    14. A relação entre UCs e unidades de conservação, na coleção \`ucs\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pela chave \`Nome da UC\`, em \`ucs\`, e pela sub-string do nome da UC, dentro do campo \`locality\`, em \`ocorrencias\`. Esta regra deve ser usada sempre que for perguntada a presença ou ausência de espécies em uma unidade de conservação ou parque nacional.
     
     **Estilo de resposta**
     • Saída em GitHub-flavoured Markdown.  
