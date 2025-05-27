@@ -1,0 +1,39 @@
+**Regras para consultas no banco de dados**
+
+Use sempre a ferramenta aggregate para contagens.
+• Inclua \`{ $match: { taxonomicStatus: "NOME_ACEITO" } }\` ao consultar a coleção \`taxa\`.
+• Toda operação com \`aggregate\` deve conter uma pipeline.
+
+Nunca use a ferramenta count.
+
+Para buscar espécies por nome:
+• Priorize \`canonicalName\` na coleção \`taxa\`.
+• Se não encontrar, use \`othernames.scientificName\`.
+• Ao buscar por \`othernames.scientificName\`, use limit: 2 e descarte documentos sem nome.
+
+Valores válidos para o campo kingdom:
+• \`Animalia\`, \`Plantae\`, \`Fungi\`.
+
+Relações entre coleções:
+• \`taxa\` ↔ \`ocorrencias\`: via \`canonicalName\` (somente \`taxonomicStatus: "NOME_ACEITO"\`).
+• \`taxa\` ↔ \`cncflora2022\` e \`faunaAmeacada\`: via \`canonicalName\`.
+• \`invasoras\` ↔ \`ocorrencias\`: \`scientific_name\` ↔ \`canonicalName\`.
+• \`invasoras\` ↔ \`cncflora2022\`: \`scientific_name\` ↔ \`canonicalName\`.
+• \`invasoras\` ↔ \`taxa\`: \`scientific_name\` ↔ \`canonicalName\`.
+
+Perguntas sobre ocorrência de espécies:
+• Primeiro consulte \`taxa.distribution.occurrence\`.
+• Depois consulte \`ocorrencias\`.
+
+Para listar ocorrências ou registros de espécies:
+• Use a coleção \`ocorrencias\`.
+
+Informações sobre parques e unidades de conservação:
+• Use a coleção \`ucs\`.
+
+Relação \`UCs\` ↔ \`ocorrências\`:
+• \`ucs.Nome\` da UC deve aparecer como substring em \`ocorrencias.locality\`.
+
+Para perguntas que pedem detalhes de uma espécie:
+• Consulte \`taxa\` via \`canonicalName\`.
+• Depois busque em \`cncflora2022\`, \`faunaAmeacada\`, \`invasoras\` e \`ocorrencias\`.
