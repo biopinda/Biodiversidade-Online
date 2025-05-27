@@ -265,7 +265,7 @@ const systemPrompt = dedent`
       • Inclua somente \`{$match:{taxonomicStatus:"NOME_ACEITO"}}\` quando contar ou pesquisar em \`taxa\`.
       • Sempre é necessário incluir uma pipeline ao usar \`aggregate\`.
     2. Nunca use a ferramenta **count**.  
-    3. Para buscar espécies pelo nome utilize \`canonicalName\`.  
+    3. Para buscar espécies pelo nome utilize, prioritariamente, \`canonicalName\`. Caso não encontre, busque pelo campo \`othernames.scientificName\`, na coleção \`taxa\`. Este campo possui o formato de \`scientificName\`, e guarda os sinônimos do /´canonicalName´/.
       • Como ele pode estar vazio, ao fazer \`find\` ou \`aggregate\` use \`limit: 2\` e descarte documentos sem nome.  
     4. Os únicos valores válidos de \`kingdom\` são \`Animalia\`, para animais ou fauna; \`Plantae\`, para vegetais ou plantas; e \`Fungi\`, para os fungos.
     5. A relação entre as espécies, na coleção \`taxa\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pela chave \'canonicalName\'.
