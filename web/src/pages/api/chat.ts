@@ -269,16 +269,18 @@ const systemPrompt = dedent`
       • Como ele pode estar vazio, ao fazer \`find\` ou \`aggregate\` use \`limit: 2\` e descarte documentos sem nome.  
     4. Os únicos valores válidos de \`kingdom\` são \`Animalia\`, para animais ou fauna; \`Plantae\`, para vegetais ou plantas; e \`Fungi\`, para os fungos.
     5. A relação entre as espécies, na coleção \`taxa\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pela chave \'canonicalName\'.
-    5.1 Ao considerar as ocorrências, considere apenas as espécies da coleção \'taxa\' cujo \'taxonomicStatus\' é \'NOME_ACEITO\'.
-    6. A relação entre as espécies da flora, na coleção \`taxa\`, e sua avaliação de risco de extinção, na coleção \`cncflora2022\`, se dá pela chave \`canonicalName\`.
+    5.1 Ao considerar as espécies, considere apenas as espécies da coleção \'taxa\' cujo \'taxonomicStatus\' é \'NOME_ACEITO\'.
+    6. A relação entre as espécies da flora, na coleção \`taxa\`, e sua avaliação de risco de extinção, na coleção \`cncflora2022\` e na coleção \`faunaAmeacada\`, se dá pela chave \`canonicalName\`.
     7. A relação entre as espécies, na coleção \`invasoras\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pelas chaves \`scientific_name\`, na coleção \`invasoras\`, e \`canonicalName\`, na coleção \`taxa\`.
     8. A relação entre as espécies, na coleção \`invasoras\`, e sua avaliação de risco de extinção, na coleção \`cncflora2022\`, se dá pelas chaves \`scientific_name\`, na coleção \`invasoras\`, e \`canonicalName\`, na coleção \`taxa\`.
     9. A relação entre as espécies, na coleção \`invasoras\`, e suas características, na coleção \`taxa\`, se dá pelas chaves \`scientific_name\`, na coleção \`invasoras\`, e \`canonicalName\`, na coleção \`taxa\`.
-    10. Perguntas sobre ocorrência de espécies deve inicialmente consultar a coleção \`taxa\`, usando o campo \`distribution.occurrence\`.
-    11. Pedidos para listar ocorrências de espécies devem consultar a coleção \`ocorrencias\`.
+    10. Perguntas sobre ocorrência de espécies deve inicialmente consultar a coleção \`taxa\`, usando o campo \`distribution.occurrence\`. Na sequencia, buscar ocorrências na coleção \`ocorrencias\`.
+    11. Pedidos para listar ocorrências ou registros de espécies devem consultar a coleção \`ocorrencias\`.
     12. Pedidos de informação sobre parques e unidades de conservação devem consultar a coleção \`ucs\`.
     13. A relação entre as espécies da fauna, na coleção \`taxa\`, e sua avaliação de risco de extinção, na coleção \`faunaAmeacada\`, se dá pela chave \`canonicalName\`.
     14. A relação entre UCs e unidades de conservação, na coleção \`ucs\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pela chave \`Nome da UC\`, em \`ucs\`, e pela sub-string do nome da UC, dentro do campo \`locality\`, em \`ocorrencias\`. Esta regra deve ser usada sempre que for perguntada a presença ou ausência de espécies em uma unidade de conservação ou parque nacional.
+    15. Uma pergunta que pede detalhes ou para falar sobre uma espécie deve consultar inicialmente a coleção \`taxa\`, usando o campo \`canonicalName\`. Na sequencia, buscar informações sobre seu risco de extinção, nas coleções \`cncflora2022\` e \`faunaAmeacada\`. Por fim, buscar informações na coleção de \`invasoras\` e \`ocorrencias\`.
+
     
     **Estilo de resposta**
     • Saída em GitHub-flavoured Markdown.  
