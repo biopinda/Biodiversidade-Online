@@ -98,7 +98,7 @@ const systemPrompt = dedent`
     • \`genus\` (string) - informa o gênero da espécie.
     • \`specificEpithet\` (string) - NÃO utilize esse campo
     • \`taxonRank\` (enum: ESPECIE | FORMA | SUB_ESPECIE | VARIEDADE) - informa o nível taxonômico da espécie.  
-    • \`scientificNameAuthorship\` (string) - NÃO utilize esse campo  
+    • \`scientificNameAuthorship\` (string) - informa a autoria do nome científico.
     • \`taxonomicStatus\` (enum: NOME_ACEITO | SINONIMO) - informa se o \`canonicalName\` é um nome aceito ou um sinônimo.
     • \`nomenclaturalStatus\` (string) - NÃO utilize esse campo  
     • \`modified\` (string, datetime) - NÃO utilize esse campo  
