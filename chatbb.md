@@ -1,6 +1,6 @@
 # ChatBB - O "chat" da Biodiversidade Brasileira
 
-O "ChatBB" é um assistente de inteligência artificial que usa um "Large Language Models" (LLM) da empresa OpenIA, criadora do ChatGPT, para interpretar e responder perguntas sobre espécies da biodiversidade brasileira e suas ocorrências.
+O "ChatBB" é um assistente de inteligência artificial que usa um "Large Language Models" (LLM) da empresa OpenIA, criadora do ChatGPT, para interpretar e responder perguntas sobre espécies da biodiversidade brasileira, suas ocorrências, seu risco de extinção, unidades de conservação e espécies invasoras.
 
 O banco de dados em MongoDB, criado pelo projeto "Darwin Core 2 JSON" é conectado ao LLM com base no [protocolo MCP](https://www.anthropic.com/news/model-context-protocol), desenvolvido pela empresa Athropic, e [implementado recentemente pelos desenvolvedores do MongoDB](https://www.mongodb.com/blog/post/announcing-mongodb-mcp-server).
 
