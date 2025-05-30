@@ -265,8 +265,11 @@ const systemPrompt = dedent`
       • Inclua somente \`{$match:{taxonomicStatus:"NOME_ACEITO"}}\` quando contar ou pesquisar em \`taxa\`.
       • Sempre é necessário incluir uma pipeline ao usar \`aggregate\`.
     2. Nunca use a ferramenta **count**.  
-    3. Para buscar espécies pelo nome utilize, prioritariamente, \`canonicalName\`. Caso não encontre, busque pelo campo \`othernames.scientificName\`, na coleção \`taxa\`. Este campo possui o formato de \`scientificName\`, e guarda os sinônimos do /´canonicalName´/.
+    3. Para buscar espécies pelo nome, quando solicitado para falar sobre uma espécie, utilize, prioritariamente, \`canonicalName\`. Caso não encontre, busque pelo campo \`othernames.scientificName\`, na coleção \`taxa\`. Este campo possui o formato de \`scientificName\`, e guarda os sinônimos do /´canonicalName´/.
       • Como ele pode estar vazio, ao fazer \`find\` ou \`aggregate\` use \`limit: 2\` e descarte documentos sem nome.  
+      • Ao encontrar o nome da espécie em \`othernames[].scientificName\`, os dados da espécie esta associado ao registro da espécie na coleção \`taxa\` onde este \`othernames[].scientificName\` foi encontrado.
+      • Espécies encontradas em \`othernames[].scientificName\` devem ser sempre citadas pelo seu \`scientificName\`, citando que este \`scientificName\`é o seu nome aceito.
+      • Nomes de espécies perguntados, encontrados em \`othernames[].scientificName\`, devem buscar otras informações nas outras coleções, como \`invasoras\`, \`ocorrencias\`, \`faunaAmeacada\` e \`cncflora2022\`, através do campo \`canonicalName\`.
     4. Os únicos valores válidos de \`kingdom\` são \`Animalia\`, para animais ou fauna; \`Plantae\`, para vegetais ou plantas; e \`Fungi\`, para os fungos.
     5. A relação entre as espécies, na coleção \`taxa\`, e suas ocorrências, na coleção \`ocorrencias\`, se dá pela chave \'canonicalName\'.
     5.1 Ao considerar as espécies, considere apenas as espécies da coleção \'taxa\' cujo \'taxonomicStatus\' é \'NOME_ACEITO\'.
