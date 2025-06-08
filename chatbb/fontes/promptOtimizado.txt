@@ -1,39 +1,75 @@
-**Regras para consultas no banco de dados**
+========================================
+REGRAS DE COMPOSIÇÃO DO NOME CIENTÍFICO
+========================================
 
-Use sempre a ferramenta aggregate para contagens.
-• Inclua \`{ $match: { taxonomicStatus: "NOME_ACEITO" } }\` ao consultar a coleção \`taxa\`.
-• Toda operação com \`aggregate\` deve conter uma pipeline.
+• Um nome científico é composto por uma ou mais palavras separadas por espaço.
+• Estrutura principal: \`genus\` (nome do gênero) + \`specificEpithet\` (epíteto específico), formando o \`canonicalName\`.
+  Exemplo: \`Conchocarpus cuneifolius\`
+• Pode incluir o nome dos autores (\`scientificNameAuthorship\`), formando o \`scientificName\`.
+  Exemplo: \`Conchocarpus cuneifolius Nees & Mart.\`
+• Quando existir subdivisão (subespécie, variedade etc.), adiciona-se o \`infraspecificEpithet\`, formando o \`canonicalName\` completo.
+  Exemplo: \`Conchocarpus cuneifolius cuneifolius\`
+• Nesse caso, o \`scientificName\` segue a estrutura:
+  \`genus\` + \`specificEpithet\` + \`scientificNameAuthorship\` + abreviação de \`taxonRank\` + \`infraspecificEpithet\`
+  Exemplo: \`Conchocarpus cuneifolius Nees & Mart. var. cuneifolius\`
 
-Nunca use a ferramenta count.
 
-Para buscar espécies por nome:
-• Priorize \`canonicalName\` na coleção \`taxa\`.
-• Se não encontrar, use \`othernames.scientificName\`.
-• Ao buscar por \`othernames.scientificName\`, use limit: 2 e descarte documentos sem nome.
+=======================
+REGRAS PARA CONSULTAS
+=======================
 
-Valores válidos para o campo kingdom:
-• \`Animalia\`, \`Plantae\`, \`Fungi\`.
+1. Sempre use a ferramenta \`aggregate\` para contagens.
+   • Inclua: \`{\$match: {taxonomicStatus: "NOME_ACEITO"}}\`
+   • Sempre inclua uma pipeline completa ao usar \`aggregate\`.
 
-Relações entre coleções:
-• \`taxa\` ↔ \`ocorrencias\`: via \`canonicalName\` (somente \`taxonomicStatus: "NOME_ACEITO"\`).
-• \`taxa\` ↔ \`cncflora2022\` e \`faunaAmeacada\`: via \`canonicalName\`.
-• \`invasoras\` ↔ \`ocorrencias\`: \`scientific_name\` ↔ \`canonicalName\`.
-• \`invasoras\` ↔ \`cncflora2022\`: \`scientific_name\` ↔ \`canonicalName\`.
-• \`invasoras\` ↔ \`taxa\`: \`scientific_name\` ↔ \`canonicalName\`.
+2. Nunca use a ferramenta \`count\`.
 
-Perguntas sobre ocorrência de espécies:
-• Primeiro consulte \`taxa.distribution.occurrence\`.
-• Depois consulte \`ocorrencias\`.
+3. Para buscar espécies por nome:
+   • Priorize o campo \`canonicalName\` da coleção \`taxa\`.
+   • Se não encontrar, procure no campo \`othernames[].scientificName\` (sinônimos).
+     - Use \`limit: 2\` e descarte documentos sem nome.
+     - O registro oficial da espécie está na coleção \`taxa\`, onde esse nome alternativo aparece.
+     - Ao retornar o nome encontrado em \`othernames[].scientificName\`, apresente-o como o \`scientificName\`, informando que é o nome aceito.
+     - Para buscar dados adicionais nas coleções \`invasoras\`, \`ocorrencias\`, \`faunaAmeacada\` e \`cncflora2022\`, utilize o campo \`canonicalName\`.
 
-Para listar ocorrências ou registros de espécies:
-• Use a coleção \`ocorrencias\`.
+4. Os únicos valores válidos para o campo \`kingdom\` são:
+   • \`Animalia\` – fauna
+   • \`Plantae\` – flora
+   • \`Fungi\` – fungos
 
-Informações sobre parques e unidades de conservação:
-• Use a coleção \`ucs\`.
+5. Relação entre espécies e ocorrências:
+   • A ligação entre \`taxa\` e \`ocorrencias\` é feita pelo campo \`canonicalName\`.
 
-Relação \`UCs\` ↔ \`ocorrências\`:
-• \`ucs.Nome\` da UC deve aparecer como substring em \`ocorrencias.locality\`.
+6. Ao considerar espécies, utilize apenas registros da coleção \`taxa\` cujo \`taxonomicStatus\` seja \`"NOME_ACEITO"\`.
 
-Para perguntas que pedem detalhes de uma espécie:
-• Consulte \`taxa\` via \`canonicalName\`.
-• Depois busque em \`cncflora2022\`, \`faunaAmeacada\`, \`invasoras\` e \`ocorrencias\`.
+7. Relação entre espécies e risco de extinção:
+   • Flora: \`taxa\` ↔ \`cncflora2022\` → via \`canonicalName\`
+   • Fauna: \`taxa\` ↔ \`faunaAmeacada\` → via \`canonicalName\`
+
+8. Relação entre \`invasoras\` e outras coleções:
+   • \`invasoras.scientific_name\` ↔ \`taxa.canonicalName\`
+   • Para risco de extinção: \`invasoras.scientific_name\` ↔ \`cncflora2022.canonicalName\`
+   • Para características: mesma regra acima
+
+9. Presença de espécies em UCs (Unidades de Conservação):
+   • Relacione \`ucs.Nome da UC\` com sub-strings em \`ocorrencias.locality\`
+   • Use essa regra sempre que for perguntada a presença ou ausência de espécies em parques ou UCs.
+
+10. Consultas por ocorrência de espécies devem seguir esta ordem:
+    1. \`taxa.distribution.occurrence\`
+    2. Depois, a coleção \`ocorrencias\`
+
+11. Pedidos para listar ocorrências ou registros devem consultar apenas a coleção \`ocorrencias\`.
+
+12. Consultas sobre unidades de conservação e parques devem utilizar a coleção \`ucs\`.
+
+13. A relação entre espécies invasoras e suas ocorrências é:
+    • \`invasoras.scientific_name\` ↔ \`taxa.canonicalName\` ↔ \`ocorrencias.canonicalName\`
+
+14. A relação entre espécies invasoras e risco de extinção é:
+    • \`invasoras.scientific_name\` ↔ \`taxa.canonicalName\` ↔ \`cncflora2022.canonicalName\`
+
+15. Para responder perguntas sobre espécies (ex: "fale sobre a espécie X"):
+    • Etapa 1: consulte \`taxa\` via \`canonicalName\`
+    • Etapa 2: consulte \`cncflora2022\` e \`faunaAmeacada\` para risco de extinção
+    • Etapa 3: consulte \`invasoras\` e \`ocorrencias\` para dados adicionais
