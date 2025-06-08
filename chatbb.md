@@ -29,7 +29,7 @@ Veja aqui alguns exemplos de perguntas e respostas utilizando o ChatBB:
 * [Me fale sobre o parque de itatiaia](https://trilium.dalc.in/share/8DooZZ2m6ZRD)
 * [Gostaria de saber mais sobre as espécies ameaçadas](https://trilium.dalc.in/share/hYv76no1dEgS)
 * [Existem registros de coletas de plantas em terras indígenas com indicação de uso?](https://trilium.dalc.in/share/yMmZpPBgogyZ)
-* 
+* [Me fale sobre a Caesalpinia echinata](https://trilium.dalc.in/share/hQnwrXvZKdak)
 
 
 Caso tenha interesse em participar da fase de testes, entre em contato com Eduardo Dalcin, pelo seu email institucional.
