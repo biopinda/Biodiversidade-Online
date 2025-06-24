@@ -14,5 +14,5 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
-            docker run -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower DwC2JSON --run-once
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower DwC2JSON --run-once --cleanup
 
