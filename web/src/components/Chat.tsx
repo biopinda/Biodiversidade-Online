@@ -286,6 +286,8 @@ export default function Chat() {
       const _selectedModel = localStorage.getItem('model')
       if (_selectedModel) {
         setSelectedModel(JSON.parse(_selectedModel))
+      } else {
+        setSelectedModel({ provider: 'openai', model: 'gpt-4.1-mini' })
       }
       setLocalConfigLoaded(true)
     } else {
