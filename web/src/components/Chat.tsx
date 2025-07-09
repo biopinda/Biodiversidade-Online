@@ -172,7 +172,7 @@ function ToolCall({
               </pre>
             </div>
             <div className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
-              {toolCall.result.content.map(({ text }) => {
+              {toolCall.result?.content?.map(({ text }) => {
                 try {
                   const json = JSON.parse(text)
                   return (
@@ -262,7 +262,7 @@ export default function Chat() {
     <div className="py-4 mx-auto max-w-screen-lg flex flex-col h-screen gap-4">
       <div className="flex-1 overflow-y-auto flex flex-col-reverse">
         <div className="flex flex-col gap-3">
-          {messages.map((message) => {
+          {messages.map((message, index) => {
             const toolInvocationParts = message.parts.filter(
               (
                 part
@@ -278,6 +278,9 @@ export default function Chat() {
                 }
               } => part.type === 'tool-invocation'
             )
+
+            const isLastMessage = index === messages.length - 1
+            const isLoading = status === 'streaming' && isLastMessage
 
             return (
               <ChatBubble
@@ -326,9 +329,17 @@ export default function Chat() {
                   }
                   return null
                 })}
+                {isLoading && (
+                  <div className="animate-pulse self-start">...</div>
+                )}
               </ChatBubble>
             )
           })}
+          {status === 'submitted' && (
+            <ChatBubble align="left">
+              <div className="animate-pulse">...</div>
+            </ChatBubble>
+          )}
         </div>
       </div>
 
@@ -377,7 +388,7 @@ export default function Chat() {
                 }}
                 onChange={handleInputChange}
                 disabled={error != null || status === 'streaming'}
-                className="field-sizing-content min-h-20"
+                className="field-sizing-content min-h-20 border-slate-400"
               />
             </div>
           )}
@@ -398,14 +409,19 @@ export default function Chat() {
         </div>
         {!isConfiguring && apiKey && (
           <div className="flex flex-col gap-2 justify-end">
-            {(status === 'streaming' || status === 'submitted') && (
+            {status === 'streaming' && (
               <Button type="button" onClick={() => stop()} variant="outline">
                 Stop
               </Button>
             )}
             <Button
               type="submit"
-              disabled={!input || error != null || status === 'streaming'}
+              disabled={
+                !input ||
+                error != null ||
+                status === 'streaming' ||
+                status === 'submitted'
+              }
             >
               <div className="flex gap-2 items-center">
                 <span>{isMac ? <CommandIcon /> : 'Ctrl'}</span>
