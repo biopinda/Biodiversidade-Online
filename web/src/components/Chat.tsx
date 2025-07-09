@@ -9,7 +9,13 @@ import {
   CornerDownRightIcon,
   InfoIcon
 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import {
+  unstable_ViewTransition as ViewTransition,
+  startTransition,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ModelSelector, { type Provider } from './ModelSelector'
@@ -133,61 +139,71 @@ function ToolCall({
   {
     const [showDetails, setShowDetails] = useState(false)
 
+    const toggleDetails = () => {
+      startTransition(() => {
+        setShowDetails((prev) => !prev)
+      })
+    }
+
     const results = toolCall.result?.content
     const waiting = toolCall.state !== 'result'
     return (
-      <div
-        className={cn(
-          'flex flex-col gap-2 max-w-full',
-          showDetails && 'w-full'
-        )}
-      >
-        <div className="flex" onClick={() => setShowDetails((prev) => !prev)}>
-          <Badge
-            className={cn(
-              'text-xs cursor-default',
-              waiting && 'animate-pulse',
-              results?.length > 0 && 'rounded-e-none'
+      <ViewTransition>
+        <div
+          className={cn(
+            'flex flex-col gap-2 max-w-full',
+            showDetails && 'w-full'
+          )}
+        >
+          <div className="flex" onClick={toggleDetails}>
+            <ViewTransition name="tool-call-badge">
+              <Badge
+                className={cn(
+                  'text-xs cursor-default',
+                  waiting && 'animate-pulse',
+                  results?.length > 0 && 'rounded-e-none'
+                )}
+                title={JSON.stringify(toolCall.args)}
+              >
+                {toolCall.toolName}
+              </Badge>
+            </ViewTransition>
+            {results?.length > 0 && (
+              <Badge
+                className="text-xs cursor-default bg-slate-50 text-slate-800 rounded-s-none"
+                title={results
+                  .map((content: { text: string }) => content?.text)
+                  .join('\n')}
+              >
+                {results.length}
+              </Badge>
             )}
-            title={JSON.stringify(toolCall.args)}
-          >
-            {toolCall.toolName}
-          </Badge>
-          {results?.length > 0 && (
-            <Badge
-              className="text-xs cursor-default bg-slate-50 text-slate-800 rounded-s-none"
-              title={results
-                .map((content: { text: string }) => content?.text)
-                .join('\n')}
-            >
-              {results.length}
-            </Badge>
+          </div>
+          {showDetails && (
+            <div className="flex gap-1 justify-between">
+              <div className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
+                <pre className="whitespace-pre-wrap break-all">
+                  {JSON.stringify(toolCall.args, null, 2)}
+                </pre>
+              </div>
+              <div className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
+                {toolCall.result?.content?.map(({ text }) => {
+                  try {
+                    const json = JSON.parse(text)
+                    return (
+                      <pre className="whitespace-pre-wrap break-all">
+                        {JSON.stringify(json, null, 2)}
+                      </pre>
+                    )
+                  } catch (e) {
+                    return text
+                  }
+                })}
+              </div>
+            </div>
           )}
         </div>
-        {showDetails && (
-          <div className="flex gap-1 justify-between">
-            <div className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
-              <pre className="whitespace-pre-wrap break-all">
-                {JSON.stringify(toolCall.args, null, 2)}
-              </pre>
-            </div>
-            <div className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
-              {toolCall.result?.content?.map(({ text }) => {
-                try {
-                  const json = JSON.parse(text)
-                  return (
-                    <pre className="whitespace-pre-wrap break-all">
-                      {JSON.stringify(json, null, 2)}
-                    </pre>
-                  )
-                } catch (e) {
-                  return text
-                }
-              })}
-            </div>
-          </div>
-        )}
-      </div>
+      </ViewTransition>
     )
   }
 }
@@ -237,7 +253,6 @@ export default function Chat() {
     reload,
     status,
     stop,
-    setInput,
     setMessages
   } = useChat({
     api: '/api/chat',
