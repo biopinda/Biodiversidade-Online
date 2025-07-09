@@ -167,17 +167,17 @@ function ToolCall({
               >
                 {toolCall.toolName}
               </Badge>
+              {results?.length > 0 && (
+                <Badge
+                  className="text-xs cursor-default bg-slate-50 text-slate-800 rounded-s-none"
+                  title={results
+                    .map((content: { text: string }) => content?.text)
+                    .join('\n')}
+                >
+                  {results.length}
+                </Badge>
+              )}
             </ViewTransition>
-            {results?.length > 0 && (
-              <Badge
-                className="text-xs cursor-default bg-slate-50 text-slate-800 rounded-s-none"
-                title={results
-                  .map((content: { text: string }) => content?.text)
-                  .join('\n')}
-              >
-                {results.length}
-              </Badge>
-            )}
           </div>
           {showDetails && (
             <div className="flex gap-1 justify-between">
@@ -206,6 +206,60 @@ function ToolCall({
       </ViewTransition>
     )
   }
+}
+
+function ReasoningPart({ part }: { part: any }) {
+  const [showDetails, setShowDetails] = useState(false)
+
+  const toggleDetails = () => {
+    startTransition(() => {
+      setShowDetails((prev) => !prev)
+    })
+  }
+
+  return (
+    <ViewTransition>
+      <div
+        className={cn(
+          'flex flex-col gap-2 max-w-full',
+          showDetails && 'w-full'
+        )}
+      >
+        <div className="flex" onClick={toggleDetails}>
+          <ViewTransition name="reasoning-badge">
+            <Badge
+              className={cn(
+                'text-xs cursor-pointer',
+                showDetails ? 'bg-slate-800 text-white' : '',
+                'inline-flex items-center'
+              )}
+              title="Raciocínio do modelo"
+            >
+              Raciocínio
+            </Badge>
+          </ViewTransition>
+        </div>
+        {showDetails && (
+          <div className="prose prose-p:my-0 prose-td:py-0 prose-custom-code rounded-md border border-slate-300 p-2 text-xs bg-slate-100 text-black w-full max-h-32 overflow-y-auto max-w-none flex flex-col-reverse">
+            <div className="flex flex-col gap-1">
+              {part.details && part.details.length > 0
+                ? part.details.map((detail: any, i: number) => (
+                    <Markdown remarkPlugins={[remarkGfm]} key={i}>
+                      {detail.type === 'text' ? detail.text : detail.data}
+                    </Markdown>
+                  ))
+                : null}
+              {part.reasoning && (
+                <Markdown remarkPlugins={[remarkGfm]}>
+                  {part.reasoning}
+                </Markdown>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </ViewTransition>
+  )
 }
 
 export default function Chat() {
@@ -307,10 +361,17 @@ export default function Chat() {
                     {toolInvocationParts.map((part, index) => (
                       <ToolCall key={index} toolCall={part.toolInvocation} />
                     ))}
+                    {message.parts
+                      .filter((part) => part.type === 'reasoning')
+                      .map((part, i) => (
+                        <ReasoningPart
+                          key={`reasoning-badge-${i}`}
+                          part={part}
+                        />
+                      ))}
                   </div>
                 )}
                 {message.parts.map((part, index) => {
-                  // text parts:
                   if (part.type === 'text') {
                     return (
                       <div
@@ -323,25 +384,7 @@ export default function Chat() {
                       </div>
                     )
                   }
-
-                  // reasoning parts:
-                  if (part.type === 'reasoning') {
-                    return (
-                      <div
-                        key={index}
-                        className="prose prose-td:py-0 prose-custom-code rounded-md border border-slate-300 p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto"
-                      >
-                        <Markdown remarkPlugins={[remarkGfm]}>
-                          {[
-                            part.reasoning,
-                            ...part.details.map((detail) =>
-                              detail.type === 'text' ? detail.text : detail.data
-                            )
-                          ].join(' ')}
-                        </Markdown>
-                      </div>
-                    )
-                  }
+                  // skip reasoning part here, it's handled above
                   return null
                 })}
                 {isLoading && (

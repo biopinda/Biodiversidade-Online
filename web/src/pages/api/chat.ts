@@ -417,16 +417,24 @@ export async function POST({ request }: APIContext) {
       }
     },
     experimental_activeTools: ['find', 'aggregate'],
-    ...(modelSpec.model.startsWith('o')
-      ? {
-          providerOptions: {
-            openai: {
-              reasoningEffort: 'low',
-              reasoningSummary: 'auto'
+    providerOptions: {
+      ...(modelSpec.model.startsWith('o')
+        ? {
+            providerOptions: {
+              openai: {
+                reasoningEffort: 'low',
+                reasoningSummary: 'auto'
+              }
             }
           }
+        : {}),
+      google: {
+        thinkingConfig: {
+          includeThoughts: true
+          // thinkingBudget: 2048, // Optional: set a token budget for reasoning
         }
-      : {})
+      }
+    }
   })
 
   return result.toDataStreamResponse({
