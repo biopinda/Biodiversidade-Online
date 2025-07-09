@@ -276,13 +276,7 @@ export default function Chat() {
           )}
 
           <div className="absolute right-full mr-2 bottom-0 flex flex-col gap-0 items-center">
-            <Button
-              className="[writing-mode:sideways-lr] h-auto text-[50%] p-1 px-2"
-              variant={strongModel ? 'default' : 'ghost'}
-              onClick={() => setStrongModel((prev) => !prev)}
-            >
-              TURBO
-            </Button>
+            
             <Button
               variant={isConfiguring ? 'default' : 'ghost'}
               onClick={() => {
