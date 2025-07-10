@@ -22,6 +22,7 @@ import ModelSelector, { type Provider } from './ModelSelector'
 import PasswordInput from './PasswordInput'
 import { Badge } from './ui/badge'
 import { Textarea } from './ui/textarea'
+import { ScrollArea } from './ui/scroll-area'
 
 function ConfigForm({
   initialKeys,
@@ -181,12 +182,12 @@ function ToolCall({
           </div>
           {showDetails && (
             <div className="flex gap-1 justify-between">
-              <div className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
+              <ScrollArea className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
                 <pre className="whitespace-pre-wrap break-all">
                   {JSON.stringify(toolCall.args, null, 2)}
                 </pre>
-              </div>
-              <div className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
+              </ScrollArea>
+              <ScrollArea className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
                 {toolCall.result?.content?.map(({ text }) => {
                   try {
                     const json = JSON.parse(text)
@@ -199,7 +200,7 @@ function ToolCall({
                     return text
                   }
                 })}
-              </div>
+              </ScrollArea>
             </div>
           )}
         </div>
@@ -240,7 +241,7 @@ function ReasoningPart({ part }: { part: any }) {
           </ViewTransition>
         </div>
         {showDetails && (
-          <div className="prose prose-p:my-0 prose-td:py-0 prose-custom-code rounded-md border border-slate-300 p-2 text-xs bg-slate-100 text-black w-full max-h-32 overflow-y-auto max-w-none flex flex-col-reverse">
+          <ScrollArea className="prose prose-p:my-0 prose-td:py-0 prose-custom-code rounded-md border border-slate-300 p-2 text-xs bg-slate-100 text-black w-full max-h-32 overflow-y-auto max-w-none flex flex-col-reverse">
             <div className="flex flex-col gap-1">
               {part.details && part.details.length > 0
                 ? part.details.map((detail: any, i: number) => (
@@ -255,7 +256,7 @@ function ReasoningPart({ part }: { part: any }) {
                 </Markdown>
               )}
             </div>
-          </div>
+          </ScrollArea>
         )}
       </div>
     </ViewTransition>
