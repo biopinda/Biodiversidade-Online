@@ -2,7 +2,7 @@
 [![Update MongoDB - Fauna](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml/badge.svg)](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml)
 [![Update MongoDB - Ocorrências](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml)
 [![Docker Image](https://github.com/edalcin/DarwinCoreJSON/actions/workflows/docker.yml/badge.svg)](https://github.com/edalcin/DarwinCoreJSON/pkgs/container/darwincorejson)
-
+[![DOI](https://zenodo.org/badge/576212307.svg)](https://doi.org/10.5281/zenodo.10458671)
 
 # ChatBB - O "chat" da Biodiversidade Brasileira
 # (DwC2JSON V5.0)
