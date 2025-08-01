@@ -14,7 +14,7 @@ As coleções de dados ofertadas pelo banco de dados ao LLM são as seguintes:
 * [Lista das UCs ativas no CNUC com respectivas categorias de manejo, área, esfera de governo, ano de criação e outras informações. Dados atualizados até março/2025](https://dados.mma.gov.br/dataset/unidadesdeconservacao/resource/f6bf9940-cf30-4ef2-927d-2bd278e4c8af).
 * Cerca de 12 milhões de registros de ocorrência da fauna e flora, provenientes de cerca de 490 repositórios (IPTs) - [lista](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/occurrences.csv).
 
-A utilização do "ChatBB" usa o LLM da OpenAI (4.1-mini) que requer uma chave de API que consome créditos em UD$. O valor mínimo para colocar de crédito é USD$5, mas com este valor é possível realizar milhares de consultas. O uso de outros LLMs será habilitado conforme a evolução da proposta.
+A utilização do "ChatBB" usa o LLM da OpenAI (4.1-mini) que requer uma chave de API que consome créditos em UD$; e o Gemini, do Google.
 
 Veja aqui alguns exemplos de perguntas e respostas utilizando o ChatBB:
 
