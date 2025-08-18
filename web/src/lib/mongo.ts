@@ -423,6 +423,50 @@ export async function getOccurrenceCountPerKingdom(kingdom: string) {
   return result
 }
 
+export async function getTaxaCountPerKingdom(kingdom: string) {
+  const taxa = await getCollection('dwc2json', 'taxa')
+  if (!taxa) return null
+  
+  const result = await taxa.countDocuments({
+    kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+    taxonomicStatus: 'NOME_ACEITO'
+  })
+  
+  return result
+}
+
+export async function getThreatenedCountPerKingdom(kingdom: string) {
+  if (kingdom.toLowerCase() === 'animalia') {
+    const fauna = await getCollection('dwc2json', 'faunaAmeacada')
+    if (!fauna) return null
+    return await fauna.countDocuments({
+      kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
+    })
+  } else if (kingdom.toLowerCase() === 'plantae') {
+    const flora = await getCollection('dwc2json', 'cncflora2022')
+    if (!flora) return null
+    return await flora.countDocuments({
+      kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
+    })
+  } else if (kingdom.toLowerCase() === 'fungi') {
+    // Assumindo que não há dados específicos para Fungi ameaçados
+    return 0
+  }
+  
+  return null
+}
+
+export async function getInvasiveCountPerKingdom(kingdom: string) {
+  const invasive = await getCollection('dwc2json', 'invasoras')
+  if (!invasive) return null
+  
+  const result = await invasive.countDocuments({
+    kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
+  })
+  
+  return result
+}
+
 export async function getTaxon(
   kingdom: 'Plantae' | 'Fungi' | 'Animalia',
   id: string,

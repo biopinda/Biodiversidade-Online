@@ -1,44 +1,57 @@
 ---
-import Pie from '../components/Pie.astro'
 import Layout from '../layouts/base.astro'
-import { getFamilyPerKingdom, getTaxonomicStatusPerKingdom, getOccurrenceCountPerKingdom } from '../lib/mongo'
-
-const prepareData = (data: any[]) => {
-  return data.map(({ _id, count }) => [`${_id}`, count] as [string, number])
-}
+import { 
+  getOccurrenceCountPerKingdom,
+  getTaxaCountPerKingdom,
+  getThreatenedCountPerKingdom,
+  getInvasiveCountPerKingdom
+} from '../lib/mongo'
 
 const [
-  plantae,
-  fungi,
-  animalia,
-  familyPerKingdomPlantae,
-  familyPerKingdomFungi,
-  familyPerKingdomAnimalia,
+  // Occurrences data
   occurrencesPlantae,
   occurrencesFungi,
-  occurrencesAnimalia
+  occurrencesAnimalia,
+  // Taxa data
+  taxaPlantae,
+  taxaFungi,
+  taxaAnimalia,
+  // Threatened species data
+  threatenedPlantae,
+  threatenedFungi,
+  threatenedAnimalia,
+  // Invasive species data
+  invasivePlantae,
+  invasiveFungi,
+  invasiveAnimalia
 ] = await Promise.all([
-  getTaxonomicStatusPerKingdom('Plantae'),
-  getTaxonomicStatusPerKingdom('Fungi'),
-  getTaxonomicStatusPerKingdom('Animalia'),
-  getFamilyPerKingdom('Plantae'),
-  getFamilyPerKingdom('Fungi'),
-  getFamilyPerKingdom('Animalia'),
   getOccurrenceCountPerKingdom('Plantae'),
   getOccurrenceCountPerKingdom('Fungi'),
-  getOccurrenceCountPerKingdom('Animalia')
+  getOccurrenceCountPerKingdom('Animalia'),
+  getTaxaCountPerKingdom('Plantae'),
+  getTaxaCountPerKingdom('Fungi'),
+  getTaxaCountPerKingdom('Animalia'),
+  getThreatenedCountPerKingdom('Plantae'),
+  getThreatenedCountPerKingdom('Fungi'),
+  getThreatenedCountPerKingdom('Animalia'),
+  getInvasiveCountPerKingdom('Plantae'),
+  getInvasiveCountPerKingdom('Fungi'),
+  getInvasiveCountPerKingdom('Animalia')
 ])
 
 if (
-  !plantae ||
-  !fungi ||
-  !animalia ||
-  !familyPerKingdomPlantae ||
-  !familyPerKingdomFungi ||
-  !familyPerKingdomAnimalia ||
   occurrencesPlantae === null ||
   occurrencesFungi === null ||
-  occurrencesAnimalia === null
+  occurrencesAnimalia === null ||
+  taxaPlantae === null ||
+  taxaFungi === null ||
+  taxaAnimalia === null ||
+  threatenedPlantae === null ||
+  threatenedFungi === null ||
+  threatenedAnimalia === null ||
+  invasivePlantae === null ||
+  invasiveFungi === null ||
+  invasiveAnimalia === null
 ) {
   return new Response(null, { status: 503 })
 }
@@ -80,27 +93,42 @@ if (
     <div class="tab-content h-full">
       <!-- Taxa Tab -->
       <div id="taxa-content" class="tab-panel">
-        <div
-          class="grid grid-cols-3 grid-rows-2 h-full gap-2 [&>*]:rounded-sm [&>*]:bg-white [&>*]:border [&>*]:border-slate-300 [&>*]:shadow-lg"
-        >
-          <Pie title="Plantae" data={prepareData(plantae)} sortByName />
-          <Pie title="Fungi" data={prepareData(fungi)} sortByName />
-          <Pie title="Animalia" data={prepareData(animalia)} sortByName />
-          <Pie
-            title="Famílias Plantae"
-            data={prepareData(familyPerKingdomPlantae)}
-            sortByCount
-          />
-          <Pie
-            title="Phylum Fungi"
-            data={prepareData(familyPerKingdomFungi)}
-            sortByCount
-          />
-          <Pie
-            title="Famílias Animalia"
-            data={prepareData(familyPerKingdomAnimalia)}
-            sortByCount
-          />
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+          <!-- Card Animalia -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L9 7c-1.425 1.425-2.4 3.4-2.4 5.5 0 1.425.6 2.725 1.525 3.65 0 0-1.5.8-2.5 0C4.8 15.4 4 14.05 4 12.5c0-1.425.6-2.725 1.525-3.65L7 7.5"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
+            <p class="text-4xl font-bold text-blue-600 mb-2">{taxaAnimalia?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">espécies aceitas</p>
+          </div>
+
+          <!-- Card Plantae -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
+            <p class="text-4xl font-bold text-green-600 mb-2">{taxaPlantae?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">espécies aceitas</p>
+          </div>
+
+          <!-- Card Fungi -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
+            <p class="text-4xl font-bold text-orange-600 mb-2">{taxaFungi?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">espécies aceitas</p>
+          </div>
         </div>
       </div>
 
@@ -147,20 +175,82 @@ if (
 
       <!-- Espécies Ameaçadas Tab -->
       <div id="ameacadas-content" class="tab-panel hidden">
-        <div class="flex items-center justify-center h-full bg-white rounded-sm border border-slate-300 shadow-lg">
-          <div class="text-center">
-            <h2 class="text-2xl font-bold text-gray-700 mb-2">Espécies Ameaçadas</h2>
-            <p class="text-gray-500">Dados sobre espécies ameaçadas serão exibidos aqui</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+          <!-- Card Animalia Ameaçada -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
+            <p class="text-4xl font-bold text-red-600 mb-2">{threatenedAnimalia?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">espécies ameaçadas</p>
+          </div>
+
+          <!-- Card Plantae Ameaçada -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
+            <p class="text-4xl font-bold text-red-600 mb-2">{threatenedPlantae?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">espécies ameaçadas</p>
+          </div>
+
+          <!-- Card Fungi Ameaçada -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4m16 0a1 1 0 01-1 1H5a1 1 0 01-1-1m16 0a1 1 0 00-1-1H5a1 1 0 00-1 1"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
+            <p class="text-4xl font-bold text-gray-500 mb-2">{threatenedFungi?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">dados não disponíveis</p>
           </div>
         </div>
       </div>
 
       <!-- Espécies Invasoras Tab -->
       <div id="invasoras-content" class="tab-panel hidden">
-        <div class="flex items-center justify-center h-full bg-white rounded-sm border border-slate-300 shadow-lg">
-          <div class="text-center">
-            <h2 class="text-2xl font-bold text-gray-700 mb-2">Espécies Invasoras</h2>
-            <p class="text-gray-500">Informações sobre espécies invasoras serão mostradas aqui</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+          <!-- Card Animalia Invasora -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
+            <p class="text-4xl font-bold text-purple-600 mb-2">{invasiveAnimalia?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">espécies invasoras</p>
+          </div>
+
+          <!-- Card Plantae Invasora -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
+            <p class="text-4xl font-bold text-purple-600 mb-2">{invasivePlantae?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">espécies invasoras</p>
+          </div>
+
+          <!-- Card Fungi Invasora -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
+            <p class="text-4xl font-bold text-purple-600 mb-2">{invasiveFungi?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">espécies invasoras</p>
           </div>
         </div>
       </div>
