@@ -13,32 +13,74 @@ import path from 'path'
 // Lê o conteúdo do arquivo dashReadme.md da raiz do repositório
 let readmeContent = ''
 try {
-  // Caminho correto para o arquivo na raiz do repositório (3 níveis acima: pages -> src -> web -> raiz)
-  const readmePath = path.resolve(process.cwd(), '../../../dashReadme.md')
-  readmeContent = fs.readFileSync(readmePath, 'utf-8')
-} catch (error) {
-  try {
-    // Tentativa alternativa - 2 níveis acima
-    const alternativePath = path.resolve(process.cwd(), '../../dashReadme.md') 
-    readmeContent = fs.readFileSync(alternativePath, 'utf-8')
-  } catch (error2) {
+  // Múltiplas tentativas de localizar o arquivo dashReadme.md
+  const possiblePaths = [
+    path.resolve(process.cwd(), '../../../dashReadme.md'),
+    path.resolve(process.cwd(), '../../dashReadme.md'),
+    path.resolve(process.cwd().split('web')[0], 'dashReadme.md'),
+    path.resolve(process.cwd(), '../dashReadme.md'),
+    path.resolve(process.cwd(), './dashReadme.md'),
+    path.resolve(__dirname, '../../../dashReadme.md'),
+    path.resolve(__dirname, '../../../../dashReadme.md'),
+    // Caminho direto baseado na estrutura conhecida
+    'F:\\git\\DarwinCoreJSON\\dashReadme.md'
+  ]
+  
+  let fileFound = false
+  for (const filePath of possiblePaths) {
     try {
-      // Última tentativa - direto na raiz do projeto
-      const rootPath = path.resolve(process.cwd().split('web')[0], 'dashReadme.md')
-      readmeContent = fs.readFileSync(rootPath, 'utf-8')
-    } catch (error3) {
-      readmeContent = '# Biodiversidade Online\n## Eduardo Dalcin e Henrique Pinheiro'
+      if (fs.existsSync(filePath)) {
+        readmeContent = fs.readFileSync(filePath, 'utf-8')
+        console.log(`README carregado com sucesso de: ${filePath}`)
+        fileFound = true
+        break
+      }
+    } catch (pathError) {
+      continue
     }
   }
+  
+  if (!fileFound) {
+    throw new Error('Arquivo dashReadme.md não encontrado em nenhum dos caminhos')
+  }
+} catch (error) {
+  console.error('Erro ao carregar dashReadme.md:', error)
+  // Fallback com conteúdo conhecido do arquivo
+  readmeContent = `### Biodiversidade Online - Dashboard
+Eduardo Dalcin e Henrique Pinheiro
+
+#### Fontes de dados
+* [Flora e Funga do Brasil](https://floradobrasil.jbrj.gov.br/consulta/).
+* [Catálogo Taxonômico da Fauna do Brasil](http://fauna.jbrj.gov.br/)
+* Banco de dados de espécies invasoras do [Instituto Hórus](https://institutohorus.org.br/).
+* Espécies da flora avaliadas quanto ao risco de extinção pelo [CNCFlora](https://cncflora.jbrj.gov.br/), até 2022.
+* [FAUNA - Lista de Espécies Ameaçadas - 2021](https://dados.mma.gov.br/dataset/especies-ameacadas/resource/544f9312-d4c6-4d12-b6ac-51bf3039bbb7)
+* [Lista das UCs ativas no CNUC com respectivas categorias de manejo, área, esfera de governo, ano de criação e outras informações. Dados atualizados até março/2025](https://dados.mma.gov.br/dataset/unidadesdeconservacao/resource/f6bf9940-cf30-4ef2-927d-2bd278e4c8af).
+* Registros de ocorrência da fauna e flora, provenientes de cerca de 490 repositórios (IPTs) - [lista](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/occurrences.csv).`
 }
 
-// Função para processar markdown simples
+// Função para processar markdown completo
 function processMarkdown(content: string): string {
   return content
+    .replace(/^### (.*)$/gm, '<h3 class="text-2xl font-bold text-gray-800 mb-4 mt-6">$1</h3>')
+    .replace(/^#### (.*)$/gm, '<h4 class="text-xl font-semibold text-gray-700 mb-3 mt-5">$1</h4>')
+    .replace(/^##### (.*)$/gm, '<h5 class="text-lg font-medium text-gray-600 mb-2 mt-4">$1</h5>')
+    .replace(/^## (.*)$/gm, '<h2 class="text-3xl font-bold text-gray-800 mb-5 mt-8">$1</h2>')
     .replace(/^# (.*)$/gm, '<h1 class="text-4xl font-bold text-gray-800 mb-6">$1</h1>')
-    .replace(/^## (.*)$/gm, '<h2 class="text-2xl font-semibold text-gray-700 mb-4 mt-8">$1</h2>')
-    .replace(/^### (.*)$/gm, '<h3 class="text-xl font-medium text-gray-600 mb-3 mt-6">$1</h3>')
+    // Links
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">$1</a>')
+    // Listas com bullets
+    .replace(/^\* (.*)$/gm, '<li class="mb-2 ml-6 list-disc">$1</li>')
+    // Envolver listas em ul
+    .replace(/(<li[^>]*>.*<\/li>\s*)+/gs, '<ul class="mb-4 space-y-1">$&</ul>')
+    // Quebras de linha
+    .replace(/\n\n/g, '</p><p class="mb-4">')
     .replace(/\n/g, '<br>')
+    // Envolver em parágrafos
+    .replace(/^(?!<[hul])/gm, '<p class="mb-4">')
+    .replace(/(?<!>)$/gm, '</p>')
+    // Limpar tags vazias
+    .replace(/<p class="mb-4"><\/p>/g, '')
 }
 
 const [
@@ -147,14 +189,31 @@ if (
           <!-- Card Animalia -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" fill="#dbeafe" stroke="#1d4ed8"/>
-                <circle cx="9" cy="9" r="1.5" fill="#1d4ed8"/>
-                <circle cx="15" cy="9" r="1.5" fill="#1d4ed8"/>
-                <path d="M8 13s1.5 2 4 2 4-2 4-2" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"/>
-                <path d="M7 18s1-1 2-1 2 1 3 1 2-1 2-1" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M17 18s-1-1-2-1-2 1-3 1-2-1-2-1" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M6 7l-1-2M18 7l1-2" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+              <svg class="w-12 h-12 text-blue-600" fill="none" viewBox="0 0 24 24">
+                <!-- Corpo do pássaro -->
+                <ellipse cx="12" cy="14" rx="5" ry="7" fill="#3b82f6"/>
+                <ellipse cx="12" cy="13" rx="4" ry="6" fill="#60a5fa"/>
+                <!-- Cabeça -->
+                <circle cx="12" cy="8" r="3.5" fill="#1d4ed8"/>
+                <circle cx="12" cy="7.5" r="2.8" fill="#3b82f6"/>
+                <!-- Bico -->
+                <path d="M9 7.5L7 7L9 8z" fill="#f59e0b"/>
+                <!-- Olhos -->
+                <circle cx="10.5" cy="7" r="0.8" fill="white"/>
+                <circle cx="13.5" cy="7" r="0.8" fill="white"/>
+                <circle cx="10.5" cy="7" r="0.4" fill="black"/>
+                <circle cx="13.5" cy="7" r="0.4" fill="black"/>
+                <!-- Asas -->
+                <ellipse cx="8" cy="12" rx="2" ry="4" fill="#1e40af" transform="rotate(-20 8 12)"/>
+                <ellipse cx="16" cy="12" rx="2" ry="4" fill="#1e40af" transform="rotate(20 16 12)"/>
+                <!-- Detalhes das asas -->
+                <ellipse cx="8" cy="12" rx="1.2" ry="3" fill="#2563eb" transform="rotate(-20 8 12)"/>
+                <ellipse cx="16" cy="12" rx="1.2" ry="3" fill="#2563eb" transform="rotate(20 16 12)"/>
+                <!-- Cauda -->
+                <ellipse cx="12" cy="20" rx="1.5" ry="2" fill="#1e40af"/>
+                <!-- Patas -->
+                <line x1="10" y1="20" x2="9" y2="22" stroke="#f59e0b" stroke-width="1.5"/>
+                <line x1="14" y1="20" x2="15" y2="22" stroke="#f59e0b" stroke-width="1.5"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
@@ -165,14 +224,25 @@ if (
           <!-- Card Plantae -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path d="M12 22c0 0 8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
-                <path d="M12 2L4 5v7c0 6 8 10 8 10V2z" fill="#bbf7d0"/>
-                <path d="M8 9c2-1 4-1 6 0" stroke="#15803d" stroke-width="2" stroke-linecap="round"/>
-                <path d="M9 12c1.5-0.5 3-0.5 4.5 0" stroke="#15803d" stroke-width="1.5" stroke-linecap="round"/>
-                <circle cx="12" cy="6" r="1" fill="#22c55e"/>
-                <path d="M8 7l-1-2M16 7l1-2" stroke="#16a34a" stroke-width="1" stroke-linecap="round"/>
-                <path d="M10 15l2-1 2 1" stroke="#16a34a" stroke-width="1" stroke-linecap="round"/>
+              <svg class="w-12 h-12 text-green-600" fill="none" viewBox="0 0 24 24">
+                <!-- Caule -->
+                <rect x="11.5" y="12" width="1" height="10" fill="#15803d"/>
+                <!-- Folhas -->
+                <ellipse cx="9" cy="16" rx="2.5" ry="1.5" fill="#22c55e" transform="rotate(-30 9 16)"/>
+                <ellipse cx="15" cy="18" rx="2.5" ry="1.5" fill="#22c55e" transform="rotate(30 15 18)"/>
+                <!-- Pétalas da flor -->
+                <ellipse cx="12" cy="8" rx="2" ry="4" fill="#f87171" transform="rotate(0 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2" ry="4" fill="#fbbf24" transform="rotate(36 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2" ry="4" fill="#a78bfa" transform="rotate(72 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2" ry="4" fill="#fb7185" transform="rotate(108 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2" ry="4" fill="#60a5fa" transform="rotate(144 12 8)"/>
+                <!-- Centro da flor -->
+                <circle cx="12" cy="8" r="1.5" fill="#fbbf24"/>
+                <circle cx="12" cy="8" r="0.8" fill="#f59e0b"/>
+                <!-- Detalhes do centro -->
+                <circle cx="11.5" cy="7.5" r="0.2" fill="#ffffff"/>
+                <circle cx="12.5" cy="8.5" r="0.2" fill="#ffffff"/>
+                <circle cx="11.8" cy="8.3" r="0.1" fill="#ffffff"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
@@ -184,17 +254,25 @@ if (
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
               <svg class="w-12 h-12 text-orange-600" fill="none" viewBox="0 0 24 24">
-                <rect x="11" y="12" width="2" height="8" rx="1" fill="#ea580c"/>
-                <ellipse cx="12" cy="8" rx="6" ry="4" fill="#fb923c"/>
-                <ellipse cx="12" cy="7.5" rx="5" ry="3" fill="#f97316"/>
-                <ellipse cx="12" cy="7" rx="4" ry="2" fill="#ea580c"/>
-                <circle cx="9" cy="6.5" r="0.8" fill="#fbbf24"/>
-                <circle cx="12" cy="6" r="0.5" fill="#fbbf24"/>
-                <circle cx="15" cy="6.5" r="0.8" fill="#fbbf24"/>
-                <circle cx="10" cy="8" r="0.4" fill="#fed7aa"/>
-                <circle cx="14" cy="8" r="0.4" fill="#fed7aa"/>
-                <path d="M8 20c1-1 1.5-1 2-1s1.5 0 2 0 1.5 0 2 0 1 0 2 1" stroke="#c2410c" stroke-width="1" stroke-linecap="round"/>
-                <ellipse cx="12" cy="21" rx="3" ry="0.5" fill="#9a3412" opacity="0.3"/>
+                <!-- Caule do cogumelo -->
+                <rect x="10.5" y="11" width="3" height="9" rx="1.5" fill="#f3f4f6"/>
+                <rect x="10.8" y="11" width="2.4" height="9" rx="1.2" fill="#ffffff"/>
+                <!-- Chapéu do cogumelo -->
+                <ellipse cx="12" cy="9" rx="8" ry="5" fill="#dc2626"/>
+                <ellipse cx="12" cy="8.5" rx="7" ry="4" fill="#ef4444"/>
+                <ellipse cx="12" cy="8" rx="6" ry="3" fill="#f87171"/>
+                <!-- Pintas brancas no chapéu -->
+                <circle cx="8" cy="7" r="0.8" fill="white"/>
+                <circle cx="15" cy="6.5" r="1" fill="white"/>
+                <circle cx="11" cy="5.5" r="0.6" fill="white"/>
+                <circle cx="14" cy="9" r="0.7" fill="white"/>
+                <circle cx="9.5" cy="9.5" r="0.5" fill="white"/>
+                <circle cx="12.5" cy="7" r="0.4" fill="white"/>
+                <circle cx="16" cy="8.5" r="0.6" fill="white"/>
+                <!-- Sombra sob o chapéu -->
+                <ellipse cx="12" cy="11" rx="6" ry="1" fill="#991b1b" opacity="0.3"/>
+                <!-- Base do cogumelo -->
+                <ellipse cx="12" cy="20" rx="2" ry="0.8" fill="#d6d3d1"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
@@ -210,14 +288,31 @@ if (
           <!-- Card Animalia -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" fill="#dbeafe" stroke="#1d4ed8"/>
-                <circle cx="9" cy="9" r="1.5" fill="#1d4ed8"/>
-                <circle cx="15" cy="9" r="1.5" fill="#1d4ed8"/>
-                <path d="M8 13s1.5 2 4 2 4-2 4-2" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"/>
-                <path d="M7 18s1-1 2-1 2 1 3 1 2-1 2-1" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M17 18s-1-1-2-1-2 1-3 1-2-1-2-1" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M6 7l-1-2M18 7l1-2" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+              <svg class="w-12 h-12 text-blue-600" fill="none" viewBox="0 0 24 24">
+                <!-- Corpo do pássaro -->
+                <ellipse cx="12" cy="14" rx="5" ry="7" fill="#3b82f6"/>
+                <ellipse cx="12" cy="13" rx="4" ry="6" fill="#60a5fa"/>
+                <!-- Cabeça -->
+                <circle cx="12" cy="8" r="3.5" fill="#1d4ed8"/>
+                <circle cx="12" cy="7.5" r="2.8" fill="#3b82f6"/>
+                <!-- Bico -->
+                <path d="M9 7.5L7 7L9 8z" fill="#f59e0b"/>
+                <!-- Olhos -->
+                <circle cx="10.5" cy="7" r="0.8" fill="white"/>
+                <circle cx="13.5" cy="7" r="0.8" fill="white"/>
+                <circle cx="10.5" cy="7" r="0.4" fill="black"/>
+                <circle cx="13.5" cy="7" r="0.4" fill="black"/>
+                <!-- Asas -->
+                <ellipse cx="8" cy="12" rx="2" ry="4" fill="#1e40af" transform="rotate(-20 8 12)"/>
+                <ellipse cx="16" cy="12" rx="2" ry="4" fill="#1e40af" transform="rotate(20 16 12)"/>
+                <!-- Detalhes das asas -->
+                <ellipse cx="8" cy="12" rx="1.2" ry="3" fill="#2563eb" transform="rotate(-20 8 12)"/>
+                <ellipse cx="16" cy="12" rx="1.2" ry="3" fill="#2563eb" transform="rotate(20 16 12)"/>
+                <!-- Cauda -->
+                <ellipse cx="12" cy="20" rx="1.5" ry="2" fill="#1e40af"/>
+                <!-- Patas -->
+                <line x1="10" y1="20" x2="9" y2="22" stroke="#f59e0b" stroke-width="1.5"/>
+                <line x1="14" y1="20" x2="15" y2="22" stroke="#f59e0b" stroke-width="1.5"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
@@ -228,14 +323,25 @@ if (
           <!-- Card Plantae -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path d="M12 22c0 0 8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
-                <path d="M12 2L4 5v7c0 6 8 10 8 10V2z" fill="#bbf7d0"/>
-                <path d="M8 9c2-1 4-1 6 0" stroke="#15803d" stroke-width="2" stroke-linecap="round"/>
-                <path d="M9 12c1.5-0.5 3-0.5 4.5 0" stroke="#15803d" stroke-width="1.5" stroke-linecap="round"/>
-                <circle cx="12" cy="6" r="1" fill="#22c55e"/>
-                <path d="M8 7l-1-2M16 7l1-2" stroke="#16a34a" stroke-width="1" stroke-linecap="round"/>
-                <path d="M10 15l2-1 2 1" stroke="#16a34a" stroke-width="1" stroke-linecap="round"/>
+              <svg class="w-12 h-12 text-green-600" fill="none" viewBox="0 0 24 24">
+                <!-- Caule -->
+                <rect x="11.5" y="12" width="1" height="10" fill="#15803d"/>
+                <!-- Folhas -->
+                <ellipse cx="9" cy="16" rx="2.5" ry="1.5" fill="#22c55e" transform="rotate(-30 9 16)"/>
+                <ellipse cx="15" cy="18" rx="2.5" ry="1.5" fill="#22c55e" transform="rotate(30 15 18)"/>
+                <!-- Pétalas da flor -->
+                <ellipse cx="12" cy="8" rx="2" ry="4" fill="#f87171" transform="rotate(0 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2" ry="4" fill="#fbbf24" transform="rotate(36 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2" ry="4" fill="#a78bfa" transform="rotate(72 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2" ry="4" fill="#fb7185" transform="rotate(108 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2" ry="4" fill="#60a5fa" transform="rotate(144 12 8)"/>
+                <!-- Centro da flor -->
+                <circle cx="12" cy="8" r="1.5" fill="#fbbf24"/>
+                <circle cx="12" cy="8" r="0.8" fill="#f59e0b"/>
+                <!-- Detalhes do centro -->
+                <circle cx="11.5" cy="7.5" r="0.2" fill="#ffffff"/>
+                <circle cx="12.5" cy="8.5" r="0.2" fill="#ffffff"/>
+                <circle cx="11.8" cy="8.3" r="0.1" fill="#ffffff"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
@@ -247,17 +353,25 @@ if (
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
               <svg class="w-12 h-12 text-orange-600" fill="none" viewBox="0 0 24 24">
-                <rect x="11" y="12" width="2" height="8" rx="1" fill="#ea580c"/>
-                <ellipse cx="12" cy="8" rx="6" ry="4" fill="#fb923c"/>
-                <ellipse cx="12" cy="7.5" rx="5" ry="3" fill="#f97316"/>
-                <ellipse cx="12" cy="7" rx="4" ry="2" fill="#ea580c"/>
-                <circle cx="9" cy="6.5" r="0.8" fill="#fbbf24"/>
-                <circle cx="12" cy="6" r="0.5" fill="#fbbf24"/>
-                <circle cx="15" cy="6.5" r="0.8" fill="#fbbf24"/>
-                <circle cx="10" cy="8" r="0.4" fill="#fed7aa"/>
-                <circle cx="14" cy="8" r="0.4" fill="#fed7aa"/>
-                <path d="M8 20c1-1 1.5-1 2-1s1.5 0 2 0 1.5 0 2 0 1 0 2 1" stroke="#c2410c" stroke-width="1" stroke-linecap="round"/>
-                <ellipse cx="12" cy="21" rx="3" ry="0.5" fill="#9a3412" opacity="0.3"/>
+                <!-- Caule do cogumelo -->
+                <rect x="10.5" y="11" width="3" height="9" rx="1.5" fill="#f3f4f6"/>
+                <rect x="10.8" y="11" width="2.4" height="9" rx="1.2" fill="#ffffff"/>
+                <!-- Chapéu do cogumelo -->
+                <ellipse cx="12" cy="9" rx="8" ry="5" fill="#dc2626"/>
+                <ellipse cx="12" cy="8.5" rx="7" ry="4" fill="#ef4444"/>
+                <ellipse cx="12" cy="8" rx="6" ry="3" fill="#f87171"/>
+                <!-- Pintas brancas no chapéu -->
+                <circle cx="8" cy="7" r="0.8" fill="white"/>
+                <circle cx="15" cy="6.5" r="1" fill="white"/>
+                <circle cx="11" cy="5.5" r="0.6" fill="white"/>
+                <circle cx="14" cy="9" r="0.7" fill="white"/>
+                <circle cx="9.5" cy="9.5" r="0.5" fill="white"/>
+                <circle cx="12.5" cy="7" r="0.4" fill="white"/>
+                <circle cx="16" cy="8.5" r="0.6" fill="white"/>
+                <!-- Sombra sob o chapéu -->
+                <ellipse cx="12" cy="11" rx="6" ry="1" fill="#991b1b" opacity="0.3"/>
+                <!-- Base do cogumelo -->
+                <ellipse cx="12" cy="20" rx="2" ry="0.8" fill="#d6d3d1"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
@@ -274,14 +388,28 @@ if (
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6">
             <div class="flex items-center justify-center mb-4">
               <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" fill="#fee2e2" stroke="#dc2626"/>
-                  <circle cx="9" cy="9" r="1.5" fill="#dc2626"/>
-                  <circle cx="15" cy="9" r="1.5" fill="#dc2626"/>
-                  <path d="M8 15s1.5-2 4-2 4 2 4 2" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M7 18s1-1 2-1 2 1 3 1 2-1 2-1" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
-                  <path d="M17 18s-1-1-2-1-2 1-3 1-2-1-2-1" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
-                  <path d="M6 7l-1-2M18 7l1-2" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>
+                <svg class="w-12 h-12 text-red-600" fill="none" viewBox="0 0 24 24">
+                  <!-- Corpo do pássaro ameaçado -->
+                  <ellipse cx="12" cy="14" rx="5" ry="7" fill="#dc2626"/>
+                  <ellipse cx="12" cy="13" rx="4" ry="6" fill="#ef4444"/>
+                  <!-- Cabeça -->
+                  <circle cx="12" cy="8" r="3.5" fill="#991b1b"/>
+                  <circle cx="12" cy="7.5" r="2.8" fill="#dc2626"/>
+                  <!-- Bico -->
+                  <path d="M9 7.5L7 7L9 8z" fill="#f59e0b"/>
+                  <!-- Olhos preocupados -->
+                  <circle cx="10.5" cy="7" r="0.8" fill="white"/>
+                  <circle cx="13.5" cy="7" r="0.8" fill="white"/>
+                  <circle cx="10.5" cy="7.2" r="0.4" fill="black"/>
+                  <circle cx="13.5" cy="7.2" r="0.4" fill="black"/>
+                  <!-- Asas caídas -->
+                  <ellipse cx="7" cy="14" rx="2" ry="4" fill="#7f1d1d" transform="rotate(-45 7 14)"/>
+                  <ellipse cx="17" cy="14" rx="2" ry="4" fill="#7f1d1d" transform="rotate(45 17 14)"/>
+                  <!-- Cauda -->
+                  <ellipse cx="12" cy="20" rx="1.5" ry="2" fill="#7f1d1d"/>
+                  <!-- Patas -->
+                  <line x1="10" y1="20" x2="9" y2="22" stroke="#f59e0b" stroke-width="1.5"/>
+                  <line x1="14" y1="20" x2="15" y2="22" stroke="#f59e0b" stroke-width="1.5"/>
                 </svg>
               </div>
             </div>
@@ -306,14 +434,24 @@ if (
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6">
             <div class="flex items-center justify-center mb-4">
               <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path d="M12 22c0 0 8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#fecaca" stroke="#dc2626" stroke-width="1"/>
-                  <path d="M12 2L4 5v7c0 6 8 10 8 10V2z" fill="#fee2e2"/>
-                  <path d="M8 9c2-1 4-1 6 0" stroke="#b91c1c" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M9 12c1.5-0.5 3-0.5 4.5 0" stroke="#b91c1c" stroke-width="1.5" stroke-linecap="round"/>
-                  <circle cx="12" cy="6" r="1" fill="#ef4444"/>
-                  <path d="M8 7l-1-2M16 7l1-2" stroke="#dc2626" stroke-width="1" stroke-linecap="round"/>
-                  <path d="M10 15l2-1 2 1" stroke="#dc2626" stroke-width="1" stroke-linecap="round"/>
+                <svg class="w-12 h-12 text-red-600" fill="none" viewBox="0 0 24 24">
+                  <!-- Caule murcho -->
+                  <rect x="11.5" y="12" width="1" height="10" fill="#991b1b"/>
+                  <!-- Folhas murchas -->
+                  <ellipse cx="9" cy="16" rx="2.5" ry="1.5" fill="#dc2626" transform="rotate(-45 9 16)"/>
+                  <ellipse cx="15" cy="18" rx="2.5" ry="1.5" fill="#dc2626" transform="rotate(45 15 18)"/>
+                  <!-- Pétalas da flor murchas -->
+                  <ellipse cx="12" cy="8" rx="1.5" ry="3" fill="#7f1d1d" transform="rotate(0 12 8)"/>
+                  <ellipse cx="12" cy="8" rx="1.5" ry="3" fill="#991b1b" transform="rotate(36 12 8)"/>
+                  <ellipse cx="12" cy="8" rx="1.5" ry="3" fill="#b91c1c" transform="rotate(72 12 8)"/>
+                  <ellipse cx="12" cy="8" rx="1.5" ry="3" fill="#7f1d1d" transform="rotate(108 12 8)"/>
+                  <ellipse cx="12" cy="8" rx="1.5" ry="3" fill="#991b1b" transform="rotate(144 12 8)"/>
+                  <!-- Centro da flor -->
+                  <circle cx="12" cy="8" r="1.5" fill="#450a0a"/>
+                  <circle cx="12" cy="8" r="0.8" fill="#7f1d1d"/>
+                  <!-- Detalhes do centro -->
+                  <circle cx="11.5" cy="7.5" r="0.2" fill="#fecaca"/>
+                  <circle cx="12.5" cy="8.5" r="0.2" fill="#fecaca"/>
                 </svg>
               </div>
             </div>
@@ -382,14 +520,28 @@ if (
           <!-- Card Animalia Invasora -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" fill="#f3e8ff" stroke="#9333ea"/>
-                <circle cx="9" cy="9" r="1.5" fill="#9333ea"/>
-                <circle cx="15" cy="9" r="1.5" fill="#9333ea"/>
-                <path d="M8 13s1.5 2 4 2 4-2 4-2" stroke="#9333ea" stroke-width="2" stroke-linecap="round"/>
-                <path d="M7 18s1-1 2-1 2 1 3 1 2-1 2-1" stroke="#9333ea" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M17 18s-1-1-2-1-2 1-3 1-2-1-2-1" stroke="#9333ea" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M6 7l-1-2M18 7l1-2" stroke="#a855f7" stroke-width="1.5" stroke-linecap="round"/>
+              <svg class="w-12 h-12 text-purple-600" fill="none" viewBox="0 0 24 24">
+                <!-- Corpo do pássaro invasor -->
+                <ellipse cx="12" cy="14" rx="5" ry="7" fill="#7c3aed"/>
+                <ellipse cx="12" cy="13" rx="4" ry="6" fill="#a855f7"/>
+                <!-- Cabeça -->
+                <circle cx="12" cy="8" r="3.5" fill="#5b21b6"/>
+                <circle cx="12" cy="7.5" r="2.8" fill="#7c3aed"/>
+                <!-- Bico agressivo -->
+                <path d="M9 7.5L6 6.5L9 8.5z" fill="#f59e0b"/>
+                <!-- Olhos agressivos -->
+                <circle cx="10.5" cy="7" r="0.8" fill="white"/>
+                <circle cx="13.5" cy="7" r="0.8" fill="white"/>
+                <circle cx="10.2" cy="6.8" r="0.4" fill="red"/>
+                <circle cx="13.2" cy="6.8" r="0.4" fill="red"/>
+                <!-- Asas abertas agressivamente -->
+                <ellipse cx="6" cy="11" rx="3" ry="5" fill="#581c87" transform="rotate(-30 6 11)"/>
+                <ellipse cx="18" cy="11" rx="3" ry="5" fill="#581c87" transform="rotate(30 18 11)"/>
+                <!-- Cauda -->
+                <ellipse cx="12" cy="20" rx="1.5" ry="2" fill="#581c87"/>
+                <!-- Garras -->
+                <line x1="10" y1="20" x2="8" y2="22" stroke="#f59e0b" stroke-width="2"/>
+                <line x1="14" y1="20" x2="16" y2="22" stroke="#f59e0b" stroke-width="2"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
@@ -400,14 +552,24 @@ if (
           <!-- Card Plantae Invasora -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path d="M12 22c0 0 8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#f3e8ff" stroke="#9333ea" stroke-width="1"/>
-                <path d="M12 2L4 5v7c0 6 8 10 8 10V2z" fill="#e9d5ff"/>
-                <path d="M8 9c2-1 4-1 6 0" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/>
-                <path d="M9 12c1.5-0.5 3-0.5 4.5 0" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round"/>
-                <circle cx="12" cy="6" r="1" fill="#a855f7"/>
-                <path d="M8 7l-1-2M16 7l1-2" stroke="#9333ea" stroke-width="1" stroke-linecap="round"/>
-                <path d="M10 15l2-1 2 1" stroke="#9333ea" stroke-width="1" stroke-linecap="round"/>
+              <svg class="w-12 h-12 text-purple-600" fill="none" viewBox="0 0 24 24">
+                <!-- Caule robusto invasivo -->
+                <rect x="11.2" y="12" width="1.6" height="10" fill="#581c87"/>
+                <!-- Folhas invasivas grandes -->
+                <ellipse cx="8" cy="15" rx="3" ry="2" fill="#7c3aed" transform="rotate(-30 8 15)"/>
+                <ellipse cx="16" cy="17" rx="3" ry="2" fill="#7c3aed" transform="rotate(30 16 17)"/>
+                <ellipse cx="7" cy="19" rx="2.5" ry="1.5" fill="#9333ea" transform="rotate(-45 7 19)"/>
+                <!-- Pétalas da flor invasiva -->
+                <ellipse cx="12" cy="8" rx="2.5" ry="4.5" fill="#7c3aed" transform="rotate(0 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2.5" ry="4.5" fill="#9333ea" transform="rotate(36 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2.5" ry="4.5" fill="#a855f7" transform="rotate(72 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2.5" ry="4.5" fill="#7c3aed" transform="rotate(108 12 8)"/>
+                <ellipse cx="12" cy="8" rx="2.5" ry="4.5" fill="#9333ea" transform="rotate(144 12 8)"/>
+                <!-- Centro da flor agressivo -->
+                <circle cx="12" cy="8" r="2" fill="#4c1d95"/>
+                <circle cx="12" cy="8" r="1.2" fill="#581c87"/>
+                <!-- Espinhos -->
+                <path d="M6 16l-2-1M18 18l2-1M5 20l-1-2" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
@@ -419,17 +581,29 @@ if (
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
               <svg class="w-12 h-12 text-purple-600" fill="none" viewBox="0 0 24 24">
-                <rect x="11" y="12" width="2" height="8" rx="1" fill="#9333ea"/>
-                <ellipse cx="12" cy="8" rx="6" ry="4" fill="#c084fc"/>
-                <ellipse cx="12" cy="7.5" rx="5" ry="3" fill="#a855f7"/>
-                <ellipse cx="12" cy="7" rx="4" ry="2" fill="#9333ea"/>
-                <circle cx="9" cy="6.5" r="0.8" fill="#e9d5ff"/>
-                <circle cx="12" cy="6" r="0.5" fill="#e9d5ff"/>
-                <circle cx="15" cy="6.5" r="0.8" fill="#e9d5ff"/>
-                <circle cx="10" cy="8" r="0.4" fill="#f3e8ff"/>
-                <circle cx="14" cy="8" r="0.4" fill="#f3e8ff"/>
-                <path d="M8 20c1-1 1.5-1 2-1s1.5 0 2 0 1.5 0 2 0 1 0 2 1" stroke="#7c3aed" stroke-width="1" stroke-linecap="round"/>
-                <ellipse cx="12" cy="21" rx="3" ry="0.5" fill="#6b21a8" opacity="0.3"/>
+                <!-- Caules múltiplos invasivos -->
+                <rect x="10" y="11" width="2" height="9" rx="1" fill="#f3f4f6"/>
+                <rect x="13" y="12" width="1.5" height="8" rx="0.75" fill="#f3f4f6"/>
+                <rect x="8.5" y="13" width="1.5" height="7" rx="0.75" fill="#f3f4f6"/>
+                <!-- Chapéu principal grande -->
+                <ellipse cx="11" cy="9" rx="7" ry="4" fill="#7c3aed"/>
+                <ellipse cx="11" cy="8.5" rx="6" ry="3" fill="#9333ea"/>
+                <ellipse cx="11" cy="8" rx="5" ry="2" fill="#a855f7"/>
+                <!-- Chapéus menores invasivos -->
+                <ellipse cx="15" cy="10" rx="3" ry="2" fill="#7c3aed"/>
+                <ellipse cx="7" cy="11" rx="2.5" ry="1.5" fill="#9333ea"/>
+                <!-- Pintas tóxicas -->
+                <circle cx="8" cy="7.5" r="0.6" fill="#facc15"/>
+                <circle cx="13" cy="7" r="0.8" fill="#facc15"/>
+                <circle cx="10" cy="6" r="0.5" fill="#facc15"/>
+                <circle cx="15" cy="9" r="0.4" fill="#facc15"/>
+                <circle cx="6" cy="10" r="0.3" fill="#facc15"/>
+                <!-- Esporos no ar -->
+                <circle cx="5" cy="6" r="0.2" fill="#c084fc"/>
+                <circle cx="18" cy="7" r="0.2" fill="#c084fc"/>
+                <circle cx="17" cy="5" r="0.15" fill="#c084fc"/>
+                <!-- Base expandida -->
+                <ellipse cx="11" cy="20" rx="4" ry="1" fill="#d6d3d1"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
