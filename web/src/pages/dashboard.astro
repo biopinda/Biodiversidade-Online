@@ -36,9 +36,11 @@ if (
 ---
 
 <Layout title="Dashboard">
-  <div
-    class="grid grid-cols-3 grid-rows-2 h-screen w-screen gap-2 p-2 [&>*]:rounded-sm [&>*]:bg-white [&>*]:border [&>*]:border-slate-300 [&>*]:shadow-lg"
-  >
+  <div class="h-screen w-screen p-2">
+    <h1 class="text-3xl font-bold text-center mb-4">Biodiversidade On-line</h1>
+    <div
+      class="grid grid-cols-3 grid-rows-2 h-full gap-2 [&>*]:rounded-sm [&>*]:bg-white [&>*]:border [&>*]:border-slate-300 [&>*]:shadow-lg"
+    >
     <Pie title="Plantae" data={prepareData(plantae)} sortByName />
     <Pie title="Fungi" data={prepareData(fungi)} sortByName />
     <Pie title="Animalia" data={prepareData(animalia)} sortByName />
@@ -57,5 +59,6 @@ if (
       data={prepareData(familyPerKingdomAnimalia)}
       sortByCount
     />
+    </div>
   </div>
 </Layout>
