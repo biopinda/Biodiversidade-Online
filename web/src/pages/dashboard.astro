@@ -38,27 +38,123 @@ if (
 <Layout title="Dashboard">
   <div class="h-screen w-screen p-2">
     <h1 class="text-3xl font-bold text-center mb-4">Biodiversidade On-line</h1>
-    <div
-      class="grid grid-cols-3 grid-rows-2 h-full gap-2 [&>*]:rounded-sm [&>*]:bg-white [&>*]:border [&>*]:border-slate-300 [&>*]:shadow-lg"
-    >
-    <Pie title="Plantae" data={prepareData(plantae)} sortByName />
-    <Pie title="Fungi" data={prepareData(fungi)} sortByName />
-    <Pie title="Animalia" data={prepareData(animalia)} sortByName />
-    <Pie
-      title="Famílias Plantae"
-      data={prepareData(familyPerKingdomPlantae)}
-      sortByCount
-    />
-    <Pie
-      title="Phylum Fungi"
-      data={prepareData(familyPerKingdomFungi)}
-      sortByCount
-    />
-    <Pie
-      title="Famílias Animalia"
-      data={prepareData(familyPerKingdomAnimalia)}
-      sortByCount
-    />
+    
+    <!-- Tabs Navigation -->
+    <div class="flex border-b border-gray-200 mb-4">
+      <button
+        class="tab-button px-6 py-3 font-medium text-sm border-b-2 border-blue-500 text-blue-600 bg-white"
+        data-tab="taxa"
+      >
+        Taxa
+      </button>
+      <button
+        class="tab-button px-6 py-3 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 bg-white"
+        data-tab="ocorrencias"
+      >
+        Ocorrências
+      </button>
+      <button
+        class="tab-button px-6 py-3 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 bg-white"
+        data-tab="ameacadas"
+      >
+        Espécies Ameaçadas
+      </button>
+      <button
+        class="tab-button px-6 py-3 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 bg-white"
+        data-tab="invasoras"
+      >
+        Espécies Invasoras
+      </button>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="tab-content h-full">
+      <!-- Taxa Tab -->
+      <div id="taxa-content" class="tab-panel">
+        <div
+          class="grid grid-cols-3 grid-rows-2 h-full gap-2 [&>*]:rounded-sm [&>*]:bg-white [&>*]:border [&>*]:border-slate-300 [&>*]:shadow-lg"
+        >
+          <Pie title="Plantae" data={prepareData(plantae)} sortByName />
+          <Pie title="Fungi" data={prepareData(fungi)} sortByName />
+          <Pie title="Animalia" data={prepareData(animalia)} sortByName />
+          <Pie
+            title="Famílias Plantae"
+            data={prepareData(familyPerKingdomPlantae)}
+            sortByCount
+          />
+          <Pie
+            title="Phylum Fungi"
+            data={prepareData(familyPerKingdomFungi)}
+            sortByCount
+          />
+          <Pie
+            title="Famílias Animalia"
+            data={prepareData(familyPerKingdomAnimalia)}
+            sortByCount
+          />
+        </div>
+      </div>
+
+      <!-- Ocorrências Tab -->
+      <div id="ocorrencias-content" class="tab-panel hidden">
+        <div class="flex items-center justify-center h-full bg-white rounded-sm border border-slate-300 shadow-lg">
+          <div class="text-center">
+            <h2 class="text-2xl font-bold text-gray-700 mb-2">Ocorrências</h2>
+            <p class="text-gray-500">Visualizações de ocorrências serão implementadas aqui</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Espécies Ameaçadas Tab -->
+      <div id="ameacadas-content" class="tab-panel hidden">
+        <div class="flex items-center justify-center h-full bg-white rounded-sm border border-slate-300 shadow-lg">
+          <div class="text-center">
+            <h2 class="text-2xl font-bold text-gray-700 mb-2">Espécies Ameaçadas</h2>
+            <p class="text-gray-500">Dados sobre espécies ameaçadas serão exibidos aqui</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Espécies Invasoras Tab -->
+      <div id="invasoras-content" class="tab-panel hidden">
+        <div class="flex items-center justify-center h-full bg-white rounded-sm border border-slate-300 shadow-lg">
+          <div class="text-center">
+            <h2 class="text-2xl font-bold text-gray-700 mb-2">Espécies Invasoras</h2>
+            <p class="text-gray-500">Informações sobre espécies invasoras serão mostradas aqui</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabPanels = document.querySelectorAll('.tab-panel');
+
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const targetTab = this.getAttribute('data-tab');
+
+          // Remove active classes from all buttons
+          tabButtons.forEach(btn => {
+            btn.classList.remove('border-blue-500', 'text-blue-600');
+            btn.classList.add('border-transparent', 'text-gray-500');
+          });
+
+          // Add active classes to clicked button
+          this.classList.remove('border-transparent', 'text-gray-500');
+          this.classList.add('border-blue-500', 'text-blue-600');
+
+          // Hide all tab panels
+          tabPanels.forEach(panel => {
+            panel.classList.add('hidden');
+          });
+
+          // Show target tab panel
+          document.getElementById(targetTab + '-content').classList.remove('hidden');
+        });
+      });
+    });
+  </script>
 </Layout>
