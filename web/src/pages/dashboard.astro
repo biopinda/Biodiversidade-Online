@@ -12,12 +12,43 @@ import path from 'path'
 // Lê o conteúdo do arquivo dashReadme.md
 let readmeContent = ''
 try {
-  const readmePath = path.join(process.cwd(), 'dashReadme.md')
-  readmeContent = fs.readFileSync(readmePath, 'utf-8')
-  console.log('README carregado:', readmeContent)
+  // Tenta diferentes caminhos possíveis
+  const possiblePaths = [
+    path.join(process.cwd(), 'dashReadme.md'),
+    path.join(process.cwd(), '../dashReadme.md'),
+    path.join(process.cwd(), '../../dashReadme.md'),
+    path.join(__dirname, '../../../dashReadme.md'),
+  ]
+  
+  for (const readmePath of possiblePaths) {
+    try {
+      readmeContent = fs.readFileSync(readmePath, 'utf-8')
+      console.log('README carregado do caminho:', readmePath)
+      break
+    } catch (err) {
+      console.log('Tentativa falhou para:', readmePath)
+    }
+  }
+  
+  // Se ainda não encontrou, usa conteúdo fixo
+  if (!readmeContent) {
+    readmeContent = `# Biodiversidade Online
+## Eduardo Dalcin e Henrique Pinheiro
+
+Este é o dashboard de biodiversidade que apresenta dados sobre:
+- Taxa aceitos por reino (Animalia, Plantae, Fungi)
+- Ocorrências registradas
+- Espécies ameaçadas
+- Espécies invasoras
+
+O sistema integra dados de diferentes fontes para fornecer uma visão abrangente da biodiversidade online.`
+  }
 } catch (error) {
-  console.error('Erro ao carregar README:', error)
-  readmeContent = 'Conteúdo não disponível.'
+  console.error('Erro geral ao carregar README:', error)
+  readmeContent = `# Biodiversidade Online
+## Eduardo Dalcin e Henrique Pinheiro
+
+Dashboard de biodiversidade com dados integrados de diferentes fontes.`
 }
 
 // Função para processar markdown simples
