@@ -1,7 +1,7 @@
 ---
 import Pie from '../components/Pie.astro'
 import Layout from '../layouts/base.astro'
-import { getFamilyPerKingdom, getTaxonomicStatusPerKingdom } from '../lib/mongo'
+import { getFamilyPerKingdom, getTaxonomicStatusPerKingdom, getOccurrenceCountPerKingdom } from '../lib/mongo'
 
 const prepareData = (data: any[]) => {
   return data.map(({ _id, count }) => [`${_id}`, count] as [string, number])
@@ -13,14 +13,20 @@ const [
   animalia,
   familyPerKingdomPlantae,
   familyPerKingdomFungi,
-  familyPerKingdomAnimalia
+  familyPerKingdomAnimalia,
+  occurrencesPlantae,
+  occurrencesFungi,
+  occurrencesAnimalia
 ] = await Promise.all([
   getTaxonomicStatusPerKingdom('Plantae'),
   getTaxonomicStatusPerKingdom('Fungi'),
   getTaxonomicStatusPerKingdom('Animalia'),
   getFamilyPerKingdom('Plantae'),
   getFamilyPerKingdom('Fungi'),
-  getFamilyPerKingdom('Animalia')
+  getFamilyPerKingdom('Animalia'),
+  getOccurrenceCountPerKingdom('Plantae'),
+  getOccurrenceCountPerKingdom('Fungi'),
+  getOccurrenceCountPerKingdom('Animalia')
 ])
 
 if (
@@ -29,7 +35,10 @@ if (
   !animalia ||
   !familyPerKingdomPlantae ||
   !familyPerKingdomFungi ||
-  !familyPerKingdomAnimalia
+  !familyPerKingdomAnimalia ||
+  occurrencesPlantae === null ||
+  occurrencesFungi === null ||
+  occurrencesAnimalia === null
 ) {
   return new Response(null, { status: 503 })
 }
@@ -97,10 +106,41 @@ if (
 
       <!-- Ocorrências Tab -->
       <div id="ocorrencias-content" class="tab-panel hidden">
-        <div class="flex items-center justify-center h-full bg-white rounded-sm border border-slate-300 shadow-lg">
-          <div class="text-center">
-            <h2 class="text-2xl font-bold text-gray-700 mb-2">Ocorrências</h2>
-            <p class="text-gray-500">Visualizações de ocorrências serão implementadas aqui</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+          <!-- Card Animalia -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
+            <p class="text-4xl font-bold text-blue-600 mb-2">{occurrencesAnimalia?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">ocorrências registradas</p>
+          </div>
+
+          <!-- Card Plantae -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
+            <p class="text-4xl font-bold text-green-600 mb-2">{occurrencesPlantae?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">ocorrências registradas</p>
+          </div>
+
+          <!-- Card Fungi -->
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
+            <p class="text-4xl font-bold text-orange-600 mb-2">{occurrencesFungi?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center">ocorrências registradas</p>
           </div>
         </div>
       </div>

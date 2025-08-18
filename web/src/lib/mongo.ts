@@ -412,6 +412,17 @@ export async function getFamilyPerKingdom(kingdom: string) {
     .toArray()
 }
 
+export async function getOccurrenceCountPerKingdom(kingdom: string) {
+  const occurrences = await getCollection('dwc2json', 'ocorrencias')
+  if (!occurrences) return null
+  
+  const result = await occurrences.countDocuments({
+    kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
+  })
+  
+  return result
+}
+
 export async function getTaxon(
   kingdom: 'Plantae' | 'Fungi' | 'Animalia',
   id: string,
