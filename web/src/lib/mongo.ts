@@ -458,6 +458,65 @@ export async function getThreatenedCountPerKingdom(kingdom: string) {
   return null
 }
 
+export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
+  if (kingdom.toLowerCase() === 'animalia') {
+    const fauna = await getCollection('dwc2json', 'faunaAmeacada')
+    if (!fauna) return null
+    return await fauna
+      .aggregate([
+        {
+          $group: {
+            _id: '$threatStatus',
+            count: { $count: {} }
+          }
+        },
+        {
+          $sort: { count: -1 }
+        }
+      ])
+      .toArray()
+  } else if (kingdom.toLowerCase() === 'plantae') {
+    const flora = await getCollection('dwc2json', 'cncflora2022')
+    if (!flora) return null
+    return await flora
+      .aggregate([
+        {
+          $group: {
+            _id: '$threatStatus',
+            count: { $count: {} }
+          }
+        },
+        {
+          $sort: { count: -1 }
+        }
+      ])
+      .toArray()
+  } else if (kingdom.toLowerCase() === 'fungi') {
+    const flora = await getCollection('dwc2json', 'cncflora2022')
+    if (!flora) return null
+    return await flora
+      .aggregate([
+        {
+          $match: {
+            kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
+          }
+        },
+        {
+          $group: {
+            _id: '$threatStatus',
+            count: { $count: {} }
+          }
+        },
+        {
+          $sort: { count: -1 }
+        }
+      ])
+      .toArray()
+  }
+  
+  return null
+}
+
 export async function getInvasiveCountPerKingdom(kingdom: string) {
   const invasive = await getCollection('dwc2json', 'invasoras')
   if (!invasive) return null
