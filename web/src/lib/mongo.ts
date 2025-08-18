@@ -439,15 +439,54 @@ export async function getThreatenedCountPerKingdom(kingdom: string) {
   if (kingdom.toLowerCase() === 'animalia') {
     const fauna = await getCollection('dwc2json', 'faunaAmeacada')
     if (!fauna) return null
-    return await fauna.countDocuments({
-      kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
-    })
+    // Tenta diferentes variações do campo kingdom e conta todos se não encontrar
+    const kingdomVariations = [
+      kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+      kingdom.toUpperCase(),
+      kingdom.toLowerCase()
+    ]
+    
+    let count = 0
+    for (const variation of kingdomVariations) {
+      const result = await fauna.countDocuments({ kingdom: variation })
+      if (result > 0) {
+        count = result
+        break
+      }
+    }
+    
+    // Se não encontrou por kingdom, conta todos os documentos
+    if (count === 0) {
+      count = await fauna.countDocuments({})
+    }
+    
+    return count
   } else if (kingdom.toLowerCase() === 'plantae') {
     const flora = await getCollection('dwc2json', 'cncflora2022')
     if (!flora) return null
-    return await flora.countDocuments({
-      kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
-    })
+    
+    // Tenta diferentes variações do campo kingdom e conta todos se não encontrar
+    const kingdomVariations = [
+      kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+      kingdom.toUpperCase(),
+      kingdom.toLowerCase()
+    ]
+    
+    let count = 0
+    for (const variation of kingdomVariations) {
+      const result = await flora.countDocuments({ kingdom: variation })
+      if (result > 0) {
+        count = result
+        break
+      }
+    }
+    
+    // Se não encontrou por kingdom, conta todos os documentos
+    if (count === 0) {
+      count = await flora.countDocuments({})
+    }
+    
+    return count
   } else if (kingdom.toLowerCase() === 'fungi') {
     // Assumindo que não há dados específicos para Fungi ameaçados
     return 0
