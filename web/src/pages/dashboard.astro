@@ -6,6 +6,17 @@ import {
   getThreatenedCountPerKingdom,
   getInvasiveCountPerKingdom
 } from '../lib/mongo'
+import fs from 'fs'
+import path from 'path'
+
+// Lê o conteúdo do arquivo dashReadme.md
+let readmeContent = ''
+try {
+  const readmePath = path.join(process.cwd(), 'dashReadme.md')
+  readmeContent = fs.readFileSync(readmePath, 'utf-8')
+} catch (error) {
+  readmeContent = 'Conteúdo não disponível.'
+}
 
 const [
   // Occurrences data
@@ -87,6 +98,12 @@ if (
       >
         Espécies Invasoras
       </button>
+      <button
+        class="tab-button px-6 py-3 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 bg-white"
+        data-tab="sobre"
+      >
+        Sobre
+      </button>
     </div>
 
     <!-- Tab Contents -->
@@ -97,37 +114,59 @@ if (
           <!-- Card Animalia -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 512 512">
-                <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5s.3-86.2 32.6-96.8s70.1 15.6 84.4 58.5zm85.7-92C354.7-4.7 394.7 14.2 406.8 52.6s-11.8 77.2-54.3 83.8s-80.1-20.9-92.2-59.3s11.8-77.2 54.3-83.8zm-180.9 168c-42.4-6.6-68.5-45.2-58.3-86.1s45.2-69.8 87.6-63.2s68.5 45.2 58.3 86.1s-45.2 69.8-87.6 63.2zM426.9 310.5c-54.8-85.1-127.7-150.5-209.4-187.8c-20.1-9.2-43.6-4.6-58.9 11.5L30.4 266.4c-15.3 16.1-19.9 39.6-11.5 58.9c37.3 85.7 105.7 156.6 195.8 207.4c17.6 9.9 40.8 4.8 55.3-12.1l127.2-148.4c14.5-16.9 16.8-41.2 5.4-61.3zm-312-78.5l119.6-120.4c79.6 34.3 147.9 96 192.4 176.6L326.9 430.8C267.8 388.7 214.9 357.2 172 314.3l-57.1-82.3z"/>
+              <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3c-3 0-5.5 2-6.5 4.5C4.5 9 4 10.5 4 12c0 2 1 4 2.5 5.5C8 19 10 20 12 20s4-1 5.5-2.5C19 16 20 14 20 12c0-1.5-.5-3-1.5-4.5C17.5 5 15 3 12 3zm-3 6.5c0-.8.7-1.5 1.5-1.5s1.5.7 1.5 1.5-.7 1.5-1.5 1.5S9 10.3 9 9.5zm6 0c0-.8.7-1.5 1.5-1.5s1.5.7 1.5 1.5-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5zm-3 6c-1.5 0-3-.5-4-1.5l.5-.5c.8.8 2 1 3.5 1s2.7-.2 3.5-1l.5.5c-1 1-2.5 1.5-4 1.5z"/>
+                <circle cx="9.5" cy="9.5" r="0.8" fill="#1e40af"/>
+                <circle cx="14.5" cy="9.5" r="0.8" fill="#1e40af"/>
+                <path d="M6 8c1 0 2-1 3-1s2 1 3 1" stroke="currentColor" stroke-width="0.8" fill="none"/>
+                <path d="M12 8c1 0 2-1 3-1s2 1 3 1" stroke="currentColor" stroke-width="0.8" fill="none"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
             <p class="text-4xl font-bold text-blue-600 mb-2">{taxaAnimalia?.toLocaleString()}</p>
-            <p class="text-gray-500 text-center">espécies aceitas</p>
+            <p class="text-gray-500 text-center">nomes aceitos</p>
           </div>
 
           <!-- Card Plantae -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 512 512">
-                <path d="M272 96c-78.6 0-145.1 51.5-167.7 122.5c33.6-17 71.5-26.5 111.7-26.5h88c8.8 0 16 7.2 16 16s-7.2 16-16 16H216c-70.7 0-128 57.3-128 128c0 17.7 14.3 32 32 32H464c17.7 0 32-14.3 32-32c0-70.7-57.3-128-128-128H304c-8.8 0-16-7.2-16-16s7.2-16 16-16h64c40.2 0 78.1 9.5 111.7 26.5C457.1 147.5 390.6 96 312 96H272z"/>
+              <svg class="w-10 h-10 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l-2 7h4l-2-7z" fill="#16a34a"/>
+                <ellipse cx="12" cy="6" rx="5" ry="2.5" fill="#22c55e"/>
+                <path d="M7 6.5c0 1.5 2 3 5 3s5-1.5 5-3" fill="none" stroke="#16a34a" stroke-width="1"/>
+                <path d="M12 9v13" stroke="#8b5cf6" stroke-width="2" fill="none"/>
+                <path d="M6 12c2 0 4 2 6 2s4-2 6-2" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+                <path d="M7 16c1.5 0 3 1.5 5 1.5s3.5-1.5 5-1.5" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+                <path d="M8 20c1.5 0 3 1 4 1s2.5-1 4-1" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+                <circle cx="9" cy="6" r="0.5" fill="#15803d"/>
+                <circle cx="15" cy="6" r="0.5" fill="#15803d"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
             <p class="text-4xl font-bold text-green-600 mb-2">{taxaPlantae?.toLocaleString()}</p>
-            <p class="text-gray-500 text-center">espécies aceitas</p>
+            <p class="text-gray-500 text-center">nomes aceitos</p>
           </div>
 
           <!-- Card Fungi -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 512 512">
-                <path d="M264 24C264 10.7 253.3 0 240 0s-24 10.7-24 24V64c0 8.8-7.2 16-16 16s-16-7.2-16-16V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64c0 35.3 28.7 64 64 64V230.2c-35.3 5.5-64 35.9-64 73.3c0 40.8 33.2 74 74 74s74-33.2 74-74c0-37.4-28.7-67.8-64-73.3V128c35.3 0 64-28.7 64-64V24zM208 303.5c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24z"/>
+              <svg class="w-10 h-10 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                <ellipse cx="12" cy="7" rx="7" ry="3.5" fill="#ea580c"/>
+                <path d="M5 7c0 2 3 3.5 7 3.5S19 9 19 7" fill="none" stroke="#dc2626" stroke-width="1"/>
+                <rect x="11.2" y="10.5" width="1.6" height="8" fill="#fbbf24"/>
+                <path d="M6 8c1 2.5 2 5 3 7.5" fill="none" stroke="#ea580c" stroke-width="1.2"/>
+                <path d="M18 8c-1 2.5-2 5-3 7.5" fill="none" stroke="#ea580c" stroke-width="1.2"/>
+                <circle cx="8" cy="7" r="0.8" fill="#dc2626"/>
+                <circle cx="16" cy="7" r="0.8" fill="#dc2626"/>
+                <circle cx="12" cy="6" r="0.4" fill="#fbbf24"/>
+                <path d="M10 19c0.5 0.8 1 1.5 2 1.5s1.5-0.7 2-1.5" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+                <ellipse cx="10" cy="7.5" rx="1" ry="0.5" fill="#f97316"/>
+                <ellipse cx="14" cy="7.5" rx="1" ry="0.5" fill="#f97316"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
             <p class="text-4xl font-bold text-orange-600 mb-2">{taxaFungi?.toLocaleString()}</p>
-            <p class="text-gray-500 text-center">espécies aceitas</p>
+            <p class="text-gray-500 text-center">nomes aceitos</p>
           </div>
         </div>
       </div>
@@ -138,8 +177,12 @@ if (
           <!-- Card Animalia -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 512 512">
-                <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5s.3-86.2 32.6-96.8s70.1 15.6 84.4 58.5zm85.7-92C354.7-4.7 394.7 14.2 406.8 52.6s-11.8 77.2-54.3 83.8s-80.1-20.9-92.2-59.3s11.8-77.2 54.3-83.8zm-180.9 168c-42.4-6.6-68.5-45.2-58.3-86.1s45.2-69.8 87.6-63.2s68.5 45.2 58.3 86.1s-45.2 69.8-87.6 63.2zM426.9 310.5c-54.8-85.1-127.7-150.5-209.4-187.8c-20.1-9.2-43.6-4.6-58.9 11.5L30.4 266.4c-15.3 16.1-19.9 39.6-11.5 58.9c37.3 85.7 105.7 156.6 195.8 207.4c17.6 9.9 40.8 4.8 55.3-12.1l127.2-148.4c14.5-16.9 16.8-41.2 5.4-61.3zm-312-78.5l119.6-120.4c79.6 34.3 147.9 96 192.4 176.6L326.9 430.8C267.8 388.7 214.9 357.2 172 314.3l-57.1-82.3z"/>
+              <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3c-3 0-5.5 2-6.5 4.5C4.5 9 4 10.5 4 12c0 2 1 4 2.5 5.5C8 19 10 20 12 20s4-1 5.5-2.5C19 16 20 14 20 12c0-1.5-.5-3-1.5-4.5C17.5 5 15 3 12 3zm-3 6.5c0-.8.7-1.5 1.5-1.5s1.5.7 1.5 1.5-.7 1.5-1.5 1.5S9 10.3 9 9.5zm6 0c0-.8.7-1.5 1.5-1.5s1.5.7 1.5 1.5-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5zm-3 6c-1.5 0-3-.5-4-1.5l.5-.5c.8.8 2 1 3.5 1s2.7-.2 3.5-1l.5.5c-1 1-2.5 1.5-4 1.5z"/>
+                <circle cx="9.5" cy="9.5" r="0.8" fill="#1e40af"/>
+                <circle cx="14.5" cy="9.5" r="0.8" fill="#1e40af"/>
+                <path d="M6 8c1 0 2-1 3-1s2 1 3 1" stroke="currentColor" stroke-width="0.8" fill="none"/>
+                <path d="M12 8c1 0 2-1 3-1s2 1 3 1" stroke="currentColor" stroke-width="0.8" fill="none"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
@@ -150,8 +193,16 @@ if (
           <!-- Card Plantae -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 512 512">
-                <path d="M272 96c-78.6 0-145.1 51.5-167.7 122.5c33.6-17 71.5-26.5 111.7-26.5h88c8.8 0 16 7.2 16 16s-7.2 16-16 16H216c-70.7 0-128 57.3-128 128c0 17.7 14.3 32 32 32H464c17.7 0 32-14.3 32-32c0-70.7-57.3-128-128-128H304c-8.8 0-16-7.2-16-16s7.2-16 16-16h64c40.2 0 78.1 9.5 111.7 26.5C457.1 147.5 390.6 96 312 96H272z"/>
+              <svg class="w-10 h-10 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l-2 7h4l-2-7z" fill="#16a34a"/>
+                <ellipse cx="12" cy="6" rx="5" ry="2.5" fill="#22c55e"/>
+                <path d="M7 6.5c0 1.5 2 3 5 3s5-1.5 5-3" fill="none" stroke="#16a34a" stroke-width="1"/>
+                <path d="M12 9v13" stroke="#8b5cf6" stroke-width="2" fill="none"/>
+                <path d="M6 12c2 0 4 2 6 2s4-2 6-2" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+                <path d="M7 16c1.5 0 3 1.5 5 1.5s3.5-1.5 5-1.5" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+                <path d="M8 20c1.5 0 3 1 4 1s2.5-1 4-1" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+                <circle cx="9" cy="6" r="0.5" fill="#15803d"/>
+                <circle cx="15" cy="6" r="0.5" fill="#15803d"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
@@ -162,8 +213,18 @@ if (
           <!-- Card Fungi -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 512 512">
-                <path d="M264 24C264 10.7 253.3 0 240 0s-24 10.7-24 24V64c0 8.8-7.2 16-16 16s-16-7.2-16-16V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64c0 35.3 28.7 64 64 64V230.2c-35.3 5.5-64 35.9-64 73.3c0 40.8 33.2 74 74 74s74-33.2 74-74c0-37.4-28.7-67.8-64-73.3V128c35.3 0 64-28.7 64-64V24zM208 303.5c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24z"/>
+              <svg class="w-10 h-10 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                <ellipse cx="12" cy="7" rx="7" ry="3.5" fill="#ea580c"/>
+                <path d="M5 7c0 2 3 3.5 7 3.5S19 9 19 7" fill="none" stroke="#dc2626" stroke-width="1"/>
+                <rect x="11.2" y="10.5" width="1.6" height="8" fill="#fbbf24"/>
+                <path d="M6 8c1 2.5 2 5 3 7.5" fill="none" stroke="#ea580c" stroke-width="1.2"/>
+                <path d="M18 8c-1 2.5-2 5-3 7.5" fill="none" stroke="#ea580c" stroke-width="1.2"/>
+                <circle cx="8" cy="7" r="0.8" fill="#dc2626"/>
+                <circle cx="16" cy="7" r="0.8" fill="#dc2626"/>
+                <circle cx="12" cy="6" r="0.4" fill="#fbbf24"/>
+                <path d="M10 19c0.5 0.8 1 1.5 2 1.5s1.5-0.7 2-1.5" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+                <ellipse cx="10" cy="7.5" rx="1" ry="0.5" fill="#f97316"/>
+                <ellipse cx="14" cy="7.5" rx="1" ry="0.5" fill="#f97316"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
@@ -179,7 +240,7 @@ if (
           <!-- Card Animalia Ameaçada -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 512 512">
+              <svg class="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5s.3-86.2 32.6-96.8s70.1 15.6 84.4 58.5zm85.7-92C354.7-4.7 394.7 14.2 406.8 52.6s-11.8 77.2-54.3 83.8s-80.1-20.9-92.2-59.3s11.8-77.2 54.3-83.8zm-180.9 168c-42.4-6.6-68.5-45.2-58.3-86.1s45.2-69.8 87.6-63.2s68.5 45.2 58.3 86.1s-45.2 69.8-87.6 63.2zM426.9 310.5c-54.8-85.1-127.7-150.5-209.4-187.8c-20.1-9.2-43.6-4.6-58.9 11.5L30.4 266.4c-15.3 16.1-19.9 39.6-11.5 58.9c37.3 85.7 105.7 156.6 195.8 207.4c17.6 9.9 40.8 4.8 55.3-12.1l127.2-148.4c14.5-16.9 16.8-41.2 5.4-61.3zm-312-78.5l119.6-120.4c79.6 34.3 147.9 96 192.4 176.6L326.9 430.8C267.8 388.7 214.9 357.2 172 314.3l-57.1-82.3z"/>
               </svg>
             </div>
@@ -191,7 +252,7 @@ if (
           <!-- Card Plantae Ameaçada -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 512 512">
+              <svg class="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M272 96c-78.6 0-145.1 51.5-167.7 122.5c33.6-17 71.5-26.5 111.7-26.5h88c8.8 0 16 7.2 16 16s-7.2 16-16 16H216c-70.7 0-128 57.3-128 128c0 17.7 14.3 32 32 32H464c17.7 0 32-14.3 32-32c0-70.7-57.3-128-128-128H304c-8.8 0-16-7.2-16-16s7.2-16 16-16h64c40.2 0 78.1 9.5 111.7 26.5C457.1 147.5 390.6 96 312 96H272z"/>
               </svg>
             </div>
@@ -203,7 +264,7 @@ if (
           <!-- Card Fungi Ameaçada -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 512 512">
+              <svg class="w-10 h-10 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M264 24C264 10.7 253.3 0 240 0s-24 10.7-24 24V64c0 8.8-7.2 16-16 16s-16-7.2-16-16V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64c0 35.3 28.7 64 64 64V230.2c-35.3 5.5-64 35.9-64 73.3c0 40.8 33.2 74 74 74s74-33.2 74-74c0-37.4-28.7-67.8-64-73.3V128c35.3 0 64-28.7 64-64V24zM208 303.5c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24z"/>
               </svg>
             </div>
@@ -220,7 +281,7 @@ if (
           <!-- Card Animalia Invasora -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 512 512">
+              <svg class="w-10 h-10 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5s.3-86.2 32.6-96.8s70.1 15.6 84.4 58.5zm85.7-92C354.7-4.7 394.7 14.2 406.8 52.6s-11.8 77.2-54.3 83.8s-80.1-20.9-92.2-59.3s11.8-77.2 54.3-83.8zm-180.9 168c-42.4-6.6-68.5-45.2-58.3-86.1s45.2-69.8 87.6-63.2s68.5 45.2 58.3 86.1s-45.2 69.8-87.6 63.2zM426.9 310.5c-54.8-85.1-127.7-150.5-209.4-187.8c-20.1-9.2-43.6-4.6-58.9 11.5L30.4 266.4c-15.3 16.1-19.9 39.6-11.5 58.9c37.3 85.7 105.7 156.6 195.8 207.4c17.6 9.9 40.8 4.8 55.3-12.1l127.2-148.4c14.5-16.9 16.8-41.2 5.4-61.3zm-312-78.5l119.6-120.4c79.6 34.3 147.9 96 192.4 176.6L326.9 430.8C267.8 388.7 214.9 357.2 172 314.3l-57.1-82.3z"/>
               </svg>
             </div>
@@ -232,7 +293,7 @@ if (
           <!-- Card Plantae Invasora -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 512 512">
+              <svg class="w-10 h-10 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M272 96c-78.6 0-145.1 51.5-167.7 122.5c33.6-17 71.5-26.5 111.7-26.5h88c8.8 0 16 7.2 16 16s-7.2 16-16 16H216c-70.7 0-128 57.3-128 128c0 17.7 14.3 32 32 32H464c17.7 0 32-14.3 32-32c0-70.7-57.3-128-128-128H304c-8.8 0-16-7.2-16-16s7.2-16 16-16h64c40.2 0 78.1 9.5 111.7 26.5C457.1 147.5 390.6 96 312 96H272z"/>
               </svg>
             </div>
@@ -244,13 +305,22 @@ if (
           <!-- Card Fungi Invasora -->
           <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 512 512">
+              <svg class="w-10 h-10 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M264 24C264 10.7 253.3 0 240 0s-24 10.7-24 24V64c0 8.8-7.2 16-16 16s-16-7.2-16-16V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64c0 35.3 28.7 64 64 64V230.2c-35.3 5.5-64 35.9-64 73.3c0 40.8 33.2 74 74 74s74-33.2 74-74c0-37.4-28.7-67.8-64-73.3V128c35.3 0 64-28.7 64-64V24zM208 303.5c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24z"/>
               </svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
             <p class="text-4xl font-bold text-purple-600 mb-2">{invasiveFungi?.toLocaleString()}</p>
             <p class="text-gray-500 text-center">espécies invasoras</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sobre Tab -->
+      <div id="sobre-content" class="tab-panel hidden">
+        <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-8 h-full overflow-auto">
+          <div class="prose max-w-none">
+            <div set:html={readmeContent.replace(/^# (.*)$/gm, '<h1 class="text-4xl font-bold text-gray-800 mb-6">$1</h1>').replace(/^## (.*)$/gm, '<h2 class="text-2xl font-semibold text-gray-700 mb-4 mt-8">$1</h2>').replace(/^### (.*)$/gm, '<h3 class="text-xl font-medium text-gray-600 mb-3 mt-6">$1</h3>')}></div>
           </div>
         </div>
       </div>
