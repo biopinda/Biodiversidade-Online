@@ -5,7 +5,9 @@ import {
   getTaxaCountPerKingdom,
   getThreatenedCountPerKingdom,
   getThreatenedCategoriesPerKingdom,
-  getInvasiveCountPerKingdom
+  getInvasiveCountPerKingdom,
+  getInvasiveTopOrders,
+  getInvasiveTopFamilies
 } from '../lib/mongo'
 import fs from 'fs'
 import path from 'path'
@@ -159,7 +161,10 @@ const [
   // Invasive species data
   invasivePlantae,
   invasiveFungi,
-  invasiveAnimalia
+  invasiveAnimalia,
+  // Invasive top rankings
+  invasiveTopOrdersAnimalia,
+  invasiveTopFamiliesPlantae
 ] = await Promise.all([
   getOccurrenceCountPerKingdom('Plantae'),
   getOccurrenceCountPerKingdom('Fungi'),
@@ -175,7 +180,9 @@ const [
   getThreatenedCategoriesPerKingdom('Animalia'),
   getInvasiveCountPerKingdom('Plantae'),
   getInvasiveCountPerKingdom('Fungi'),
-  getInvasiveCountPerKingdom('Animalia')
+  getInvasiveCountPerKingdom('Animalia'),
+  getInvasiveTopOrders('Animalia'),
+  getInvasiveTopFamilies('Plantae')
 ])
 
 if (
@@ -193,7 +200,9 @@ if (
   threatenedCategoriesAnimalia === null ||
   invasivePlantae === null ||
   invasiveFungi === null ||
-  invasiveAnimalia === null
+  invasiveAnimalia === null ||
+  invasiveTopOrdersAnimalia === null ||
+  invasiveTopFamiliesPlantae === null
 ) {
   return new Response(null, { status: 503 })
 }
@@ -405,33 +414,67 @@ if (
       <div id="invasoras-content" class="tab-panel hidden">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
           <!-- Card Animalia Invasora -->
-          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
-            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <img src="/animalia.svg" alt="Animalia" class="w-12 h-12 text-purple-600" style="filter: hue-rotate(180deg) saturate(1.5);" />
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-96">
+            <div class="flex items-center justify-center mb-4">
+              <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                <img src="/animalia.svg" alt="Animalia" class="w-12 h-12 text-purple-600" style="filter: hue-rotate(180deg) saturate(1.5);" />
+              </div>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
-            <p class="text-4xl font-bold text-purple-600 mb-2">{invasiveAnimalia?.toLocaleString()}</p>
-            <p class="text-gray-500 text-center">espécies invasoras</p>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">Animalia</h3>
+            <p class="text-4xl font-bold text-purple-600 mb-2 text-center">{invasiveAnimalia?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center mb-3">espécies invasoras</p>
+            
+            {invasiveTopOrdersAnimalia && invasiveTopOrdersAnimalia.length > 0 ? (
+              <div class="space-y-2 max-h-48 overflow-y-auto">
+                <p class="text-sm font-semibold text-gray-700">Top 10 Ordens:</p>
+                {invasiveTopOrdersAnimalia.map((order: any) => (
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 truncate pr-2">{order._id}</span>
+                    <span class="text-purple-600 font-medium">{order.count}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p class="text-gray-400 text-sm text-center">dados não disponíveis</p>
+            )}
           </div>
 
           <!-- Card Plantae Invasora -->
-          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
-            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <img src="/plantae.svg" alt="Plantae" class="w-12 h-12 text-purple-600" style="filter: hue-rotate(180deg) saturate(1.5);" />
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-96">
+            <div class="flex items-center justify-center mb-4">
+              <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                <img src="/plantae.svg" alt="Plantae" class="w-12 h-12 text-purple-600" style="filter: hue-rotate(180deg) saturate(1.5);" />
+              </div>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
-            <p class="text-4xl font-bold text-purple-600 mb-2">{invasivePlantae?.toLocaleString()}</p>
-            <p class="text-gray-500 text-center">espécies invasoras</p>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">Plantae</h3>
+            <p class="text-4xl font-bold text-purple-600 mb-2 text-center">{invasivePlantae?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center mb-3">espécies invasoras</p>
+            
+            {invasiveTopFamiliesPlantae && invasiveTopFamiliesPlantae.length > 0 ? (
+              <div class="space-y-2 max-h-48 overflow-y-auto">
+                <p class="text-sm font-semibold text-gray-700">Top 10 Famílias:</p>
+                {invasiveTopFamiliesPlantae.map((family: any) => (
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 truncate pr-2">{family._id}</span>
+                    <span class="text-purple-600 font-medium">{family.count}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p class="text-gray-400 text-sm text-center">dados não disponíveis</p>
+            )}
           </div>
 
           <!-- Card Fungi Invasora -->
-          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
-            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <img src="/fungi.svg" alt="Fungi" class="w-12 h-12 text-purple-600" style="filter: hue-rotate(180deg) saturate(1.5);" />
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-96">
+            <div class="flex items-center justify-center mb-4">
+              <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                <img src="/fungi.svg" alt="Fungi" class="w-12 h-12 text-purple-600" style="filter: hue-rotate(180deg) saturate(1.5);" />
+              </div>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
-            <p class="text-4xl font-bold text-purple-600 mb-2">{invasiveFungi?.toLocaleString()}</p>
-            <p class="text-gray-500 text-center">espécies invasoras</p>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">Fungi</h3>
+            <p class="text-4xl font-bold text-purple-600 mb-2 text-center">{invasiveFungi?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center mb-3">espécies invasoras</p>
           </div>
         </div>
       </div>
