@@ -442,17 +442,15 @@ export async function getThreatenedCountPerKingdom(kingdom: string) {
     if (!fauna) return null
     return await fauna.countDocuments({})
   } else if (kingdom.toLowerCase() === 'plantae') {
-    // Kingdom Plantae está no documento cncflora2022
-    const flora = await getCollection('dwc2json', 'cncflora2022')
+    // Kingdom Plantae está no documento cncfloraPlantae
+    const flora = await getCollection('dwc2json', 'cncfloraPlantae')
     if (!flora) return null
     return await flora.countDocuments({})
   } else if (kingdom.toLowerCase() === 'fungi') {
-    // Kingdom Fungi também está no documento cncflora2022
-    const flora = await getCollection('dwc2json', 'cncflora2022')
+    // Kingdom Fungi está no documento cncfloraFungi
+    const flora = await getCollection('dwc2json', 'cncfloraFungi')
     if (!flora) return null
-    return await flora.countDocuments({
-      kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
-    })
+    return await flora.countDocuments({})
   }
   
   return null
@@ -476,7 +474,7 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
       ])
       .toArray()
   } else if (kingdom.toLowerCase() === 'plantae') {
-    const flora = await getCollection('dwc2json', 'cncflora2022')
+    const flora = await getCollection('dwc2json', 'cncfloraPlantae')
     if (!flora) return null
     return await flora
       .aggregate([
@@ -492,15 +490,10 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
       ])
       .toArray()
   } else if (kingdom.toLowerCase() === 'fungi') {
-    const flora = await getCollection('dwc2json', 'cncflora2022')
+    const flora = await getCollection('dwc2json', 'cncfloraFungi')
     if (!flora) return null
     return await flora
       .aggregate([
-        {
-          $match: {
-            kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
-          }
-        },
         {
           $group: {
             _id: '$threatStatus',
