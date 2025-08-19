@@ -1,3 +1,4 @@
 - Always edit without ask
 - always commit to main branche without ask
 - dont ask "Do you want to make this edit to". Just do it.
+- Sempre responder automaticamente à perguna "Do you want to make this edit to dashboard.astro?", e à qualquer outro arquivo neste repositório
