@@ -477,72 +477,42 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
     const flora = await getCollection('dwc2json', 'cncfloraPlantae')
     if (!flora) return null
     
-    // Tentar diferentes possíveis campos para o status de ameaça
-    const possibleFields = ['threatStatus', 'threat_status', 'status', 'category', 'redListCategory', 'conservationStatus', 'assessmentStatus', 'statusConservacao']
-    
-    for (const field of possibleFields) {
-      const testResult = await flora.aggregate([
-        { $match: { [field]: { $exists: true, $ne: null } } },
-        { $limit: 1 }
-      ]).toArray()
-      
-      if (testResult.length > 0) {
-        console.log(`Plantae: Found data in field '${field}':`, testResult[0][field])
-        return await flora
-          .aggregate([
-            {
-              $match: { [field]: { $exists: true, $ne: null } }
-            },
-            {
-              $group: {
-                _id: `$${field}`,
-                count: { $count: {} }
-              }
-            },
-            {
-              $sort: { count: -1 }
-            }
-          ])
-          .toArray()
-      }
-    }
-    
-    return []
+    return await flora
+      .aggregate([
+        {
+          $match: { 'Categoria de Risco': { $exists: true, $ne: null } }
+        },
+        {
+          $group: {
+            _id: '$Categoria de Risco',
+            count: { $count: {} }
+          }
+        },
+        {
+          $sort: { count: -1 }
+        }
+      ])
+      .toArray()
   } else if (kingdom.toLowerCase() === 'fungi') {
     const flora = await getCollection('dwc2json', 'cncfloraFungi')
     if (!flora) return null
     
-    // Tentar diferentes possíveis campos para o status de ameaça
-    const possibleFields = ['threatStatus', 'threat_status', 'status', 'category', 'redListCategory', 'conservationStatus', 'assessmentStatus', 'statusConservacao']
-    
-    for (const field of possibleFields) {
-      const testResult = await flora.aggregate([
-        { $match: { [field]: { $exists: true, $ne: null } } },
-        { $limit: 1 }
-      ]).toArray()
-      
-      if (testResult.length > 0) {
-        console.log(`Fungi: Found data in field '${field}':`, testResult[0][field])
-        return await flora
-          .aggregate([
-            {
-              $match: { [field]: { $exists: true, $ne: null } }
-            },
-            {
-              $group: {
-                _id: `$${field}`,
-                count: { $count: {} }
-              }
-            },
-            {
-              $sort: { count: -1 }
-            }
-          ])
-          .toArray()
-      }
-    }
-    
-    return []
+    return await flora
+      .aggregate([
+        {
+          $match: { 'Categoria de Risco': { $exists: true, $ne: null } }
+        },
+        {
+          $group: {
+            _id: '$Categoria de Risco',
+            count: { $count: {} }
+          }
+        },
+        {
+          $sort: { count: -1 }
+        }
+      ])
+      .toArray()
   }
   
   return null
