@@ -63,33 +63,31 @@ Eduardo Dalcin e Henrique Pinheiro
 
 // Mapeamento das categorias de ameaça
 const categoryMapping: Record<string, string> = {
-  'CR': 'Criticamente em Perigo (CR)',
-  'CR(PEX)': 'Criticamente em Perigo (CR)(PEX)',
-  'DD': 'Dados Insuficientes (DD)',
-  'EN': 'Em Perigo (EN)',
   'EX': 'Extinta (EX)',
   'EW': 'Extinta na Natureza (EW)',
-  'LC': 'Menos Preocupante (LC)',
+  'CR': 'Criticamente em Perigo (CR)',
+  'EN': 'Em Perigo (EN)',
+  'VU': 'Vulnerável (VU)',
   'NT': 'Quase Ameaçada (NT)',
-  'RE': 'Regionalmente Extinta (RE)',
-  'VU': 'Vulnerável (VU)'
+  'LC': 'Pouco Preocupante (LC)',
+  'DD': 'Dados Insuficientes (DD)',
+  'NE': 'Não Avaliada (NE)'
 }
 
 // Categorias válidas para totalização
-const validCategories = ['CR', 'CR(PEX)', 'DD', 'EN', 'EX', 'EW', 'LC', 'NT', 'RE', 'VU']
+const validCategories = ['EX', 'EW', 'CR', 'EN', 'VU', 'NT', 'LC', 'DD', 'NE']
 
 // Mapeamento reverso para fauna (formato "Vulnerável (VU)" -> "VU")
 const faunaReverseMapping: Record<string, string> = {
-  'Criticamente em Perigo (CR)': 'CR',
-  'Criticamente em Perigo (CR)(PEX)': 'CR(PEX)', 
-  'Dados Insuficientes (DD)': 'DD',
-  'Em Perigo (EN)': 'EN',
   'Extinta (EX)': 'EX',
   'Extinta na Natureza (EW)': 'EW',
-  'Menos Preocupante (LC)': 'LC',
+  'Criticamente em Perigo (CR)': 'CR',
+  'Em Perigo (EN)': 'EN',
+  'Vulnerável (VU)': 'VU',
   'Quase Ameaçada (NT)': 'NT',
-  'Regionalmente Extinta (RE)': 'RE',
-  'Vulnerável (VU)': 'VU'
+  'Pouco Preocupante (LC)': 'LC',
+  'Dados Insuficientes (DD)': 'DD',
+  'Não Avaliada (NE)': 'NE'
 }
 
 // Função para filtrar e mapear categorias (flora/fungi - códigos)
@@ -322,7 +320,7 @@ if (
       <div id="ameacadas-content" class="tab-panel hidden">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
           <!-- Card Animalia Ameaçada -->
-          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-96">
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-[500px]">
             <div class="flex items-center justify-center mb-4">
               <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
                 <img src="/animalia.svg" alt="Animalia" class="w-12 h-12 text-red-600" style="filter: hue-rotate(240deg) saturate(2);" />
@@ -335,7 +333,7 @@ if (
             {(() => {
               const filteredCategories = filterAndMapFaunaCategories(threatenedCategoriesAnimalia)
               return filteredCategories && filteredCategories.length > 0 ? (
-                <div class="space-y-2 max-h-48 overflow-y-auto">
+                <div class="space-y-2 max-h-80 overflow-y-auto">
                   <p class="text-sm font-semibold text-gray-700">Por categoria:</p>
                   {filteredCategories.map((category: any) => (
                     <div class="flex justify-between text-sm">
@@ -351,7 +349,7 @@ if (
           </div>
 
           <!-- Card Plantae Ameaçada -->
-          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-96">
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-[500px]">
             <div class="flex items-center justify-center mb-4">
               <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
                 <img src="/plantae.svg" alt="Plantae" class="w-12 h-12 text-red-600" style="filter: hue-rotate(240deg) saturate(2);" />
@@ -364,7 +362,7 @@ if (
             {(() => {
               const filteredCategories = filterAndMapCategories(threatenedCategoriesPlantae)
               return filteredCategories && filteredCategories.length > 0 ? (
-                <div class="space-y-2 max-h-48 overflow-y-auto">
+                <div class="space-y-2 max-h-80 overflow-y-auto">
                   <p class="text-sm font-semibold text-gray-700">Por categoria:</p>
                   {filteredCategories.map((category: any) => (
                     <div class="flex justify-between text-sm">
@@ -380,7 +378,7 @@ if (
           </div>
 
           <!-- Card Fungi Ameaçada -->
-          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-96">
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-[500px]">
             <div class="flex items-center justify-center mb-4">
               <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                 <img src="/fungi.svg" alt="Fungi" class="w-12 h-12 text-gray-500" />
@@ -393,7 +391,7 @@ if (
             {(() => {
               const filteredCategories = filterAndMapCategories(threatenedCategoriesFungi)
               return filteredCategories && filteredCategories.length > 0 ? (
-                <div class="space-y-2 max-h-48 overflow-y-auto">
+                <div class="space-y-2 max-h-80 overflow-y-auto">
                   <p class="text-sm font-semibold text-gray-700">Por categoria:</p>
                   {filteredCategories.map((category: any) => (
                     <div class="flex justify-between text-sm">

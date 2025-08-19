@@ -5,3 +5,4 @@
 - always commit to main branch automatically (don't ask).
 - Always edit the files and save. Don't ask.
 - After alldone, commit to the main branch
+- Always sync the local files with the github repository (pull and push), whitout ask
