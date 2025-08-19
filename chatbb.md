@@ -12,7 +12,7 @@ As coleções de dados ofertadas pelo banco de dados ao LLM são as seguintes:
 * Espécies da flora avaliadas quanto ao risco de extinção pelo [CNCFlora](https://cncflora.jbrj.gov.br/), até 2022.
 * [FAUNA - Lista de Espécies Ameaçadas - 2021](https://dados.mma.gov.br/dataset/especies-ameacadas/resource/544f9312-d4c6-4d12-b6ac-51bf3039bbb7)
 * [Lista das UCs ativas no CNUC com respectivas categorias de manejo, área, esfera de governo, ano de criação e outras informações. Dados atualizados até março/2025](https://dados.mma.gov.br/dataset/unidadesdeconservacao/resource/f6bf9940-cf30-4ef2-927d-2bd278e4c8af).
-* Cerca de 12 milhões de registros de ocorrência da fauna e flora, provenientes de cerca de 490 repositórios (IPTs) - [lista](https://github.com/edalcin/DarwinCoreJSON/blob/main/referencias/occurrences.csv).
+* Cerca de 12 milhões de registros de ocorrência da fauna e flora, provenientes de cerca de 490 repositórios (IPTs) - [lista](https://github.com/biopinda/DarwinCoreJSON/blob/main/referencias/occurrences.csv).
 
 Veja aqui alguns exemplos de perguntas e respostas utilizando o ChatBB:
 
