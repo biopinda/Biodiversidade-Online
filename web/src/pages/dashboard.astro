@@ -76,7 +76,21 @@ const categoryMapping: Record<string, string> = {
 // Categorias válidas para totalização
 const validCategories = ['CR', 'CR(PEX)', 'DD', 'EN', 'EX', 'EW', 'LC', 'NT', 'RE', 'VU']
 
-// Função para filtrar e mapear categorias
+// Mapeamento reverso para fauna (formato "Vulnerável (VU)" -> "VU")
+const faunaReverseMapping: Record<string, string> = {
+  'Criticamente em Perigo (CR)': 'CR',
+  'Criticamente em Perigo (CR)(PEX)': 'CR(PEX)', 
+  'Dados Insuficientes (DD)': 'DD',
+  'Em Perigo (EN)': 'EN',
+  'Extinta (EX)': 'EX',
+  'Extinta na Natureza (EW)': 'EW',
+  'Menos Preocupante (LC)': 'LC',
+  'Quase Ameaçada (NT)': 'NT',
+  'Regionalmente Extinta (RE)': 'RE',
+  'Vulnerável (VU)': 'VU'
+}
+
+// Função para filtrar e mapear categorias (flora/fungi - códigos)
 function filterAndMapCategories(categories: any[]) {
   if (!categories) return []
   return categories
@@ -84,6 +98,20 @@ function filterAndMapCategories(categories: any[]) {
     .map(category => ({
       ...category,
       displayName: categoryMapping[category._id] || category._id
+    }))
+}
+
+// Função para filtrar e mapear categorias da fauna (formato completo)
+function filterAndMapFaunaCategories(categories: any[]) {
+  if (!categories) return []
+  return categories
+    .filter(category => {
+      const code = faunaReverseMapping[category._id]
+      return code && validCategories.includes(code)
+    })
+    .map(category => ({
+      ...category,
+      displayName: category._id // Já está no formato completo
     }))
 }
 
@@ -296,7 +324,7 @@ if (
             <p class="text-gray-500 text-center mb-3">espécies ameaçadas</p>
             
             {(() => {
-              const filteredCategories = filterAndMapCategories(threatenedCategoriesAnimalia)
+              const filteredCategories = filterAndMapFaunaCategories(threatenedCategoriesAnimalia)
               return filteredCategories && filteredCategories.length > 0 ? (
                 <div class="space-y-2 max-h-48 overflow-y-auto">
                   <p class="text-sm font-semibold text-gray-700">Por categoria:</p>
