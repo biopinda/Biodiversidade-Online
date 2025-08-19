@@ -59,6 +59,34 @@ Eduardo Dalcin e Henrique Pinheiro
 * Registros de ocorrência da fauna e flora, provenientes de cerca de 490 repositórios (IPTs) - [lista](https://github.com/biopinda/DarwinCoreJSON/blob/main/referencias/occurrences.csv).`
 }
 
+// Mapeamento das categorias de ameaça
+const categoryMapping: Record<string, string> = {
+  'CR': 'Criticamente em Perigo (CR)',
+  'CR(PEX)': 'Criticamente em Perigo (CR)(PEX)',
+  'DD': 'Dados Insuficientes (DD)',
+  'EN': 'Em Perigo (EN)',
+  'EX': 'Extinta (EX)',
+  'EW': 'Extinta na Natureza (EW)',
+  'LC': 'Menos Preocupante (LC)',
+  'NT': 'Quase Ameaçada (NT)',
+  'RE': 'Regionalmente Extinta (RE)',
+  'VU': 'Vulnerável (VU)'
+}
+
+// Categorias válidas para totalização
+const validCategories = ['CR', 'CR(PEX)', 'DD', 'EN', 'EX', 'EW', 'LC', 'NT', 'RE', 'VU']
+
+// Função para filtrar e mapear categorias
+function filterAndMapCategories(categories: any[]) {
+  if (!categories) return []
+  return categories
+    .filter(category => validCategories.includes(category._id))
+    .map(category => ({
+      ...category,
+      displayName: categoryMapping[category._id] || category._id
+    }))
+}
+
 // Função para processar markdown completo
 function processMarkdown(content: string): string {
   return content
@@ -267,17 +295,20 @@ if (
             <p class="text-4xl font-bold text-red-600 mb-2 text-center">{threatenedAnimalia?.toLocaleString()}</p>
             <p class="text-gray-500 text-center mb-3">espécies ameaçadas</p>
             
-            {threatenedCategoriesAnimalia && threatenedCategoriesAnimalia.length > 0 && (
-              <div class="space-y-2 max-h-32 overflow-y-auto">
-                <p class="text-sm font-semibold text-gray-700">Por categoria:</p>
-                {threatenedCategoriesAnimalia.map((category: any) => (
-                  <div class="flex justify-between text-sm">
-                    <span class="text-gray-600 truncate pr-2">{category._id || 'Não especificado'}</span>
-                    <span class="text-red-600 font-medium">{category.count}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            {(() => {
+              const filteredCategories = filterAndMapCategories(threatenedCategoriesAnimalia)
+              return filteredCategories.length > 0 && (
+                <div class="space-y-2 max-h-32 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">Por categoria:</p>
+                  {filteredCategories.map((category: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600 truncate pr-2">{category.displayName}</span>
+                      <span class="text-red-600 font-medium">{category.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </div>
 
           <!-- Card Plantae Ameaçada -->
@@ -291,17 +322,20 @@ if (
             <p class="text-4xl font-bold text-red-600 mb-2 text-center">{threatenedPlantae?.toLocaleString()}</p>
             <p class="text-gray-500 text-center mb-3">espécies ameaçadas</p>
             
-            {threatenedCategoriesPlantae && threatenedCategoriesPlantae.length > 0 && (
-              <div class="space-y-2 max-h-32 overflow-y-auto">
-                <p class="text-sm font-semibold text-gray-700">Por categoria:</p>
-                {threatenedCategoriesPlantae.map((category: any) => (
-                  <div class="flex justify-between text-sm">
-                    <span class="text-gray-600 truncate pr-2">{category._id || 'Não especificado'}</span>
-                    <span class="text-red-600 font-medium">{category.count}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            {(() => {
+              const filteredCategories = filterAndMapCategories(threatenedCategoriesPlantae)
+              return filteredCategories.length > 0 && (
+                <div class="space-y-2 max-h-32 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">Por categoria:</p>
+                  {filteredCategories.map((category: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600 truncate pr-2">{category.displayName}</span>
+                      <span class="text-red-600 font-medium">{category.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </div>
 
           <!-- Card Fungi Ameaçada -->
@@ -315,17 +349,20 @@ if (
             <p class="text-4xl font-bold text-gray-500 mb-2 text-center">{threatenedFungi?.toLocaleString()}</p>
             <p class="text-gray-500 text-center mb-3">espécies ameaçadas</p>
             
-            {threatenedCategoriesFungi && threatenedCategoriesFungi.length > 0 && (
-              <div class="space-y-2 max-h-32 overflow-y-auto">
-                <p class="text-sm font-semibold text-gray-700">Por categoria:</p>
-                {threatenedCategoriesFungi.map((category: any) => (
-                  <div class="flex justify-between text-sm">
-                    <span class="text-gray-600 truncate pr-2">{category._id || 'Não especificado'}</span>
-                    <span class="text-gray-500 font-medium">{category.count}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            {(() => {
+              const filteredCategories = filterAndMapCategories(threatenedCategoriesFungi)
+              return filteredCategories.length > 0 && (
+                <div class="space-y-2 max-h-32 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">Por categoria:</p>
+                  {filteredCategories.map((category: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600 truncate pr-2">{category.displayName}</span>
+                      <span class="text-gray-500 font-medium">{category.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
             
             {(!threatenedCategoriesFungi || threatenedCategoriesFungi.length === 0) && (
               <p class="text-gray-400 text-sm text-center">dados não disponíveis</p>
