@@ -33,7 +33,7 @@ function connectClientWithTimeout(timeout = 5000) {
   })
 }
 
-async function getCollection(dbName: string, collection: string) {
+export async function getCollection(dbName: string, collection: string) {
   if (!(await connectClientWithTimeout())) {
     return null
   }
@@ -476,35 +476,73 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
   } else if (kingdom.toLowerCase() === 'plantae') {
     const flora = await getCollection('dwc2json', 'cncfloraPlantae')
     if (!flora) return null
-    return await flora
-      .aggregate([
-        {
-          $group: {
-            _id: '$threatStatus',
-            count: { $count: {} }
-          }
-        },
-        {
-          $sort: { count: -1 }
-        }
-      ])
-      .toArray()
+    
+    // Tentar diferentes possíveis campos para o status de ameaça
+    const possibleFields = ['threatStatus', 'threat_status', 'status', 'category', 'redListCategory', 'conservationStatus', 'assessmentStatus', 'statusConservacao']
+    
+    for (const field of possibleFields) {
+      const testResult = await flora.aggregate([
+        { $match: { [field]: { $exists: true, $ne: null } } },
+        { $limit: 1 }
+      ]).toArray()
+      
+      if (testResult.length > 0) {
+        console.log(`Plantae: Found data in field '${field}':`, testResult[0][field])
+        return await flora
+          .aggregate([
+            {
+              $match: { [field]: { $exists: true, $ne: null } }
+            },
+            {
+              $group: {
+                _id: `$${field}`,
+                count: { $count: {} }
+              }
+            },
+            {
+              $sort: { count: -1 }
+            }
+          ])
+          .toArray()
+      }
+    }
+    
+    return []
   } else if (kingdom.toLowerCase() === 'fungi') {
     const flora = await getCollection('dwc2json', 'cncfloraFungi')
     if (!flora) return null
-    return await flora
-      .aggregate([
-        {
-          $group: {
-            _id: '$threatStatus',
-            count: { $count: {} }
-          }
-        },
-        {
-          $sort: { count: -1 }
-        }
-      ])
-      .toArray()
+    
+    // Tentar diferentes possíveis campos para o status de ameaça
+    const possibleFields = ['threatStatus', 'threat_status', 'status', 'category', 'redListCategory', 'conservationStatus', 'assessmentStatus', 'statusConservacao']
+    
+    for (const field of possibleFields) {
+      const testResult = await flora.aggregate([
+        { $match: { [field]: { $exists: true, $ne: null } } },
+        { $limit: 1 }
+      ]).toArray()
+      
+      if (testResult.length > 0) {
+        console.log(`Fungi: Found data in field '${field}':`, testResult[0][field])
+        return await flora
+          .aggregate([
+            {
+              $match: { [field]: { $exists: true, $ne: null } }
+            },
+            {
+              $group: {
+                _id: `$${field}`,
+                count: { $count: {} }
+              }
+            },
+            {
+              $sort: { count: -1 }
+            }
+          ])
+          .toArray()
+      }
+    }
+    
+    return []
   }
   
   return null
@@ -576,6 +614,7 @@ export async function getInvasiveTopFamilies(kingdom: string, limit = 10) {
   
   return result
 }
+
 
 export async function getTaxon(
   kingdom: 'Plantae' | 'Fungi' | 'Animalia',
