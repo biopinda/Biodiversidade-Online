@@ -11,19 +11,19 @@ RUN apt-get update \
   unzip \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get clean
-RUN curl -fsSL https://bun.sh/install | bash
 
+COPY package*.json ./
+RUN npm ci --legacy-peer-deps
 
 COPY . /app
-RUN $HOME/.bun/bin/bun i
-RUN $HOME/.bun/bin/bun run build
+RUN npm run build
 
 
 FROM node:slim AS runner
 
 WORKDIR /app
 
-COPY --from=base /app/package.json /app/bun.lock /app/
+COPY --from=base /app/package*.json ./
 COPY --from=base /app/node_modules /app/node_modules
 COPY --from=base /app/dist /app/dist
 

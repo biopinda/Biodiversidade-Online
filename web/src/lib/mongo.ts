@@ -528,6 +528,62 @@ export async function getInvasiveCountPerKingdom(kingdom: string) {
   return result
 }
 
+export async function getInvasiveTopOrders(kingdom: string, limit = 10) {
+  const invasive = await getCollection('dwc2json', 'invasoras')
+  if (!invasive) return null
+  
+  const result = await invasive.aggregate([
+    {
+      $match: {
+        kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+        order: { $exists: true, $ne: null, $ne: '' }
+      }
+    },
+    {
+      $group: {
+        _id: '$order',
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    },
+    {
+      $limit: limit
+    }
+  ]).toArray()
+  
+  return result
+}
+
+export async function getInvasiveTopFamilies(kingdom: string, limit = 10) {
+  const invasive = await getCollection('dwc2json', 'invasoras')
+  if (!invasive) return null
+  
+  const result = await invasive.aggregate([
+    {
+      $match: {
+        kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+        family: { $exists: true, $ne: null, $ne: '' }
+      }
+    },
+    {
+      $group: {
+        _id: '$family',
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    },
+    {
+      $limit: limit
+    }
+  ]).toArray()
+  
+  return result
+}
+
 export async function getTaxon(
   kingdom: 'Plantae' | 'Fungi' | 'Animalia',
   id: string,
