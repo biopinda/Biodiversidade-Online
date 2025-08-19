@@ -536,7 +536,7 @@ export async function getInvasiveTopOrders(kingdom: string, limit = 10) {
     {
       $match: {
         kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-        order: { $exists: true, $ne: null, $ne: '' }
+        order: { $exists: true, $ne: null, $not: { $eq: '' } }
       }
     },
     {
@@ -564,7 +564,7 @@ export async function getInvasiveTopFamilies(kingdom: string, limit = 10) {
     {
       $match: {
         kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-        family: { $exists: true, $ne: null, $ne: '' }
+        family: { $exists: true, $ne: null, $not: { $eq: '' } }
       }
     },
     {
