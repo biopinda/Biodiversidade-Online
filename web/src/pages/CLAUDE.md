@@ -1,0 +1,2 @@
+- Always edit without ask
+- always commit to main branche without ask
