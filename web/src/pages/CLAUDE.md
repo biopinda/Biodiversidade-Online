@@ -2,3 +2,6 @@
 - always commit to main branche without ask
 - dont ask "Do you want to make this edit to". Just do it.
 - Sempre responder automaticamente à perguna "Do you want to make this edit to dashboard.astro?", e à qualquer outro arquivo neste repositório
+- always commit to main branch automatically (don't ask).
+- Always edit the files and save. Don't ask.
+- After alldone, commit to the main branch
