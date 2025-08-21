@@ -549,35 +549,17 @@ export async function getInvasiveTopOrders(kingdom: string, limit = 10) {
   const invasive = await getCollection('dwc2json', 'invasoras')
   if (!invasive) return null
   
+  // The invasoras collection uses 'oorder' field for taxonomic order
   const result = await invasive.aggregate([
     {
       $match: {
         kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-        $or: [
-          { order: { $exists: true, $ne: null, $not: { $eq: '' } } },
-          { oorder: { $exists: true, $ne: null, $not: { $eq: '' } } }
-        ]
-      }
-    },
-    {
-      $addFields: {
-        orderField: {
-          $cond: {
-            if: { $and: [{ $ne: ['$order', null] }, { $ne: ['$order', ''] }] },
-            then: '$order',
-            else: '$oorder'
-          }
-        }
-      }
-    },
-    {
-      $match: {
-        orderField: { $exists: true, $ne: null, $not: { $eq: '' } }
+        oorder: { $exists: true, $ne: null, $not: { $eq: '' } }
       }
     },
     {
       $group: {
-        _id: '$orderField',
+        _id: '$oorder',
         count: { $sum: 1 }
       }
     },
