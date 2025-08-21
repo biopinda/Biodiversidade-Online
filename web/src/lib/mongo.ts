@@ -586,6 +586,75 @@ export async function getInvasiveTopFamilies(kingdom: string, limit = 10) {
 }
 
 
+export async function getTaxaCountPerOrderByKingdom(kingdom: string, limit = 10) {
+  const taxa = await getCollection('dwc2json', 'taxa')
+  if (!taxa) return null
+  
+  const result = await taxa.aggregate([
+    {
+      $match: {
+        kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+        taxonomicStatus: 'NOME_ACEITO',
+        order: { $exists: true, $ne: null, $not: { $eq: '' } }
+      }
+    },
+    {
+      $group: {
+        _id: '$order',
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    },
+    {
+      $limit: limit
+    }
+  ]).toArray()
+  
+  return result
+}
+
+export async function getTaxaCountPerFamilyByKingdom(kingdom: string, limit = 10) {
+  const taxa = await getCollection('dwc2json', 'taxa')
+  if (!taxa) return null
+  
+  const result = await taxa.aggregate([
+    {
+      $match: {
+        kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+        taxonomicStatus: 'NOME_ACEITO',
+        family: { $exists: true, $ne: null, $not: { $eq: '' } }
+      }
+    },
+    {
+      $addFields: {
+        family: {
+          $cond: {
+            if: { $eq: ['$higherClassification', 'Algas'] },
+            then: { $concat: ['[Algae]: ', '$class'] },
+            else: '$family'
+          }
+        }
+      }
+    },
+    {
+      $group: {
+        _id: '$family',
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    },
+    {
+      $limit: limit
+    }
+  ]).toArray()
+  
+  return result
+}
+
 export async function getTaxon(
   kingdom: 'Plantae' | 'Fungi' | 'Animalia',
   id: string,

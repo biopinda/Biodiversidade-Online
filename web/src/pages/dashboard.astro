@@ -7,7 +7,9 @@ import {
   getThreatenedCategoriesPerKingdom,
   getInvasiveCountPerKingdom,
   getInvasiveTopOrders,
-  getInvasiveTopFamilies
+  getInvasiveTopFamilies,
+  getTaxaCountPerOrderByKingdom,
+  getTaxaCountPerFamilyByKingdom
 } from '../lib/mongo'
 import fs from 'fs'
 import path from 'path'
@@ -118,25 +120,25 @@ function filterAndMapFaunaCategories(categories: any[]) {
 // Função para processar markdown completo
 function processMarkdown(content: string): string {
   return content
-    .replace(/^### (.*)$/gm, '<h3 class="text-2xl font-bold text-gray-800 mb-4 mt-6">$1</h3>')
-    .replace(/^#### (.*)$/gm, '<h4 class="text-xl font-semibold text-gray-700 mb-3 mt-5">$1</h4>')
-    .replace(/^##### (.*)$/gm, '<h5 class="text-lg font-medium text-gray-600 mb-2 mt-4">$1</h5>')
-    .replace(/^## (.*)$/gm, '<h2 class="text-3xl font-bold text-gray-800 mb-5 mt-8">$1</h2>')
-    .replace(/^# (.*)$/gm, '<h1 class="text-4xl font-bold text-gray-800 mb-6">$1</h1>')
+    .replace(/^### (.*)$/gm, '<h3 class="text-3xl font-bold text-gray-900 mb-6 mt-8 border-b-2 border-blue-200 pb-3">$1</h3>')
+    .replace(/^#### (.*)$/gm, '<h4 class="text-2xl font-semibold text-gray-800 mb-4 mt-6 text-blue-700">$1</h4>')
+    .replace(/^##### (.*)$/gm, '<h5 class="text-xl font-medium text-gray-700 mb-3 mt-5">$1</h5>')
+    .replace(/^## (.*)$/gm, '<h2 class="text-4xl font-bold text-gray-900 mb-6 mt-10 border-b-4 border-blue-300 pb-4">$1</h2>')
+    .replace(/^# (.*)$/gm, '<h1 class="text-5xl font-bold text-gray-900 mb-8 text-center">$1</h1>')
     // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-800 underline decoration-2 underline-offset-2 font-medium transition-colors duration-200" target="_blank" rel="noopener noreferrer">$1</a>')
     // Listas com bullets
-    .replace(/^\* (.*)$/gm, '<li class="mb-2 ml-6 list-disc">$1</li>')
+    .replace(/^\* (.*)$/gm, '<li class="mb-3 ml-6 list-disc text-gray-700 leading-relaxed">$1</li>')
     // Envolver listas em ul
-    .replace(/(<li[^>]*>.*<\/li>\s*)+/gs, '<ul class="mb-4 space-y-1">$&</ul>')
+    .replace(/(<li[^>]*>.*<\/li>\s*)+/gs, '<ul class="mb-6 space-y-2 pl-4">$&</ul>')
     // Quebras de linha
-    .replace(/\n\n/g, '</p><p class="mb-4">')
+    .replace(/\n\n/g, '</p><p class="mb-5 text-gray-700 leading-relaxed">')
     .replace(/\n/g, '<br>')
     // Envolver em parágrafos
-    .replace(/^(?!<[hul])/gm, '<p class="mb-4">')
+    .replace(/^(?!<[hul])/gm, '<p class="mb-5 text-gray-700 leading-relaxed">')
     .replace(/(?<!>)$/gm, '</p>')
     // Limpar tags vazias
-    .replace(/<p class="mb-4"><\/p>/g, '')
+    .replace(/<p class="mb-5 text-gray-700 leading-relaxed"><\/p>/g, '')
 }
 
 const [
@@ -162,7 +164,11 @@ const [
   invasiveAnimalia,
   // Invasive top rankings
   invasiveTopOrdersAnimalia,
-  invasiveTopFamiliesPlantae
+  invasiveTopFamiliesPlantae,
+  // Taxa breakdown data
+  taxaOrdersAnimalia,
+  taxaFamiliesPlantae,
+  taxaOrdersFungi
 ] = await Promise.all([
   getOccurrenceCountPerKingdom('Plantae'),
   getOccurrenceCountPerKingdom('Fungi'),
@@ -180,7 +186,10 @@ const [
   getInvasiveCountPerKingdom('Fungi'),
   getInvasiveCountPerKingdom('Animalia'),
   getInvasiveTopOrders('Animalia'),
-  getInvasiveTopFamilies('Plantae')
+  getInvasiveTopFamilies('Plantae'),
+  getTaxaCountPerOrderByKingdom('Animalia'),
+  getTaxaCountPerFamilyByKingdom('Plantae'),
+  getTaxaCountPerOrderByKingdom('Fungi')
 ])
 
 if (
@@ -200,7 +209,10 @@ if (
   invasiveFungi === null ||
   invasiveAnimalia === null ||
   invasiveTopOrdersAnimalia === null ||
-  invasiveTopFamiliesPlantae === null
+  invasiveTopFamiliesPlantae === null ||
+  taxaOrdersAnimalia === null ||
+  taxaFamiliesPlantae === null ||
+  taxaOrdersFungi === null
 ) {
   return new Response(null, { status: 503 })
 }
@@ -250,33 +262,81 @@ if (
       <div id="taxa-content" class="tab-panel">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
           <!-- Card Animalia -->
-          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <img src="/animalia.svg" alt="Animalia" class="w-12 h-12 text-blue-600" />
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-[500px]">
+            <div class="flex items-center justify-center mb-4">
+              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <img src="/animalia.svg" alt="Animalia" class="w-12 h-12 text-blue-600" />
+              </div>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Animalia</h3>
-            <p class="text-4xl font-bold text-blue-600 mb-2">{taxaAnimalia?.toLocaleString()}</p>
-            <p class="text-gray-500 text-center">nomes aceitos</p>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">Animalia</h3>
+            <p class="text-4xl font-bold text-blue-600 mb-2 text-center">{taxaAnimalia?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center mb-3">nomes aceitos</p>
+            
+            {taxaOrdersAnimalia && taxaOrdersAnimalia.length > 0 ? (
+              <div class="space-y-2 max-h-80 overflow-y-auto">
+                <p class="text-sm font-semibold text-gray-700">Top 10 Ordens:</p>
+                {taxaOrdersAnimalia.map((order: any) => (
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 truncate pr-2">{order._id}</span>
+                    <span class="text-blue-600 font-medium">{order.count.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p class="text-gray-400 text-sm text-center">dados não disponíveis</p>
+            )}
           </div>
 
           <!-- Card Plantae -->
-          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <img src="/plantae.svg" alt="Plantae" class="w-12 h-12 text-green-600" />
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-[500px]">
+            <div class="flex items-center justify-center mb-4">
+              <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <img src="/plantae.svg" alt="Plantae" class="w-12 h-12 text-green-600" />
+              </div>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Plantae</h3>
-            <p class="text-4xl font-bold text-green-600 mb-2">{taxaPlantae?.toLocaleString()}</p>
-            <p class="text-gray-500 text-center">nomes aceitos</p>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">Plantae</h3>
+            <p class="text-4xl font-bold text-green-600 mb-2 text-center">{taxaPlantae?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center mb-3">nomes aceitos</p>
+            
+            {taxaFamiliesPlantae && taxaFamiliesPlantae.length > 0 ? (
+              <div class="space-y-2 max-h-80 overflow-y-auto">
+                <p class="text-sm font-semibold text-gray-700">Top 10 Famílias:</p>
+                {taxaFamiliesPlantae.map((family: any) => (
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 truncate pr-2">{family._id}</span>
+                    <span class="text-green-600 font-medium">{family.count.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p class="text-gray-400 text-sm text-center">dados não disponíveis</p>
+            )}
           </div>
 
           <!-- Card Fungi -->
-          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 flex flex-col items-center justify-center">
-            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-              <img src="/fungi.svg" alt="Fungi" class="w-12 h-12 text-orange-600" />
+          <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-6 min-h-[500px]">
+            <div class="flex items-center justify-center mb-4">
+              <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                <img src="/fungi.svg" alt="Fungi" class="w-12 h-12 text-orange-600" />
+              </div>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Fungi</h3>
-            <p class="text-4xl font-bold text-orange-600 mb-2">{taxaFungi?.toLocaleString()}</p>
-            <p class="text-gray-500 text-center">nomes aceitos</p>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">Fungi</h3>
+            <p class="text-4xl font-bold text-orange-600 mb-2 text-center">{taxaFungi?.toLocaleString()}</p>
+            <p class="text-gray-500 text-center mb-3">nomes aceitos</p>
+            
+            {taxaOrdersFungi && taxaOrdersFungi.length > 0 ? (
+              <div class="space-y-2 max-h-80 overflow-y-auto">
+                <p class="text-sm font-semibold text-gray-700">Top 10 Ordens:</p>
+                {taxaOrdersFungi.map((order: any) => (
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 truncate pr-2">{order._id}</span>
+                    <span class="text-orange-600 font-medium">{order.count.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p class="text-gray-400 text-sm text-center">dados não disponíveis</p>
+            )}
           </div>
         </div>
       </div>
@@ -480,8 +540,10 @@ if (
       <!-- Sobre Tab -->
       <div id="sobre-content" class="tab-panel hidden">
         <div class="bg-white rounded-lg border border-slate-300 shadow-lg p-8 h-full overflow-auto">
-          <div class="prose max-w-none">
-            <div set:html={processMarkdown(readmeContent)}></div>
+          <div class="max-w-4xl mx-auto">
+            <div class="markdown-content prose prose-lg prose-blue max-w-none">
+              <div set:html={processMarkdown(readmeContent)}></div>
+            </div>
           </div>
         </div>
       </div>
