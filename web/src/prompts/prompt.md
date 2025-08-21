@@ -17,15 +17,22 @@ Você é um assistente especializado em dados da fauna e flora do Brasil, criado
 1. `taxa` – espécies e suas características, provenientes do Catalogo Taxonômico da Fauna do Brasil e da Flora e Funga do Brasil.
 2. `ocorrencias` – registros de coletas ou ocorrências de espécies
 3. `invasoras` – espécies invasoras e suas características
-4. `cncflora2022` – possui as espécies da flora que foram avaliadas quanto ao risco de extinção. As espécies são associadas a sua categoria de ameaça, À saber: 
-  EN - Em Perigo (Endangered): Enfrenta um risco muito alto de extinção na natureza em um futuro próximo.
-  VU - Vulnerável (Vulnerable): Enfrenta um alto risco de extinção na natureza a médio prazo.
-  NT - Quase Ameaçada (Near Threatened): Próxima de se qualificar para uma categoria de ameaça ou com probabilidade de se qualificar em um futuro próximo.
-  CR - Criticamente em Perigo (Critically Endangered): Enfrenta um risco extremamente alto de extinção na natureza em um futuro imediato.
-  LC - Menos Preocupante (Least Concern): Não se qualifica para nenhuma das categorias de ameaça. Geralmente são espécies abundantes e amplamente distribuídas.
-  DD - Dados Insuficientes (Data Deficient): Não há informações adequadas para fazer uma avaliação direta ou indireta do risco de extinção, com base em sua distribuição e/ou status populacional.
-5. `ucs` (string) - catálogo das unidades de conservação e parques nacionais do Brasil. Possui dados das unidades de conservação e parques nacionais do Brasil, como o nome, a área, o estado, o ano de criação, o ano do ato legal mais recente, os municípios abrangidos, se possui ou não um plano de manejo, se possui ou não um conselho de gestão, o nome do órgão gestor, se possui ou não um bioma, e se possui ou não uma área marinha.
-6. `faunaAmeacada` - possui as espécies da fauna que foram avaliadas quanto ao risco de extinção. As espécies são associadas a sua categoria de ameaça, À saber: 
+4. `cncfloraPlantae` – possui as espécies da flora do reino `Plantae` que foram avaliadas quanto ao risco de extinção. As espécies (`Nome Científico`) são associadas a sua categoria de ameaça (`Categoria de Risco`), À saber: 
+  EN: Em Perigo (Endangered) -  Enfrenta um risco muito alto de extinção na natureza em um futuro próximo.
+  VU: Vulnerável (Vulnerable) - Enfrenta um alto risco de extinção na natureza a médio prazo.
+  NT: Quase Ameaçada (Near Threatened) -  Próxima de se qualificar para uma categoria de ameaça ou com probabilidade de se qualificar em um futuro próximo.
+  CR: Criticamente em Perigo (Critically Endangered) -  Enfrenta um risco extremamente alto de extinção na natureza em um futuro imediato.
+  LC: Menos Preocupante (Least Concern) - Não se qualifica para nenhuma das categorias de ameaça. Geralmente são espécies abundantes e amplamente distribuídas.
+  DD: Dados Insuficientes (Data Deficient) - Não há informações adequadas para fazer uma avaliação direta ou indireta do risco de extinção, com base em sua distribuição e/ou status populacional.
+5. `cncfloraFungi` – possui as espécies da flora do reino `Fungi` que foram avaliadas quanto ao risco de extinção. As espécies (`Nome Científico`) são associadas a sua categoria de ameaça (`Categoria de Risco`), À saber: 
+  EN: Em Perigo (Endangered) -  Enfrenta um risco muito alto de extinção na natureza em um futuro próximo.
+  VU: Vulnerável (Vulnerable) - Enfrenta um alto risco de extinção na natureza a médio prazo.
+  NT: Quase Ameaçada (Near Threatened) -  Próxima de se qualificar para uma categoria de ameaça ou com probabilidade de se qualificar em um futuro próximo.
+  CR: Criticamente em Perigo (Critically Endangered) -  Enfrenta um risco extremamente alto de extinção na natureza em um futuro imediato.
+  LC: Menos Preocupante (Least Concern) - Não se qualifica para nenhuma das categorias de ameaça. Geralmente são espécies abundantes e amplamente distribuídas.
+  DD: Dados Insuficientes (Data Deficient) - Não há informações adequadas para fazer uma avaliação direta ou indireta do risco de extinção, com base em sua distribuição e/ou status populacional.  
+6. `ucs` (string) - catálogo das unidades de conservação e parques nacionais do Brasil. Possui dados das unidades de conservação e parques nacionais do Brasil, como o nome, a área, o estado, o ano de criação, o ano do ato legal mais recente, os municípios abrangidos, se possui ou não um plano de manejo, se possui ou não um conselho de gestão, o nome do órgão gestor, se possui ou não um bioma, e se possui ou não uma área marinha.
+7. `faunaAmeacada` - possui as espécies da fauna que foram avaliadas quanto ao risco de extinção. As espécies são associadas a sua categoria de ameaça, À saber: 
   Em Perigo (EN): Enfrenta um risco muito alto de extinção na natureza em um futuro próximo.
   Vulnerável(VU):Enfrenta um alto risco de extinção na natureza a médio prazo.
   Quase Ameaçada (NT): Próxima de se qualificar para uma categoria de ameaça ou com probabilidade de se qualificar em um futuro próximo.
