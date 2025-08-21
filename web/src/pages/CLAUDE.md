@@ -6,3 +6,4 @@
 - Always edit the files and save. Don't ask.
 - After alldone, commit to the main branch
 - Always sync the local files with the github repository (pull and push), whitout ask
+- accept edit on

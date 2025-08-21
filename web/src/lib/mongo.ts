@@ -440,17 +440,26 @@ export async function getThreatenedCountPerKingdom(kingdom: string) {
     // Kingdom Animalia está no documento faunaAmeacada
     const fauna = await getCollection('dwc2json', 'faunaAmeacada')
     if (!fauna) return null
-    return await fauna.countDocuments({})
+    // Excluir categoria "Não Avaliada (NE)"
+    return await fauna.countDocuments({
+      threatStatus: { $ne: 'Não Avaliada (NE)' }
+    })
   } else if (kingdom.toLowerCase() === 'plantae') {
     // Kingdom Plantae está no documento cncfloraPlantae
     const flora = await getCollection('dwc2json', 'cncfloraPlantae')
     if (!flora) return null
-    return await flora.countDocuments({})
+    // Excluir categoria "NE"
+    return await flora.countDocuments({
+      'Categoria de Risco': { $ne: 'NE' }
+    })
   } else if (kingdom.toLowerCase() === 'fungi') {
     // Kingdom Fungi está no documento cncfloraFungi
     const flora = await getCollection('dwc2json', 'cncfloraFungi')
     if (!flora) return null
-    return await flora.countDocuments({})
+    // Excluir categoria "NE"
+    return await flora.countDocuments({
+      'Categoria de Risco': { $ne: 'NE' }
+    })
   }
   
   return null
@@ -462,6 +471,9 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
     if (!fauna) return null
     return await fauna
       .aggregate([
+        {
+          $match: { threatStatus: { $ne: 'Não Avaliada (NE)' } }
+        },
         {
           $group: {
             _id: '$threatStatus',
@@ -480,7 +492,9 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
     return await flora
       .aggregate([
         {
-          $match: { 'Categoria de Risco': { $exists: true, $ne: null } }
+          $match: { 
+            'Categoria de Risco': { $exists: true, $ne: null, $ne: 'NE' }
+          }
         },
         {
           $group: {
@@ -500,7 +514,9 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
     return await flora
       .aggregate([
         {
-          $match: { 'Categoria de Risco': { $exists: true, $ne: null } }
+          $match: { 
+            'Categoria de Risco': { $exists: true, $ne: null, $ne: 'NE' }
+          }
         },
         {
           $group: {
