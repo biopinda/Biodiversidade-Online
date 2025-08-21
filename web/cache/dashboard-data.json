@@ -1,0 +1,467 @@
+{
+  "occurrences": {
+    "plantae": 5659707,
+    "fungi": 240586,
+    "animalia": 3084163
+  },
+  "taxa": {
+    "plantae": 53264,
+    "fungi": 8468,
+    "animalia": 134582
+  },
+  "threatened": {
+    "counts": {
+      "plantae": 9420,
+      "fungi": 24,
+      "animalia": 1407
+    },
+    "categories": {
+      "plantae": [
+        {
+          "_id": "LC",
+          "count": 3802
+        },
+        {
+          "_id": "EN",
+          "count": 2164
+        },
+        {
+          "_id": "DD",
+          "count": 1396
+        },
+        {
+          "_id": "VU",
+          "count": 836
+        },
+        {
+          "_id": "CR",
+          "count": 729
+        },
+        {
+          "_id": "NT",
+          "count": 493
+        }
+      ],
+      "fungi": [
+        {
+          "_id": "VU",
+          "count": 21
+        },
+        {
+          "_id": "EN",
+          "count": 3
+        }
+      ],
+      "animalia": [
+        {
+          "_id": "Vulnerável (VU)",
+          "count": 472
+        },
+        {
+          "_id": "Em Perigo (EN)",
+          "count": 425
+        },
+        {
+          "_id": "Criticamente em Perigo (CR)",
+          "count": 325
+        },
+        {
+          "_id": "Menos Preocupante (LC)",
+          "count": 64
+        },
+        {
+          "_id": "Criticamente em Perigo (CR)(PEX)",
+          "count": 36
+        },
+        {
+          "_id": "Quase Ameaçada (NT)",
+          "count": 35
+        },
+        {
+          "_id": "Dados Insuficientes (DD)",
+          "count": 35
+        },
+        {
+          "_id": "Extinta (EX)",
+          "count": 6
+        },
+        {
+          "_id": "Regionalmente Extinta (RE)",
+          "count": 3
+        },
+        {
+          "_id": "[Não é mais táxon válido]",
+          "count": 1
+        },
+        {
+          "_id": "Criticamente Em Perigo (CR)",
+          "count": 1
+        },
+        {
+          "_id": "[Não é espécie brasileira]",
+          "count": 1
+        },
+        {
+          "_id": "Subespécie que sai da Lista",
+          "count": 1
+        },
+        {
+          "_id": "[Sinonímia M. hypostoma]",
+          "count": 1
+        },
+        {
+          "_id": "Extinta na Natureza (EW)",
+          "count": 1
+        }
+      ]
+    }
+  },
+  "invasive": {
+    "counts": {
+      "plantae": 212,
+      "fungi": 0,
+      "animalia": 273
+    },
+    "topOrders": [
+      {
+        "_id": "Characiformes",
+        "count": 40
+      },
+      {
+        "_id": "Siluriformes",
+        "count": 26
+      },
+      {
+        "_id": "Cichliformes",
+        "count": 21
+      },
+      {
+        "_id": "Decapoda",
+        "count": 14
+      },
+      {
+        "_id": "Perciformes",
+        "count": 12
+      },
+      {
+        "_id": "Primates",
+        "count": 10
+      },
+      {
+        "_id": "Alcyonacea",
+        "count": 8
+      },
+      {
+        "_id": "Cyprinodontiformes",
+        "count": 7
+      },
+      {
+        "_id": "Spionida",
+        "count": 7
+      },
+      {
+        "_id": "Gymnotiformes",
+        "count": 7
+      }
+    ],
+    "topFamilies": [
+      {
+        "_id": "Poaceae",
+        "count": 32
+      },
+      {
+        "_id": "Fabaceae",
+        "count": 26
+      },
+      {
+        "_id": "Asparagaceae",
+        "count": 9
+      },
+      {
+        "_id": "Myrtaceae",
+        "count": 8
+      },
+      {
+        "_id": "Pinaceae",
+        "count": 8
+      },
+      {
+        "_id": "Arecaceae",
+        "count": 7
+      },
+      {
+        "_id": "Asteraceae",
+        "count": 7
+      },
+      {
+        "_id": "Rosaceae",
+        "count": 7
+      },
+      {
+        "_id": "Araceae",
+        "count": 6
+      },
+      {
+        "_id": "Euphorbiaceae",
+        "count": 5
+      }
+    ]
+  },
+  "taxa_breakdown": {
+    "ordersAnimalia": [
+      {
+        "_id": "Coleoptera",
+        "count": 37537
+      },
+      {
+        "_id": "Lepidoptera",
+        "count": 15601
+      },
+      {
+        "_id": "Diptera",
+        "count": 12380
+      },
+      {
+        "_id": "Hymenoptera",
+        "count": 11713
+      },
+      {
+        "_id": "Hemiptera",
+        "count": 9886
+      },
+      {
+        "_id": "Araneae",
+        "count": 3080
+      },
+      {
+        "_id": "Passeriformes",
+        "count": 2358
+      },
+      {
+        "_id": "Orthoptera",
+        "count": 1850
+      },
+      {
+        "_id": "Trombidiformes",
+        "count": 1512
+      },
+      {
+        "_id": "Siluriformes",
+        "count": 1394
+      }
+    ],
+    "familiesPlantae": [
+      {
+        "_id": "Fabaceae",
+        "count": 3917
+      },
+      {
+        "_id": "Orchidaceae",
+        "count": 3332
+      },
+      {
+        "_id": "Asteraceae",
+        "count": 2541
+      },
+      {
+        "_id": "[Algae]: Bacillariophyceae",
+        "count": 1802
+      },
+      {
+        "_id": "Poaceae",
+        "count": 1756
+      },
+      {
+        "_id": "Melastomataceae",
+        "count": 1653
+      },
+      {
+        "_id": "Rubiaceae",
+        "count": 1643
+      },
+      {
+        "_id": "Bromeliaceae",
+        "count": 1600
+      },
+      {
+        "_id": "Myrtaceae",
+        "count": 1359
+      },
+      {
+        "_id": "[Algae]: Zygnematophyceae",
+        "count": 1166
+      }
+    ],
+    "ordersFungi": [
+      {
+        "_id": "Agaricales",
+        "count": 1156
+      },
+      {
+        "_id": "Pucciniales",
+        "count": 787
+      },
+      {
+        "_id": "Incertae sedis",
+        "count": 615
+      },
+      {
+        "_id": "Polyporales",
+        "count": 541
+      },
+      {
+        "_id": "Xylariales",
+        "count": 329
+      },
+      {
+        "_id": "Lecanorales",
+        "count": 286
+      },
+      {
+        "_id": "Asterinales",
+        "count": 268
+      },
+      {
+        "_id": "Hypocreales",
+        "count": 263
+      },
+      {
+        "_id": "Hymenochaetales",
+        "count": 214
+      },
+      {
+        "_id": "Pleosporales",
+        "count": 178
+      }
+    ]
+  },
+  "top_collections": {
+    "animalia": [
+      {
+        "_id": "Museu Paraense Emílio Goeldi (MPEG)",
+        "count": 245922
+      },
+      {
+        "_id": "Museu Nacional do Rio de Janeiro",
+        "count": 207196
+      },
+      {
+        "_id": "Fiocruz",
+        "count": 205845
+      },
+      {
+        "_id": "Instituto Nacional de Pesquisas da Amazônia (INPA)",
+        "count": 190984
+      },
+      {
+        "_id": "Coleção Taxonômica do Departamento de Ecologia e Biologia Evolutiva da UFSCar",
+        "count": 158760
+      },
+      {
+        "_id": "Coleção de Abelhas",
+        "count": 128444
+      },
+      {
+        "_id": "Museu de Zoologia da USP",
+        "count": 121741
+      },
+      {
+        "_id": "Fonoteca Neotropical Jacques Vielliard",
+        "count": 103162
+      },
+      {
+        "_id": "Museu Paraense Emílio Goeldi",
+        "count": 78283
+      },
+      {
+        "_id": "Museu Nacional/UFRJ",
+        "count": 72863
+      }
+    ],
+    "plantae": [
+      {
+        "_id": "Rio de Janeiro Botanical Garden",
+        "count": 824025
+      },
+      {
+        "_id": "Museu Botânico Municipal",
+        "count": 329873
+      },
+      {
+        "_id": "Universidade de Brasília - UnB",
+        "count": 274772
+      },
+      {
+        "_id": "Herbário do Estado Maria Eneyda P. Kaufmann Fidalgo - Coleção de Plantas Vasculares",
+        "count": 269503
+      },
+      {
+        "_id": "Instituto Nacional de Pesquisas da Amazônia (INPA)",
+        "count": 249910
+      },
+      {
+        "_id": "Herbário da Universidade de Brasília",
+        "count": 205242
+      },
+      {
+        "_id": "Herbário da Universidade Estadual de Campinas",
+        "count": 199813
+      },
+      {
+        "_id": "Herbário da Embrapa Recursos Genéticos e Biotecnologia",
+        "count": 133274
+      },
+      {
+        "_id": "Universidade Federal do Paraná",
+        "count": 98415
+      },
+      {
+        "_id": "Herbarium Anchieta - Coleção de Angiospermas",
+        "count": 93432
+      }
+    ],
+    "fungi": [
+      {
+        "_id": "Herbário Pe. Camille Torrend",
+        "count": 93312
+      },
+      {
+        "_id": "Maria Eneyda Pacheco Kauffmann Fidalgo",
+        "count": 32643
+      },
+      {
+        "_id": "Fundação Universidade Federal de Mato Grosso do Sul",
+        "count": 20644
+      },
+      {
+        "_id": "Herbário ISE",
+        "count": 16927
+      },
+      {
+        "_id": "Universidade Federal de Santa Catarina",
+        "count": 11660
+      },
+      {
+        "_id": "Herbarium Anchieta - Fungi Rickiani",
+        "count": 11528
+      },
+      {
+        "_id": "Universidade Federal do Paraná",
+        "count": 5960
+      },
+      {
+        "_id": "Universidade Estadual de Goiás",
+        "count": 4939
+      },
+      {
+        "_id": "R-Fungi - Herbário do Museu Nacional",
+        "count": 4934
+      },
+      {
+        "_id": "Herbário Alarich Rudolf Holger Schultz -Coleções de Plantas e Fungos",
+        "count": 4718
+      }
+    ]
+  },
+  "lastUpdated": "2025-08-21T13:22:29.381Z"
+}

@@ -1,17 +1,6 @@
 ---
 import Layout from '../layouts/base.astro'
-import { 
-  getOccurrenceCountPerKingdom,
-  getTaxaCountPerKingdom,
-  getThreatenedCountPerKingdom,
-  getThreatenedCategoriesPerKingdom,
-  getInvasiveCountPerKingdom,
-  getInvasiveTopOrders,
-  getInvasiveTopFamilies,
-  getTaxaCountPerOrderByKingdom,
-  getTaxaCountPerFamilyByKingdom,
-  getTopCollectionsByKingdom
-} from '../lib/mongo'
+import { loadDashboardCache } from '../scripts/dashboard-cache-job'
 import fs from 'fs'
 import path from 'path'
 
@@ -142,91 +131,45 @@ function processMarkdown(content: string): string {
     .replace(/<p class="mb-3 text-gray-600 text-sm leading-relaxed"><\/p>/g, '')
 }
 
-const [
-  // Occurrences data
-  occurrencesPlantae,
-  occurrencesFungi,
-  occurrencesAnimalia,
-  // Taxa data
-  taxaPlantae,
-  taxaFungi,
-  taxaAnimalia,
-  // Threatened species data
-  threatenedPlantae,
-  threatenedFungi,
-  threatenedAnimalia,
-  // Threatened categories data
-  threatenedCategoriesPlantae,
-  threatenedCategoriesFungi,
-  threatenedCategoriesAnimalia,
-  // Invasive species data
-  invasivePlantae,
-  invasiveFungi,
-  invasiveAnimalia,
-  // Invasive top rankings
-  invasiveTopOrdersAnimalia,
-  invasiveTopFamiliesPlantae,
-  // Taxa breakdown data
-  taxaOrdersAnimalia,
-  taxaFamiliesPlantae,
-  taxaOrdersFungi,
-  // Top collections data
-  topCollectionsAnimalia,
-  topCollectionsPlantae,
-  topCollectionsFungi
-] = await Promise.all([
-  getOccurrenceCountPerKingdom('Plantae'),
-  getOccurrenceCountPerKingdom('Fungi'),
-  getOccurrenceCountPerKingdom('Animalia'),
-  getTaxaCountPerKingdom('Plantae'),
-  getTaxaCountPerKingdom('Fungi'),
-  getTaxaCountPerKingdom('Animalia'),
-  getThreatenedCountPerKingdom('Plantae'),
-  getThreatenedCountPerKingdom('Fungi'),
-  getThreatenedCountPerKingdom('Animalia'),
-  getThreatenedCategoriesPerKingdom('Plantae'),
-  getThreatenedCategoriesPerKingdom('Fungi'),
-  getThreatenedCategoriesPerKingdom('Animalia'),
-  getInvasiveCountPerKingdom('Plantae'),
-  getInvasiveCountPerKingdom('Fungi'),
-  getInvasiveCountPerKingdom('Animalia'),
-  getInvasiveTopOrders('Animalia'),
-  getInvasiveTopFamilies('Plantae'),
-  getTaxaCountPerOrderByKingdom('Animalia'),
-  getTaxaCountPerFamilyByKingdom('Plantae'),
-  getTaxaCountPerOrderByKingdom('Fungi'),
-  getTopCollectionsByKingdom('Animalia'),
-  getTopCollectionsByKingdom('Plantae'),
-  getTopCollectionsByKingdom('Fungi')
-])
+// Carregar dados do cache
+const cacheFilePath = path.join(process.cwd(), 'cache', 'dashboard-data.json')
+const dashboardData = await loadDashboardCache(cacheFilePath)
 
-if (
-  occurrencesPlantae === null ||
-  occurrencesFungi === null ||
-  occurrencesAnimalia === null ||
-  taxaPlantae === null ||
-  taxaFungi === null ||
-  taxaAnimalia === null ||
-  threatenedPlantae === null ||
-  threatenedFungi === null ||
-  threatenedAnimalia === null ||
-  threatenedCategoriesPlantae === null ||
-  threatenedCategoriesFungi === null ||
-  threatenedCategoriesAnimalia === null ||
-  invasivePlantae === null ||
-  invasiveFungi === null ||
-  invasiveAnimalia === null ||
-  invasiveTopOrdersAnimalia === null ||
-  invasiveTopFamiliesPlantae === null ||
-  taxaOrdersAnimalia === null ||
-  taxaFamiliesPlantae === null ||
-  taxaOrdersFungi === null ||
-  topCollectionsAnimalia === null ||
-  topCollectionsPlantae === null ||
-  topCollectionsFungi === null
-) {
+if (!dashboardData) {
   return new Response(null, { status: 503 })
 }
+
+// Extrair dados do cache
+const occurrencesPlantae = dashboardData.occurrences.plantae
+const occurrencesFungi = dashboardData.occurrences.fungi
+const occurrencesAnimalia = dashboardData.occurrences.animalia
+
+const taxaPlantae = dashboardData.taxa.plantae
+const taxaFungi = dashboardData.taxa.fungi
+const taxaAnimalia = dashboardData.taxa.animalia
+
+const threatenedPlantae = dashboardData.threatened.counts.plantae
+const threatenedFungi = dashboardData.threatened.counts.fungi
+const threatenedAnimalia = dashboardData.threatened.counts.animalia
+
+const threatenedCategoriesPlantae = dashboardData.threatened.categories.plantae
+const threatenedCategoriesFungi = dashboardData.threatened.categories.fungi
+const threatenedCategoriesAnimalia = dashboardData.threatened.categories.animalia
+
+const invasivePlantae = dashboardData.invasive.counts.plantae
+const invasiveFungi = dashboardData.invasive.counts.fungi
+const invasiveAnimalia = dashboardData.invasive.counts.animalia
+
+const invasiveTopOrdersAnimalia = dashboardData.invasive.topOrders
+const invasiveTopFamiliesPlantae = dashboardData.invasive.topFamilies
+
+const taxaOrdersAnimalia = dashboardData.taxa_breakdown.ordersAnimalia
+const taxaFamiliesPlantae = dashboardData.taxa_breakdown.familiesPlantae
+const taxaOrdersFungi = dashboardData.taxa_breakdown.ordersFungi
+
+const topCollectionsAnimalia = dashboardData.top_collections.animalia
+const topCollectionsPlantae = dashboardData.top_collections.plantae
+const topCollectionsFungi = dashboardData.top_collections.fungi
 ---
 
 <Layout title="Dashboard">

@@ -6,6 +6,9 @@
       "Bash(git pull:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "F:\\F\\git\\DarwinCoreJSON"
+    ]
   }
 }

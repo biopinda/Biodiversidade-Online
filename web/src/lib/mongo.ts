@@ -1,10 +1,10 @@
 import { type Collection, MongoClient } from 'mongodb'
 
 const url =
+  // @ts-ignore ignore node stuff  
+  process.env.MONGO_URI ??
   // @ts-ignore astro stuff
-  import.meta.env.MONGO_URI ??
-  // @ts-ignore ignore node stuff
-  process.env.MONGO_URI
+  (typeof globalThis !== 'undefined' && globalThis.process?.env?.MONGO_URI)
 if (!url) {
   throw new Error(
     'Please define the MONGO_URI environment variable inside .env.local'
