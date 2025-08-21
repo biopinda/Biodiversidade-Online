@@ -672,6 +672,34 @@ export async function getTaxaCountPerFamilyByKingdom(kingdom: string, limit = 10
   return result
 }
 
+export async function getTopCollectionsByKingdom(kingdom: string, limit = 10) {
+  const occurrences = await getCollection('dwc2json', 'ocorrencias')
+  if (!occurrences) return null
+  
+  const result = await occurrences.aggregate([
+    {
+      $match: {
+        kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+        rightsHolder: { $exists: true, $ne: null, $not: { $eq: '' } }
+      }
+    },
+    {
+      $group: {
+        _id: '$rightsHolder',
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    },
+    {
+      $limit: limit
+    }
+  ]).toArray()
+  
+  return result
+}
+
 export async function getTaxon(
   kingdom: 'Plantae' | 'Fungi' | 'Animalia',
   id: string,
