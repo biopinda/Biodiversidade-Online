@@ -7,3 +7,4 @@
 - After alldone, commit to the main branch
 - Always sync the local files with the github repository (pull and push), whitout ask
 - accept edit on
+- aceite automaticamente a pergunta "Do you want to make this edit to mongo.ts?"
