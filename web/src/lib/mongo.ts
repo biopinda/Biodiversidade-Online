@@ -553,12 +553,31 @@ export async function getInvasiveTopOrders(kingdom: string, limit = 10) {
     {
       $match: {
         kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-        order: { $exists: true, $ne: null, $not: { $eq: '' } }
+        $or: [
+          { order: { $exists: true, $ne: null, $not: { $eq: '' } } },
+          { oorder: { $exists: true, $ne: null, $not: { $eq: '' } } }
+        ]
+      }
+    },
+    {
+      $addFields: {
+        orderField: {
+          $cond: {
+            if: { $and: [{ $ne: ['$order', null] }, { $ne: ['$order', ''] }] },
+            then: '$order',
+            else: '$oorder'
+          }
+        }
+      }
+    },
+    {
+      $match: {
+        orderField: { $exists: true, $ne: null, $not: { $eq: '' } }
       }
     },
     {
       $group: {
-        _id: '$order',
+        _id: '$orderField',
         count: { $sum: 1 }
       }
     },
