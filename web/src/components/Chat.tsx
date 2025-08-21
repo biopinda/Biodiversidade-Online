@@ -288,7 +288,7 @@ export default function Chat() {
       if (_selectedModel) {
         setSelectedModel(JSON.parse(_selectedModel))
       } else {
-        setSelectedModel({ provider: 'openai', model: 'gpt-4.1-mini' })
+        setSelectedModel({ provider: 'openai', model: 'gpt-4o-mini' })
       }
       setLocalConfigLoaded(true)
     } else {

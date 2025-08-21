@@ -56,7 +56,7 @@ const input = z.object({
     })
     .default({
       provider: 'openai',
-      model: 'gpt-4.1-mini'
+      model: 'gpt-4o-mini'
     }),
   maxSteps: z.number().default(10)
 })
@@ -124,22 +124,22 @@ export async function POST({ request }: APIContext) {
     },
     experimental_activeTools: ['find', 'aggregate'],
     providerOptions: {
-      ...(modelSpec.model.startsWith('o')
+      ...(modelSpec.model.startsWith('o') && modelSpec.provider === 'openai'
         ? {
-            providerOptions: {
-              openai: {
-                reasoningEffort: 'low',
-                reasoningSummary: 'auto'
-              }
+            openai: {
+              reasoningEffort: 'low',
+              reasoningSummary: 'auto'
             }
           }
         : {}),
-      google: {
-        thinkingConfig: {
-          includeThoughts: true
-          // thinkingBudget: 2048, // Optional: set a token budget for reasoning
+      ...(modelSpec.provider === 'google' ? {
+        google: {
+          thinkingConfig: {
+            includeThoughts: true
+            // thinkingBudget: 2048, // Optional: set a token budget for reasoning
+          }
         }
-      }
+      } : {})
     }
   })
 
