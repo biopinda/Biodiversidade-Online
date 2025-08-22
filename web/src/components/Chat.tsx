@@ -10,7 +10,6 @@ import {
   InfoIcon
 } from 'lucide-react'
 import {
-  unstable_ViewTransition as ViewTransition,
   startTransition,
   useEffect,
   useRef,
@@ -149,7 +148,7 @@ function ToolCall({
     const results = toolCall.result?.content
     const waiting = toolCall.state !== 'result'
     return (
-      <ViewTransition>
+      <>
         <div
           className={cn(
             'flex flex-col gap-2 max-w-full',
@@ -157,7 +156,7 @@ function ToolCall({
           )}
         >
           <div className="flex" onClick={toggleDetails}>
-            <ViewTransition name="tool-call-badge">
+            <>
               <Badge
                 className={cn(
                   'text-xs cursor-default',
@@ -178,7 +177,7 @@ function ToolCall({
                   {results.length}
                 </Badge>
               )}
-            </ViewTransition>
+            </>
           </div>
           {showDetails && (
             <div className="flex gap-1 justify-between">
@@ -204,7 +203,7 @@ function ToolCall({
             </div>
           )}
         </div>
-      </ViewTransition>
+      </>
     )
   }
 }
@@ -219,7 +218,7 @@ function ReasoningPart({ part }: { part: any }) {
   }
 
   return (
-    <ViewTransition>
+    <>
       <div
         className={cn(
           'flex flex-col gap-2 max-w-full',
@@ -227,7 +226,7 @@ function ReasoningPart({ part }: { part: any }) {
         )}
       >
         <div className="flex" onClick={toggleDetails}>
-          <ViewTransition name="reasoning-badge">
+          <>
             <Badge
               className={cn(
                 'text-xs cursor-pointer',
@@ -238,7 +237,7 @@ function ReasoningPart({ part }: { part: any }) {
             >
               Raciocínio
             </Badge>
-          </ViewTransition>
+          </>
         </div>
         {showDetails && (
           <ScrollArea className="prose prose-p:my-0 prose-td:py-0 prose-custom-code rounded-md border border-slate-300 p-2 text-xs bg-slate-100 text-black w-full max-h-32 overflow-y-auto max-w-none flex flex-col-reverse">
@@ -259,7 +258,7 @@ function ReasoningPart({ part }: { part: any }) {
           </ScrollArea>
         )}
       </div>
-    </ViewTransition>
+    </>
   )
 }
 
