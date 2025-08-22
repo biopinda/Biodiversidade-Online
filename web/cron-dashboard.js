@@ -28,11 +28,11 @@ function runDashboardCacheJob() {
   });
 }
 
-// Agendar o job para executar todos os dias às 01:00
+// Agendar o job para executar todas as segundas-feiras às 01:00
 console.log('📅 Configurando agendamento do job de cache do dashboard...');
-console.log('⏰ Job será executado diariamente às 01:00');
+console.log('⏰ Job será executado semanalmente nas segundas-feiras às 01:00');
 
-cron.schedule('0 1 * * *', () => {
+cron.schedule('0 1 * * 1', () => {
   runDashboardCacheJob();
 }, {
   scheduled: true,
