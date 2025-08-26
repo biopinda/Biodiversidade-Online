@@ -13,7 +13,7 @@ RUN apt-get update \
   && apt-get clean
 
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps --frozen-lockfile
 
 COPY . /app
 RUN npm run build
