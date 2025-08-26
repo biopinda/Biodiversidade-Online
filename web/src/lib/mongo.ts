@@ -5,25 +5,32 @@ const url =
   process.env.MONGO_URI ??
   // @ts-ignore astro stuff
   (typeof globalThis !== 'undefined' && globalThis.process?.env?.MONGO_URI)
+
 if (!url) {
+  console.error('❌ MONGO_URI environment variable is not defined')
   throw new Error(
     'Please define the MONGO_URI environment variable inside .env.local'
   )
 }
+
+// console.log('🔗 Connecting to MongoDB...')
 const client = new MongoClient(url)
 
 function connectClientWithTimeout(timeout = 5000) {
   return new Promise((resolve) => {
     const timeoutTimer = setTimeout(() => {
+      console.warn('⚠️  MongoDB connection timeout after', timeout, 'ms')
       resolve(false)
     }, timeout)
     client
       .connect()
       .then(
         () => {
+          console.log('✅ MongoDB connected successfully')
           resolve(true)
         },
-        () => {
+        (error) => {
+          console.error('❌ MongoDB connection failed:', error.message)
           resolve(false)
         }
       )
@@ -34,35 +41,57 @@ function connectClientWithTimeout(timeout = 5000) {
 }
 
 export async function getCollection(dbName: string, collection: string) {
-  if (!(await connectClientWithTimeout())) {
+  try {
+    if (!(await connectClientWithTimeout())) {
+      console.warn(`⚠️  Could not connect to MongoDB for ${dbName}.${collection}`)
+      return null
+    }
+    return client.db(dbName).collection(collection) as Collection
+  } catch (error) {
+    console.error(`❌ Error getting collection ${dbName}.${collection}:`, error)
     return null
   }
-  return client.db(dbName).collection(collection) as Collection
 }
 
 export async function listTaxa(
   filter: Record<string, unknown> = {},
   _projection: Record<string, unknown> = {}
 ) {
-  const taxa = await getCollection('dwc2json', 'taxa')
-  if (!taxa) return null
-  return await taxa
-    .find(filter)
-    // .project(projection)
-    .sort({ scientificName: 1 })
-    .toArray()
+  try {
+    const taxa = await getCollection('dwc2json', 'taxa')
+    if (!taxa) {
+      console.warn('⚠️  Taxa collection not available')
+      return []
+    }
+    return await taxa
+      .find(filter)
+      // .project(projection)
+      .sort({ scientificName: 1 })
+      .toArray()
+  } catch (error) {
+    console.error('❌ Error listing taxa:', error)
+    return []
+  }
 }
 
 export async function listOccurrences(
   filter: Record<string, unknown> = {},
   _projection: Record<string, unknown> = {}
 ) {
-  const occurrences = await getCollection('dwc2json', 'ocorrencias')
-  if (!occurrences) return null
-  return await occurrences
-    .find(filter)
-    // .project(projection)
-    .toArray()
+  try {
+    const occurrences = await getCollection('dwc2json', 'ocorrencias')
+    if (!occurrences) {
+      console.warn('⚠️  Occurrences collection not available')
+      return []
+    }
+    return await occurrences
+      .find(filter)
+      // .project(projection)
+      .toArray()
+  } catch (error) {
+    console.error('❌ Error listing occurrences:', error)
+    return []
+  }
 }
 
 export async function listTaxaPaginated(
@@ -493,7 +522,7 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
       .aggregate([
         {
           $match: { 
-            'Categoria de Risco': { $exists: true, $ne: null, $ne: 'NE' }
+            'Categoria de Risco': { $exists: true, $ne: null, $nin: ['NE'] }
           }
         },
         {
@@ -515,7 +544,7 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
       .aggregate([
         {
           $match: { 
-            'Categoria de Risco': { $exists: true, $ne: null, $ne: 'NE' }
+            'Categoria de Risco': { $exists: true, $ne: null, $nin: ['NE'] }
           }
         },
         {
