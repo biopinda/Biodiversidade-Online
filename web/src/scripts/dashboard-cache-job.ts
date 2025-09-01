@@ -20,7 +20,7 @@ config()
 interface DashboardData {
   occurrences: {
     plantae: number | null
-    fungi: number | null  
+    fungi: number | null
     animalia: number | null
   }
   taxa: {
@@ -64,7 +64,7 @@ interface DashboardData {
 
 export async function generateDashboardCache(): Promise<DashboardData> {
   console.log('Iniciando geração do cache do dashboard...')
-  
+
   try {
     const [
       // Occurrences data
@@ -177,7 +177,10 @@ export async function generateDashboardCache(): Promise<DashboardData> {
   }
 }
 
-export async function saveDashboardCache(data: DashboardData, filePath: string): Promise<void> {
+export async function saveDashboardCache(
+  data: DashboardData,
+  filePath: string
+): Promise<void> {
   try {
     // Garantir que o diretório existe
     const dir = path.dirname(filePath)
@@ -194,7 +197,9 @@ export async function saveDashboardCache(data: DashboardData, filePath: string):
   }
 }
 
-export async function loadDashboardCache(filePath: string): Promise<DashboardData | null> {
+export async function loadDashboardCache(
+  filePath: string
+): Promise<DashboardData | null> {
   try {
     if (!fs.existsSync(filePath)) {
       console.log('Arquivo de cache não encontrado:', filePath)
@@ -213,12 +218,16 @@ async function main() {
   try {
     console.log('=== JOB DE CACHE DO DASHBOARD ===')
     console.log(`Iniciado em: ${new Date().toISOString()}`)
-    
-    const cacheFilePath = path.join(process.cwd(), 'cache', 'dashboard-data.json')
-    
+
+    const cacheFilePath = path.join(
+      process.cwd(),
+      'cache',
+      'dashboard-data.json'
+    )
+
     const data = await generateDashboardCache()
     await saveDashboardCache(data, cacheFilePath)
-    
+
     console.log(`Job finalizado com sucesso em: ${new Date().toISOString()}`)
   } catch (error) {
     console.error('Erro no job de cache do dashboard:', error)

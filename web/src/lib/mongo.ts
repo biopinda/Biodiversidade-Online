@@ -1,7 +1,7 @@
 import { type Collection, MongoClient } from 'mongodb'
 
 const url =
-  // @ts-ignore ignore node stuff  
+  // @ts-ignore ignore node stuff
   process.env.MONGO_URI ??
   // @ts-ignore astro stuff
   (typeof globalThis !== 'undefined' && globalThis.process?.env?.MONGO_URI)
@@ -43,7 +43,9 @@ function connectClientWithTimeout(timeout = 5000) {
 export async function getCollection(dbName: string, collection: string) {
   try {
     if (!(await connectClientWithTimeout())) {
-      console.warn(`⚠️  Could not connect to MongoDB for ${dbName}.${collection}`)
+      console.warn(
+        `⚠️  Could not connect to MongoDB for ${dbName}.${collection}`
+      )
       return null
     }
     return client.db(dbName).collection(collection) as Collection
@@ -444,23 +446,23 @@ export async function getFamilyPerKingdom(kingdom: string) {
 export async function getOccurrenceCountPerKingdom(kingdom: string) {
   const occurrences = await getCollection('dwc2json', 'ocorrencias')
   if (!occurrences) return null
-  
+
   const result = await occurrences.countDocuments({
     kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
   })
-  
+
   return result
 }
 
 export async function getTaxaCountPerKingdom(kingdom: string) {
   const taxa = await getCollection('dwc2json', 'taxa')
   if (!taxa) return null
-  
+
   const result = await taxa.countDocuments({
     kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
     taxonomicStatus: 'NOME_ACEITO'
   })
-  
+
   return result
 }
 
@@ -490,7 +492,7 @@ export async function getThreatenedCountPerKingdom(kingdom: string) {
       'Categoria de Risco': { $ne: 'NE' }
     })
   }
-  
+
   return null
 }
 
@@ -517,11 +519,11 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
   } else if (kingdom.toLowerCase() === 'plantae') {
     const flora = await getCollection('dwc2json', 'cncfloraPlantae')
     if (!flora) return null
-    
+
     return await flora
       .aggregate([
         {
-          $match: { 
+          $match: {
             'Categoria de Risco': { $exists: true, $ne: null, $nin: ['NE'] }
           }
         },
@@ -539,11 +541,11 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
   } else if (kingdom.toLowerCase() === 'fungi') {
     const flora = await getCollection('dwc2json', 'cncfloraFungi')
     if (!flora) return null
-    
+
     return await flora
       .aggregate([
         {
-          $match: { 
+          $match: {
             'Categoria de Risco': { $exists: true, $ne: null, $nin: ['NE'] }
           }
         },
@@ -559,173 +561,188 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
       ])
       .toArray()
   }
-  
+
   return null
 }
 
 export async function getInvasiveCountPerKingdom(kingdom: string) {
   const invasive = await getCollection('dwc2json', 'invasoras')
   if (!invasive) return null
-  
+
   const result = await invasive.countDocuments({
     kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
   })
-  
+
   return result
 }
 
 export async function getInvasiveTopOrders(kingdom: string, limit = 10) {
   const invasive = await getCollection('dwc2json', 'invasoras')
   if (!invasive) return null
-  
+
   // The invasoras collection uses 'oorder' field for taxonomic order
-  const result = await invasive.aggregate([
-    {
-      $match: {
-        kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-        oorder: { $exists: true, $ne: null, $not: { $eq: '' } }
+  const result = await invasive
+    .aggregate([
+      {
+        $match: {
+          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+          oorder: { $exists: true, $ne: null, $not: { $eq: '' } }
+        }
+      },
+      {
+        $group: {
+          _id: '$oorder',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      },
+      {
+        $limit: limit
       }
-    },
-    {
-      $group: {
-        _id: '$oorder',
-        count: { $sum: 1 }
-      }
-    },
-    {
-      $sort: { count: -1 }
-    },
-    {
-      $limit: limit
-    }
-  ]).toArray()
-  
+    ])
+    .toArray()
+
   return result
 }
 
 export async function getInvasiveTopFamilies(kingdom: string, limit = 10) {
   const invasive = await getCollection('dwc2json', 'invasoras')
   if (!invasive) return null
-  
-  const result = await invasive.aggregate([
-    {
-      $match: {
-        kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-        family: { $exists: true, $ne: null, $not: { $eq: '' } }
+
+  const result = await invasive
+    .aggregate([
+      {
+        $match: {
+          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+          family: { $exists: true, $ne: null, $not: { $eq: '' } }
+        }
+      },
+      {
+        $group: {
+          _id: '$family',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      },
+      {
+        $limit: limit
       }
-    },
-    {
-      $group: {
-        _id: '$family',
-        count: { $sum: 1 }
-      }
-    },
-    {
-      $sort: { count: -1 }
-    },
-    {
-      $limit: limit
-    }
-  ]).toArray()
-  
+    ])
+    .toArray()
+
   return result
 }
 
-
-export async function getTaxaCountPerOrderByKingdom(kingdom: string, limit = 10) {
+export async function getTaxaCountPerOrderByKingdom(
+  kingdom: string,
+  limit = 10
+) {
   const taxa = await getCollection('dwc2json', 'taxa')
   if (!taxa) return null
-  
-  const result = await taxa.aggregate([
-    {
-      $match: {
-        kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-        taxonomicStatus: 'NOME_ACEITO',
-        order: { $exists: true, $ne: null, $not: { $eq: '' } }
+
+  const result = await taxa
+    .aggregate([
+      {
+        $match: {
+          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+          taxonomicStatus: 'NOME_ACEITO',
+          order: { $exists: true, $ne: null, $not: { $eq: '' } }
+        }
+      },
+      {
+        $group: {
+          _id: '$order',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      },
+      {
+        $limit: limit
       }
-    },
-    {
-      $group: {
-        _id: '$order',
-        count: { $sum: 1 }
-      }
-    },
-    {
-      $sort: { count: -1 }
-    },
-    {
-      $limit: limit
-    }
-  ]).toArray()
-  
+    ])
+    .toArray()
+
   return result
 }
 
-export async function getTaxaCountPerFamilyByKingdom(kingdom: string, limit = 10) {
+export async function getTaxaCountPerFamilyByKingdom(
+  kingdom: string,
+  limit = 10
+) {
   const taxa = await getCollection('dwc2json', 'taxa')
   if (!taxa) return null
-  
-  const result = await taxa.aggregate([
-    {
-      $match: {
-        kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-        taxonomicStatus: 'NOME_ACEITO',
-        family: { $exists: true, $ne: null, $not: { $eq: '' } }
-      }
-    },
-    {
-      $addFields: {
-        family: {
-          $cond: {
-            if: { $eq: ['$higherClassification', 'Algas'] },
-            then: { $concat: ['[Algae]: ', '$class'] },
-            else: '$family'
+
+  const result = await taxa
+    .aggregate([
+      {
+        $match: {
+          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+          taxonomicStatus: 'NOME_ACEITO',
+          family: { $exists: true, $ne: null, $not: { $eq: '' } }
+        }
+      },
+      {
+        $addFields: {
+          family: {
+            $cond: {
+              if: { $eq: ['$higherClassification', 'Algas'] },
+              then: { $concat: ['[Algae]: ', '$class'] },
+              else: '$family'
+            }
           }
         }
+      },
+      {
+        $group: {
+          _id: '$family',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      },
+      {
+        $limit: limit
       }
-    },
-    {
-      $group: {
-        _id: '$family',
-        count: { $sum: 1 }
-      }
-    },
-    {
-      $sort: { count: -1 }
-    },
-    {
-      $limit: limit
-    }
-  ]).toArray()
-  
+    ])
+    .toArray()
+
   return result
 }
 
 export async function getTopCollectionsByKingdom(kingdom: string, limit = 10) {
   const occurrences = await getCollection('dwc2json', 'ocorrencias')
   if (!occurrences) return null
-  
-  const result = await occurrences.aggregate([
-    {
-      $match: {
-        kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
-        rightsHolder: { $exists: true, $ne: null, $not: { $eq: '' } }
+
+  const result = await occurrences
+    .aggregate([
+      {
+        $match: {
+          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+          rightsHolder: { $exists: true, $ne: null, $not: { $eq: '' } }
+        }
+      },
+      {
+        $group: {
+          _id: '$rightsHolder',
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      },
+      {
+        $limit: limit
       }
-    },
-    {
-      $group: {
-        _id: '$rightsHolder',
-        count: { $sum: 1 }
-      }
-    },
-    {
-      $sort: { count: -1 }
-    },
-    {
-      $limit: limit
-    }
-  ]).toArray()
-  
+    ])
+    .toArray()
+
   return result
 }
 

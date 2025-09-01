@@ -9,12 +9,7 @@ import {
   CornerDownRightIcon,
   InfoIcon
 } from 'lucide-react'
-import {
-  startTransition,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
+import { startTransition, useEffect, useRef, useState } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ModelSelector, { type Provider } from './ModelSelector'

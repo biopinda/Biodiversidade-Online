@@ -10,4 +10,4 @@ declare module 'react' {
     share?: string | object
     default?: string | object
   }>
-} 
+}

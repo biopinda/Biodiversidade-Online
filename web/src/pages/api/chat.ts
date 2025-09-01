@@ -132,14 +132,16 @@ export async function POST({ request }: APIContext) {
             }
           }
         : {}),
-      ...(modelSpec.provider === 'google' ? {
-        google: {
-          thinkingConfig: {
-            includeThoughts: true
-            // thinkingBudget: 2048, // Optional: set a token budget for reasoning
+      ...(modelSpec.provider === 'google'
+        ? {
+            google: {
+              thinkingConfig: {
+                includeThoughts: true
+                // thinkingBudget: 2048, // Optional: set a token budget for reasoning
+              }
+            }
           }
-        }
-      } : {})
+        : {})
     }
   })
 

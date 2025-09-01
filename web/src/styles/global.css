@@ -102,5 +102,5 @@
 
 .prose-custom-code code::before,
 .prose-custom-code code::after {
-  content: ""; /* This removes the backticks */
+  content: ''; /* This removes the backticks */
 }
