@@ -9,7 +9,8 @@
     "preview": "deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs",
     "astro": "astro",
     "cache-dashboard": "dotenv -e .env tsx src/scripts/dashboard-cache-job.ts",
-    "start-cache-cron": "node cron-dashboard.js"
+    "start-cache-cron": "node cron-dashboard.js",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.2.18",
@@ -38,7 +39,7 @@
     "dedent": "^1.6.0",
     "lucide-react": "^0.475.0",
     "mongodb": "^6.10.0",
-    "mongodb-mcp-server": "^0.1.1",
+    "mongodb-mcp-server": "0.1.3",
     "prismjs": "^1.30.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -60,6 +61,7 @@
     "dotenv": "^16.6.1",
     "dotenv-cli": "^7.4.4",
     "node-cron": "^3.0.3",
+    "patch-package": "^8.0.0",
     "prettier": "^3.4.2",
     "tsx": "^4.11.2",
     "typescript": "^5.6.3",

@@ -1,0 +1,17 @@
+diff --git a/node_modules/mongodb-mcp-server/src/tools/mongodb/read/aggregate.ts b/node_modules/mongodb-mcp-server/src/tools/mongodb/read/aggregate.ts
+index a1b2c3d..e4b8c7d 100644
+--- a/node_modules/mongodb-mcp-server/src/tools/mongodb/read/aggregate.ts
++++ b/node_modules/mongodb-mcp-server/src/tools/mongodb/read/aggregate.ts
+@@ -34,7 +34,11 @@ export class AggregateTool extends MongoDBToolBase {
+             });
+         }
+ 
+-        const documents = await provider.aggregate(database, collection, pipeline).toArray();
++        // Set maxTimeMS to 120 seconds to avoid timeout on complex queries
++        const aggregateOptions = {
++            maxTimeMS: 120000
++        };
++        const documents = await provider.aggregate(database, collection, pipeline, aggregateOptions).toArray();
+ 
+         const content: Array<{ text: string; type: "text" }> = [
+             {
