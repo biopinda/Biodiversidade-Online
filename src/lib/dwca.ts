@@ -1,7 +1,7 @@
 import { parse } from 'https://deno.land/x/xml@2.1.0/mod.ts'
 import { download } from 'https://deno.land/x/download@v2.0.2/mod.ts'
 import extract from 'npm:extract-zip'
-import { DatabaseSync } from 'node:sqlite'
+import { DB } from 'https://deno.land/x/sqlite@v3.8/mod.ts'
 import cliProgress from 'npm:cli-progress'
 import path from 'node:path'
 
@@ -159,7 +159,7 @@ export const buildJson = async (folder: string) => {
 }
 
 const _addLineToTable = (
-  db: InstanceType<typeof DatabaseSync>,
+  db: DB,
   line: string,
   fields: string[],
   table: string
@@ -173,17 +173,17 @@ const _addLineToTable = (
         obj[field] = values[index]
       }
     })
-    db.prepare(`INSERT INTO ${table} VALUES (?, ?)`).run(
+    db.query(`INSERT INTO ${table} VALUES (?, ?)`, [
       id,
       JSON.stringify(obj)
-    )
+    ])
   }
 }
 
 export const buildSqlite = async (folder: string, chunkSize = 5000) => {
   {
-    const db = new DatabaseSync(':memory:')
-    db.exec('CREATE TABLE core (id TEXT PRIMARY KEY, json JSON)')
+    const db = new DB(':memory:')
+    db.execute('CREATE TABLE core (id TEXT PRIMARY KEY, json JSON)')
     const contents = await Deno.readTextFile(`${folder}/meta.xml`)
     const { archive } = parse(contents) as unknown as {
       archive: { core: CoreSpec; extension: ExtensionSpec[] }
@@ -220,8 +220,8 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
       }
       const tableName = extension.file.split('.')[0] as string
       // console.log(`prepping EXT:${tableName}`)
-      db.exec(`CREATE TABLE ${tableName} (id, json JSON)`)
-      db.exec(`CREATE INDEX idx_${tableName}_id ON ${tableName} (id)`)
+      db.execute(`CREATE TABLE ${tableName} (id, json JSON)`)
+      db.execute(`CREATE INDEX idx_${tableName}_id ON ${tableName} (id)`)
       b1.increment(1, { filename: extension.file })
       let lineCount = 0
       await streamProcessor(`${folder}/${extension.file}`, (_line) => {
@@ -240,11 +240,8 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
 
     return {
       get length() {
-        return (
-          db.prepare(`SELECT COUNT(id) count FROM core`).get() as {
-            count: number
-          }
-        ).count as number
+        const result = db.query(`SELECT COUNT(id) count FROM core`);
+        return result[0][0] as number
       },
       *[Symbol.iterator]() {
         let batch: [string, RU][] = []
@@ -296,9 +293,8 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
         GROUP BY
             c.id;`
           try {
-            batch = (
-              db.prepare(queryString).all() as { id: string; json: string }[]
-            ).map(({ id, json }) => [id, JSON.parse(json as string)]) as [
+            const rows = db.queryEntries(queryString) as { id: string; json: string }[];
+            batch = rows.map(({ id, json }) => [id, JSON.parse(json as string)]) as [
               string,
               RU
             ][]
