@@ -54,13 +54,20 @@ const { data: iptSources } = (await Deno.readTextFile(
   data: IptSource[]
 }
 
-const client = new MongoClient(Deno.env.get('MONGO_URI') as string)
+const mongoUri = Deno.env.get('MONGO_URI')
+if (!mongoUri) {
+  console.error('MONGO_URI environment variable is required')
+  Deno.exit(1)
+}
+const client = new MongoClient(mongoUri)
 await client.connect()
 const iptsCol = client.db('dwc2json').collection<DbIpt>('ipts')
 const ocorrenciasCol = client.db('dwc2json').collection('ocorrencias')
 
-console.log('Creating indexes')
-await Promise.all([
+console.log('Connecting to MongoDB...')
+try {
+  console.log('Creating indexes')
+  await Promise.all([
   ocorrenciasCol.createIndexes([
     {
       key: { scientificName: 1 },
@@ -90,8 +97,9 @@ await Promise.all([
     }
   ])
 ])
+  console.log('Indexes created successfully')
 
-for (const { repositorio, kingdom, tag, url } of iptSources) {
+  for (const { repositorio, kingdom, tag, url } of iptSources) {
   if (!repositorio || !tag) continue;
   console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
   const eml = await getEml(`${url}eml.do?r=${tag}`).catch((error) => {
@@ -190,7 +198,13 @@ for (const { repositorio, kingdom, tag, url } of iptSources) {
     { $set: { _id, ...iptDb, tag, ipt: repositorio, kingdom } },
     { upsert: true }
   )
-}
+  }
 
-console.debug('Done')
-client.close()
+  console.log('Processing completed successfully')
+} catch (error) {
+  console.error('Error occurred during processing:', error)
+  throw error
+} finally {
+  console.log('Closing MongoDB connection')
+  await client.close()
+}
