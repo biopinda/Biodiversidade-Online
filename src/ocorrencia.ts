@@ -76,7 +76,8 @@ await Promise.all([
     },
     { key: { canonicalName: 1 }, name: 'canonicalName' },
     { key: { flatScientificName: 1 }, name: 'flatScientificName' },
-    { key: { iptKingdoms: 1 }, name: 'iptKingdoms' }
+    { key: { iptKingdoms: 1 }, name: 'iptKingdoms' },
+    { key: { year: 1 }, name: 'year' }
   ]),
   iptsCol.createIndexes([
     {
@@ -151,6 +152,17 @@ for (const { repositorio, kingdom, tag, url } of iptSources) {
           .filter(Boolean)
           .join(' ')
         const iptKingdoms = kingdom.split(/, ?/)
+        
+        // Process year field: convert to numeric, keep invalid as string
+        const processedData = { ...ocorrencia[1] }
+        if (processedData.year && typeof processedData.year === 'string') {
+          const yearNum = parseInt(processedData.year, 10)
+          if (!isNaN(yearNum) && yearNum > 0) {
+            processedData.year = yearNum
+          }
+          // Invalid years remain as original strings
+        }
+        
         return {
           iptId: ipt.id,
           ipt: repositorio,
@@ -161,7 +173,7 @@ for (const { repositorio, kingdom, tag, url } of iptSources) {
           )
             .replace(/[^a-zA-Z0-9]/g, '')
             .toLocaleLowerCase(),
-          ...ocorrencia[1]
+          ...processedData
         }
       }),
       {
