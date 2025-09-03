@@ -67,36 +67,37 @@ const ocorrenciasCol = client.db('dwc2json').collection('ocorrencias')
 console.log('Connecting to MongoDB...')
 try {
   console.log('Creating indexes')
-  await Promise.all([
-  ocorrenciasCol.createIndexes([
-    {
-      key: { scientificName: 1 },
-      name: 'scientificName'
-    },
-    {
-      key: { iptId: 1 },
-      name: 'iptId'
-    },
-    {
-      key: { ipt: 1 },
-      name: 'ipt'
-    },
-    { key: { canonicalName: 1 }, name: 'canonicalName' },
-    { key: { flatScientificName: 1 }, name: 'flatScientificName' },
-    { key: { iptKingdoms: 1 }, name: 'iptKingdoms' },
-    { key: { year: 1 }, name: 'year' }
-  ]),
-  iptsCol.createIndexes([
-    {
-      key: { tag: 1 },
-      name: 'tag'
-    },
-    {
-      key: { ipt: 1 },
-      name: 'ipt'
+  
+  const createIndexSafely = async (collection: any, indexes: any[]) => {
+    for (const index of indexes) {
+      try {
+        await collection.createIndex(index.key, { name: index.name })
+      } catch (error: any) {
+        if (error.code === 85) {
+          console.log(`Index ${index.name} already exists with different options, skipping`)
+        } else {
+          throw error
+        }
+      }
     }
+  }
+
+  await Promise.all([
+    createIndexSafely(ocorrenciasCol, [
+      { key: { scientificName: 1 }, name: 'scientificName' },
+      { key: { iptId: 1 }, name: 'iptId' },
+      { key: { ipt: 1 }, name: 'ipt' },
+      { key: { canonicalName: 1 }, name: 'canonicalName' },
+      { key: { flatScientificName: 1 }, name: 'flatScientificName' },
+      { key: { iptKingdoms: 1 }, name: 'iptKingdoms' },
+      { key: { year: 1 }, name: 'year' }
+    ]),
+    createIndexSafely(iptsCol, [
+      { key: { tag: 1 }, name: 'tag' },
+      { key: { ipt: 1 }, name: 'ipt' }
+    ])
   ])
-])
+  
   console.log('Indexes created successfully')
 
   for (const { repositorio, kingdom, tag, url } of iptSources) {
