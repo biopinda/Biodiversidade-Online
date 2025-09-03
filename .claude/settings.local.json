@@ -14,7 +14,10 @@
       "Bash(npm run build:*)",
       "Bash(docker build:*)",
       "Bash(npm run dev:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(deno check:*)",
+      "Bash(deno run:*)"
     ],
     "deny": [],
     "ask": []
