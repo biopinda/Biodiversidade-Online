@@ -104,6 +104,10 @@ try {
   if (!repositorio || !tag) continue;
   console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
   const eml = await getEml(`${url}eml.do?r=${tag}`).catch((error) => {
+    if (error.name === 'Http' && error.message.includes('404')) {
+      console.log(`EML resource ${repositorio}:${tag} no longer exists (404) - skipping`)
+      return null
+    }
     console.log('Erro baixando/processando eml', error.message)
     return null
   })
@@ -117,7 +121,14 @@ try {
   }
   console.log(`Version mismatch: DB[${dbVersion}] vs REMOTE[${ipt.version}]`)
   console.debug(`Downloading ${repositorio}:${tag} [${url}archive.do?r=${tag}]`)
-  const ocorrencias = await processaZip(`${url}archive.do?r=${tag}`, true, 5000)
+  const ocorrencias = await processaZip(`${url}archive.do?r=${tag}`, true, 5000).catch((error) => {
+    if (error.name === 'Http' && error.message.includes('404')) {
+      console.log(`Resource ${repositorio}:${tag} no longer exists (404) - skipping`)
+      return null
+    }
+    throw error
+  })
+  if (!ocorrencias) continue
   console.debug(`Cleaning ${repositorio}:${tag}`)
   console.log(
     `Deleted ${
