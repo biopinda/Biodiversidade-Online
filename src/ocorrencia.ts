@@ -41,6 +41,17 @@ async function safeInsertMany(
   }
 }
 
+function isNetworkError(error: Error): boolean {
+  return (
+    error.message.includes('timeout') ||
+    error.message.includes('Connection') ||
+    error.message.includes('ECONNRESET') ||
+    error.message.includes('ENOTFOUND') ||
+    error.message.includes('ECONNREFUSED') ||
+    error.message.includes('AbortError')
+  )
+}
+
 type IptSource = {
   nome: string
   repositorio: string
@@ -67,14 +78,16 @@ const ocorrenciasCol = client.db('dwc2json').collection('ocorrencias')
 console.log('Connecting to MongoDB...')
 try {
   console.log('Creating indexes')
-  
+
   const createIndexSafely = async (collection: any, indexes: any[]) => {
     for (const index of indexes) {
       try {
         await collection.createIndex(index.key, { name: index.name })
       } catch (error: any) {
         if (error.code === 85) {
-          console.log(`Index ${index.name} already exists with different options, skipping`)
+          console.log(
+            `Index ${index.name} already exists with different options, skipping`
+          )
         } else {
           throw error
         }
@@ -97,119 +110,183 @@ try {
       { key: { ipt: 1 }, name: 'ipt' }
     ])
   ])
-  
+
   console.log('Indexes created successfully')
 
-  for (const { repositorio, kingdom, tag, url } of iptSources) {
-  if (!repositorio || !tag) continue;
-  console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
-  const eml = await getEml(`${url}eml.do?r=${tag}`).catch((error) => {
-    if (error.name === 'Http' && error.message.includes('404')) {
-      console.log(`EML resource ${repositorio}:${tag} no longer exists (404) - skipping`)
-      return null
+  // Track failed IPT servers to skip resources from same server
+  const failedIpts = new Set<string>()
+
+  // Extract base URL from IPT URL for grouping
+  const getIptBaseUrl = (url: string) => {
+    try {
+      const urlObj = new URL(url)
+      return `${urlObj.protocol}//${urlObj.host}`
+    } catch {
+      return url
     }
-    console.log('Erro baixando/processando eml', error.message)
-    return null
-  })
-  if (!eml) continue
-  const ipt = processaEml(eml)
-  const dbVersion = ((await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null)
-    ?.version
-  if (dbVersion === ipt.version) {
-    console.debug(`${repositorio}:${tag} already on version ${ipt.version}`)
-    continue
   }
-  console.log(`Version mismatch: DB[${dbVersion}] vs REMOTE[${ipt.version}]`)
-  console.debug(`Downloading ${repositorio}:${tag} [${url}archive.do?r=${tag}]`)
-  const ocorrencias = await processaZip(`${url}archive.do?r=${tag}`, true, 5000).catch((error) => {
-    if (error.name === 'Http' && error.message.includes('404')) {
-      console.log(`Resource ${repositorio}:${tag} no longer exists (404) - skipping`)
-      return null
+
+  for (const { repositorio, kingdom, tag, url } of iptSources) {
+    if (!repositorio || !tag) continue
+
+    // Check if this IPT server has already failed
+    const iptBaseUrl = getIptBaseUrl(url)
+    if (failedIpts.has(iptBaseUrl)) {
+      console.log(
+        `Skipping ${repositorio}:${tag} - IPT server ${iptBaseUrl} already failed`
+      )
+      continue
     }
-    throw error
-  })
-  if (!ocorrencias) continue
-  console.debug(`Cleaning ${repositorio}:${tag}`)
-  console.log(
-    `Deleted ${
-      (await ocorrenciasCol.deleteMany({ iptId: ipt.id })).deletedCount
-    } entries`
-  )
-  const bar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic)
-  bar.start(ocorrencias.length, 0)
-  for (const batch of ocorrencias) {
-    if (!batch || !batch.length) break
-    bar.increment(batch.length - Math.floor(batch.length / 4))
-    await safeInsertMany(
-      ocorrenciasCol,
-      batch.map((ocorrencia) => {
-        if (ocorrencia[1].decimalLatitude && ocorrencia[1].decimalLongitude) {
-          const latitude = +ocorrencia[1].decimalLatitude
-          const longitude = +ocorrencia[1].decimalLongitude
-          if (
-            !isNaN(latitude) &&
-            !isNaN(longitude) &&
-            latitude >= -90 &&
-            latitude <= 90 &&
-            longitude >= -180 &&
-            longitude <= 180
-          ) {
-            ocorrencia[1].geoPoint = {
-              type: 'Point',
-              coordinates: [longitude, latitude]
+
+    console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
+    const eml = await getEml(`${url}eml.do?r=${tag}`, 10000).catch((error) => {
+      if (error.name === 'Http' && error.message.includes('404')) {
+        console.log(
+          `EML resource ${repositorio}:${tag} no longer exists (404) - skipping`
+        )
+        return null
+      }
+
+      // If this is a timeout or connection error, mark the entire IPT as failed
+      if (isNetworkError(error)) {
+        console.log(
+          `IPT server ${iptBaseUrl} appears to be offline - marking for skip`
+        )
+        failedIpts.add(iptBaseUrl)
+      }
+
+      console.log('Erro baixando/processando eml', error.message)
+      return null
+    })
+    if (!eml) continue
+    const ipt = processaEml(eml)
+    const dbVersion = ((await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null)
+      ?.version
+    if (dbVersion === ipt.version) {
+      console.debug(`${repositorio}:${tag} already on version ${ipt.version}`)
+      continue
+    }
+    console.log(`Version mismatch: DB[${dbVersion}] vs REMOTE[${ipt.version}]`)
+    console.debug(
+      `Downloading ${repositorio}:${tag} [${url}archive.do?r=${tag}]`
+    )
+    const ocorrencias = await processaZip(
+      `${url}archive.do?r=${tag}`,
+      true,
+      5000
+    ).catch((error) => {
+      if (error.name === 'Http' && error.message.includes('404')) {
+        console.log(
+          `Resource ${repositorio}:${tag} no longer exists (404) - skipping`
+        )
+        return null
+      }
+
+      // If this is a timeout or connection error, mark the entire IPT as failed
+      if (isNetworkError(error)) {
+        console.log(
+          `IPT server ${iptBaseUrl} appears to be offline during archive download - marking for skip`
+        )
+        failedIpts.add(iptBaseUrl)
+      }
+
+      throw error
+    })
+    if (!ocorrencias) continue
+    console.debug(`Cleaning ${repositorio}:${tag}`)
+    console.log(
+      `Deleted ${
+        (await ocorrenciasCol.deleteMany({ iptId: ipt.id })).deletedCount
+      } entries`
+    )
+    const bar = new cliProgress.SingleBar(
+      {},
+      cliProgress.Presets.shades_classic
+    )
+    bar.start(ocorrencias.length, 0)
+    for (const batch of ocorrencias) {
+      if (!batch || !batch.length) break
+      bar.increment(batch.length - Math.floor(batch.length / 4))
+      await safeInsertMany(
+        ocorrenciasCol,
+        batch.map((ocorrencia) => {
+          if (ocorrencia[1].decimalLatitude && ocorrencia[1].decimalLongitude) {
+            const latitude = +ocorrencia[1].decimalLatitude
+            const longitude = +ocorrencia[1].decimalLongitude
+            if (
+              !isNaN(latitude) &&
+              !isNaN(longitude) &&
+              latitude >= -90 &&
+              latitude <= 90 &&
+              longitude >= -180 &&
+              longitude <= 180
+            ) {
+              ocorrencia[1].geoPoint = {
+                type: 'Point',
+                coordinates: [longitude, latitude]
+              }
             }
           }
-        }
-        const canonicalName = [
-          ocorrencia[1].genus,
-          ocorrencia[1].genericName,
-          ocorrencia[1].subgenus,
-          ocorrencia[1].infragenericEpithet,
-          ocorrencia[1].specificEpithet,
-          ocorrencia[1].infraspecificEpithet,
-          ocorrencia[1].cultivarEpiteth
-        ]
-          .filter(Boolean)
-          .join(' ')
-        const iptKingdoms = kingdom.split(/, ?/)
-        
-        // Process year field: convert to numeric, keep invalid as string
-        const processedData = { ...ocorrencia[1] }
-        if (processedData.year && typeof processedData.year === 'string') {
-          const yearNum = parseInt(processedData.year, 10)
-          if (!isNaN(yearNum) && yearNum > 0) {
-            processedData.year = yearNum
+          const canonicalName = [
+            ocorrencia[1].genus,
+            ocorrencia[1].genericName,
+            ocorrencia[1].subgenus,
+            ocorrencia[1].infragenericEpithet,
+            ocorrencia[1].specificEpithet,
+            ocorrencia[1].infraspecificEpithet,
+            ocorrencia[1].cultivarEpiteth
+          ]
+            .filter(Boolean)
+            .join(' ')
+          const iptKingdoms = kingdom.split(/, ?/)
+
+          // Process year field: convert to numeric, keep invalid as string
+          const processedData = { ...ocorrencia[1] }
+          if (processedData.year && typeof processedData.year === 'string') {
+            const yearNum = parseInt(processedData.year, 10)
+            if (!isNaN(yearNum) && yearNum > 0) {
+              processedData.year = yearNum
+            }
+            // Invalid years remain as original strings
           }
-          // Invalid years remain as original strings
+
+          return {
+            iptId: ipt.id,
+            ipt: repositorio,
+            canonicalName,
+            iptKingdoms,
+            flatScientificName: (
+              (ocorrencia[1].scientificName as string) ?? canonicalName
+            )
+              .replace(/[^a-zA-Z0-9]/g, '')
+              .toLocaleLowerCase(),
+            ...processedData
+          }
+        }),
+        {
+          ordered: false
         }
-        
-        return {
-          iptId: ipt.id,
-          ipt: repositorio,
-          canonicalName,
-          iptKingdoms,
-          flatScientificName: (
-            (ocorrencia[1].scientificName as string) ?? canonicalName
-          )
-            .replace(/[^a-zA-Z0-9]/g, '')
-            .toLocaleLowerCase(),
-          ...processedData
-        }
-      }),
-      {
-        ordered: false
-      }
+      )
+      bar.increment(Math.floor(batch.length / 4))
+    }
+    bar.stop()
+    console.debug(`Inserting IPT ${repositorio}:${tag}`)
+    const { id: _id, ...iptDb } = ipt
+    await iptsCol.updateOne(
+      { _id: ipt.id },
+      { $set: { _id, ...iptDb, tag, ipt: repositorio, kingdom } },
+      { upsert: true }
     )
-    bar.increment(Math.floor(batch.length / 4))
   }
-  bar.stop()
-  console.debug(`Inserting IPT ${repositorio}:${tag}`)
-  const { id: _id, ...iptDb } = ipt
-  await iptsCol.updateOne(
-    { _id: ipt.id },
-    { $set: { _id, ...iptDb, tag, ipt: repositorio, kingdom } },
-    { upsert: true }
-  )
+
+  // Report failed IPTs
+  if (failedIpts.size > 0) {
+    console.log(
+      `\nSummary: ${failedIpts.size} IPT server(s) were offline and skipped:`
+    )
+    for (const iptUrl of failedIpts) {
+      console.log(`  - ${iptUrl}`)
+    }
   }
 
   console.log('Processing completed successfully')
