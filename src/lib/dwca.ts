@@ -370,13 +370,33 @@ export async function processaZip(
   sqlite = false,
   chunkSize = 5000
 ): Promise<ReturnType<typeof buildJson> | ReturnType<typeof buildSqlite>> {
-  await downloadWithTimeout(url, { file: 'temp.zip', dir: '.temp' })
-  await extract('.temp/temp.zip', { dir: path.resolve('.temp') })
-  const ret = sqlite
-    ? await buildSqlite('.temp', chunkSize)
-    : await buildJson('.temp')
-  await Deno.remove('.temp', { recursive: true })
-  return ret
+  try {
+    await downloadWithTimeout(url, { file: 'temp.zip', dir: '.temp' })
+  } catch (error: any) {
+    // Handle 404 errors when IPT resources no longer exist
+    if (
+      error.name === 'Http' &&
+      (error.message.includes('404') || error.message.includes('Not Found'))
+    ) {
+      throw error // Re-throw to be handled by caller
+    }
+    throw error // Re-throw any other errors
+  }
+
+  try {
+    await extract('.temp/temp.zip', { dir: path.resolve('.temp') })
+    const ret = sqlite
+      ? await buildSqlite('.temp', chunkSize)
+      : await buildJson('.temp')
+    return ret
+  } finally {
+    // Always clean up temporary files
+    try {
+      await Deno.remove('.temp', { recursive: true })
+    } catch {
+      // Ignore cleanup errors
+    }
+  }
 }
 
 export type Eml = {

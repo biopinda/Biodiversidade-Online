@@ -29,7 +29,7 @@ async function safeInsertMany(
       return returns.reduce((acc, cur) => ({
         acknowledged: acc.acknowledged && cur.acknowledged,
         insertedCount: acc.insertedCount + cur.insertedCount,
-        insertedIds: { ...acc.insertedIds, ...cur.insertedIds }
+        insertedIds: { ...acc.insertedIds, ...cur.insertedIds },
       }))
     } catch (_e) {
       chunkSize = Math.floor(chunkSize / 2)
@@ -103,12 +103,12 @@ try {
       { key: { canonicalName: 1 }, name: 'canonicalName' },
       { key: { flatScientificName: 1 }, name: 'flatScientificName' },
       { key: { iptKingdoms: 1 }, name: 'iptKingdoms' },
-      { key: { year: 1 }, name: 'year' }
+      { key: { year: 1 }, name: 'year' },
     ]),
     createIndexSafely(iptsCol, [
       { key: { tag: 1 }, name: 'tag' },
-      { key: { ipt: 1 }, name: 'ipt' }
-    ])
+      { key: { ipt: 1 }, name: 'ipt' },
+    ]),
   ])
 
   console.log('Indexes created successfully')
@@ -139,8 +139,14 @@ try {
     }
 
     console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
-    const eml = await getEml(`${url}eml.do?r=${tag}`, 10000).catch((error) => {
-      if (error.name === 'Http' && error.message.includes('404')) {
+    const eml = await getEml(`${url}eml.do?r=${tag}`).catch((error) => {
+      // Handle 404 errors when IPT EML resources no longer exist
+      if (
+        error.name === 'Http' &&
+        (error.message.includes('404') ||
+          error.message.includes('Not Found') ||
+          error.message.includes('status 404'))
+      ) {
         console.log(
           `EML resource ${repositorio}:${tag} no longer exists (404) - skipping`
         )
@@ -223,7 +229,7 @@ try {
             ) {
               ocorrencia[1].geoPoint = {
                 type: 'Point',
-                coordinates: [longitude, latitude]
+                coordinates: [longitude, latitude],
               }
             }
           }
@@ -234,7 +240,7 @@ try {
             ocorrencia[1].infragenericEpithet,
             ocorrencia[1].specificEpithet,
             ocorrencia[1].infraspecificEpithet,
-            ocorrencia[1].cultivarEpiteth
+            ocorrencia[1].cultivarEpiteth,
           ]
             .filter(Boolean)
             .join(' ')
@@ -260,11 +266,11 @@ try {
             )
               .replace(/[^a-zA-Z0-9]/g, '')
               .toLocaleLowerCase(),
-            ...processedData
+            ...processedData,
           }
         }),
         {
-          ordered: false
+          ordered: false,
         }
       )
       bar.increment(Math.floor(batch.length / 4))
