@@ -21,6 +21,7 @@ Always reference these instructions first and fallback to search or bash command
 - Build application: `bun run build` -- takes ~16 seconds. Set timeout to 60+ seconds.
 - Run development server: `bun run dev` -- starts in <1 second on http://localhost:4321/.
 - Run production server: `node dist/server/entry.mjs` -- NOT the bun preview command (requires Deno)
+  - These bun/node commands should only be executed within the `web/` subfolder
 
 ### Data Processing Scripts (Deno)
 
@@ -111,11 +112,13 @@ Always reference these instructions first and fallback to search or bash command
 
 1. Always work in the `web/` directory for application changes
 2. Run `bun install` after pulling changes
-3. Use `bun run dev` for development with hot reload
-4. Check formatting with `bunx prettier --check src/`
-5. Build and test production: `bun run build && node dist/server/entry.mjs`
-6. Ensure MongoDB connection configured for full functionality testing
-7. Always validate TypeScript compilation: `bunx tsc --noEmit`
+  2.a You should **never** run bun install on the project root, as there's no package.json there 
+4. Use `bun run dev` for development with hot reload
+5. Check formatting with `bunx prettier --check src/`
+6. Build and test production: `bun run build && node dist/server/entry.mjs`
+7. Ensure MongoDB connection configured for full functionality testing
+8. Always validate TypeScript compilation: `bunx tsc --noEmit`
+9. When writing pull requests, make sure to write those in Brazilian Portuguese, as it's the repo's official language
 
 ## Performance Notes
 
