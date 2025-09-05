@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import requests
 import xml.etree.ElementTree as ET
 import csv
@@ -6,10 +7,17 @@ import json
 import re
 from datetime import datetime
 
+# Tentar carregar variáveis de ambiente de .env se disponível
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # Configurações
 ipt_rss = 'https://ipt.jbrj.gov.br/jabot/rss.do'
-grist_api_key = '024939845d4aced7bf2fe7feb3b7d61605ccaaca'
-doc_id = 'wMBGKD6RpKHECWeCKgXp3E'
+grist_api_key = os.getenv('GRIST_API_KEY', '')
+doc_id = os.getenv('GRIST_DOC_ID', '')
 table_id = 'Datasets'
 api_url = f'https://docs.getgrist.com/api/docs/{doc_id}/tables/{table_id}/records'
 columns_url = f'https://docs.getgrist.com/api/docs/{doc_id}/tables/{table_id}/columns'
@@ -227,6 +235,15 @@ def create_files_from_missing(missing_resources, columns, base_filename):
     print(f"📄 TSV criado (delimitado por TAB): {tsv_filename}")
 
 def main():
+    # Verificar variáveis de ambiente obrigatórias
+    if not grist_api_key:
+        print("❌ Erro: GRIST_API_KEY não definida nas variáveis de ambiente")
+        return
+    
+    if not doc_id:
+        print("❌ Erro: GRIST_DOC_ID não definida nas variáveis de ambiente")
+        return
+        
     print("Buscando dados do IPT RSS...")
     rss_content = fetch_ipt_rss_data(ipt_rss)
     

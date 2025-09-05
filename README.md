@@ -1,46 +1,117 @@
+# DarwinCoreJSON - Sistema de Integração de Dados de Biodiversidade
+
 [![Update MongoDB - Flora](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-flora.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-flora.yml)
 [![Update MongoDB - Fauna](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml)
 [![Update MongoDB - Ocorrências](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml)
 [![Docker Image](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/docker.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/pkgs/container/darwincorejson)
 [![DOI](https://zenodo.org/badge/576212307.svg)](https://doi.org/10.5281/zenodo.10458671)
 
-# ChatBB - O "chat" da Biodiversidade Brasileira
-# (DwC2JSON V5.0)
+## Visão Geral
 
-Esta nova versão do projeto DWC2JSON (ver histórico em [versão1](https://github.com/biopinda/DarwinCoreJSON/blob/main/README.v1.md), [versão2](https://github.com/biopinda/DarwinCoreJSON/blob/main/README.v2..md), [versão4](https://github.com/biopinda/DarwinCoreJSON/blob/main/README.v4.md)), se aproveita do [protocolo MCP](https://www.anthropic.com/news/model-context-protocol), desenvolvido pela empresa Athropic, [implementado recentemente pelos desenvolvedores do MongoDB](https://www.mongodb.com/blog/post/announcing-mongodb-mcp-server), para conectar a [base de dados integrada da biodiversidade brasileira]() com a [plataforma da OpenIA](https://platform.openai.com/docs/overview) e o [Gemini, do Google](https://gemini.google.com/) e criar o "ChatBB - O Assistente Virtual Inteligente da Biodiversidade Brasileira".
+O **DarwinCoreJSON** é um sistema automatizado de integração e processamento de dados de biodiversidade brasileira, desenvolvido em TypeScript com Deno. O projeto consolida informações taxonômicas e de ocorrências de múltiplas fontes científicas em uma base de dados MongoDB unificada, facilitando consultas e análises da biodiversidade nacional.
 
-O "ChatBB" é um assistente de inteligência artificial que usa um "Large Language Models" (LLM) das empresas OpenIA e Google para interpretar e responder perguntas sobre espécies da biodiversidade brasileira, suas ocorrências, seu risco de extinção, unidades de conservação e espécies invasoras.
+## Funcionalidades Principais
 
-O banco de dados em MongoDB, criado pelo projeto "Darwin Core 2 JSON" é conectado ao LLM com base no [protocolo MCP](https://www.anthropic.com/news/model-context-protocol), desenvolvido pela empresa Athropic, e [implementado recentemente pelos desenvolvedores do MongoDB](https://www.mongodb.com/blog/post/announcing-mongodb-mcp-server).
+### 🔄 Processamento Automático de Dados
+- **Integração contínua** via GitHub Actions com processamento automático de dados de flora, fauna e ocorrências
+- **Processamento de arquivos DwC-A** (Darwin Core Archive) de repositórios IPT
+- **Normalização e estruturação** de dados taxonômicos seguindo padrões Darwin Core
+- **Atualização automática** do banco MongoDB com novos dados
 
-As coleções de dados ofertadas ao LLM pela base de dados integrada são as seguintes:
+### 📊 Fontes de Dados Integradas
+- **Flora e Funga do Brasil** - Catálogo oficial de espécies vegetais
+- **Catálogo Taxonômico da Fauna do Brasil** - Base oficial de espécies animais
+- **Instituto Hórus** - Banco de dados de espécies invasoras
+- **CNCFlora** - Avaliações de risco de extinção da flora (até 2022)
+- **MMA** - Lista oficial de espécies ameaçadas de fauna (2021)
+- **CNUC** - Unidades de conservação brasileiras
+- **~12 milhões de registros de ocorrência** de ~490 repositórios IPT
 
-* [Flora e Funga do Brasil](https://floradobrasil.jbrj.gov.br/consulta/).
-* [Catálogo Taxonômico da Fauna do Brasil](http://fauna.jbrj.gov.br/)
-* Banco de dados de espécies invasoras do [Instituto Hórus](https://institutohorus.org.br/).
-* Espécies da flora avaliadas quanto ao risco de extinção pelo [CNCFlora](https://cncflora.jbrj.gov.br/), até 2022.
-* [FAUNA - Lista de Espécies Ameaçadas - 2021](https://dados.mma.gov.br/dataset/especies-ameacadas/resource/544f9312-d4c6-4d12-b6ac-51bf3039bbb7)
-* [Lista das UCs ativas no CNUC com respectivas categorias de manejo, área, esfera de governo, ano de criação e outras informações. Dados atualizados até março/2025](https://dados.mma.gov.br/dataset/unidadesdeconservacao/resource/f6bf9940-cf30-4ef2-927d-2bd278e4c8af).
-* Cerca de 12 milhões de registros de ocorrência da fauna e flora, provenientes de cerca de 490 repositórios (IPTs) - [lista](https://github.com/biopinda/DarwinCoreJSON/blob/main/referencias/occurrences.csv).
+### 🛠️ Ferramentas de Gerenciamento
+- **Script de verificação IPT** - Monitora recursos disponíveis vs. integrados
+- **Processadores específicos** para flora e fauna com lógicas de transformação otimizadas
+- **Suporte a diferentes formatos** de dados científicos
 
-Veja aqui alguns exemplos de perguntas e respostas utilizando o ChatBB:
+## Arquitetura Técnica
 
-* [Me fale sobre o gênero vriesea](https://trilium.dalc.in/share/lFMRnEIBR5Yu)
-* [Quais as espécies invasoras de árvores ocorrem nos parques nacionais?](https://trilium.dalc.in/share/I7vFC96GRy73)
-* [Quais as espécies de bromeliaceae ameaçadas de extinção que ocorrem em parques nacionais?](https://trilium.dalc.in/share/nfGgiYw3jhX8)
-* [Existe alguma espécie de mammalia invasora ocorrendo em parque nacional?](https://trilium.dalc.in/share/gq7VrTs1VQw9)
-* [Mammalia no Parque Nacional de Itatiata](https://trilium.dalc.in/share/UP1QHZIKKImI)
-* [Liste as espécies da fauna ameaçada que não estão na coleção taxa. Inclua as informações de filo e classe.](https://trilium.dalc.in/share/dX6Fpw2sC6J2)
-* [Quais as espécies de cactus são endêmicas do rio de janeiro?](https://trilium.dalc.in/share/wHVjLmy2GYZH)
-* [Qual as 10 famílias de plantas mais coletadas por Filardi?](https://trilium.dalc.in/share/So7cSpBzKg6X)
-* [Me fale sobre o parque de itatiaia](https://trilium.dalc.in/share/8DooZZ2m6ZRD)
-* [Gostaria de saber mais sobre as espécies ameaçadas](https://trilium.dalc.in/share/hYv76no1dEgS)
-* [Existem registros de coletas de plantas em terras indígenas com indicação de uso?](https://trilium.dalc.in/share/yMmZpPBgogyZ)
-* [Me fale sobre a Caesalpinia echinata](https://trilium.dalc.in/share/hQnwrXvZKdak)
-* [Me fale sobre a restinga de massambaba](https://trilium.dalc.in/share/UILAdy3L13yx)
+```
+├── src/
+│   ├── fauna.ts          # Processamento de dados da fauna
+│   ├── flora.ts          # Processamento de dados da flora  
+│   ├── ocorrencia.ts     # Processamento de registros de ocorrência
+│   └── lib/
+│       └── dwca.ts       # Biblioteca para processamento DwC-A
+├── scripts/
+│   └── check_ipt_resources.py  # Verificação de recursos IPT
+├── .github/workflows/    # Automação CI/CD
+└── referencias/          # Documentação e listas de referência
+```
 
-O ChatBB ainda está em fase de testes e ajustes em [seu "prompt"](https://github.com/biopinda/DarwinCoreJSON/blob/main/web/src/prompts/prompt.md) e a ideia é que seja colocado em produção para os interessados.
+### Tecnologias Utilizadas
+- **Runtime**: Deno
+- **Linguagem**: TypeScript
+- **Banco de dados**: MongoDB
+- **Automação**: GitHub Actions
+- **Containerização**: Docker
 
-Dúvidas e sugestões podem ser registradas [nos "issues"](https://github.com/biopinda/DarwinCoreJSON/issues).
+## ChatBB - Assistente de IA para Biodiversidade
 
-Citação da ferramenta:[Henrique Pinheiro, & Eduardo Dalcin. (2025). edalcin/DarwinCoreJSON: ChatBB - O "chat" da Biodiversidade Brasileira (DWC2JSON V5.0) (v5.0). Zenodo. https://doi.org/10.5281/zenodo.15511063](https://doi.org/10.5281/zenodo.15511063)
+A versão 5.0 introduz o **ChatBB**, um assistente virtual que utiliza o protocolo MCP (Model Context Protocol) para conectar a base de dados integrada com modelos de linguagem (LLMs) como OpenAI GPT e Google Gemini.
+
+### Exemplos de Consultas
+- [Informações sobre o gênero Vriesea](https://trilium.dalc.in/share/lFMRnEIBR5Yu)
+- [Espécies invasoras em parques nacionais](https://trilium.dalc.in/share/I7vFC96GRy73)
+- [Bromeliaceae ameaçadas em UCs](https://trilium.dalc.in/share/nfGgiYw3jhX8)
+- [Análise de espécies endêmicas](https://trilium.dalc.in/share/wHVjLmy2GYZH)
+
+## Histórico de Versões
+- **V5.0** (atual): Integração com ChatBB e protocolo MCP
+- **V4.0**: [Melhorias na integração de dados](README.v4.md)
+- **V2.x**: [Expansão de fontes de dados](README.v2..md)
+- **V1.0**: [Versão inicial](README.v1.md)
+
+## Como Usar
+
+### Pré-requisitos
+- Deno instalado
+- Acesso ao MongoDB
+- Docker (opcional)
+
+### Execução Local
+```bash
+# Processar dados de flora
+deno run --allow-all src/flora.ts
+
+# Processar dados de fauna  
+deno run --allow-all src/fauna.ts
+
+# Processar ocorrências
+deno run --allow-all src/ocorrencia.ts
+```
+
+### Via Docker
+```bash
+docker pull ghcr.io/biopinda/darwincorejson:latest
+docker run ghcr.io/biopinda/darwincorejson:latest
+```
+
+## Contribuições
+
+Dúvidas, sugestões e contribuições são bem-vindas através das [issues do projeto](https://github.com/biopinda/DarwinCoreJSON/issues).
+
+## Citação
+
+```bibtex
+@software{pinheiro_dalcin_2025,
+  title = {DarwinCoreJSON: Sistema de Integração de Dados de Biodiversidade},
+  author = {Pinheiro, Henrique and Dalcin, Eduardo},
+  year = {2025},
+  version = {5.0},
+  doi = {10.5281/zenodo.15511063},
+  url = {https://github.com/biopinda/DarwinCoreJSON}
+}
+```
+
+## Licença
+
+Este projeto é desenvolvido como software livre para a comunidade científica brasileira.
