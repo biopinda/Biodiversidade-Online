@@ -799,8 +799,8 @@ export async function getCalFenoData(filter: Record<string, any> = {}) {
       return []
     }
     
+    // A view calFeno já filtra plantas com dados de floração
     const baseFilter = {
-      kingdom: 'Plantae',
       ...filter
     }
     
@@ -818,7 +818,7 @@ export async function getCalFenoFamilies() {
     const calFeno = await getCollection('dwc2json', 'calFeno')
     if (!calFeno) return []
     
-    const families = await calFeno.distinct('family', { kingdom: 'Plantae' })
+    const families = await calFeno.distinct('family', {})
     return families.filter(f => f && f.trim() !== '').sort()
   } catch (error) {
     console.error('❌ Error getting families:', error)
@@ -832,7 +832,6 @@ export async function getCalFenoGenera(family: string) {
     if (!calFeno) return []
     
     const genera = await calFeno.distinct('genus', { 
-      kingdom: 'Plantae', 
       family: family 
     })
     return genera.filter(g => g && g.trim() !== '').sort()
@@ -848,7 +847,6 @@ export async function getCalFenoSpecies(family: string, genus: string) {
     if (!calFeno) return []
     
     const species = await calFeno.distinct('canonicalName', { 
-      kingdom: 'Plantae', 
       family: family,
       genus: genus
     })
