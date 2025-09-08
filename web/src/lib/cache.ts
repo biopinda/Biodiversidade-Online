@@ -1,5 +1,5 @@
 import { getCollection } from './mongo'
-import { writeFile, readFile, stat } from 'fs/promises'
+import { writeFile, readFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import { join } from 'path'
 
@@ -119,18 +119,27 @@ export async function getCachedFamilies(): Promise<string[]> {
     let cache = await loadCache()
     
     if (!cache) {
-      cache = await generateCache()
+      console.log('🔄 Cache não encontrado ou desatualizado, gerando novo cache...')
+      try {
+        cache = await generateCache()
+      } catch (cacheError) {
+        console.warn('⚠️  Falha ao gerar cache, usando fallback:', cacheError)
+        // Fallback para busca direta no MongoDB
+        const calFeno = await getCollection('dwc2json', 'calFeno')
+        if (!calFeno) {
+          console.warn('⚠️  Collection calFeno não disponível')
+          return []
+        }
+        
+        const families = await calFeno.distinct('family', { kingdom: 'Plantae' })
+        return families.filter(f => f && f.trim() !== '').sort()
+      }
     }
     
     return cache.families
   } catch (error) {
     console.error('❌ Erro ao obter famílias em cache:', error)
-    // Fallback para busca direta no MongoDB
-    const calFeno = await getCollection('dwc2json', 'calFeno')
-    if (!calFeno) return []
-    
-    const families = await calFeno.distinct('family', { kingdom: 'Plantae' })
-    return families.filter(f => f && f.trim() !== '').sort()
+    return []
   }
 }
 
@@ -140,21 +149,26 @@ export async function getCachedGenera(family: string): Promise<string[]> {
     let cache = await loadCache()
     
     if (!cache) {
-      cache = await generateCache()
+      try {
+        cache = await generateCache()
+      } catch (cacheError) {
+        console.warn('⚠️  Falha ao gerar cache, usando fallback para gêneros:', cacheError)
+        // Fallback para busca direta no MongoDB
+        const calFeno = await getCollection('dwc2json', 'calFeno')
+        if (!calFeno) return []
+        
+        const genera = await calFeno.distinct('genus', { 
+          kingdom: 'Plantae', 
+          family: family 
+        })
+        return genera.filter(g => g && g.trim() !== '').sort()
+      }
     }
     
     return cache.genera[family] || []
   } catch (error) {
     console.error('❌ Erro ao obter gêneros em cache:', error)
-    // Fallback para busca direta no MongoDB
-    const calFeno = await getCollection('dwc2json', 'calFeno')
-    if (!calFeno) return []
-    
-    const genera = await calFeno.distinct('genus', { 
-      kingdom: 'Plantae', 
-      family: family 
-    })
-    return genera.filter(g => g && g.trim() !== '').sort()
+    return []
   }
 }
 
@@ -164,22 +178,27 @@ export async function getCachedSpecies(family: string, genus: string): Promise<s
     let cache = await loadCache()
     
     if (!cache) {
-      cache = await generateCache()
+      try {
+        cache = await generateCache()
+      } catch (cacheError) {
+        console.warn('⚠️  Falha ao gerar cache, usando fallback para espécies:', cacheError)
+        // Fallback para busca direta no MongoDB
+        const calFeno = await getCollection('dwc2json', 'calFeno')
+        if (!calFeno) return []
+        
+        const species = await calFeno.distinct('canonicalName', { 
+          kingdom: 'Plantae', 
+          family: family,
+          genus: genus
+        })
+        return species.filter(s => s && s.trim() !== '').sort()
+      }
     }
     
     const key = `${family}|${genus}`
     return cache.species[key] || []
   } catch (error) {
     console.error('❌ Erro ao obter espécies em cache:', error)
-    // Fallback para busca direta no MongoDB
-    const calFeno = await getCollection('dwc2json', 'calFeno')
-    if (!calFeno) return []
-    
-    const species = await calFeno.distinct('canonicalName', { 
-      kingdom: 'Plantae', 
-      family: family,
-      genus: genus
-    })
-    return species.filter(s => s && s.trim() !== '').sort()
+    return []
   }
 }
