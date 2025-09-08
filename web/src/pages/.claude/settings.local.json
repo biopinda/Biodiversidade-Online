@@ -5,7 +5,17 @@
       "Bash(git push:*)",
       "Bash(git pull:*)",
       "WebFetch(domain:localhost)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(echo $APPDATA)",
+      "Read(//c/Users/web/AppData/Roaming/**)",
+      "Bash(npm run build:*)",
+      "Bash(docker build:*)",
+      "Bash(pnpm run dev:*)",
+      "Bash(npm run cache-pheno:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm run:*)"
     ],
     "deny": [],
     "ask": [],

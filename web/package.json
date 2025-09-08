@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs",
     "astro": "astro",
-    "cache-dashboard": "dotenv -e .env tsx src/scripts/dashboard-cache-job.ts",
+    "cache-dashboard": "dotenv -e .env pnpm tsx src/scripts/dashboard-cache-job.ts",
+    "cache-pheno": "dotenv -e .env pnpm tsx src/scripts/update-cache.ts",
     "start-cache-cron": "node cron-dashboard.js",
     "postinstall": "patch-package"
   },

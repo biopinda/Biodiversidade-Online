@@ -2,11 +2,13 @@
 import Layout from '../layouts/base.astro'
 import { 
   getCalFenoData, 
-  getCalFenoFamilies, 
-  getCalFenoGenera, 
-  getCalFenoSpecies,
   generatePhenologicalHeatmap 
 } from '../lib/mongo'
+import {
+  getCachedFamilies,
+  getCachedGenera, 
+  getCachedSpecies
+} from '../lib/cache'
 
 export const prerender = false
 
@@ -19,7 +21,7 @@ let selectedSpecies = ''
 let heatmapData: any[] = []
 
 try {
-  families = await getCalFenoFamilies()
+  families = await getCachedFamilies()
   
   const url = new URL(Astro.request.url)
   selectedFamily = url.searchParams.get('family') || ''
@@ -27,10 +29,10 @@ try {
   selectedSpecies = url.searchParams.get('species') || ''
   
   if (selectedFamily) {
-    genera = await getCalFenoGenera(selectedFamily)
+    genera = await getCachedGenera(selectedFamily)
     
     if (selectedGenus) {
-      species = await getCalFenoSpecies(selectedFamily, selectedGenus)
+      species = await getCachedSpecies(selectedFamily, selectedGenus)
       
       let filter: Record<string, any> = { family: selectedFamily, genus: selectedGenus }
       
