@@ -55,35 +55,58 @@ export async function generateCache(): Promise<TaxonomicCache> {
   try {
     console.log('🔄 Gerando cache taxonomico para calendario fenológico...')
     
+    // Usar a view calFeno que já tem os dados filtrados
+    console.log('📊 Usando view calFeno para dados fenológicos...')
     const calFeno = await getCollection('dwc2json', 'calFeno')
     if (!calFeno) {
-      throw new Error('Collection calFeno não disponível')
+      throw new Error('View calFeno não disponível')
     }
 
-    // Buscar todas as famílias
-    const families = await calFeno.distinct('family', { kingdom: 'Plantae' })
+    // Contar registros fenológicos
+    const totalCount = await calFeno.countDocuments()
+    const plantaeCount = await calFeno.countDocuments({ kingdom: 'Plantae' })
+    console.log(`📊 View calFeno stats: total=${totalCount}, plantae=${plantaeCount}`)
+
+    let collection = calFeno
+
+    // Filtro base para dados fenológicos (a view já filtra, só precisamos do kingdom)
+    const phenoFilter = { kingdom: 'Plantae' }
+
+    // Buscar todas as famílias com dados fenológicos
+    const families = await collection.distinct('family', phenoFilter)
+    console.log(`🔍 Found ${families.length} families with phenological data:`, families.slice(0, 5))
     const cleanFamilies = families.filter(f => f && f.trim() !== '').sort()
 
-    // Buscar gêneros por família
+    // Buscar gêneros por família (com dados fenológicos)
     const genera: Record<string, string[]> = {}
     for (const family of cleanFamilies) {
-      const familyGenera = await calFeno.distinct('genus', { 
-        kingdom: 'Plantae', 
+      const familyGenera = await collection.distinct('genus', { 
+        ...phenoFilter,
         family: family 
       })
       genera[family] = familyGenera.filter(g => g && g.trim() !== '').sort()
     }
 
-    // Buscar espécies por família e gênero
+    // Buscar espécies por família e gênero (com dados fenológicos)
     const species: Record<string, string[]> = {}
     for (const family of cleanFamilies) {
       for (const genus of genera[family] || []) {
         const key = `${family}|${genus}`
-        const familySpecies = await calFeno.distinct('canonicalName', { 
-          kingdom: 'Plantae', 
+        // Tentar primeiro canonicalName, depois scientificName
+        let familySpecies = await collection.distinct('canonicalName', { 
+          ...phenoFilter,
           family: family,
           genus: genus
         })
+        
+        if (familySpecies.length === 0) {
+          familySpecies = await collection.distinct('scientificName', { 
+            ...phenoFilter,
+            family: family,
+            genus: genus
+          })
+        }
+        
         species[key] = familySpecies.filter(s => s && s.trim() !== '').sort()
       }
     }

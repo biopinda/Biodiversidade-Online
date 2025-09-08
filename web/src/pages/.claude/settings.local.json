@@ -15,7 +15,9 @@
       "Bash(pnpm run dev:*)",
       "Bash(npm run cache-pheno:*)",
       "Bash(pnpm install:*)",
-      "Bash(pnpm run:*)"
+      "Bash(pnpm run:*)",
+      "mcp__playwright__browser_navigate",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": [],
