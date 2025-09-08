@@ -776,3 +776,96 @@ export async function getTaxon(
       )[0]
     : await taxa.findOne({ kingdom, taxonID: id })
 }
+
+// Funções para o Calendário Fenológico
+
+export async function getCalFenoData(filter: Record<string, any> = {}) {
+  try {
+    const calFeno = await getCollection('dwc2json', 'calFeno')
+    if (!calFeno) {
+      console.warn('⚠️  calFeno view not available')
+      return []
+    }
+    
+    const baseFilter = {
+      kingdom: 'Plantae',
+      ...filter
+    }
+    
+    return await calFeno
+      .find(baseFilter)
+      .toArray()
+  } catch (error) {
+    console.error('❌ Error querying calFeno:', error)
+    return []
+  }
+}
+
+export async function getCalFenoFamilies() {
+  try {
+    const calFeno = await getCollection('dwc2json', 'calFeno')
+    if (!calFeno) return []
+    
+    const families = await calFeno.distinct('family', { kingdom: 'Plantae' })
+    return families.filter(f => f && f.trim() !== '').sort()
+  } catch (error) {
+    console.error('❌ Error getting families:', error)
+    return []
+  }
+}
+
+export async function getCalFenoGenera(family: string) {
+  try {
+    const calFeno = await getCollection('dwc2json', 'calFeno')
+    if (!calFeno) return []
+    
+    const genera = await calFeno.distinct('genus', { 
+      kingdom: 'Plantae', 
+      family: family 
+    })
+    return genera.filter(g => g && g.trim() !== '').sort()
+  } catch (error) {
+    console.error('❌ Error getting genera:', error)
+    return []
+  }
+}
+
+export async function getCalFenoSpecies(family: string, genus: string) {
+  try {
+    const calFeno = await getCollection('dwc2json', 'calFeno')
+    if (!calFeno) return []
+    
+    const species = await calFeno.distinct('canonicalName', { 
+      kingdom: 'Plantae', 
+      family: family,
+      genus: genus
+    })
+    return species.filter(s => s && s.trim() !== '').sort()
+  } catch (error) {
+    console.error('❌ Error getting species:', error)
+    return []
+  }
+}
+
+export function generatePhenologicalHeatmap(occurrences: any[]) {
+  const monthCounts = Array(12).fill(0)
+  
+  occurrences.forEach(occ => {
+    const month = parseInt(occ.month)
+    if (month >= 1 && month <= 12) {
+      monthCounts[month - 1] += 1
+    }
+  })
+  
+  const maxCount = Math.max(...monthCounts)
+  
+  return monthCounts.map((count, index) => ({
+    month: index + 1,
+    monthName: [
+      'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+    ][index],
+    count,
+    intensity: maxCount > 0 ? count / maxCount : 0
+  }))
+}
