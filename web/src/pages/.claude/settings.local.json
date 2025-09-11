@@ -17,7 +17,8 @@
       "Bash(pnpm install:*)",
       "Bash(pnpm run:*)",
       "mcp__playwright__browser_navigate",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": [],
