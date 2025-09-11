@@ -318,13 +318,19 @@ type RU = Record<string, unknown>
 async function downloadWithTimeout(
   url: string,
   options: any,
-  timeoutMs = 30000
+  timeoutMs = 10000
 ) {
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+
+  let inactivityId: number | undefined
+  const resetInactivity = () => {
+    if (inactivityId !== undefined) clearTimeout(inactivityId)
+    // Abort if no data arrives within timeoutMs
+    inactivityId = setTimeout(() => controller.abort(), timeoutMs) as unknown as number
+  }
 
   try {
-    // Create a custom download function with abort signal
+    // Start request with abort signal
     const response = await fetch(url, { signal: controller.signal })
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
@@ -340,15 +346,36 @@ async function downloadWithTimeout(
       truncate: true,
     })
 
-    if (response.body) {
-      await response.body.pipeTo(file.writable)
+    try {
+      if (response.body) {
+        const reader = response.body.getReader()
+        const writer = file.writable.getWriter()
+
+        // Kick off inactivity timer
+        resetInactivity()
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          // Data arrived; reset inactivity timer
+          resetInactivity()
+          await writer.write(value)
+        }
+
+        await writer.close()
+      }
+    } finally {
+      // Always close the file descriptor
+      try {
+        file.close()
+      } catch {}
     }
 
-    clearTimeout(timeoutId)
+    if (inactivityId !== undefined) clearTimeout(inactivityId)
   } catch (error) {
-    clearTimeout(timeoutId)
-    if (error.name === 'AbortError') {
-      throw new Error(`Download timeout after ${timeoutMs}ms`)
+    if (inactivityId !== undefined) clearTimeout(inactivityId)
+    if ((error as any).name === 'AbortError') {
+      throw new Error(`Download inactivity timeout after ${timeoutMs}ms`)
     }
     throw error
   }
