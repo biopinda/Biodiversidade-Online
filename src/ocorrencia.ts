@@ -5,6 +5,24 @@ import Papa from 'npm:papaparse'
 
 import { getEml, processaEml, processaZip, type DbIpt } from './lib/dwca.ts'
 
+/**
+ * Utility function to convert string fields to numbers with validation
+ * Keeps invalid values as original strings for backward compatibility
+ */
+function tryConvertToNumber(
+  obj: Record<string, any>,
+  propName: string,
+  validator?: (num: number) => boolean
+): void {
+  if (obj[propName] && typeof obj[propName] === 'string') {
+    const numValue = parseInt(obj[propName], 10)
+    if (!isNaN(numValue) && (!validator || validator(numValue))) {
+      obj[propName] = numValue
+    }
+    // Invalid values remain as original strings
+  }
+}
+
 type InsertManyParams = Parameters<typeof ocorrenciasCol.insertMany>
 async function safeInsertMany(
   collection: typeof ocorrenciasCol,
@@ -104,6 +122,8 @@ try {
       { key: { flatScientificName: 1 }, name: 'flatScientificName' },
       { key: { iptKingdoms: 1 }, name: 'iptKingdoms' },
       { key: { year: 1 }, name: 'year' },
+      { key: { month: 1 }, name: 'month' },
+      { key: { eventDate: 1 }, name: 'eventDate' },
     ]),
     createIndexSafely(iptsCol, [
       { key: { tag: 1 }, name: 'tag' },
@@ -248,12 +268,54 @@ try {
 
           // Process year field: convert to numeric, keep invalid as string
           const processedData = { ...ocorrencia[1] }
-          if (processedData.year && typeof processedData.year === 'string') {
-            const yearNum = parseInt(processedData.year, 10)
-            if (!isNaN(yearNum) && yearNum > 0) {
-              processedData.year = yearNum
+          tryConvertToNumber(processedData, 'year', (num) => num > 0)
+
+          // Process month field: convert to numeric, keep invalid as string
+          tryConvertToNumber(
+            processedData,
+            'month',
+            (num) => num >= 1 && num <= 12
+          )
+
+          // Process day field: convert to numeric, keep invalid as string
+          tryConvertToNumber(
+            processedData,
+            'day',
+            (num) => num >= 1 && num <= 31
+          )
+
+          // Process eventDate field: extract year/month/day if missing, then convert to BSON Date
+          if (
+            processedData.eventDate &&
+            typeof processedData.eventDate === 'string'
+          ) {
+            try {
+              const eventDateObj = new Date(processedData.eventDate)
+              // Check if the date is valid (not NaN) and not an invalid date
+              if (
+                !isNaN(eventDateObj.getTime()) &&
+                eventDateObj.toString() !== 'Invalid Date'
+              ) {
+                // Extract year, month, day from eventDate if missing
+                if (!processedData.year || isNaN(Number(processedData.year))) {
+                  processedData.year = eventDateObj.getFullYear()
+                }
+                if (
+                  !processedData.month ||
+                  isNaN(Number(processedData.month))
+                ) {
+                  processedData.month = eventDateObj.getMonth() + 1
+                }
+                if (!processedData.day || isNaN(Number(processedData.day))) {
+                  processedData.day = eventDateObj.getDate()
+                }
+                // Convert eventDate to BSON Date
+                processedData.eventDate = eventDateObj
+              }
+              // Invalid dates remain as original strings
+            } catch (_error) {
+              // If parsing fails, keep as original string
             }
-            // Invalid years remain as original strings
           }
 
           return {
