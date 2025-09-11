@@ -1,5 +1,5 @@
 import { MongoClient } from 'https://deno.land/x/mongo@v0.32.0/mod.ts'
-import { processaZip, type DbIpt } from './lib/dwca.ts'
+import { type DbIpt, processaZip } from './lib/dwca.ts'
 
 export const findTaxonByName = (
   obj: Record<string, { scientificName?: string }>,
@@ -40,7 +40,7 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
           occurrence: distribution.map(({ locationID }) => locationID).sort(),
           vegetationType: (
             taxon.speciesprofile as Record<string, Record<string, string>>[]
-          )?.[0]?.lifeForm?.vegetationType
+          )?.[0]?.lifeForm?.vegetationType,
         }
       }
       if (taxon.resourcerelationship) {
@@ -52,7 +52,7 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
           taxonID: relationship.relatedResourceID,
           scientificName:
             dwcJson[relationship.relatedResourceID as string]?.scientificName,
-          taxonomicStatus: relationship.relationshipOfResource
+          taxonomicStatus: relationship.relationshipOfResource,
         }))
         delete taxon.resourcerelationship
       }
@@ -91,7 +91,7 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
         taxon.infragenericEpithet,
         taxon.specificEpithet,
         taxon.infraspecificEpithet,
-        taxon.cultivarEpiteth
+        taxon.cultivarEpiteth,
       ]
         .filter(Boolean)
         .join(' ')
@@ -115,7 +115,21 @@ async function main() {
     return
   }
   const [url] = Deno.args
-  const { json, ipt } = await processaFloraZip(url)
+  const { json, ipt } = await processaFloraZip(url).catch((error) => {
+    // Handle 404 errors when IPT resources no longer exist
+    if (
+      error.name === 'Http' &&
+      (error.message.includes('404') ||
+        error.message.includes('Not Found') ||
+        error.message.includes('status 404'))
+    ) {
+      console.log(`Flora resource no longer exists (404) - exiting`)
+      Deno.exit(0)
+    }
+    // Re-throw other errors for proper error handling
+    console.error(`Error downloading flora data:`, error.message)
+    throw error
+  })
   const client = new MongoClient()
   await client.connect(Deno.env.get('MONGO_URI') as string)
   const iptsCol = client.database('dwc2json').collection('ipts')
@@ -129,7 +143,7 @@ async function main() {
     console.debug('Cleaning collection')
     console.log(
       await collection.deleteMany({
-        $or: [{ kingdom: 'Plantae' }, { kingdom: 'Fungi' }]
+        $or: [{ kingdom: 'Plantae' }, { kingdom: 'Fungi' }],
       })
     )
     console.debug('Inserting taxa')
@@ -151,30 +165,30 @@ async function main() {
     indexes: [
       {
         key: { scientificName: 1 },
-        name: 'scientificName'
+        name: 'scientificName',
       },
       {
         key: { kingdom: 1 },
-        name: 'kingdom'
+        name: 'kingdom',
       },
       {
         key: { family: 1 },
-        name: 'family'
+        name: 'family',
       },
       {
         key: { genus: 1 },
-        name: 'genus'
+        name: 'genus',
       },
       {
         key: { taxonID: 1, kingdom: 1 },
-        name: 'taxonKingdom'
+        name: 'taxonKingdom',
       },
       {
         key: { canonicalName: 1 },
-        name: 'canonicalName'
+        name: 'canonicalName',
       },
-      { key: { flatScientificName: 1 }, name: 'flatScientificName' }
-    ]
+      { key: { flatScientificName: 1 }, name: 'flatScientificName' },
+    ],
   })
   console.debug('Done')
 }

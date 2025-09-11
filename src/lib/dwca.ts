@@ -1,5 +1,4 @@
 import { parse } from 'https://deno.land/x/xml@2.1.0/mod.ts'
-import { download } from 'https://deno.land/x/download@v2.0.2/mod.ts'
 import extract from 'npm:extract-zip'
 import { DB } from 'https://deno.land/x/sqlite@v3.8/mod.ts'
 import cliProgress from 'npm:cli-progress'
@@ -173,10 +172,7 @@ const _addLineToTable = (
         obj[field] = values[index]
       }
     })
-    db.query(`INSERT INTO ${table} VALUES (?, ?)`, [
-      id,
-      JSON.stringify(obj)
-    ])
+    db.query(`INSERT INTO ${table} VALUES (?, ?)`, [id, JSON.stringify(obj)])
   }
 }
 
@@ -240,7 +236,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
 
     return {
       get length() {
-        const result = db.query(`SELECT COUNT(id) count FROM core`);
+        const result = db.query(`SELECT COUNT(id) count FROM core`)
         return result[0][0] as number
       },
       *[Symbol.iterator]() {
@@ -293,11 +289,14 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
         GROUP BY
             c.id;`
           try {
-            const rows = db.queryEntries(queryString) as { id: string; json: string }[];
-            batch = rows.map(({ id, json }) => [id, JSON.parse(json as string)]) as [
-              string,
-              RU
-            ][]
+            const rows = db.queryEntries(queryString) as {
+              id: string
+              json: string
+            }[]
+            batch = rows.map(({ id, json }) => [
+              id,
+              JSON.parse(json as string),
+            ]) as [string, RU][]
             yield batch
           } catch (e) {
             console.log(
@@ -315,6 +314,73 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
 }
 
 type RU = Record<string, unknown>
+
+async function downloadWithTimeout(
+  url: string,
+  options: any,
+  timeoutMs = 10000
+) {
+  const controller = new AbortController()
+
+  let inactivityId: number | undefined
+  const resetInactivity = () => {
+    if (inactivityId !== undefined) clearTimeout(inactivityId)
+    // Abort if no data arrives within timeoutMs
+    inactivityId = setTimeout(() => controller.abort(), timeoutMs) as unknown as number
+  }
+
+  try {
+    // Start request with abort signal
+    const response = await fetch(url, { signal: controller.signal })
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    }
+
+    // Ensure the directory exists
+    await Deno.mkdir(options.dir, { recursive: true })
+
+    const filePath = `${options.dir}/${options.file}`
+    const file = await Deno.open(filePath, {
+      write: true,
+      create: true,
+      truncate: true,
+    })
+
+    try {
+      if (response.body) {
+        const reader = response.body.getReader()
+        const writer = file.writable.getWriter()
+
+        // Kick off inactivity timer
+        resetInactivity()
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          // Data arrived; reset inactivity timer
+          resetInactivity()
+          await writer.write(value)
+        }
+
+        await writer.close()
+      }
+    } finally {
+      // Always close the file descriptor
+      try {
+        file.close()
+      } catch {}
+    }
+
+    if (inactivityId !== undefined) clearTimeout(inactivityId)
+  } catch (error) {
+    if (inactivityId !== undefined) clearTimeout(inactivityId)
+    if ((error as any).name === 'AbortError') {
+      throw new Error(`Download inactivity timeout after ${timeoutMs}ms`)
+    }
+    throw error
+  }
+}
+
 export function processaZip(
   url: string,
   sqlite?: false,
@@ -325,18 +391,39 @@ export function processaZip(
   sqlite: true,
   chunkSize?: number
 ): Promise<ReturnType<typeof buildSqlite>>
+
 export async function processaZip(
   url: string,
   sqlite = false,
   chunkSize = 5000
 ): Promise<ReturnType<typeof buildJson> | ReturnType<typeof buildSqlite>> {
-  await download(url, { file: 'temp.zip', dir: '.temp' })
-  await extract('.temp/temp.zip', { dir: path.resolve('.temp') })
-  const ret = sqlite
-    ? await buildSqlite('.temp', chunkSize)
-    : await buildJson('.temp')
-  await Deno.remove('.temp', { recursive: true })
-  return ret
+  try {
+    await downloadWithTimeout(url, { file: 'temp.zip', dir: '.temp' })
+  } catch (error: any) {
+    // Handle 404 errors when IPT resources no longer exist
+    if (
+      error.name === 'Http' &&
+      (error.message.includes('404') || error.message.includes('Not Found'))
+    ) {
+      throw error // Re-throw to be handled by caller
+    }
+    throw error // Re-throw any other errors
+  }
+
+  try {
+    await extract('.temp/temp.zip', { dir: path.resolve('.temp') })
+    const ret = sqlite
+      ? await buildSqlite('.temp', chunkSize)
+      : await buildJson('.temp')
+    return ret
+  } finally {
+    // Always clean up temporary files
+    try {
+      await Deno.remove('.temp', { recursive: true })
+    } catch {
+      // Ignore cleanup errors
+    }
+  }
 }
 
 export type Eml = {
@@ -351,14 +438,28 @@ type OuterEml = {
   'eml:eml': Eml
 } & RU
 const extractEml = (OuterEml: OuterEml) => OuterEml['eml:eml']
-export const getEml = async (url: string) => {
-  const contents = await fetch(url).then((res) => {
-    if (!res.ok) {
-      throw new Error(res.statusText)
+export const getEml = async (url: string, timeoutMs = 10000) => {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    const contents = await fetch(url, { signal: controller.signal }).then(
+      (res) => {
+        if (!res.ok) {
+          throw new Error(res.statusText)
+        }
+        return res.text()
+      }
+    )
+    clearTimeout(timeoutId)
+    return extractEml(parse(contents) as OuterEml)
+  } catch (error) {
+    clearTimeout(timeoutId)
+    if (error.name === 'AbortError') {
+      throw new Error(`Request timeout after ${timeoutMs}ms`)
     }
-    return res.text()
-  })
-  return extractEml(parse(contents) as OuterEml)
+    throw error
+  }
 }
 
 export type Ipt = {
