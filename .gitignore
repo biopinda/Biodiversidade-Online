@@ -3,3 +3,10 @@
 settings.local.json
 convert_mongodb_dates.py
 convert_mongodb_dates_final.py
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
