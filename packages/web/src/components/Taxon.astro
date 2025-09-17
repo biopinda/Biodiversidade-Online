@@ -1,0 +1,170 @@
+---
+import FichaLink from './FichaLink.astro'
+import Map from './Map.astro'
+import Section from './Section.astro'
+import TaxonLink from './TaxonLink.astro'
+
+type R<T> = Record<string, T>
+type RU = R<unknown>
+
+interface Props {
+  json: {
+    [key: string]: unknown
+    taxonID: string
+    kingdom: 'Animalia' | 'Plantae' | 'Fungi'
+    distribution: {
+      origin: string
+      endemism: string
+      phytogeographicDomains: string[]
+      occurrence: string[]
+      vegetationType: string[]
+    }
+    reference: RU[]
+    othernames: RU[]
+    vernacularname: R<string>[]
+    occurrences: R<RU>[]
+    bibliographicCitation?: string
+  }
+  pageId: string
+}
+const { pageId, json } = Astro.props
+
+const fichaId: string =
+  json.kingdom === 'Animalia'
+    ? json.bibliographicCitation?.match(/.+\/(\w+)/)?.[1] ?? ''
+    : json.taxonID
+---
+
+<div
+  class="m-4 w-full lg:w-[960px] bg-white shadow-lg border-slate-200 border rounded"
+>
+  <div
+    class="bg-green-800 text-white p-4 mb-4 rounded-t sticky top-0 z-10 flex gap-4 items-center"
+  >
+    <a
+      href="/taxa"
+      class="p-1 px-2 bg-white text-black rounded-lg hover:text-green-800 whitespace-nowrap"
+      ><i class="las la-search"></i> Busca</a
+    >
+    <h1 class="font-bold text-lg" transition:name={`hero-${pageId}`}>
+      {json.scientificName}
+    </h1>
+    <div class="flex-1"></div>
+    {
+      json.occurrences?.length > 0 && (
+        <a
+          href={`/taxon/${pageId}/ocorrencias`}
+          class="p-1 px-2 bg-white text-black rounded-lg hover:text-green-800 whitespace-nowrap"
+        >
+          <i class="las la-th-list" /> Ocorrências
+        </a>
+      )
+    }
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 p-4 gap-2">
+    <Section
+      kingdom={json.kingdom}
+      fields={{
+        TaxonID: json.taxonID,
+        'Nome científico': json.scientificName,
+        'Nome científico autor': json.scientificNameAuthorship,
+        'Nome aceito': json.acceptedNameUsage,
+        'Nome aceito ID': json.acceptedNameUsageID,
+        'Nome original ID': json.originalNameUsageID,
+        'Nome publicado em': json.namePublishedIn,
+        'Nome publicado em ano': {
+          link: `/taxa?namePublishedInYear=${json.namePublishedInYear}`,
+          text: json.namePublishedInYear
+        },
+        Reino: { link: `/taxa?kingdom=${json.kingdom}`, text: json.kingdom },
+        Grupo: {
+          link: `/taxa?higherClassification=${json.higherClassification}`,
+          text: json.higherClassification
+        },
+        Família: { link: `/taxa?family=${json.family}`, text: json.family },
+        Gênero: { link: `/taxa?genus=${json.genus}`, text: json.genus },
+        'Epíteto específico': json.specificEpithet,
+        Rank: json.taxonRank,
+        'Status taxonômico': json.taxonomicStatus,
+        'Status nomenclatural': json.nomenclaturalStatus,
+        Modificado: json.modified,
+        'Citação bibliográfica': json.bibliographicCitation
+      }}
+    />
+    {
+      Object.keys(json.distribution?.occurrence ?? {}).length > 0 && (
+        <section class="flex flex-col">
+          {json.distribution?.occurrence && (
+            <div>
+              <Map stateList={json.distribution.occurrence} />
+            </div>
+          )}
+          <div>
+            <Section
+              title="Distribuição"
+              fields={{
+                Origem: json.distribution?.origin,
+                Endemismo: json.distribution?.endemism,
+                'Domínios fitogeográficos':
+                  json.distribution?.phytogeographicDomains?.join(', '),
+                Ocorrência: json.distribution?.occurrence?.sort().join(', '),
+                'Tipo de vegetação':
+                  json.distribution?.vegetationType?.join(', ')
+              }}
+            />
+          </div>
+        </section>
+      )
+    }
+    {
+      json.othernames?.length > 0 && (
+        <details>
+          <summary class="pt-2 font-bold">Outros nomes</summary>
+          <ul class="list-disc list-inside">
+            {json.othernames?.map(({ taxonID, taxonomicStatus }) => (
+              <li class="pl-2">
+                <TaxonLink kingdom={json.kingdom} taxonId={taxonID} /> -{' '}
+                {taxonomicStatus}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )
+    }
+    {
+      json.vernacularname && (
+        <details>
+          <summary class="pt-2 font-bold">Nomes vernaculares</summary>
+          <ul class="list-disc pl-5">
+            {json.vernacularname
+              .sort(
+                (a, b) =>
+                  a.vernacularName?.localeCompare(b.vernacularName ?? '') ?? 0
+              )
+              .map(({ vernacularName, language, locality }) => (
+                <li>
+                  {vernacularName}, {locality} -{' '}
+                  <span class="text-xs italic">{language}</span>
+                </li>
+              ))}
+          </ul>
+        </details>
+      )
+    }
+  </div>
+
+  <footer class="p-2 col-span-2 bg-slate-100 rounded-b" title="Referência">
+    {
+      json.reference?.length > 0 && (
+        <div class="italic">
+          {json.reference?.map(({ creator, bibliographicCitation }) => (
+            <div>
+              {[creator, bibliographicCitation].filter(Boolean).join(', ')}
+            </div>
+          ))}
+        </div>
+      )
+    }
+    <FichaLink kingdom={json.kingdom} id={fichaId} />
+  </footer>
+</div>

@@ -1,24 +1,3 @@
 {
-  "compilerOptions": {
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "target": "ES2020",
-    "jsx": "react",
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "sourceMap": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "types": ["node"],
-    "typeRoots": ["./types", "./node_modules/@types"]
-  },
-  "include": ["src/**/*.ts", "types/**/*.d.ts"],
-  "exclude": [
-    "node_modules",
-    "**/node_modules/*",
-    "web",
-    "chatbb",
-    "tests",
-    "scripts"
-  ]
+  "extends": "./tsconfig.base.json"
 }

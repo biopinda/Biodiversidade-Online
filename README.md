@@ -50,16 +50,18 @@ O **DarwinCoreJSON** é um sistema automatizado de integração e processamento 
 ## Arquitetura Técnica
 
 ```
-├── src/
-│   ├── fauna.ts          # Processamento de dados da fauna
-│   ├── flora.ts          # Processamento de dados da flora  
-│   ├── ocorrencia.ts     # Processamento de registros de ocorrência
-│   └── lib/
-│       └── dwca.ts       # Biblioteca para processamento DwC-A
-├── scripts/
-│   └── check_ipt_resources.py  # Verificação de recursos IPT
-├── .github/workflows/    # Automação CI/CD
-└── referencias/          # Documentação e listas de referência
+├── packages/
+│   ├── ingest/
+│   │   ├── src/                # Processamento de flora, fauna e ocorrências
+│   │   ├── referencias/        # Documentação e listas de referência
+│   │   ├── scripts/            # Utilitários e verificações auxiliares
+│   │   ├── tests/              # Testes Playwright e fixtures
+│   │   └── chatbb/             # Conjuntos de dados e prompts do assistente
+│   └── web/                    # Aplicação Astro/Tailwind
+│       ├── src/
+│       └── public/
+├── docs/                       # Histórico do projeto e notas adicionais
+└── .github/workflows/          # Automação CI/CD
 ```
 
 ### Tecnologias Utilizadas
@@ -105,9 +107,9 @@ Acesso via LLM (OpenAI ou Gemini): https://biodiversidade.online/chat
 
 ## Histórico de Versões
 - **V5.0** (atual): Integração com ChatBB e protocolo MCP
-- **V4.0**: [Melhorias na integração de dados](README.v4.md)
-- **V2.x**: [Expansão de fontes de dados](README.v2.md)
-- **V1.0**: [Versão inicial](README.v1.md)
+- **V4.0**: [Melhorias na integração de dados](docs/README.v4.md)
+- **V2.x**: [Expansão de fontes de dados](docs/README.v2..md)
+- **V1.0**: [Versão inicial](docs/README.v1.md)
 
 ## Como Usar
 
@@ -118,17 +120,20 @@ Acesso via LLM (OpenAI ou Gemini): https://biodiversidade.online/chat
 
 ### Execução Local
 ```bash
-# Instalar dependências
+# Instalar dependências dos workspaces
 bun install
 
 # Processar dados de flora
-bun run src/flora.ts <dwc-a url>
+bun run --filter @darwincore/ingest flora -- <dwc-a url>
 
 # Processar dados de fauna
-bun run src/fauna.ts <dwc-a url>
+bun run --filter @darwincore/ingest fauna -- <dwc-a url>
 
 # Processar ocorrências
-bun run src/ocorrencia.ts
+bun run --filter @darwincore/ingest occurrences
+
+# Iniciar a interface web em modo dev
+bun run web:dev
 ```
 
 ### Via Docker

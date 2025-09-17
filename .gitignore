@@ -2,10 +2,6 @@
 .temp
 settings.local.json
 
-
-# Scripts folder - ignore all contents
-scripts/
-
 # Playwright
 node_modules/
 /test-results/

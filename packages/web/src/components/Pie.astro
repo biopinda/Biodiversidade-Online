@@ -1,0 +1,57 @@
+---
+interface Props {
+  full?: boolean
+  title?: string
+  data?: [string, any][]
+  sortByName?: boolean
+  sortByCount?: boolean
+}
+
+const { full, data, title, sortByName, sortByCount } = Astro.props
+const sorterByName = (data: [string, any][]) =>
+  data.sort((a, b) =>
+    b[0] === 'null' ? -1 : a[0] === 'null' ? 1 : a[0].localeCompare(b[0])
+  )
+const sorterByCount = (data: [string, any][]) =>
+  data.sort((a, b) => b[1] - a[1])
+---
+
+<script type="module">
+  import 'https://cdn.skypack.dev/@google-web-components/google-chart'
+
+  const handleResize = () => {
+    document.querySelectorAll('google-chart').forEach((chart) => {
+      chart.redraw()
+    })
+  }
+
+  if (!window.__hasGoogleChartResizeListener) {
+    window.__hasGoogleChartResizeListener = true
+
+    window.addEventListener('resize', handleResize)
+  }
+</script>
+
+<google-chart
+  class={full ? 'w-full h-full' : 'h-auto w-auto'}
+  type="pie"
+  options={title ? `{"title":"${title}"}` : ''}
+  data={JSON.stringify(
+    data
+      ? [
+          ['taxonomicStatus', 'ocorrências'],
+          ...(sortByName
+            ? sorterByName(data)
+            : sortByCount
+              ? sorterByCount(data)
+              : data)
+        ]
+      : [
+          ['Task', 'Hours per Day'],
+          ['Work', 11],
+          ['Eat', 2],
+          ['Commute', 2],
+          ['Watch TV', 2],
+          ['Sleep', 7]
+        ]
+  )}></google-chart>

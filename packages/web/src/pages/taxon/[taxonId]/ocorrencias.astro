@@ -1,0 +1,66 @@
+---
+import Layout from '../../../layouts/base.astro'
+import { getTaxon } from '../../../lib/mongo'
+import OcorrenciasComponent from '../../../components/ocorrencias'
+
+const { taxonId } = Astro.params as { taxonId: string }
+const [kingdomId, id] = [taxonId[0], taxonId.slice(1)]
+const kingdom = {
+  P: 'Plantae',
+  F: 'Fungi',
+  A: 'Animalia'
+}[kingdomId as string] as Parameters<typeof getTaxon>[0] | undefined
+
+type Taxon = {
+  [key: string]: unknown
+  occurrences?: {
+    _id?: { toString: () => string }
+  }[]
+}
+const taxon: Taxon = kingdom && (await getTaxon(kingdom, id, true))
+---
+
+<Layout
+  useTransition
+  title={`Taxon: ${
+    taxon ? taxon.scientificName : `<não encontrado (${taxonId})>`
+  }`}
+  metaDescription={taxon?.scientificName
+    ? `Flora e Funga do Brasil: ${taxon.scientificName}`
+    : null}
+  bodyClasses="bg-green-100"
+>
+  <div class="flex flex-row justify-center items-start">
+    <div
+      class="mt-4 lg:mt-0 lg:top-4 lg:absolute lg:bottom-0 w-full lg:w-[960px] bg-white shadow-lg border-slate-200 border rounded"
+    >
+      <div
+        class="bg-green-800 text-white p-4 rounded-t sticky top-0 z-10 flex gap-4 items-center"
+      >
+        <a
+          href="/taxa"
+          class="p-1 px-2 bg-white text-black rounded-lg hover:text-green-800 whitespace-nowrap"
+          ><i class="las la-search"></i> Busca</a
+        >
+        <a href={`/taxon/${taxonId}`} class="font-bold text-lg">
+          {taxon.scientificName}
+        </a>
+        <div class="flex-1"></div>
+        <div
+          class="p-1 px-2 bg-white text-green-800 rounded-lg hover:text-green-800 whitespace-nowrap font-bold cursor-default"
+        >
+          <i class="las la-th-list"></i> Ocorrências
+        </div>
+      </div>
+      <div class="h-auto lg:h-[calc(100vh-81px)]">
+        <OcorrenciasComponent
+          occurrences={taxon.occurrences?.map(({ _id, ...occurrence }) => ({
+            _id: _id?.toString(),
+            ...occurrence
+          })) ?? []}
+          client:idle
+        />
+      </div>
+    </div>
+  </div>
+</Layout>

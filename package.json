@@ -1,31 +1,30 @@
 {
-  "name": "darwincorejson",
-  "version": "1.0.0",
-  "description": "[![Update MongoDB - Flora](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-flora.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-flora.yml)\r [![Update MongoDB - Fauna](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml)\r [![Update MongoDB - Ocorrências](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml)\r [![Docker Image](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/docker.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/pkgs/container/darwincorejson)",
-  "main": "index.js",
-  "scripts": {},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/edalcin/DarwinCoreJSON.git"
+  "name": "@biopinda/darwincorejson",
+  "private": true,
+  "packageManager": "bun@1.2.21",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "catalog": {
+      "@types/node": "^22.8.4",
+      "@playwright/test": "^1.55.0",
+      "bson": "^6.7.0",
+      "cli-progress": "^3.12.0",
+      "extract-zip": "^2.0.1",
+      "fast-xml-parser": "^4.4.1",
+      "mongodb": "^6.10.0",
+      "papaparse": "^5.4.1"
+    }
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/edalcin/DarwinCoreJSON/issues"
-  },
-  "homepage": "https://github.com/edalcin/DarwinCoreJSON#readme",
-  "devDependencies": {
-    "@playwright/test": "^1.55.0",
-    "@types/node": "^24.3.1"
-  },
-  "dependencies": {
-    "bson": "^6.7.0",
-    "cli-progress": "^3.12.0",
-    "extract-zip": "^2.0.1",
-    "fast-xml-parser": "^4.4.1",
-    "mongodb": "^6.9.0",
-    "papaparse": "^5.4.1"
+  "scripts": {
+    "ingest:occurrences": "bun run --filter @darwincore/ingest occurrences",
+    "ingest:flora": "bun run --filter @darwincore/ingest flora",
+    "ingest:fauna": "bun run --filter @darwincore/ingest fauna",
+    "ingest:test": "bun run --filter @darwincore/ingest test",
+    "web:dev": "bun run --filter @darwincore/web dev",
+    "web:build": "bun run --filter @darwincore/web build",
+    "web:preview": "bun run --filter @darwincore/web preview",
+    "web:start": "bun run --filter @darwincore/web start"
   }
 }

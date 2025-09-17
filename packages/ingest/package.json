@@ -1,0 +1,24 @@
+{
+  "name": "@darwincore/ingest",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "occurrences": "bun src/ocorrencia.ts",
+    "flora": "bun src/flora.ts",
+    "fauna": "bun src/fauna.ts",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "bson": "catalog:",
+    "cli-progress": "catalog:",
+    "extract-zip": "catalog:",
+    "fast-xml-parser": "catalog:",
+    "mongodb": "catalog:",
+    "papaparse": "catalog:"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

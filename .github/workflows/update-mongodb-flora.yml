@@ -5,8 +5,8 @@ on:
     branches: ['main']
     paths:
       [
-        'src/lib/**',
-        'src/flora.ts',
+        'packages/ingest/src/lib/**',
+        'packages/ingest/src/flora.ts',
         '.github/workflows/update-mongodb-flora.yml'
       ]
   workflow_dispatch:
@@ -31,16 +31,16 @@ jobs:
       - name: Install zip
         run: sudo apt update && sudo apt install zip
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install --frozen-lockfile --filter @darwincore/ingest
       - name: Update DB from web
         if: ${{ github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/DarwinCoreJSON/
-        run: bun run src/flora.ts "${{ github.event.inputs.DWCA_URL}}"
+        run: bun run --filter @darwincore/ingest flora -- "${{ github.event.inputs.DWCA_URL }}"
       - name: Update DB
         if: ${{ !github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/DarwinCoreJSON/
-        run: bun run src/flora.ts "${{ env.DWCA_URL }}"
+        run: bun run --filter @darwincore/ingest flora -- "${{ env.DWCA_URL }}"
