@@ -42,7 +42,8 @@ jobs:
         id: push
         uses: docker/build-push-action@v6
         with:
-          context: packages/web
+          context: .
+          file: packages/web/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -65,3 +66,4 @@ jobs:
               workflow_id: 'ssh-deploy.yml',
               ref: 'main'
             })
+
