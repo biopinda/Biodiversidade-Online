@@ -7,7 +7,18 @@
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "sourceMap": true,
-    "types": ["./deno.ns.d.ts"]
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "types": ["node"],
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
-  "exclude": ["node_modules", "**/node_modules/*"]
+  "include": ["src/**/*.ts", "types/**/*.d.ts"],
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*",
+    "web",
+    "chatbb",
+    "tests",
+    "scripts"
+  ]
 }

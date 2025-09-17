@@ -23,7 +23,7 @@ A versão atual integra uma vasta gama de fontes de dados da biodiversidade bras
 
 ## Versão Atual - V5.0
 
-O **DarwinCoreJSON** é um sistema automatizado de integração e processamento de dados de biodiversidade brasileira, desenvolvido em TypeScript com Deno. O projeto consolida informações taxonômicas e de ocorrências de múltiplas fontes científicas em uma base de dados MongoDB unificada, facilitando consultas e análises da biodiversidade nacional.
+O **DarwinCoreJSON** é um sistema automatizado de integração e processamento de dados de biodiversidade brasileira, desenvolvido em TypeScript executado com Bun. O projeto consolida informações taxonômicas e de ocorrências de múltiplas fontes científicas em uma base de dados MongoDB unificada, facilitando consultas e análises da biodiversidade nacional.
 
 ## Funcionalidades Principais
 
@@ -63,7 +63,7 @@ O **DarwinCoreJSON** é um sistema automatizado de integração e processamento 
 ```
 
 ### Tecnologias Utilizadas
-- **Runtime**: Deno
+- **Runtime**: Bun
 - **Linguagem**: TypeScript
 - **Banco de dados**: MongoDB
 - **Automação**: GitHub Actions
@@ -112,20 +112,23 @@ Acesso via LLM (OpenAI ou Gemini): https://biodiversidade.online/chat
 ## Como Usar
 
 ### Pré-requisitos
-- Deno instalado
+- Bun instalado
 - Acesso ao MongoDB
 - Docker (opcional)
 
 ### Execução Local
 ```bash
-# Processar dados de flora
-deno run --allow-all src/flora.ts
+# Instalar dependências
+bun install
 
-# Processar dados de fauna  
-deno run --allow-all src/fauna.ts
+# Processar dados de flora
+bun run src/flora.ts <dwc-a url>
+
+# Processar dados de fauna
+bun run src/fauna.ts <dwc-a url>
 
 # Processar ocorrências
-deno run --allow-all src/ocorrencia.ts
+bun run src/ocorrencia.ts
 ```
 
 ### Via Docker

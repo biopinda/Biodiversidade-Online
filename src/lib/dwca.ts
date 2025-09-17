@@ -1,8 +1,12 @@
-import { parse } from 'https://deno.land/x/xml@2.1.0/mod.ts'
-import extract from 'npm:extract-zip'
-import { DB } from 'https://deno.land/x/sqlite@v3.8/mod.ts'
-import cliProgress from 'npm:cli-progress'
+import { XMLParser } from 'fast-xml-parser'
+import extract from 'extract-zip'
+import { Database, Statement } from 'bun:sqlite'
+import cliProgress from 'cli-progress'
 import path from 'node:path'
+import { createReadStream, createWriteStream } from 'node:fs'
+import { mkdir, readFile, rm } from 'node:fs/promises'
+import { Readable } from 'node:stream'
+import { once } from 'node:events'
 
 type WithAttribute<A extends string, T> = {
   [key in `@${A}`]: T
@@ -27,6 +31,11 @@ type DwcJson = Record<
   Record<string, string | Record<string, unknown>[]>
 >
 
+const xmlParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '@',
+})
+
 const _parseJsonEntry = (entry: CoreSpec | ExtensionSpec) => {
   const fields: string[] = []
   fields[(entry.id ?? entry.coreid)['@index']] = 'INDEX'
@@ -43,30 +52,36 @@ const streamProcessor = async (
   fileName: string,
   lineCallback: (line: string) => void
 ) => {
-  const file = await Deno.open(fileName, { read: true })
-  const decoder = new TextDecoder()
+  const stream = createReadStream(fileName, { encoding: 'utf-8' })
   let lineRemainder = ''
   let skippedFirstLine = false
-  for await (const chunk of file.readable) {
-    const lines = decoder.decode(chunk).split('\n')
-    const lastLine = lines.pop()
-    lines[0] = lineRemainder + lines[0]
-    for (const line of lines) {
-      if (skippedFirstLine) {
+  try {
+    for await (const chunk of stream) {
+      const data = lineRemainder + chunk
+      const lines = data.split('\n')
+      lineRemainder = lines.pop() ?? ''
+      for (const line of lines) {
+        if (!skippedFirstLine) {
+          skippedFirstLine = true
+          continue
+        }
         lineCallback(line)
-      } else {
-        skippedFirstLine = true
       }
     }
-    lineRemainder = lastLine ?? ''
-  }
-  if (lineRemainder) {
-    lineCallback(lineRemainder)
+    if (lineRemainder) {
+      if (!skippedFirstLine) {
+        skippedFirstLine = true
+      } else {
+        lineCallback(lineRemainder)
+      }
+    }
+  } finally {
+    stream.close()
   }
 }
 
 const _addLineToObj = (line: string, fields: string[], obj: DwcJson) => {
-  const values = line.split('\t')
+  const values = line.replace(/\r$/, '').split('\t')
   const id = values[fields.indexOf('INDEX')]
   if (id) {
     obj[id] = {}
@@ -98,11 +113,11 @@ const addExtension = async (
   filePath: string,
   fields: string[]
 ) => {
-  const extensionName = filePath.split('/').pop()?.split('.').shift() as string
+  const extensionName = path.parse(filePath).name
   let unknownCount = 0
   console.log(`Adding ${extensionName}`)
   await streamProcessor(filePath, (line) => {
-    const values = line.split('\t')
+    const values = line.replace(/\r$/, '').split('\t')
     const id = values[fields.indexOf('INDEX')]
     if (values.slice(1).every((v) => !v)) {
       return
@@ -132,252 +147,300 @@ const addExtension = async (
 }
 
 export const buildJson = async (folder: string) => {
-  const contents = await Deno.readTextFile(`${folder}/meta.xml`)
-  const { archive } = parse(contents) as unknown as {
+  const contents = await readFile(path.join(folder, 'meta.xml'), 'utf-8')
+  const { archive } = xmlParser.parse(contents) as unknown as {
     archive: { core: CoreSpec; extension: ExtensionSpec[] }
   }
   const ref = {
     core: _parseJsonEntry(archive.core),
-    extensions: archive.extension.map(_parseJsonEntry),
+    extensions: (Array.isArray(archive.extension)
+      ? archive.extension
+      : [archive.extension].filter(Boolean)
+    ).map(_parseJsonEntry),
   }
   const root = await getFileFields(
-    `${folder}/${ref.core!.file}`,
+    path.join(folder, ref.core!.file),
     ref.core!.fields
   )
   for (const extension of ref.extensions) {
-    await addExtension(root, `${folder}/${extension!.file}`, extension!.fields)
+    await addExtension(
+      root,
+      path.join(folder, extension!.file),
+      extension!.fields
+    )
   }
   return {
     json: root,
     ipt: processaEml(
       extractEml(
-        parse(await Deno.readTextFile(`${folder}/eml.xml`)) as OuterEml
+        xmlParser.parse(
+          await readFile(path.join(folder, 'eml.xml'), 'utf-8')
+        ) as OuterEml
       )
     ),
   }
 }
 
 const _addLineToTable = (
-  db: DB,
+  stmt: Statement<[string, string]>,
   line: string,
   fields: string[],
-  table: string
+  indexPosition: number
 ) => {
-  const values = line.split('\t')
-  const id = values[fields.indexOf('INDEX')]
-  if (id) {
-    const obj: RU = {}
-    fields.forEach((field, index) => {
-      if (field !== 'INDEX' && values[index]) {
-        obj[field] = values[index]
-      }
-    })
-    db.query(`INSERT INTO ${table} VALUES (?, ?)`, [id, JSON.stringify(obj)])
+  const values = line.replace(/\r$/, '').split('\t')
+  const id = values[indexPosition]
+  if (!id) {
+    return
   }
+  const obj: RU = {}
+  fields.forEach((field, index) => {
+    if (field !== 'INDEX' && values[index]) {
+      obj[field] = values[index]
+    }
+  })
+  stmt.run(id, JSON.stringify(obj))
 }
 
 export const buildSqlite = async (folder: string, chunkSize = 5000) => {
-  {
-    const db = new DB(':memory:')
-    db.execute('CREATE TABLE core (id TEXT PRIMARY KEY, json JSON)')
-    const contents = await Deno.readTextFile(`${folder}/meta.xml`)
-    const { archive } = parse(contents) as unknown as {
-      archive: { core: CoreSpec; extension: ExtensionSpec[] }
-    }
-    const ref = {
-      core: _parseJsonEntry(archive.core),
-      extensions: (Array.isArray(archive.extension)
-        ? archive.extension
-        : [archive.extension].filter(Boolean)
-      ).map(_parseJsonEntry),
-    }
-    const multibar = new cliProgress.MultiBar(
-      {
-        clearOnComplete: false,
-        hideCursor: true,
-        format: ' {bar} | {filename} | {value}/{total}',
-      },
-      cliProgress.Presets.shades_grey
+  const db = new Database(':memory:')
+  db.exec('CREATE TABLE core (id TEXT PRIMARY KEY, json TEXT)')
+
+  const contents = await readFile(path.join(folder, 'meta.xml'), 'utf-8')
+  const { archive } = xmlParser.parse(contents) as unknown as {
+    archive: { core: CoreSpec; extension: ExtensionSpec[] }
+  }
+  const ref = {
+    core: _parseJsonEntry(archive.core),
+    extensions: (Array.isArray(archive.extension)
+      ? archive.extension
+      : [archive.extension].filter(Boolean)
+    ).map(_parseJsonEntry),
+  }
+  const extensionRefs = ref.extensions.filter(Boolean)
+
+  const multibar = new cliProgress.MultiBar(
+    {
+      clearOnComplete: false,
+      hideCursor: true,
+      format: ' {bar} | {filename} | {value}/{total}',
+    },
+    cliProgress.Presets.shades_grey
+  )
+
+  const stageBar = multibar.create(extensionRefs.length + 1, 0)
+  stageBar.increment(0, { filename: ref.core!.file })
+
+  const coreIndexPosition = ref.core!.fields.indexOf('INDEX')
+  const coreInsert = db.prepare<[string, string]>(
+    'INSERT INTO core VALUES (?, ?)'
+  )
+  let coreLineCount = 0
+  await streamProcessor(path.join(folder, ref.core!.file), () => {
+    coreLineCount++
+  })
+  const coreProgress = multibar.create(coreLineCount || 1, 0, {
+    filename: ref.core!.file,
+  })
+  db.exec('BEGIN TRANSACTION')
+  try {
+    await streamProcessor(path.join(folder, ref.core!.file), (line) => {
+      _addLineToTable(coreInsert, line, ref.core!.fields, coreIndexPosition)
+      coreProgress.increment()
+    })
+    db.exec('COMMIT')
+  } catch (error) {
+    db.exec('ROLLBACK')
+    multibar.remove(coreProgress)
+    coreInsert.finalize()
+    multibar.stop()
+    throw error
+  }
+  multibar.remove(coreProgress)
+  coreInsert.finalize()
+  stageBar.increment(1)
+
+  for (const extension of extensionRefs) {
+    const tableName = path.parse(extension.file).name
+    stageBar.increment(0, { filename: extension.file })
+    db.exec(`CREATE TABLE ${tableName} (id TEXT, json TEXT)`)
+    db.exec(`CREATE INDEX idx_${tableName}_id ON ${tableName} (id)`)
+
+    const insertStmt = db.prepare<[string, string]>(
+      `INSERT INTO ${tableName} VALUES (?, ?)`
     )
-    const b1 = multibar.create(ref.extensions.length + 1, 0)
+    const indexPosition = extension.fields.indexOf('INDEX')
     let lineCount = 0
-    await streamProcessor(`${folder}/${ref.core!.file}`, (_line) => {
+    await streamProcessor(path.join(folder, extension.file), () => {
       lineCount++
     })
-    const b2 = multibar.create(lineCount, 0, { filename: ref.core!.file })
-    b1.increment(1, { filename: ref.core!.file })
-    await streamProcessor(`${folder}/${ref.core!.file}`, (line) => {
-      _addLineToTable(db, line, ref.core!.fields, 'core')
-      b2.increment()
+    const extensionProgress = multibar.create(lineCount || 1, 0, {
+      filename: extension.file,
     })
-    for (const extension of ref.extensions) {
-      if (!extension) {
-        continue
-      }
-      const tableName = extension.file.split('.')[0] as string
-      // console.log(`prepping EXT:${tableName}`)
-      db.execute(`CREATE TABLE ${tableName} (id, json JSON)`)
-      db.execute(`CREATE INDEX idx_${tableName}_id ON ${tableName} (id)`)
-      b1.increment(1, { filename: extension.file })
-      let lineCount = 0
-      await streamProcessor(`${folder}/${extension.file}`, (_line) => {
-        lineCount++
+    db.exec('BEGIN TRANSACTION')
+    try {
+      await streamProcessor(path.join(folder, extension.file), (line) => {
+        _addLineToTable(insertStmt, line, extension.fields, indexPosition)
+        extensionProgress.increment()
       })
-      b2.setTotal(lineCount)
-      b2.update(0, { filename: extension.file })
-      await streamProcessor(`${folder}/${extension.file}`, (line) => {
-        _addLineToTable(db, line, extension.fields, tableName)
-        b2.increment()
-      })
-      // console.log(db.query(`SELECT COUNT(*) FROM ${tableName}`)[0][0])
+      db.exec('COMMIT')
+    } catch (error) {
+      db.exec('ROLLBACK')
+      multibar.remove(extensionProgress)
+      insertStmt.finalize()
+      multibar.stop()
+      throw error
     }
-    multibar.stop()
-    const extensionNames = ref.extensions.map((ext) => ext!.file.split('.')[0])
+    multibar.remove(extensionProgress)
+    insertStmt.finalize()
+    stageBar.increment(1)
+  }
 
-    return {
-      get length() {
-        const result = db.query(`SELECT COUNT(id) count FROM core`)
-        return result[0][0] as number
-      },
-      *[Symbol.iterator]() {
-        let batch: [string, RU][] = []
-        let offset = 0
-        do {
-          const queryString = `WITH
-          ${[
-            `BatchIDRange AS (
-            SELECT MIN(id) as min_id, MAX(id) as max_id
-            FROM (
-                SELECT id
-                FROM core
-                ORDER BY id
-                LIMIT ${chunkSize} OFFSET ${offset}
-            )
-          )`,
-            ...extensionNames.map(
-              (ext) => `
-          Aggregated${ext} AS (
-              SELECT id, json_group_array(json(json)) AS json
-              FROM ${ext}
-              WHERE id >= (SELECT min_id FROM BatchIDRange)
-                AND id <= (SELECT max_id FROM BatchIDRange)
-              GROUP BY id
+  multibar.stop()
+
+  const extensionNames = extensionRefs.map((ext) => path.parse(ext.file).name)
+
+  const buildBatchQuery = (offset: number) => {
+    const batchRange = `BatchIDRange AS (
+      SELECT MIN(id) as min_id, MAX(id) as max_id
+      FROM (
+          SELECT id
+          FROM core
+          ORDER BY id
+          LIMIT ${chunkSize} OFFSET ${offset}
+      )
+    )`
+    const extensionCtes = extensionNames.map(
+      (ext) => `Aggregated${ext} AS (
+        SELECT id, json_group_array(json(json)) AS json
+        FROM ${ext}
+        WHERE id >= (SELECT min_id FROM BatchIDRange)
+          AND id <= (SELECT max_id FROM BatchIDRange)
+        GROUP BY id
+      )`
+    )
+    const withClause = [batchRange, ...extensionCtes].join(',\n      ')
+    const joins = extensionNames
+      .map(
+        (ext) => `
+      LEFT JOIN Aggregated${ext} ON c.id = Aggregated${ext}.id`
+      )
+      .join('')
+    const jsonPatchExpr = extensionNames.length
+      ? `json_patch(c.json, json_object(${extensionNames
+          .map((ext) => `'${ext}', json(Aggregated${ext}.json)`)
+          .join(', ')}))`
+      : 'c.json'
+    return `WITH ${withClause}
+    SELECT
+      c.id,
+      ${jsonPatchExpr} AS json
+    FROM
+      core c${joins}
+    WHERE c.id >= (SELECT min_id FROM BatchIDRange)
+      AND c.id <= (SELECT max_id FROM BatchIDRange)
+    ORDER BY c.id;`
+  }
+
+  return {
+    get length() {
+      const row = db
+        .query('SELECT COUNT(id) as count FROM core')
+        .get() as { count: number } | undefined
+      return row?.count ?? 0
+    },
+    *[Symbol.iterator]() {
+      let offset = 0
+      while (true) {
+        const queryString = buildBatchQuery(offset)
+        let rows: { id: string; json: string | null }[] = []
+        try {
+          rows = db.query(queryString).all() as {
+            id: string
+            json: string | null
+          }[]
+        } catch (e) {
+          console.log(
+            `\n\nSQLITE ERROR: ${(e as Error).name}\n ${(e as Error).message}\n\n${queryString}\n\n`
           )
-          `
-            ),
-          ].join(', ')}
-          SELECT
-          c.id,
-          json_patch(c.json, json_object(
-            ${extensionNames
-              .map((ext) =>
-                [`'${ext}'`, `json(Aggregated${ext}.json)`].join(', ')
-              )
-              .join(', ')}
-          )) AS json
-        FROM
-          core c
-        ${extensionNames
-          .map(
-            (ext) => `
-        LEFT JOIN Aggregated${ext} ON c.id = Aggregated${ext}.id
-        `
-          )
-          .join('\n')}
-        WHERE c.id >= (SELECT min_id FROM BatchIDRange)
-          AND c.id <= (SELECT max_id FROM BatchIDRange);
-        GROUP BY
-            c.id;`
-          try {
-            const rows = db.queryEntries(queryString) as {
-              id: string
-              json: string
-            }[]
-            batch = rows.map(({ id, json }) => [
-              id,
-              JSON.parse(json as string),
-            ]) as [string, RU][]
-            yield batch
-          } catch (e) {
-            console.log(
-              `\n\nSQLITE ERROR: ${e.codeName}\n ${e.message}\n\n${queryString}\n\n`
-            )
-            throw e
-          }
-          offset += chunkSize
-        } while (batch.length > 0)
-        db.close()
-        return null
-      },
-    }
+          throw e
+        }
+        if (!rows.length) {
+          break
+        }
+        const batch = rows.map(({ id, json }) => [
+          id,
+          json ? JSON.parse(json) : {},
+        ]) as [string, RU][]
+        yield batch
+        offset += chunkSize
+      }
+      db.close()
+      return null
+    },
   }
 }
 
 type RU = Record<string, unknown>
 
+type DownloadOptions = {
+  dir: string
+  file: string
+}
+
 async function downloadWithTimeout(
   url: string,
-  options: any,
+  options: DownloadOptions,
   timeoutMs = 10000
 ) {
   const controller = new AbortController()
+  const requestTimeout = setTimeout(() => controller.abort(), timeoutMs)
+  let inactivityId: ReturnType<typeof setTimeout> | undefined
 
-  let inactivityId: number | undefined
   const resetInactivity = () => {
     if (inactivityId !== undefined) clearTimeout(inactivityId)
-    // Abort if no data arrives within timeoutMs
-    inactivityId = setTimeout(() => controller.abort(), timeoutMs) as unknown as number
+    inactivityId = setTimeout(() => controller.abort(), timeoutMs)
   }
 
   try {
-    // Start request with abort signal
     const response = await fetch(url, { signal: controller.signal })
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
 
-    // Ensure the directory exists
-    await Deno.mkdir(options.dir, { recursive: true })
+    await mkdir(options.dir, { recursive: true })
 
-    const filePath = `${options.dir}/${options.file}`
-    const file = await Deno.open(filePath, {
-      write: true,
-      create: true,
-      truncate: true,
-    })
+    const filePath = path.join(options.dir, options.file)
+    const writeStream = createWriteStream(filePath)
 
     try {
-      if (response.body) {
-        const reader = response.body.getReader()
-        const writer = file.writable.getWriter()
-
-        // Kick off inactivity timer
-        resetInactivity()
-
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-          // Data arrived; reset inactivity timer
-          resetInactivity()
-          await writer.write(value)
-        }
-
-        await writer.close()
+      const body = response.body
+      if (!body) {
+        throw new Error('Response body is empty')
       }
+      const reader = Readable.fromWeb(body as any)
+      resetInactivity()
+      for await (const chunk of reader) {
+        resetInactivity()
+        if (!writeStream.write(chunk)) {
+          await once(writeStream, 'drain')
+        }
+      }
+      writeStream.end()
+      await once(writeStream, 'finish')
+    } catch (error) {
+      writeStream.destroy()
+      throw error
     } finally {
-      // Always close the file descriptor
-      try {
-        file.close()
-      } catch {}
+      if (inactivityId !== undefined) clearTimeout(inactivityId)
     }
-
-    if (inactivityId !== undefined) clearTimeout(inactivityId)
   } catch (error) {
     if (inactivityId !== undefined) clearTimeout(inactivityId)
-    if ((error as any).name === 'AbortError') {
+    if ((error as Error).name === 'AbortError') {
       throw new Error(`Download inactivity timeout after ${timeoutMs}ms`)
     }
     throw error
+  } finally {
+    clearTimeout(requestTimeout)
   }
 }
 
@@ -411,7 +474,9 @@ export async function processaZip(
   }
 
   try {
-    await extract('.temp/temp.zip', { dir: path.resolve('.temp') })
+    await extract(path.join('.temp', 'temp.zip'), {
+      dir: path.resolve('.temp'),
+    })
     const ret = sqlite
       ? await buildSqlite('.temp', chunkSize)
       : await buildJson('.temp')
@@ -419,7 +484,7 @@ export async function processaZip(
   } finally {
     // Always clean up temporary files
     try {
-      await Deno.remove('.temp', { recursive: true })
+      await rm('.temp', { recursive: true, force: true })
     } catch {
       // Ignore cleanup errors
     }
@@ -452,10 +517,10 @@ export const getEml = async (url: string, timeoutMs = 10000) => {
       }
     )
     clearTimeout(timeoutId)
-    return extractEml(parse(contents) as OuterEml)
+    return extractEml(xmlParser.parse(contents) as OuterEml)
   } catch (error) {
     clearTimeout(timeoutId)
-    if (error.name === 'AbortError') {
+    if ((error as Error).name === 'AbortError') {
       throw new Error(`Request timeout after ${timeoutMs}ms`)
     }
     throw error

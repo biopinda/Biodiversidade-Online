@@ -55,18 +55,21 @@ Topics:
 - **Helm charts** para deployment Kubernetes
 
 ```dockerfile
-# Exemplo de multi-stage build otimizado
-FROM denoland/deno:alpine AS builder
+# Exemplo de multi-stage build otimizado com Bun
+FROM oven/bun:1.2.21 AS builder
 WORKDIR /app
-COPY deno.json deno.lock ./
-RUN deno cache --lock=deno.lock src/main.ts
-
-FROM denoland/deno:distroless AS runtime
-COPY --from=builder /deno-dir /deno-dir
+COPY bun.lock package.json ./
+RUN bun install --frozen-lockfile
 COPY . .
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s \
-  CMD deno run --allow-net healthcheck.ts
-CMD ["run", "--allow-all", "src/main.ts"]
+RUN bun run build
+
+FROM oven/bun:1.2.21-slim AS runtime
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./package.json
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s CMD bun run healthcheck
+CMD ["bun", "run", "start"]
 ```
 
 ## 2. Performance e Escalabilidade
@@ -183,7 +186,7 @@ data:
 ```
 
 **Estratégia de Cache**:
-- **L1**: Cache local em memória (Deno Map/WeakMap)
+- **L1**: Cache local em memória (Map/WeakMap)
 - **L2**: Redis cache distribuído 
 - **L3**: MongoDB com TTL collections
 
@@ -228,29 +231,34 @@ export const metrics = {
 
 ```typescript
 // logger.ts
-import { Logger } from 'https://deno.land/x/structured_logging@v1.0.0/mod.ts';
+import pino from 'pino';
 
-export const logger = new Logger({
-  service: 'darwincore-processor',
-  version: Deno.env.get('VERSION') || 'dev',
-  environment: Deno.env.get('ENVIRONMENT') || 'development',
-  structured: true,
-  outputs: [
-    {
-      type: 'console',
-      level: 'info'
-    },
-    {
-      type: 'file',
-      path: '/var/log/darwincore.json',
-      level: 'debug'
-    },
-    {
-      type: 'elasticsearch',
-      endpoint: Deno.env.get('ELASTICSEARCH_URL'),
-      level: 'warn'
-    }
-  ]
+export const logger = pino({
+  name: 'darwincore-processor',
+  level: process.env.LOG_LEVEL ?? 'info',
+  version: process.env.VERSION ?? 'dev',
+  environment: process.env.ENVIRONMENT ?? 'development',
+  transport: {
+    targets: [
+      {
+        target: 'pino-pretty',
+        options: { colorize: true },
+        level: 'info',
+      },
+      {
+        target: 'pino/file',
+        options: { destination: '/var/log/darwincore.json' },
+        level: 'debug',
+      },
+      {
+        target: 'pino-elasticsearch',
+        options: {
+          node: process.env.ELASTICSEARCH_URL,
+          level: 'warn',
+        },
+      },
+    ],
+  },
 });
 ```
 
@@ -315,8 +323,7 @@ export const healthChecks = {
 
 ```typescript
 // tests/integration/dwca-processing.test.ts
-import { assertEquals, assertExists } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { beforeEach, describe, it } from "https://deno.land/std@0.224.0/testing/bdd.ts";
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe("DwC-A Processing Integration", () => {
   beforeEach(async () => {
@@ -328,14 +335,14 @@ describe("DwC-A Processing Integration", () => {
     const testArchive = "./test-data/flora-sample.zip";
     const result = await processaZip(testArchive, true);
     
-    assertEquals(result.length, 1000); // Expected sample size
-    assertExists(result.ipt);
+    expect(result).toHaveLength(1000);
+    expect(result.ipt).toBeDefined();
     
     // Verify data structure
     for await (const batch of result) {
       for (const [id, taxon] of batch) {
-        assertEquals(typeof taxon.scientificName, "string");
-        assertEquals(typeof taxon.kingdom, "string");
+        expect(typeof taxon.scientificName).toBe("string");
+        expect(typeof taxon.kingdom).toBe("string");
       }
     }
   });
@@ -346,7 +353,7 @@ describe("DwC-A Processing Integration", () => {
     try {
       await processaZip(malformedArchive, true);
     } catch (error) {
-      assertEquals(error.name, "DwcaValidationError");
+      expect(error.name).toBe("DwcaValidationError");
     }
   });
 });
@@ -449,11 +456,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Deno Security Audit
+      - name: Bun Security Audit
         run: |
-          deno task audit
-          deno task lint
-          deno task test:coverage
+          bun run audit
+          bun run lint
+          bun run test:coverage
           
       - name: Container Security Scan
         uses: aquasecurity/trivy-action@master
@@ -480,7 +487,7 @@ jobs:
             
       - name: Run E2E Tests
         run: |
-          deno task test:e2e:staging
+          bun run test:e2e:staging
           
   deploy-production:
     needs: deploy-staging

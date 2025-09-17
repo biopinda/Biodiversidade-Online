@@ -1,4 +1,4 @@
-import { MongoClient } from 'https://deno.land/x/mongo@v0.32.0/mod.ts'
+import { MongoClient } from 'mongodb'
 import { type DbIpt, processaZip } from './lib/dwca.ts'
 
 export const findTaxonByName = (
@@ -111,10 +111,11 @@ export const processaFloraZip = async (url: string) => {
   return { json: floraJson, ipt }
 }
 async function main() {
-  if (Deno.args?.length === 0) {
-    return
+  const [url] = process.argv.slice(2)
+  if (!url) {
+    console.error('Usage: bun run src/flora.ts <dwc-a url>')
+    process.exit(1)
   }
-  const [url] = Deno.args
   const { json, ipt } = await processaFloraZip(url).catch((error) => {
     // Handle 404 errors when IPT resources no longer exist
     if (
@@ -124,16 +125,22 @@ async function main() {
         error.message.includes('status 404'))
     ) {
       console.log(`Flora resource no longer exists (404) - exiting`)
-      Deno.exit(0)
+      process.exit(0)
     }
     // Re-throw other errors for proper error handling
     console.error(`Error downloading flora data:`, error.message)
     throw error
   })
-  const client = new MongoClient()
-  await client.connect(Deno.env.get('MONGO_URI') as string)
-  const iptsCol = client.database('dwc2json').collection('ipts')
-  const collection = client.database('dwc2json').collection('taxa')
+  const mongoUri = process.env.MONGO_URI
+  if (!mongoUri) {
+    console.error('MONGO_URI environment variable is required')
+    process.exit(1)
+  }
+  const client = new MongoClient(mongoUri)
+  await client.connect()
+  const db = client.db('dwc2json')
+  const iptsCol = db.collection<DbIpt>('ipts')
+  const collection = db.collection('taxa')
   const dbVersion = (
     (await iptsCol.findOne({ _id: ipt.id })) as DbIpt | undefined
   )?.version
@@ -141,11 +148,10 @@ async function main() {
     console.debug(`Fauna already on version ${ipt.version}`)
   } else {
     console.debug('Cleaning collection')
-    console.log(
-      await collection.deleteMany({
-        $or: [{ kingdom: 'Plantae' }, { kingdom: 'Fungi' }],
-      })
-    )
+    const { deletedCount } = await collection.deleteMany({
+      $or: [{ kingdom: 'Plantae' }, { kingdom: 'Fungi' }],
+    })
+    console.log(`Deleted ${deletedCount ?? 0} existing flora/fungi records`)
     console.debug('Inserting taxa')
     const taxa = Object.values(json)
     for (let i = 0, n = taxa.length; i < n; i += 5000) {
@@ -161,36 +167,40 @@ async function main() {
     )
   }
   console.log('Creating indexes')
-  await collection.createIndexes({
-    indexes: [
-      {
-        key: { scientificName: 1 },
-        name: 'scientificName',
-      },
-      {
-        key: { kingdom: 1 },
-        name: 'kingdom',
-      },
-      {
-        key: { family: 1 },
-        name: 'family',
-      },
-      {
-        key: { genus: 1 },
-        name: 'genus',
-      },
-      {
-        key: { taxonID: 1, kingdom: 1 },
-        name: 'taxonKingdom',
-      },
-      {
-        key: { canonicalName: 1 },
-        name: 'canonicalName',
-      },
-      { key: { flatScientificName: 1 }, name: 'flatScientificName' },
-    ],
-  })
+  await collection.createIndexes([
+    {
+      key: { scientificName: 1 },
+      name: 'scientificName',
+    },
+    {
+      key: { kingdom: 1 },
+      name: 'kingdom',
+    },
+    {
+      key: { family: 1 },
+      name: 'family',
+    },
+    {
+      key: { genus: 1 },
+      name: 'genus',
+    },
+    {
+      key: { taxonID: 1, kingdom: 1 },
+      name: 'taxonKingdom',
+    },
+    {
+      key: { canonicalName: 1 },
+      name: 'canonicalName',
+    },
+    { key: { flatScientificName: 1 }, name: 'flatScientificName' },
+  ])
   console.debug('Done')
+  await client.close()
 }
 
-main()
+if (import.meta.main) {
+  main().catch((error) => {
+    console.error('Flora ingestion failed', error)
+    process.exitCode = 1
+  })
+}

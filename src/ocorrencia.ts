@@ -1,7 +1,8 @@
-import { MongoClient } from 'npm:mongodb'
-import { calculateObjectSize } from 'npm:bson'
-import cliProgress from 'npm:cli-progress'
-import Papa from 'npm:papaparse'
+import { MongoClient } from 'mongodb'
+import { calculateObjectSize } from 'bson'
+import cliProgress from 'cli-progress'
+import Papa from 'papaparse'
+import { readFile } from 'node:fs/promises'
 
 import { getEml, processaEml, processaZip, type DbIpt } from './lib/dwca.ts'
 
@@ -77,16 +78,18 @@ type IptSource = {
   tag: string
   url: string
 }
-const { data: iptSources } = (await Deno.readTextFile(
-  './referencias/occurrences.csv'
-).then((contents) => Papa.parse(contents, { header: true }))) as {
-  data: IptSource[]
-}
+const csvContents = await readFile(
+  new URL('../referencias/occurrences.csv', import.meta.url),
+  'utf-8'
+)
+const { data: iptSources } = Papa.parse<IptSource>(csvContents, {
+  header: true,
+})
 
-const mongoUri = Deno.env.get('MONGO_URI')
+const mongoUri = process.env.MONGO_URI
 if (!mongoUri) {
   console.error('MONGO_URI environment variable is required')
-  Deno.exit(1)
+  process.exit(1)
 }
 const client = new MongoClient(mongoUri)
 await client.connect()
