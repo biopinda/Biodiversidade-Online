@@ -1,0 +1,13 @@
+# Ignore dependencies and build artifacts to keep image contexts small
+node_modules
+
+# Git and local tooling metadata
+.git
+.gitignore
+.ruler/
+.DS_Store
+
+# Local caches and build outputs
+dist
+.astro
+cache

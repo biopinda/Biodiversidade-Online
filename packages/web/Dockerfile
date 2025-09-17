@@ -4,6 +4,11 @@ FROM oven/bun:1.2.21 AS builder
 
 WORKDIR /app
 
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 build-essential \
+  && ln -sf /usr/bin/python3 /usr/bin/python \
+  && rm -rf /var/lib/apt/lists/*
+
 # Copy workspace manifests, lockfile, and shared config
 COPY package.json bun.lock tsconfig.base.json ./
 COPY packages/ingest/package.json ./packages/ingest/
@@ -26,7 +31,7 @@ ENV PORT=4321
 
 # Copy runtime artifacts
 COPY --from=builder /app/packages/web/package.json ./package.json
-COPY --from=builder /app/packages/web/node_modules ./node_modules
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/web/dist ./dist
 
 EXPOSE 4321
