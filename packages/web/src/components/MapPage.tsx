@@ -12,8 +12,6 @@ interface TaxaResponse {
   regions: RegionData[]
 }
 
-type Kingdom = 'Plantae' | 'Fungi' | 'Animalia'
-
 export default function MapPage() {
   const [taxaData, setTaxaData] = useState<TaxaResponse>({
     total: 0,

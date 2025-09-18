@@ -185,7 +185,7 @@ export const buildJson = async (folder: string) => {
 }
 
 const _addLineToTable = (
-  stmt: Statement<[string, string]>,
+  stmt: Statement<unknown, [string, string]>,
   line: string,
   fields: string[],
   indexPosition: number
@@ -234,7 +234,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
   stageBar.increment(0, { filename: ref.core!.file })
 
   const coreIndexPosition = ref.core!.fields.indexOf('INDEX')
-  const coreInsert = db.prepare<[string, string]>(
+  const coreInsert = db.prepare<unknown, [string, string]>(
     'INSERT INTO core VALUES (?, ?)'
   )
   let coreLineCount = 0
@@ -268,7 +268,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
     db.exec(`CREATE TABLE ${tableName} (id TEXT, json TEXT)`)
     db.exec(`CREATE INDEX idx_${tableName}_id ON ${tableName} (id)`)
 
-    const insertStmt = db.prepare<[string, string]>(
+    const insertStmt = db.prepare<unknown, [string, string]>(
       `INSERT INTO ${tableName} VALUES (?, ?)`
     )
     const indexPosition = extension.fields.indexOf('INDEX')

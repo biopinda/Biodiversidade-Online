@@ -183,9 +183,9 @@ try {
   }[] = []
 
   await runWithConcurrency(
-    iptSources.map((source, index) => ({ source, index })),
+    iptSources.map((source: IptSource, index: number) => ({ source, index })),
     10,
-    async ({ source, index }) => {
+    async ({ source, index }: { source: IptSource; index: number }) => {
       const { repositorio, kingdom, tag, url } = source
       if (!repositorio || !tag) {
         return

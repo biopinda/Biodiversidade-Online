@@ -2,6 +2,8 @@
   "name": "@biopinda/darwincorejson",
   "devDependencies": {
     "@intellectronica/ruler": "^0.3.8",
+    "@types/cli-progress": "^3.11.6",
+    "@types/papaparse": "^5.3.16",
     "lint-staged": "^15.2.10",
     "patch-package": "^8.0.0",
     "prettier": "^3.6.2"
