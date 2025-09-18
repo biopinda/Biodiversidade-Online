@@ -1,22 +1,86 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
-import { useChat } from '@ai-sdk/react'
+import { useChat, type Message } from '@ai-sdk/react'
 import {
   CogIcon,
   CommandIcon,
   CornerDownRightIcon,
-  InfoIcon
+  HistoryIcon,
+  InfoIcon,
+  PlusIcon,
+  Trash2Icon
 } from 'lucide-react'
-import { startTransition, useEffect, useRef, useState } from 'react'
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ModelSelector, { type Provider } from './ModelSelector'
+import ChatHistoryList, { type ChatHistoryEntry } from './ChatHistoryList'
 import PasswordInput from './PasswordInput'
 import { Badge } from './ui/badge'
 import { Textarea } from './ui/textarea'
 import { ScrollArea } from './ui/scroll-area'
+
+type StoredChatSession = {
+  id: string
+  createdAt: string
+  updatedAt: string
+  messages: Message[]
+}
+
+const CHAT_HISTORY_STORAGE_KEY = 'chatHistory'
+const CURRENT_CHAT_ID_STORAGE_KEY = 'chatHistoryCurrentId'
+
+const timeValue = (isoDate: string | undefined) => {
+  if (!isoDate) {
+    return 0
+  }
+  const value = new Date(isoDate).getTime()
+  return Number.isNaN(value) ? 0 : value
+}
+
+const sortSessions = (sessions: StoredChatSession[]) =>
+  [...sessions].sort((a, b) => timeValue(b.updatedAt) - timeValue(a.updatedAt))
+
+const messagesEqual = (a: Message[], b: Message[]) => {
+  if (a.length !== b.length) {
+    return false
+  }
+
+  for (let i = 0; i < a.length; i += 1) {
+    if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) {
+      return false
+    }
+  }
+
+  return true
+}
 
 function ConfigForm({
   initialKeys,
@@ -271,6 +335,26 @@ export default function Chat() {
     provider: 'openai' | 'google'
     model: string
   } | null>(null)
+  const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false)
+  const [chatHistory, setChatHistory] = useState<StoredChatSession[]>([])
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null)
+  const [isClearDialogOpen, setIsClearDialogOpen] = useState(false)
+  const [isHistorySheetOpen, setIsHistorySheetOpen] = useState(false)
+
+  const createSessionObject = useCallback((): StoredChatSession => {
+    const now = new Date().toISOString()
+    const id =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `chat-${Date.now()}-${Math.random().toString(16).slice(2)}`
+
+    return {
+      id,
+      createdAt: now,
+      updatedAt: now,
+      messages: []
+    }
+  }, [])
 
   useEffect(() => {
     if (!localConfigLoaded) {
@@ -311,6 +395,108 @@ export default function Chat() {
   })
 
   useEffect(() => {
+    if (chatHistoryLoaded) {
+      return
+    }
+
+    const storedHistory = localStorage.getItem(CHAT_HISTORY_STORAGE_KEY)
+    const storedCurrentId = localStorage.getItem(CURRENT_CHAT_ID_STORAGE_KEY)
+
+    let parsedHistory: StoredChatSession[] = []
+
+    if (storedHistory) {
+      try {
+        const rawHistory = JSON.parse(storedHistory) as StoredChatSession[]
+        if (Array.isArray(rawHistory)) {
+          parsedHistory = rawHistory
+            .filter(
+              (session): session is StoredChatSession =>
+                typeof session?.id === 'string'
+            )
+            .map((session) => ({
+              ...session,
+              messages: Array.isArray(session.messages) ? session.messages : []
+            }))
+        }
+      } catch (error) {
+        console.error('Erro ao carregar histórico do chat', error)
+      }
+    }
+
+    let initialHistory =
+      parsedHistory.length > 0 ? sortSessions(parsedHistory) : []
+
+    if (initialHistory.length === 0) {
+      initialHistory = [createSessionObject()]
+    }
+
+    const initialCurrentId =
+      storedCurrentId &&
+      initialHistory.some((session) => session.id === storedCurrentId)
+        ? storedCurrentId
+        : initialHistory[0].id
+
+    const initialMessages =
+      initialHistory.find((session) => session.id === initialCurrentId)
+        ?.messages ?? []
+
+    setChatHistory(initialHistory)
+    setCurrentChatId(initialCurrentId)
+    setMessages(initialMessages)
+    setChatHistoryLoaded(true)
+  }, [chatHistoryLoaded, createSessionObject, setMessages])
+
+  useEffect(() => {
+    if (!chatHistoryLoaded) {
+      return
+    }
+
+    localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory))
+  }, [chatHistory, chatHistoryLoaded])
+
+  useEffect(() => {
+    if (!chatHistoryLoaded) {
+      return
+    }
+
+    if (currentChatId) {
+      localStorage.setItem(CURRENT_CHAT_ID_STORAGE_KEY, currentChatId)
+    } else {
+      localStorage.removeItem(CURRENT_CHAT_ID_STORAGE_KEY)
+    }
+  }, [currentChatId, chatHistoryLoaded])
+
+  useEffect(() => {
+    if (!chatHistoryLoaded || !currentChatId) {
+      return
+    }
+
+    setChatHistory((previousHistory) => {
+      const index = previousHistory.findIndex(
+        (session) => session.id === currentChatId
+      )
+
+      if (index === -1) {
+        return previousHistory
+      }
+
+      const currentSession = previousHistory[index]
+      if (messagesEqual(currentSession.messages, messages)) {
+        return previousHistory
+      }
+
+      const nextHistory = [...previousHistory]
+      nextHistory[index] = {
+        ...currentSession,
+        messages,
+        updatedAt: new Date().toISOString()
+      }
+
+      return sortSessions(nextHistory)
+    })
+  }, [messages, chatHistoryLoaded, currentChatId])
+
+  useEffect(() => {
     if (status === 'ready') {
       const lastMessage = messages.at(-1)
       if (lastMessage?.role === 'assistant' && lastMessage?.content === '') {
@@ -319,108 +505,314 @@ export default function Chat() {
     }
   }, [status, messages])
 
+  const historyEntries = useMemo<ChatHistoryEntry[]>(() => {
+    return chatHistory.map((session) => ({
+      id: session.id,
+      createdAt: session.createdAt,
+      updatedAt: session.updatedAt,
+      messageCount: session.messages.length
+    }))
+  }, [chatHistory])
+
+  const currentSession = useMemo(() => {
+    if (!currentChatId) {
+      return undefined
+    }
+    return chatHistory.find((session) => session.id === currentChatId)
+  }, [chatHistory, currentChatId])
+
+  const handleSelectChat = useCallback(
+    (chatId: string) => {
+      setIsHistorySheetOpen(false)
+      if (chatId === currentChatId) {
+        return
+      }
+
+      const session = chatHistory.find((item) => item.id === chatId)
+      if (!session) {
+        return
+      }
+
+      stop()
+      setCurrentChatId(chatId)
+      setMessages(session.messages)
+    },
+    [chatHistory, currentChatId, setMessages, stop]
+  )
+
+  const handleCreateNewChat = useCallback(() => {
+    stop()
+    const newSession = createSessionObject()
+    setChatHistory((prev) => sortSessions([...prev, newSession]))
+    setCurrentChatId(newSession.id)
+    setMessages([])
+    setIsHistorySheetOpen(false)
+  }, [createSessionObject, setMessages, stop])
+
+  const handleDeleteChat = useCallback(
+    (chatId: string) => {
+      stop()
+      let nextState: { chatId: string; messages: Message[] } | null = null
+
+      setChatHistory((prev) => {
+        const filtered = prev.filter((session) => session.id !== chatId)
+        if (filtered.length === prev.length) {
+          return prev
+        }
+
+        if (filtered.length === 0) {
+          const fallbackSession = createSessionObject()
+          nextState = { chatId: fallbackSession.id, messages: [] }
+          return [fallbackSession]
+        }
+
+        const sorted = sortSessions(filtered)
+        if (chatId === currentChatId) {
+          const [nextSession] = sorted
+          nextState = {
+            chatId: nextSession.id,
+            messages: nextSession.messages
+          }
+        }
+
+        return sorted
+      })
+
+      if (nextState) {
+        setCurrentChatId(nextState.chatId)
+        setMessages(nextState.messages)
+      }
+    },
+    [createSessionObject, currentChatId, setMessages, stop]
+  )
+
+  const handleClearChat = useCallback(() => {
+    if (!currentChatId) {
+      setMessages([])
+      return
+    }
+
+    stop()
+    setMessages([])
+    setChatHistory((prev) => {
+      const index = prev.findIndex((session) => session.id === currentChatId)
+      if (index === -1) {
+        return prev
+      }
+
+      const updated = [...prev]
+      updated[index] = {
+        ...prev[index],
+        messages: [],
+        updatedAt: new Date().toISOString()
+      }
+
+      return sortSessions(updated)
+    })
+  }, [currentChatId, setMessages, stop])
+
+  const canClearCurrentChat = (currentSession?.messages?.length ?? 0) > 0
+
   const isMac =
     typeof window !== 'undefined' &&
     (window.navigator?.userAgent?.includes('Mac') ||
       window.navigator?.userAgent?.includes('iPad'))
 
   return (
-    <div className="py-4 mx-auto max-w-screen-lg flex flex-col h-screen gap-4">
-      <div className="flex-1 overflow-y-auto flex flex-col-reverse">
-        <div className="flex flex-col gap-3">
-          {messages.map((message, index) => {
-            const toolInvocationParts = message.parts.filter(
-              (
-                part
-              ): part is {
-                type: 'tool-invocation'
-                toolInvocation: {
-                  toolName: string
-                  state: 'result'
-                  step?: number
-                  toolCallId: string
-                  args: any
-                  result: any
-                }
-              } => part.type === 'tool-invocation'
-            )
-
-            const isLastMessage = index === messages.length - 1
-            const isLoading = status === 'streaming' && isLastMessage
-
-            return (
-              <ChatBubble
-                key={message.id}
-                align={message.role === 'user' ? 'right' : 'left'}
+    <div className="mx-auto flex h-screen w-full max-w-screen-lg flex-col gap-4 px-4 py-4 sm:px-6">
+      <div className="flex h-full flex-1 gap-4">
+        <aside className="hidden shrink-0 md:flex">
+          <ChatHistoryList
+            chats={historyEntries}
+            activeChatId={currentChatId}
+            onSelectChat={handleSelectChat}
+            onDeleteChat={handleDeleteChat}
+            onCreateChat={handleCreateNewChat}
+            className="w-64 min-w-64"
+          />
+        </aside>
+        <div className="flex flex-1 flex-col gap-4 overflow-hidden">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 md:hidden">
+              <Sheet
+                open={isHistorySheetOpen}
+                onOpenChange={setIsHistorySheetOpen}
               >
-                {toolInvocationParts.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {toolInvocationParts.map((part, index) => (
-                      <ToolCall key={index} toolCall={part.toolInvocation} />
-                    ))}
-                    {message.parts
-                      .filter((part) => part.type === 'reasoning')
-                      .map((part, i) => (
-                        <ReasoningPart
-                          key={`reasoning-badge-${i}`}
-                          part={part}
-                        />
-                      ))}
-                  </div>
-                )}
-                {message.parts.map((part, index) => {
-                  if (part.type === 'text') {
-                    return (
-                      <div
-                        key={index}
-                        className="prose prose-td:py-0 prose-custom-code max-w-full"
-                      >
-                        <Markdown remarkPlugins={[remarkGfm]}>
-                          {part.text}
-                        </Markdown>
-                      </div>
-                    )
+                <SheetTrigger asChild>
+                  <Button type="button" variant="outline" size="sm">
+                    <HistoryIcon className="mr-2 h-4 w-4" aria-hidden />
+                    Histórico
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-80 max-w-full p-0">
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>Histórico de conversas</SheetTitle>
+                  </SheetHeader>
+                  <ChatHistoryList
+                    chats={historyEntries}
+                    activeChatId={currentChatId}
+                    onSelectChat={handleSelectChat}
+                    onDeleteChat={handleDeleteChat}
+                    onCreateChat={handleCreateNewChat}
+                    className="h-full w-full min-w-0 rounded-none border-0 shadow-none"
+                  />
+                </SheetContent>
+              </Sheet>
+              <Button type="button" size="sm" onClick={handleCreateNewChat}>
+                <PlusIcon className="mr-2 h-4 w-4" aria-hidden />
+                Nova
+              </Button>
+            </div>
+            <div className="ml-auto flex items-center gap-2">
+              <AlertDialog
+                open={isClearDialogOpen}
+                onOpenChange={setIsClearDialogOpen}
+              >
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    disabled={!canClearCurrentChat}
+                    aria-label="Limpar conversa atual"
+                    title="Limpar conversa atual"
+                  >
+                    <Trash2Icon className="h-4 w-4" aria-hidden />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Limpar a conversa atual?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação remove todas as mensagens desta conversa. O
+                      histórico permanece salvo somente no seu navegador.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        handleClearChat()
+                        setIsClearDialogOpen(false)
+                      }}
+                    >
+                      Limpar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <Button
+                type="button"
+                size="icon"
+                variant={isConfiguring || !hasApiKey ? 'default' : 'ghost'}
+                disabled={!localConfigLoaded || !hasApiKey}
+                onClick={() => {
+                  if (hasApiKey) {
+                    setIsConfiguring((prev) => !prev)
                   }
-                  // skip reasoning part here, it's handled above
-                  return null
+                }}
+                aria-label="Configurações do chat"
+                title="Configurações do chat"
+              >
+                <CogIcon className="h-4 w-4" aria-hidden />
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-1 flex-col gap-4 overflow-hidden">
+            <div className="flex flex-1 flex-col-reverse overflow-y-auto">
+              <div className="flex flex-col gap-3">
+                {messages.map((message, index) => {
+                  const toolInvocationParts = message.parts.filter(
+                    (
+                      part
+                    ): part is {
+                      type: 'tool-invocation'
+                      toolInvocation: {
+                        toolName: string
+                        state: 'result'
+                        step?: number
+                        toolCallId: string
+                        args: any
+                        result: any
+                      }
+                    } => part.type === 'tool-invocation'
+                  )
+
+                  const isLastMessage = index === messages.length - 1
+                  const isLoading = status === 'streaming' && isLastMessage
+
+                  return (
+                    <ChatBubble
+                      key={message.id}
+                      align={message.role === 'user' ? 'right' : 'left'}
+                    >
+                      {toolInvocationParts.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {toolInvocationParts.map((part, partIndex) => (
+                            <ToolCall
+                              key={partIndex}
+                              toolCall={part.toolInvocation}
+                            />
+                          ))}
+                          {message.parts
+                            .filter((part) => part.type === 'reasoning')
+                            .map((part, i) => (
+                              <ReasoningPart
+                                key={`reasoning-badge-${i}`}
+                                part={part}
+                              />
+                            ))}
+                        </div>
+                      )}
+                      {message.parts.map((part, partIndex) => {
+                        if (part.type === 'text') {
+                          return (
+                            <div
+                              key={partIndex}
+                              className="prose prose-td:py-0 prose-custom-code max-w-full"
+                            >
+                              <Markdown remarkPlugins={[remarkGfm]}>
+                                {part.text}
+                              </Markdown>
+                            </div>
+                          )
+                        }
+                        // skip reasoning part here, it's handled above
+                        return null
+                      })}
+                      {isLoading && (
+                        <div className="animate-pulse self-start">...</div>
+                      )}
+                    </ChatBubble>
+                  )
                 })}
-                {isLoading && (
-                  <div className="animate-pulse self-start">...</div>
+                {status === 'submitted' && (
+                  <ChatBubble align="left">
+                    <div className="animate-pulse">...</div>
+                  </ChatBubble>
                 )}
-              </ChatBubble>
-            )
-          })}
-          {status === 'submitted' && (
-            <ChatBubble align="left">
-              <div className="animate-pulse">...</div>
-            </ChatBubble>
-          )}
-        </div>
-      </div>
+              </div>
+            </div>
 
-      {error && (
-        <div className="flex gap-2 items-center">
-          <div>Ocorreu um erro.</div>
-          <Button type="button" onClick={() => reload()} variant="outline">
-            Tentar novamente
-          </Button>
-        </div>
-      )}
+            {error && (
+              <div className="flex items-center gap-2">
+                <div>Ocorreu um erro.</div>
+                <Button
+                  type="button"
+                  onClick={() => reload()}
+                  variant="outline"
+                >
+                  Tentar novamente
+                </Button>
+              </div>
+            )}
 
-      <form onSubmit={handleSubmit} className="flex gap-2 items-end">
-        <div className="relative w-full mt-8">
-          {localConfigLoaded && (isConfiguring || !hasApiKey) ? (
-            <ConfigForm
-              initialKeys={apiKeys}
-              onSetKeys={(keys) => {
-                setApiKeys(keys)
-                setIsConfiguring(false)
-              }}
-            />
-          ) : (
-            <div className="relative">
-              {localConfigLoaded && (
-                <div className="absolute bottom-full left-0 mb-2">
+            <form onSubmit={handleSubmit} className="flex items-end gap-3">
+              <div className="flex w-full flex-col gap-3">
+                {localConfigLoaded && (
                   <ModelSelector
                     availableProviders={['openai', 'google']}
                     onModelChange={(model: {
@@ -431,61 +823,61 @@ export default function Chat() {
                     }}
                     initialModel={selectedModel ?? undefined}
                   />
+                )}
+                {localConfigLoaded && (isConfiguring || !hasApiKey) ? (
+                  <ConfigForm
+                    initialKeys={apiKeys}
+                    onSetKeys={(keys) => {
+                      setApiKeys(keys)
+                      setIsConfiguring(false)
+                    }}
+                  />
+                ) : (
+                  <Textarea
+                    value={input}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                        e.preventDefault()
+                        handleSubmit(e)
+                      }
+                    }}
+                    onChange={handleInputChange}
+                    disabled={error != null || status === 'streaming'}
+                    className="field-sizing-content min-h-24 border-slate-400"
+                  />
+                )}
+              </div>
+              {!isConfiguring && apiKey && (
+                <div className="flex flex-col justify-end gap-2">
+                  {status === 'streaming' && (
+                    <Button
+                      type="button"
+                      onClick={() => stop()}
+                      variant="outline"
+                    >
+                      Stop
+                    </Button>
+                  )}
+                  <Button
+                    type="submit"
+                    disabled={
+                      !input ||
+                      error != null ||
+                      status === 'streaming' ||
+                      status === 'submitted'
+                    }
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{isMac ? <CommandIcon /> : 'Ctrl'}</span>
+                      <CornerDownRightIcon className="-rotate-90" />
+                    </div>
+                  </Button>
                 </div>
               )}
-              <Textarea
-                value={input}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                    e.preventDefault()
-                    handleSubmit(e)
-                  }
-                }}
-                onChange={handleInputChange}
-                disabled={error != null || status === 'streaming'}
-                className="field-sizing-content min-h-20 border-slate-400"
-              />
-            </div>
-          )}
-
-          <div className="absolute right-full mr-2 bottom-0 flex flex-col gap-0 items-center">
-            <Button
-              variant={isConfiguring || !hasApiKey ? 'default' : 'ghost'}
-              disabled={!hasApiKey}
-              onClick={() => {
-                if (hasApiKey) {
-                  setIsConfiguring((prev) => !prev)
-                }
-              }}
-            >
-              <CogIcon />
-            </Button>
+            </form>
           </div>
         </div>
-        {!isConfiguring && apiKey && (
-          <div className="flex flex-col gap-2 justify-end">
-            {status === 'streaming' && (
-              <Button type="button" onClick={() => stop()} variant="outline">
-                Stop
-              </Button>
-            )}
-            <Button
-              type="submit"
-              disabled={
-                !input ||
-                error != null ||
-                status === 'streaming' ||
-                status === 'submitted'
-              }
-            >
-              <div className="flex gap-2 items-center">
-                <span>{isMac ? <CommandIcon /> : 'Ctrl'}</span>
-                <CornerDownRightIcon className="-rotate-90" />
-              </div>
-            </Button>
-          </div>
-        )}
-      </form>
+      </div>
     </div>
   )
 }
