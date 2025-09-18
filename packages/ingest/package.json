@@ -6,8 +6,7 @@
   "scripts": {
     "occurrences": "bun src/ocorrencia.ts",
     "flora": "bun src/flora.ts",
-    "fauna": "bun src/fauna.ts",
-    "test": "playwright test"
+    "fauna": "bun src/fauna.ts"
   },
   "dependencies": {
     "bson": "catalog:",
@@ -18,7 +17,6 @@
     "papaparse": "catalog:"
   },
   "devDependencies": {
-    "@playwright/test": "catalog:",
     "@types/node": "catalog:",
     "@types/bun": "catalog:"
   }

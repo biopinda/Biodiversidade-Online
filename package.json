@@ -28,7 +28,6 @@
     ],
     "catalog": {
       "@types/node": "^22.8.4",
-      "@playwright/test": "^1.55.0",
       "bson": "^6.7.0",
       "cli-progress": "^3.12.0",
       "extract-zip": "^2.0.1",
