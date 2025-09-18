@@ -4,6 +4,7 @@
     "@intellectronica/ruler": "^0.3.8",
     "@types/cli-progress": "^3.11.6",
     "@types/papaparse": "^5.3.16",
+    "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
     "patch-package": "^8.0.0",
     "prettier": "^3.6.2"
@@ -19,10 +20,12 @@
     "web:build": "bun run --filter @darwincore/web build",
     "web:preview": "bun run --filter @darwincore/web preview",
     "web:start": "bun run --filter @darwincore/web start",
-    "postinstall": "patch-package --patch-dir packages/web/patches && npx ruler apply",
     "ruler:apply": "npx ruler apply",
     "ruler:revert": "npx ruler revert",
-    "ruler:init": "npx ruler init"
+    "ruler:init": "npx ruler init",
+    "format": "npx prettier --write . --experimental-cli",
+    "postinstall": "patch-package --patch-dir packages/web/patches && npx ruler apply",
+    "prepare": "husky"
   },
   "workspaces": {
     "packages": [

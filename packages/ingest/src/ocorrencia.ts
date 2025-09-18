@@ -4,7 +4,13 @@ import cliProgress from 'cli-progress'
 import Papa from 'papaparse'
 import { readFile } from 'node:fs/promises'
 
-import { getEml, processaEml, processaZip, type DbIpt, type Ipt } from './lib/dwca.ts'
+import {
+  getEml,
+  processaEml,
+  processaZip,
+  type DbIpt,
+  type Ipt
+} from './lib/dwca.ts'
 
 /**
  * Utility function to convert string fields to numbers with validation
@@ -200,7 +206,10 @@ try {
       }
 
       console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
-      const eml = await getEml(`${url}eml.do?r=${tag}`, VERSION_CHECK_TIMEOUT_MS).catch((error) => {
+      const eml = await getEml(
+        `${url}eml.do?r=${tag}`,
+        VERSION_CHECK_TIMEOUT_MS
+      ).catch((error) => {
         if (
           error.name === 'Http' &&
           (error.message.includes('404') ||
@@ -229,15 +238,18 @@ try {
       }
 
       const ipt = processaEml(eml)
-      const dbVersion = ((await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null)
-        ?.version
+      const dbVersion = (
+        (await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null
+      )?.version
 
       if (dbVersion === ipt.version) {
         console.debug(`${repositorio}:${tag} already on version ${ipt.version}`)
         return
       }
 
-      console.log(`Version mismatch: DB[${dbVersion}] vs REMOTE[${ipt.version}]`)
+      console.log(
+        `Version mismatch: DB[${dbVersion}] vs REMOTE[${ipt.version}]`
+      )
       pendingProcessing.push({ index, source, ipt, iptBaseUrl })
     }
   )
@@ -254,7 +266,9 @@ try {
       continue
     }
 
-    console.debug(`Downloading ${repositorio}:${tag} [${url}archive.do?r=${tag}]`)
+    console.debug(
+      `Downloading ${repositorio}:${tag} [${url}archive.do?r=${tag}]`
+    )
     const ocorrencias = await processaZip(
       `${url}archive.do?r=${tag}`,
       true,
