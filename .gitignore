@@ -1,6 +1,7 @@
 .env
 .temp
 settings.local.json
+tsconfig.tsbuildinfo
 
 # Playwright
 node_modules/
