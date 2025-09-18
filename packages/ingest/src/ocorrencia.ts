@@ -4,7 +4,7 @@ import cliProgress from 'cli-progress'
 import Papa from 'papaparse'
 import { readFile } from 'node:fs/promises'
 
-import { getEml, processaEml, processaZip, type DbIpt } from './lib/dwca.ts'
+import { getEml, processaEml, processaZip, type DbIpt, type Ipt } from './lib/dwca.ts'
 
 /**
  * Utility function to convert string fields to numbers with validation
@@ -78,6 +78,29 @@ type IptSource = {
   tag: string
   url: string
 }
+
+async function runWithConcurrency<T>(
+  items: T[],
+  limit: number,
+  iterator: (item: T) => Promise<void>
+) {
+  // Simple promise pool to avoid overwhelming IPT servers during version checks
+  const executing: Promise<void>[] = []
+  for (const item of items) {
+    const task = Promise.resolve().then(() => iterator(item))
+    executing.push(task)
+    task.finally(() => {
+      const index = executing.indexOf(task)
+      if (index >= 0) {
+        executing.splice(index, 1)
+      }
+    })
+    if (executing.length >= limit) {
+      await Promise.race(executing)
+    }
+  }
+  await Promise.all(executing)
+}
 const csvContents = await readFile(
   new URL('../referencias/occurrences.csv', import.meta.url),
   'utf-8'
@@ -85,6 +108,8 @@ const csvContents = await readFile(
 const { data: iptSources } = Papa.parse<IptSource>(csvContents, {
   header: true
 })
+
+const VERSION_CHECK_TIMEOUT_MS = 10_000
 
 const mongoUri = process.env.MONGO_URI
 if (!mongoUri) {
@@ -97,6 +122,7 @@ const iptsCol = client.db('dwc2json').collection<DbIpt>('ipts')
 const ocorrenciasCol = client.db('dwc2json').collection('ocorrencias')
 
 console.log('Connecting to MongoDB...')
+let exitCode = 0
 try {
   console.log('Creating indexes')
 
@@ -149,11 +175,78 @@ try {
     }
   }
 
-  for (const { repositorio, kingdom, tag, url } of iptSources) {
-    if (!repositorio || !tag) continue
+  const pendingProcessing: {
+    index: number
+    source: IptSource
+    ipt: Ipt
+    iptBaseUrl: string
+  }[] = []
 
-    // Check if this IPT server has already failed
-    const iptBaseUrl = getIptBaseUrl(url)
+  await runWithConcurrency(
+    iptSources.map((source, index) => ({ source, index })),
+    10,
+    async ({ source, index }) => {
+      const { repositorio, kingdom, tag, url } = source
+      if (!repositorio || !tag) {
+        return
+      }
+
+      const iptBaseUrl = getIptBaseUrl(url)
+      if (failedIpts.has(iptBaseUrl)) {
+        console.log(
+          `Skipping ${repositorio}:${tag} - IPT server ${iptBaseUrl} already failed`
+        )
+        return
+      }
+
+      console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
+      const eml = await getEml(`${url}eml.do?r=${tag}`, VERSION_CHECK_TIMEOUT_MS).catch((error) => {
+        if (
+          error.name === 'Http' &&
+          (error.message.includes('404') ||
+            error.message.includes('Not Found') ||
+            error.message.includes('status 404'))
+        ) {
+          console.log(
+            `EML resource ${repositorio}:${tag} no longer exists (404) - skipping`
+          )
+          return null
+        }
+
+        if (isNetworkError(error)) {
+          console.log(
+            `IPT server ${iptBaseUrl} appears to be offline - marking for skip`
+          )
+          failedIpts.add(iptBaseUrl)
+        }
+
+        console.log('Erro baixando/processando eml', error.message)
+        return null
+      })
+
+      if (!eml) {
+        return
+      }
+
+      const ipt = processaEml(eml)
+      const dbVersion = ((await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null)
+        ?.version
+
+      if (dbVersion === ipt.version) {
+        console.debug(`${repositorio}:${tag} already on version ${ipt.version}`)
+        return
+      }
+
+      console.log(`Version mismatch: DB[${dbVersion}] vs REMOTE[${ipt.version}]`)
+      pendingProcessing.push({ index, source, ipt, iptBaseUrl })
+    }
+  )
+
+  pendingProcessing.sort((a, b) => a.index - b.index)
+
+  for (const { source, ipt, iptBaseUrl } of pendingProcessing) {
+    const { repositorio, kingdom, tag, url } = source
+
     if (failedIpts.has(iptBaseUrl)) {
       console.log(
         `Skipping ${repositorio}:${tag} - IPT server ${iptBaseUrl} already failed`
@@ -161,44 +254,7 @@ try {
       continue
     }
 
-    console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
-    const eml = await getEml(`${url}eml.do?r=${tag}`).catch((error) => {
-      // Handle 404 errors when IPT EML resources no longer exist
-      if (
-        error.name === 'Http' &&
-        (error.message.includes('404') ||
-          error.message.includes('Not Found') ||
-          error.message.includes('status 404'))
-      ) {
-        console.log(
-          `EML resource ${repositorio}:${tag} no longer exists (404) - skipping`
-        )
-        return null
-      }
-
-      // If this is a timeout or connection error, mark the entire IPT as failed
-      if (isNetworkError(error)) {
-        console.log(
-          `IPT server ${iptBaseUrl} appears to be offline - marking for skip`
-        )
-        failedIpts.add(iptBaseUrl)
-      }
-
-      console.log('Erro baixando/processando eml', error.message)
-      return null
-    })
-    if (!eml) continue
-    const ipt = processaEml(eml)
-    const dbVersion = ((await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null)
-      ?.version
-    if (dbVersion === ipt.version) {
-      console.debug(`${repositorio}:${tag} already on version ${ipt.version}`)
-      continue
-    }
-    console.log(`Version mismatch: DB[${dbVersion}] vs REMOTE[${ipt.version}]`)
-    console.debug(
-      `Downloading ${repositorio}:${tag} [${url}archive.do?r=${tag}]`
-    )
+    console.debug(`Downloading ${repositorio}:${tag} [${url}archive.do?r=${tag}]`)
     const ocorrencias = await processaZip(
       `${url}archive.do?r=${tag}`,
       true,
@@ -211,7 +267,6 @@ try {
         return null
       }
 
-      // If this is a timeout or connection error, mark the entire IPT as failed
       if (isNetworkError(error)) {
         console.log(
           `IPT server ${iptBaseUrl} appears to be offline during archive download - marking for skip`
@@ -221,7 +276,11 @@ try {
 
       throw error
     })
-    if (!ocorrencias) continue
+
+    if (!ocorrencias) {
+      continue
+    }
+
     console.debug(`Cleaning ${repositorio}:${tag}`)
     console.log(
       `Deleted ${
@@ -234,7 +293,9 @@ try {
     )
     bar.start(ocorrencias.length, 0)
     for (const batch of ocorrencias) {
-      if (!batch || !batch.length) break
+      if (!batch || !batch.length) {
+        break
+      }
       bar.increment(batch.length - Math.floor(batch.length / 4))
       await safeInsertMany(
         ocorrenciasCol,
@@ -269,37 +330,29 @@ try {
             .join(' ')
           const iptKingdoms = kingdom.split(/, ?/)
 
-          // Process year field: convert to numeric, keep invalid as string
           const processedData = { ...ocorrencia[1] }
           tryConvertToNumber(processedData, 'year', (num) => num > 0)
-
-          // Process month field: convert to numeric, keep invalid as string
           tryConvertToNumber(
             processedData,
             'month',
             (num) => num >= 1 && num <= 12
           )
-
-          // Process day field: convert to numeric, keep invalid as string
           tryConvertToNumber(
             processedData,
             'day',
             (num) => num >= 1 && num <= 31
           )
 
-          // Process eventDate field: extract year/month/day if missing, then convert to BSON Date
           if (
             processedData.eventDate &&
             typeof processedData.eventDate === 'string'
           ) {
             try {
               const eventDateObj = new Date(processedData.eventDate)
-              // Check if the date is valid (not NaN) and not an invalid date
               if (
                 !isNaN(eventDateObj.getTime()) &&
                 eventDateObj.toString() !== 'Invalid Date'
               ) {
-                // Extract year, month, day from eventDate if missing
                 if (!processedData.year || isNaN(Number(processedData.year))) {
                   processedData.year = eventDateObj.getFullYear()
                 }
@@ -312,10 +365,8 @@ try {
                 if (!processedData.day || isNaN(Number(processedData.day))) {
                   processedData.day = eventDateObj.getDate()
                 }
-                // Convert eventDate to BSON Date
                 processedData.eventDate = eventDateObj
               }
-              // Invalid dates remain as original strings
             } catch (_error) {
               // If parsing fails, keep as original string
             }
@@ -363,8 +414,12 @@ try {
   console.log('Processing completed successfully')
 } catch (error) {
   console.error('Error occurred during processing:', error)
-  throw error
+  exitCode = 1
 } finally {
   console.log('Closing MongoDB connection')
-  await client.close()
+  await client.close(true)
+  console.log('MongoDB connection closed')
+  if (typeof process !== 'undefined') {
+    process.exit(exitCode)
+  }
 }

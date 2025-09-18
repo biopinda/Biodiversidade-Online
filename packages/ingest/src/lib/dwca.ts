@@ -508,25 +508,36 @@ type OuterEml = {
 const extractEml = (OuterEml: OuterEml) => OuterEml['eml:eml']
 export const getEml = async (url: string, timeoutMs = 10000) => {
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      controller.abort()
+      reject(new Error(`Request timeout after ${timeoutMs}ms`))
+    }, timeoutMs)
+  })
 
   try {
-    const contents = await fetch(url, { signal: controller.signal }).then(
-      (res) => {
+    const contents = (await Promise.race([
+      fetch(url, { signal: controller.signal }).then((res) => {
         if (!res.ok) {
           throw new Error(res.statusText)
         }
         return res.text()
-      }
-    )
-    clearTimeout(timeoutId)
+      }),
+      timeoutPromise
+    ])) as string
+
     return extractEml(xmlParser.parse(contents) as OuterEml)
   } catch (error) {
-    clearTimeout(timeoutId)
     if ((error as Error).name === 'AbortError') {
       throw new Error(`Request timeout after ${timeoutMs}ms`)
     }
     throw error
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
   }
 }
 
