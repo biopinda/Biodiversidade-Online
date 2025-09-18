@@ -1,12 +1,4 @@
 {
-  "deno.enable": true,
-  "deno.lint": true,
-  "deno.unstable": true,
-  "deno.disablePaths": [
-    "./web/src/pages",
-    "./web/src/layouts",
-    "./web/src/components"
-  ],
   "[astro]": {
     "editor.defaultFormatter": "astro-build.astro-vscode"
   }

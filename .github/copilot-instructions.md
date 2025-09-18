@@ -15,7 +15,6 @@ Always reference these instructions first and fallback to search or bash command
 
 - Install Node.js v20.19.4 or later: `curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs`
 - Install Bun (package manager): `curl -fsSL https://bun.sh/install | bash && export PATH="$HOME/.bun/bin:$PATH"`
-- Install Deno v2.x for data processing scripts: `curl -fsSL https://deno.land/install.sh | sh && export PATH="$HOME/.deno/bin:$PATH"`
 - Install zip utility for data processing: `sudo apt update && sudo apt install zip`
 
 ### Core Build and Development Commands
@@ -25,15 +24,15 @@ Always reference these instructions first and fallback to search or bash command
 - Install dependencies: `bun install` -- takes ~56 seconds. Set timeout to 120+ seconds.
 - Build application: `bun run build` -- takes ~16 seconds. Set timeout to 60+ seconds.
 - Run development server: `bun run dev` -- starts in <1 second on http://localhost:4321/.
-- Run production server: `node dist/server/entry.mjs` -- NOT the bun preview command (requires Deno)
+- Run production server: `node dist/server/entry.mjs` -- NOT the bun preview command
   - These bun/node commands should only be executed within the `packages/web/` subfolder
 
-### Data Processing Scripts (Deno)
+### Data Processing Scripts (Bun)
 
-- Navigate to ingest package: `cd packages/ingest/`
-- Run flora data update: `deno run -A src/flora.ts [DWCA_URL]`
-- Run fauna data update: `deno run -A src/fauna.ts [DWCA_URL]`
-- Run occurrence data update: `deno run -A src/ocorrencia.ts [DWCA_URL]`
+- Navigate to repo root directory
+- Run flora data update: `bun run ingest:flora [DWCA_URL]`
+- Run fauna data update: `bun run ingest:fauna [DWCA_URL]`
+- Run occurrence data update: `bun run ingest:occurrences`
 - These scripts require MongoDB connection via MONGO_URI environment variable
 
 ### Web Application Commands
@@ -54,25 +53,27 @@ Always reference these instructions first and fallback to search or bash command
 
 ## Monorepo Setup
 
-This project uses a monorepo structure with multiple packages:
+This project uses a monorepo structure with multiple packages managed by Bun workspaces:
 
-- **Root**: Contains shared configuration (tsconfig.json, package.json for workspace management)
-- **packages/ingest**: Data processing package with Deno scripts
-- **web**: Astro.js web application
+- **Root**: Contains shared configuration (tsconfig.json, package.json for workspace management) and catalog dependencies
+- **packages/ingest**: Data processing package with Bun scripts
+- **packages/web**: Astro.js web application
 
 ### Package Management
 
 - Use Bun as the primary package manager
 - Root `bun.lock` manages workspace dependencies
-- Each package has its own `package.json` and `bun.lock`
-- Install dependencies in the respective package directory: `cd web/ && bun install`
+- Root `package.json` defines shared catalog dependencies for all packages
+- Each package has its own `package.json` that references catalog dependencies
+- Install dependencies from root: `bun install` (manages all packages)
+- Run scripts across packages using `bun run --filter <package> <script>`
 
 ### Working with Multiple Packages
 
 - For web development: `cd packages/web/` then run commands
-- For data processing: `cd packages/ingest/` then run Deno scripts
+- For data processing: Use root commands like `bun run --filter @darwincore/ingest flora`
 - Shared TypeScript config in root `tsconfig.base.json`
-- Use workspace references in package.json for cross-package dependencies
+- Use catalog references in package.json for shared dependencies
 
 ## Validation and Testing
 
@@ -99,35 +100,34 @@ This is a monorepo project with the following structure:
 /
 ├── .github/                 # GitHub workflows and Copilot instructions
 ├── packages/
-│   └── ingest/              # Data ingestion package
-│       ├── package.json     # Node.js dependencies for ingest
-│       ├── src/             # Deno TypeScript scripts for data processing
-│       │   ├── fauna.ts     # Fauna data processing
-│       │   ├── flora.ts     # Flora data processing
-│       │   ├── ocorrencia.ts# Occurrence data processing
-│       │   └── lib/dwca.ts  # Darwin Core Archive utilities
-│       ├── tests/           # Test files
-│       └── types/           # Type definitions
+│   ├── ingest/              # Data ingestion package
+│   │   ├── package.json     # Package dependencies (references catalog)
+│   │   ├── src/             # Bun TypeScript scripts for data processing
+│   │   │   ├── fauna.ts     # Fauna data processing
+│   │   │   ├── flora.ts     # Flora data processing
+│   │   │   ├── ocorrencia.ts# Occurrence data processing
+│   │   │   └── lib/dwca.ts  # Darwin Core Archive utilities
+│   │   ├── tests/           # Test files
+│   │   └── types/           # Type definitions
 │   └── web/                 # Main Astro.js web application
 │       ├── src/
 │       │   ├── pages/       # Astro pages (chat.astro, dashboard.astro, etc.)
 │       │   ├── components/  # React components
 │       │   ├── scripts/     # TypeScript utilities
 │       │   └── prompts/     # AI prompt configurations
-│       ├── package.json     # Node.js dependencies and scripts
-│       ├── bun.lock         # Bun lockfile (preferred package manager)
-│       └── Dockerfile       # Production container build
+│       ├── package.json     # Package dependencies (references catalog)
+│       ├── Dockerfile       # Production container build
+│       └── patches/         # Package patches
 ├── web/                     # Build output directory (generated)
 ├── docs/                    # Documentation files
-├── package.json             # Root package.json for monorepo management
+├── package.json             # Root package.json with workspaces and catalog
 ├── bun.lock                 # Root Bun lockfile
-├── tsconfig.json            # TypeScript configuration for Deno scripts
+├── tsconfig.json            # TypeScript project references
 └── tsconfig.base.json       # Base TypeScript config
 ```
 
 ## Common Issues and Solutions
 
-- **"deno: not found"**: Preview command uses Deno. Use `node dist/server/entry.mjs` instead
 - **MongoDB connection errors**: Ensure .env file exists with valid MONGO_URI
 - **TypeScript warnings**: `MapPage.tsx(15,6): 'Kingdom' is declared but never used` - harmless warning
 - **Build warnings**: Large chunk size warnings are expected for Swagger UI components
@@ -154,14 +154,14 @@ This is a monorepo project with the following structure:
 1. Always work in the appropriate directory for changes:
    - For web application changes: `cd packages/web/`
    - For data processing changes: `cd packages/ingest/`
-2. Run `bun install` after pulling changes (in the respective package directory)
-   2.a You should **never** run bun install on the project root, as there's no package.json there
-3. Use `bun run dev` for development with hot reload (in packages/web/)
-4. Check formatting with `bunx prettier --check src/` (in respective directory)
-5. Build and test production: `bun run build && node dist/server/entry.mjs` (in packages/web/)
-6. Ensure MongoDB connection configured for full functionality testing
-7. Always validate TypeScript compilation: `bunx tsc --noEmit` (in respective directory)
-8. When writing pull requests, make sure to write those in Brazilian Portuguese, as it's the repo's official language
+2. Run `bun install` from root after pulling changes (manages all workspace dependencies)
+3. Use `bun run web:dev` for web development with hot reload
+4. Use `bun run ingest:<script>` for data processing scripts (e.g., `bun run ingest:flora [URL]`)
+5. Check formatting with `bunx prettier --check src/` (in respective directory)
+6. Build and test production: `bun run web:build && node packages/web/dist/server/entry.mjs`
+7. Ensure MongoDB connection configured for full functionality testing
+8. Always validate TypeScript compilation: `bunx tsc --noEmit` (from root)
+9. When writing pull requests, make sure to write those in Brazilian Portuguese, as it's the repo's official language
 
 ## Centralized AI Agent Instructions
 
