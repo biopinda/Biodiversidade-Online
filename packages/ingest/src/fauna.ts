@@ -19,86 +19,89 @@ type FaunaJson = Record<
 >
 export const processaFauna = (dwcJson: FaunaJson): FaunaJson => {
   return Object.fromEntries(
-    Object.entries(dwcJson).reduce((entries, [id, taxon]) => {
-      const distribution = taxon.distribution as {
-        locality: string
-        countryCode: string
-        establishmentMeans: string
-      }[]
-      if (
-        !['ESPECIE', 'VARIEDADE', 'FORMA', 'SUB_ESPECIE'].includes(
-          taxon.taxonRank as string
-        )
-      ) {
-        return entries
-      }
-      if (distribution) {
-        taxon.distribution = {
-          origin: distribution[0]?.establishmentMeans,
-          occurrence: distribution[0]?.locality?.split(';'),
-          countryCode: distribution[0]?.countryCode?.split(';'),
+    Object.entries(dwcJson).reduce(
+      (entries, [id, taxon]) => {
+        const distribution = taxon.distribution as {
+          locality: string
+          countryCode: string
+          establishmentMeans: string
+        }[]
+        if (
+          !['ESPECIE', 'VARIEDADE', 'FORMA', 'SUB_ESPECIE'].includes(
+            taxon.taxonRank as string
+          )
+        ) {
+          return entries
         }
-      }
-      if (taxon.resourcerelationship) {
-        const resourcerelationship = taxon.resourcerelationship as Record<
-          string,
-          string | Record<string, string>
-        >[]
-        taxon.othernames = resourcerelationship.map((relationship) => ({
-          taxonID: relationship.relatedResourceID,
-          scientificName:
-            dwcJson[relationship.relatedResourceID as string]?.scientificName,
-          taxonomicStatus: relationship.relationshipOfResource,
-        }))
-        delete taxon.resourcerelationship
-      }
+        if (distribution) {
+          taxon.distribution = {
+            origin: distribution[0]?.establishmentMeans,
+            occurrence: distribution[0]?.locality?.split(';'),
+            countryCode: distribution[0]?.countryCode?.split(';')
+          }
+        }
+        if (taxon.resourcerelationship) {
+          const resourcerelationship = taxon.resourcerelationship as Record<
+            string,
+            string | Record<string, string>
+          >[]
+          taxon.othernames = resourcerelationship.map((relationship) => ({
+            taxonID: relationship.relatedResourceID,
+            scientificName:
+              dwcJson[relationship.relatedResourceID as string]?.scientificName,
+            taxonomicStatus: relationship.relationshipOfResource
+          }))
+          delete taxon.resourcerelationship
+        }
 
-      // if (taxon.speciesprofile) {
-      //   taxon.speciesprofile = (
-      //     taxon.speciesprofile as Record<string, unknown>[]
-      //   )[0]
-      //   delete (taxon.speciesprofile.lifeForm as Record<string, unknown>)
-      //     .vegetationType
-      // }
+        // if (taxon.speciesprofile) {
+        //   taxon.speciesprofile = (
+        //     taxon.speciesprofile as Record<string, unknown>[]
+        //   )[0]
+        //   delete (taxon.speciesprofile.lifeForm as Record<string, unknown>)
+        //     .vegetationType
+        // }
 
-      if (taxon.higherClassification) {
-        // Usa somente segundo componente da string separada por ;
-        // https://github.com/biopinda/DarwinCoreJSON/issues/13
-        taxon.higherClassification = (
-          taxon.higherClassification as string
-        ).split(';')[1]
-      }
+        if (taxon.higherClassification) {
+          // Usa somente segundo componente da string separada por ;
+          // https://github.com/biopinda/DarwinCoreJSON/issues/13
+          taxon.higherClassification = (
+            taxon.higherClassification as string
+          ).split(';')[1]
+        }
 
-      ;(
-        taxon.vernacularname as { vernacularName: string; language: string }[]
-      )?.forEach((entry) => {
-        entry.vernacularName = entry.vernacularName
-          .toLowerCase()
-          .replace(/ /g, '-')
-        entry.language =
-          entry.language.charAt(0).toUpperCase() +
-          entry.language.slice(1).toLowerCase()
-      })
+        ;(
+          taxon.vernacularname as { vernacularName: string; language: string }[]
+        )?.forEach((entry) => {
+          entry.vernacularName = entry.vernacularName
+            .toLowerCase()
+            .replace(/ /g, '-')
+          entry.language =
+            entry.language.charAt(0).toUpperCase() +
+            entry.language.slice(1).toLowerCase()
+        })
 
-      taxon.kingdom = 'Animalia'
-      taxon.canonicalName = [
-        taxon.genus,
-        taxon.genericName,
-        taxon.subgenus,
-        taxon.infragenericEpithet,
-        taxon.specificEpithet,
-        taxon.infraspecificEpithet,
-        taxon.cultivarEpiteth,
-      ]
-        .filter(Boolean)
-        .join(' ')
-      taxon.flatScientificName = (taxon.scientificName as string)
-        .replace(/[^a-zA-Z0-9]/g, '')
-        .toLocaleLowerCase()
+        taxon.kingdom = 'Animalia'
+        taxon.canonicalName = [
+          taxon.genus,
+          taxon.genericName,
+          taxon.subgenus,
+          taxon.infragenericEpithet,
+          taxon.specificEpithet,
+          taxon.infraspecificEpithet,
+          taxon.cultivarEpiteth
+        ]
+          .filter(Boolean)
+          .join(' ')
+        taxon.flatScientificName = (taxon.scientificName as string)
+          .replace(/[^a-zA-Z0-9]/g, '')
+          .toLocaleLowerCase()
 
-      entries.push([id, taxon])
-      return entries
-    }, [] as [string, FaunaJson[string]][])
+        entries.push([id, taxon])
+        return entries
+      },
+      [] as [string, FaunaJson[string]][]
+    )
   )
 }
 
@@ -110,7 +113,9 @@ export const processaFaunaZip = async (url: string) => {
 async function main() {
   const [url] = process.argv.slice(2)
   if (!url) {
-    console.error('Usage: bun run --filter @darwincore/ingest fauna -- <dwc-a url>')
+    console.error(
+      'Usage: bun run --filter @darwincore/ingest fauna -- <dwc-a url>'
+    )
     process.exit(1)
   }
   const { json, ipt } = await processaFaunaZip(url).catch((error) => {
@@ -145,7 +150,9 @@ async function main() {
     console.debug(`Fauna already on version ${ipt.version}`)
   } else {
     console.debug('Cleaning collection')
-    const { deletedCount } = await collection.deleteMany({ kingdom: 'Animalia' })
+    const { deletedCount } = await collection.deleteMany({
+      kingdom: 'Animalia'
+    })
     console.log(`Deleted ${deletedCount ?? 0} existing fauna records`)
     console.debug('Inserting taxa')
     const taxa = Object.values(json)
@@ -165,29 +172,29 @@ async function main() {
   await collection.createIndexes([
     {
       key: { scientificName: 1 },
-      name: 'scientificName',
+      name: 'scientificName'
     },
     {
       key: { kingdom: 1 },
-      name: 'kingdom',
+      name: 'kingdom'
     },
     {
       key: { family: 1 },
-      name: 'family',
+      name: 'family'
     },
     {
       key: { genus: 1 },
-      name: 'genus',
+      name: 'genus'
     },
     {
       key: { taxonID: 1, kingdom: 1 },
-      name: 'taxonKingdom',
+      name: 'taxonKingdom'
     },
     {
       key: { canonicalName: 1 },
-      name: 'canonicalName',
+      name: 'canonicalName'
     },
-    { key: { flatScientificName: 1 }, name: 'flatScientificName' },
+    { key: { flatScientificName: 1 }, name: 'flatScientificName' }
   ])
   console.debug('Done')
   await client.close()
@@ -199,4 +206,3 @@ if (import.meta.main) {
     process.exitCode = 1
   })
 }
-

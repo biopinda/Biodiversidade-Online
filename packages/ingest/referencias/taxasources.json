@@ -10,8 +10,6 @@
   {
     "ipt": "sibbr",
     "baseUrl": "https://ipt.sibbr.gov.br/sibbr/",
-    "datasets": [
-      "sibbr_bancotax_2022"
-    ]
+    "datasets": ["sibbr_bancotax_2022"]
   }
 ]

@@ -1,13 +1,13 @@
-[
-    {
-      $match:
-        /**
-         * query: The query in MQL.
-         */
-        {
-          geoPoint: {
-            $exists: 1,
-          },
-        },
-    },
-  ]
+;[
+  {
+    $match:
+      /**
+       * query: The query in MQL.
+       */
+      {
+        geoPoint: {
+          $exists: 1
+        }
+      }
+  }
+]

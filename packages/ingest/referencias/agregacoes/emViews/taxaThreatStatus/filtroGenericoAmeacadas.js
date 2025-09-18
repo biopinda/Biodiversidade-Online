@@ -1,12 +1,12 @@
-[
+;[
   {
     $match:
       /**
        * espécies exclusivas de MG
        */
       {
-        "distribution.occurrence": ["BR-MG"],
-      },
+        'distribution.occurrence': ['BR-MG']
+      }
   },
   {
     $match:
@@ -14,10 +14,8 @@
        * espécies exclusivas da Caatinga
        */
       {
-        "distribution.phytogeographicDomains": [
-          "Caatinga",
-        ],
-      },
+        'distribution.phytogeographicDomains': ['Caatinga']
+      }
   },
   {
     $match:
@@ -27,15 +25,15 @@
       {
         $or: [
           {
-            "threatStatus.threatStatus": "CR",
+            'threatStatus.threatStatus': 'CR'
           },
           {
-            "threatStatus.threatStatus": "EN",
+            'threatStatus.threatStatus': 'EN'
           },
           {
-            "threatStatus.threatStatus": "VU",
-          },
-        ],
-      },
-  },
+            'threatStatus.threatStatus': 'VU'
+          }
+        ]
+      }
+  }
 ]

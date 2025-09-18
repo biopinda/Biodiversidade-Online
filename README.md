@@ -1,4 +1,5 @@
 # Base de Dados Integrada da Biodiversidade Brasileira
+
 # (DarwinCoreJSON)
 
 [Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)<br>
@@ -28,12 +29,14 @@ O **DarwinCoreJSON** é um sistema automatizado de integração e processamento 
 ## Funcionalidades Principais
 
 ### 🔄 Processamento Automático de Dados
+
 - **Integração contínua** via GitHub Actions com processamento automático de dados de flora, fauna e ocorrências
 - **Processamento de arquivos DwC-A** (Darwin Core Archive) de repositórios IPT
 - **Normalização e estruturação** de dados taxonômicos seguindo padrões Darwin Core
 - **Atualização automática** do banco MongoDB com novos dados
 
 ### 📊 Fontes de Dados Integradas
+
 - **Flora e Funga do Brasil** - Catálogo oficial de espécies vegetais
 - **Catálogo Taxonômico da Fauna do Brasil** - Base oficial de espécies animais
 - **Instituto Hórus** - Banco de dados de espécies invasoras
@@ -43,6 +46,7 @@ O **DarwinCoreJSON** é um sistema automatizado de integração e processamento 
 - **~12 milhões de registros de ocorrência** de ~490 repositórios IPT
 
 ### 🛠️ Ferramentas de Gerenciamento
+
 - **Script de verificação IPT** - Monitora recursos disponíveis vs. integrados
 - **Processadores específicos** para flora e fauna com lógicas de transformação otimizadas
 - **Suporte a diferentes formatos** de dados científicos
@@ -65,6 +69,7 @@ O **DarwinCoreJSON** é um sistema automatizado de integração e processamento 
 ```
 
 ### Tecnologias Utilizadas
+
 - **Runtime**: Bun
 - **Linguagem**: TypeScript
 - **Banco de dados**: MongoDB
@@ -76,6 +81,7 @@ O **DarwinCoreJSON** é um sistema automatizado de integração e processamento 
 A versão 5.0 introduz o **ChatBB**, um assistente virtual que utiliza o protocolo MCP (Model Context Protocol) para conectar a base de dados integrada com modelos de linguagem (LLMs) como OpenAI GPT e Google Gemini.
 
 ### Exemplos de Consultas
+
 - [Informações sobre o gênero Vriesea](https://trilium.dalc.in/share/lFMRnEIBR5Yu)
 - [Espécies invasoras em parques nacionais](https://trilium.dalc.in/share/I7vFC96GRy73)
 - [Bromeliaceae ameaçadas em UCs](https://trilium.dalc.in/share/nfGgiYw3jhX8)
@@ -86,26 +92,33 @@ A versão 5.0 introduz o **ChatBB**, um assistente virtual que utiliza o protoco
 O projeto disponibiliza diversas interfaces web para acesso aos dados integrados:
 
 ### 🌿 **Calendário Fenológico**
+
 https://biodiversidade.online/calendario-fenologico
 
 ### 🔍 **Interfaces de Busca Taxonômica**
+
 - **Interface principal de busca**: https://biodiversidade.online/taxa
 - **Interface com search engine intermediário**: https://web.dalc.in/sandbox/meilisearch/
 
 ### 🔗 **APIs de Dados**
+
 https://biodiversidade.online/api
 
 ### 🗺️ **Mapa de Distribuição**
+
 Visualização de contagem de nomes aceitos por estado: https://biodiversidade.online/mapa
 
 ### 📊 **Dashboard Analítico**
+
 https://biodiversidade.online/dashboard
 
 ### 🤖 **Interface de IA (ChatBB)**
+
 Acesso via LLM (OpenAI ou Gemini): https://biodiversidade.online/chat
-*(Requer chave da OpenAI ou Gemini)*
+_(Requer chave da OpenAI ou Gemini)_
 
 ## Histórico de Versões
+
 - **V5.0** (atual): Integração com ChatBB e protocolo MCP
 - **V4.0**: [Melhorias na integração de dados](docs/README.v4.md)
 - **V2.x**: [Expansão de fontes de dados](docs/README.v2..md)
@@ -114,11 +127,13 @@ Acesso via LLM (OpenAI ou Gemini): https://biodiversidade.online/chat
 ## Como Usar
 
 ### Pré-requisitos
+
 - Bun instalado
 - Acesso ao MongoDB
 - Docker (opcional)
 
 ### Execução Local
+
 ```bash
 # Instalar dependências dos workspaces
 bun install
@@ -137,6 +152,7 @@ bun run web:dev
 ```
 
 ### Via Docker
+
 ```bash
 docker pull ghcr.io/biopinda/darwincorejson:latest
 docker run ghcr.io/biopinda/darwincorejson:latest

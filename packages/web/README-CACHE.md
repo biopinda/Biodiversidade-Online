@@ -5,7 +5,7 @@ Este sistema implementa uma estratégia de cache para melhorar significativament
 ## Como Funciona
 
 1. **Job de Cache**: Um job automatizado executa todas as consultas MongoDB necessárias para o dashboard
-2. **Armazenamento**: Os resultados são salvos em um arquivo JSON (`cache/dashboard-data.json`)  
+2. **Armazenamento**: Os resultados são salvos em um arquivo JSON (`cache/dashboard-data.json`)
 3. **Dashboard**: A página do dashboard carrega os dados do arquivo JSON ao invés de fazer consultas diretas
 4. **Agendamento**: O job executa automaticamente todo dia às 01:00h
 
@@ -35,8 +35,9 @@ npm run start-cache-cron
 ## Dados Armazenados no Cache
 
 O arquivo JSON contém:
+
 - **Occurrences**: Contadores de ocorrências por reino
-- **Taxa**: Contadores de taxa por reino  
+- **Taxa**: Contadores de taxa por reino
 - **Threatened**: Espécies ameaçadas (contadores e categorias)
 - **Invasive**: Espécies invasoras (contadores e rankings)
 - **Taxa Breakdown**: Top ordens/famílias por reino
@@ -53,7 +54,7 @@ O arquivo JSON contém:
 
 1. Instalar dependências: `npm install`
 2. Configurar variável MONGO_URI no arquivo `.env`
-3. Executar job inicial: `npm run cache-dashboard`  
+3. Executar job inicial: `npm run cache-dashboard`
 4. Iniciar sistema de agendamento: `npm run start-cache-cron`
 
 O sistema executa automaticamente às 01:00h todos os dias, garantindo dados sempre atualizados.

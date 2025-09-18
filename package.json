@@ -1,7 +1,27 @@
 {
   "name": "@biopinda/darwincorejson",
-  "private": true,
+  "devDependencies": {
+    "@intellectronica/ruler": "^0.3.8",
+    "lint-staged": "^15.2.10",
+    "patch-package": "^8.0.0",
+    "prettier": "^3.6.2"
+  },
   "packageManager": "bun@1.2.21",
+  "private": true,
+  "scripts": {
+    "ingest:occurrences": "bun run --filter @darwincore/ingest occurrences",
+    "ingest:flora": "bun run --filter @darwincore/ingest flora",
+    "ingest:fauna": "bun run --filter @darwincore/ingest fauna",
+    "ingest:test": "bun run --filter @darwincore/ingest test",
+    "web:dev": "bun run --filter @darwincore/web dev",
+    "web:build": "bun run --filter @darwincore/web build",
+    "web:preview": "bun run --filter @darwincore/web preview",
+    "web:start": "bun run --filter @darwincore/web start",
+    "postinstall": "patch-package --patch-dir packages/web/patches && npx ruler apply",
+    "ruler:apply": "npx ruler apply",
+    "ruler:revert": "npx ruler revert",
+    "ruler:init": "npx ruler init"
+  },
   "workspaces": {
     "packages": [
       "packages/*"
@@ -18,14 +38,7 @@
       "@types/bun": "^1.1.8"
     }
   },
-  "scripts": {
-    "ingest:occurrences": "bun run --filter @darwincore/ingest occurrences",
-    "ingest:flora": "bun run --filter @darwincore/ingest flora",
-    "ingest:fauna": "bun run --filter @darwincore/ingest fauna",
-    "ingest:test": "bun run --filter @darwincore/ingest test",
-    "web:dev": "bun run --filter @darwincore/web dev",
-    "web:build": "bun run --filter @darwincore/web build",
-    "web:preview": "bun run --filter @darwincore/web preview",
-    "web:start": "bun run --filter @darwincore/web start"
+  "lint-staged": {
+    "*": "npx prettier -w --experimental-cli"
   }
 }

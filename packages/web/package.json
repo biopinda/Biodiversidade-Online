@@ -11,8 +11,7 @@
     "astro": "astro",
     "cache-dashboard": "dotenv -e .env -- bunx tsx src/scripts/dashboard-cache-job.ts",
     "cache-pheno": "dotenv -e .env -- bunx tsx src/scripts/update-cache.ts",
-    "start-cache-cron": "node cron-dashboard.js",
-    "postinstall": "patch-package"
+    "start-cache-cron": "node cron-dashboard.js"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.2.18",
@@ -64,7 +63,6 @@
     "dotenv-cli": "^7.4.4",
     "node-cron": "^3.0.3",
     "patch-package": "^8.0.0",
-    "prettier": "^3.4.2",
     "tsx": "^4.11.2",
     "typescript": "^5.6.3",
     "vite": "^7.1.3",

@@ -10,7 +10,7 @@ stateDiagram-v2
     acessaIPTFauna --> downloadDwCFauna
     downloadDwCFauna --> montaRelacaoFauna
     montaRelacaoFauna --> converteJSONFauna
-  
+
     }
     [*] --> Updateflora
     Updateflora: Update Flora
@@ -19,7 +19,7 @@ stateDiagram-v2
     acessaIPTFlora --> downloadDwCFlora
     downloadDwCFlora --> montaRelacaoFlora
     montaRelacaoFlora --> converteJSONFlora
-   
+
     }
     [*] --> Updateocorrencias
     Updateocorrencias: Update Ocorrencias
@@ -35,5 +35,5 @@ stateDiagram-v2
     converteJSONFauna --> cargaMongoDBTaxa
     converteJSONocorrencias --> cargaMongoDBocorrencias
     cargaMongoDBocorrencias --> [*]
-    cargaMongoDBTaxa --> [*]    
+    cargaMongoDBTaxa --> [*]
 ```

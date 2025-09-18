@@ -2,7 +2,8 @@
 [![Update MongoDB - Fauna](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml)
 [![Update MongoDB - Ocorrências](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml)
 [![Docker Image](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/docker.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/pkgs/container/darwincorejson)
-# ___Darwin Core Archive to JSON___
+
+# **_Darwin Core Archive to JSON_**
 
 [Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)
 
@@ -22,10 +23,9 @@ Um dos aspectos mais significativos desta proposta é que todo o banco de dados 
 
 Um conjunto de APIs e páginas está disponível aqui para demonstração do projeto:
 
-* https://dwca2json.deno.dev/taxa
-* https://dwca2json.deno.dev/api
-* https://dwca2json.deno.dev/mapa
-* https://dwca2json.deno.dev/dashboard
+- https://dwca2json.deno.dev/taxa
+- https://dwca2json.deno.dev/api
+- https://dwca2json.deno.dev/mapa
+- https://dwca2json.deno.dev/dashboard
 
 Criticas, sugestões e "[issues](https://github.com/edalcin/DarwinCoreJSON/issues)" são sempre bem-vindas!
-

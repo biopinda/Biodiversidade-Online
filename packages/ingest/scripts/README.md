@@ -7,6 +7,7 @@ Script para verificar recursos disponíveis no IPT versus os já integrados na b
 ### Configuração
 
 1. **Copie o arquivo de exemplo de variáveis de ambiente:**
+
    ```bash
    cp .env.example .env
    ```
@@ -43,6 +44,7 @@ python3 check_ipt_resources.py  # O script carregará automaticamente o .env
 ### Outputs
 
 O script gera dois arquivos quando encontra recursos faltantes:
+
 - `missing_resources_YYYYMMDD_HHMMSS.csv` - Formato CSV
 - `missing_resources_YYYYMMDD_HHMMSS.tsv` - Formato TSV
 

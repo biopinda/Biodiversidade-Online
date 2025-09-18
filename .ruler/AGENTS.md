@@ -1,0 +1,182 @@
+# ChatBB - Brazilian Biodiversity Chat Assistant (DwC2JSON V5.0)
+
+ChatBB is a Brazilian biodiversity AI assistant that combines Astro.js web application with TypeScript data processing scripts for MongoDB integration. The system processes biodiversity data from multiple sources and provides an AI chat interface for querying Brazilian flora, fauna, and occurrence data.
+
+Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
+
+## Working Effectively
+
+### Environment Setup and Dependencies
+
+- Install Node.js v20.19.4 or later: `curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs`
+- Install Bun (package manager): `curl -fsSL https://bun.sh/install | bash && export PATH="$HOME/.bun/bin:$PATH"`
+- Install Deno v2.x for data processing scripts: `curl -fsSL https://deno.land/install.sh | sh && export PATH="$HOME/.deno/bin:$PATH"`
+- Install zip utility for data processing: `sudo apt update && sudo apt install zip`
+
+### Core Build and Development Commands
+
+- **NEVER CANCEL any build or test commands** - All commands complete quickly (under 30 seconds)
+- Navigate to web application: `cd packages/web/`
+- Install dependencies: `bun install` -- takes ~56 seconds. Set timeout to 120+ seconds.
+- Build application: `bun run build` -- takes ~16 seconds. Set timeout to 60+ seconds.
+- Run development server: `bun run dev` -- starts in <1 second on http://localhost:4321/.
+- Run production server: `node dist/server/entry.mjs` -- NOT the bun preview command (requires Deno)
+  - These bun/node commands should only be executed within the `packages/web/` subfolder
+
+### Data Processing Scripts (Deno)
+
+- Navigate to ingest package: `cd packages/ingest/`
+- Run flora data update: `deno run -A src/flora.ts [DWCA_URL]`
+- Run fauna data update: `deno run -A src/fauna.ts [DWCA_URL]`
+- Run occurrence data update: `deno run -A src/ocorrencia.ts [DWCA_URL]`
+- These scripts require MongoDB connection via MONGO_URI environment variable
+
+### Web Application Commands
+
+- Navigate to web directory: `cd packages/web/`
+- Start cache cron job: `bun run start-cache-cron`
+- Run dashboard cache job: `bun run cache-dashboard` (requires .env file)
+- Check formatting: `bunx prettier --check src/` (will show formatting issues)
+- Fix formatting: `bunx prettier --write src/` (ALWAYS run before committing)
+- TypeScript compilation check: `bunx tsc --noEmit` (may show unused variable warnings)
+
+## Database Requirements
+
+- **CRITICAL**: Application requires MongoDB connection
+- Copy `.env.example` to `.env` and configure `MONGO_URI`
+- Example: `MONGO_URI=mongodb://localhost:27017/your_database_name`
+- Without proper MongoDB configuration, web application will fail to start properly
+
+## Monorepo Setup
+
+This project uses a monorepo structure with multiple packages:
+
+- **Root**: Contains shared configuration (tsconfig.json, package.json for workspace management)
+- **packages/ingest**: Data processing package with Deno scripts
+- **web**: Astro.js web application
+
+### Package Management
+
+- Use Bun as the primary package manager
+- Root `bun.lock` manages workspace dependencies
+- Each package has its own `package.json` and `bun.lock`
+- Install dependencies in the respective package directory: `cd web/ && bun install`
+
+### Working with Multiple Packages
+
+- For web development: `cd packages/web/` then run commands
+- For data processing: `cd packages/ingest/` then run Deno scripts
+- Shared TypeScript config in root `tsconfig.base.json`
+- Use workspace references in package.json for cross-package dependencies
+
+## Validation and Testing
+
+- **No automated test suite available** - manual testing required
+- Always validate web application starts: Access http://localhost:4321/ after running `bun run dev`
+- Check TypeScript compilation: `bunx tsc --noEmit` (may show warnings, but should not error) or `npx tsc --noEmit`
+- Verify formatting: `bunx prettier --check src/` or `npx prettier --check src/`
+- **MANUAL VALIDATION SCENARIOS**:
+  1. **Homepage**: http://localhost:4321/ should load with link to taxa search
+  2. **Chat Interface**: http://localhost:4321/chat should load ChatBB AI interface
+  3. **Taxa Search**: http://localhost:4321/taxa should load species search interface
+  4. **Dashboard**: http://localhost:4321/dashboard should load data visualization dashboard
+  5. **API Health**: http://localhost:4321/api/health should return JSON status
+  6. **Tree View**: http://localhost:4321/tree should load taxonomic tree browser
+  7. **Map**: http://localhost:4321/mapa should load species occurrence map
+- **Database-dependent features**: Chat, taxa search, and dashboard require MongoDB connection
+- Build succeeds and production server starts on port 4321
+
+## Project Structure
+
+This is a monorepo project with the following structure:
+
+```
+/
+├── .github/                 # GitHub workflows and Copilot instructions
+├── packages/
+│   └── ingest/              # Data ingestion package
+│       ├── package.json     # Node.js dependencies for ingest
+│       ├── src/             # Deno TypeScript scripts for data processing
+│       │   ├── fauna.ts     # Fauna data processing
+│       │   ├── flora.ts     # Flora data processing
+│       │   ├── ocorrencia.ts# Occurrence data processing
+│       │   └── lib/dwca.ts  # Darwin Core Archive utilities
+│       ├── tests/           # Test files
+│       └── types/           # Type definitions
+│   └── web/                 # Main Astro.js web application
+│       ├── src/
+│       │   ├── pages/       # Astro pages (chat.astro, dashboard.astro, etc.)
+│       │   ├── components/  # React components
+│       │   ├── scripts/     # TypeScript utilities
+│       │   └── prompts/     # AI prompt configurations
+│       ├── package.json     # Node.js dependencies and scripts
+│       ├── bun.lock         # Bun lockfile (preferred package manager)
+│       └── Dockerfile       # Production container build
+├── web/                     # Build output directory (generated)
+├── docs/                    # Documentation files
+├── package.json             # Root package.json for monorepo management
+├── bun.lock                 # Root Bun lockfile
+├── tsconfig.json            # TypeScript configuration for Deno scripts
+└── tsconfig.base.json       # Base TypeScript config
+```
+
+## Common Issues and Solutions
+
+- **"deno: not found"**: Preview command uses Deno. Use `node dist/server/entry.mjs` instead
+- **MongoDB connection errors**: Ensure .env file exists with valid MONGO_URI
+- **TypeScript warnings**: `MapPage.tsx(15,6): 'Kingdom' is declared but never used` - harmless warning
+- **Build warnings**: Large chunk size warnings are expected for Swagger UI components
+- **Port conflicts**: Default port 4321 - change in astro.config.mjs if needed
+
+## CI/CD Information
+
+- Docker builds triggered on every push to main branch
+- MongoDB update workflows run weekly via cron (Sunday 2:00-3:00 AM)
+- Uses self-hosted runners for data processing jobs
+- Production deployment via SSH to container registry
+
+## Key Application Features
+
+- AI chat interface for biodiversity queries
+- Interactive dashboard with data visualizations
+- Taxonomic tree browser
+- Species occurrence mapping
+- API endpoints for programmatic access
+- Integration with Flora do Brasil, Fauna do Brasil, and occurrence databases
+
+## Development Workflow
+
+1. Always work in the appropriate directory for changes:
+   - For web application changes: `cd packages/web/`
+   - For data processing changes: `cd packages/ingest/`
+2. Run `bun install` after pulling changes (in the respective package directory)
+   2.a You should **never** run bun install on the project root, as there's no package.json there
+3. Use `bun run dev` for development with hot reload (in packages/web/)
+4. Check formatting with `bunx prettier --check src/` (in respective directory)
+5. Build and test production: `bun run build && node dist/server/entry.mjs` (in packages/web/)
+6. Ensure MongoDB connection configured for full functionality testing
+7. Always validate TypeScript compilation: `bunx tsc --noEmit` (in respective directory)
+8. When writing pull requests, make sure to write those in Brazilian Portuguese, as it's the repo's official language
+
+## Centralized AI Agent Instructions
+
+This project uses a centralized approach for AI coding assistant instructions. The instructions in this file (`.github/copilot-instructions.md`) serve as the single source of truth for all AI agents.
+
+For managing instructions across multiple AI tools (GitHub Copilot, Claude, Cursor, etc.), consider using [Ruler](https://github.com/intellectronica/ruler) - a tool that centralizes AI agent rules and automatically distributes them to supported agents.
+
+To set up Ruler:
+
+1. Install globally: `bun add -g @intellectronica/ruler`
+2. Initialize: `ruler init`
+3. Apply rules: `ruler apply`
+
+This will create a `.ruler/` directory where you can maintain rules that get distributed to various AI agent configuration files.
+
+## Performance Notes
+
+- Web build completes in ~16 seconds with Bun
+- Development server starts immediately (<1 second)
+- Dependency installation takes ~56 seconds with Bun
+- Production server starts in <2 seconds
+- Data processing scripts timing depends on external data sources
+- Prettier formatting takes ~1-2 seconds for all files

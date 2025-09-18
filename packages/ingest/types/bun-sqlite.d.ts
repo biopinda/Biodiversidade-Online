@@ -12,7 +12,9 @@ declare module 'bun:sqlite' {
     prepare<Params extends any[] = any[], Result = any>(
       sql: string
     ): Statement<Params, Result>
-    query<T = unknown>(sql: string): {
+    query<T = unknown>(
+      sql: string
+    ): {
       all(...params: unknown[]): T[]
       get(...params: unknown[]): T | undefined
     }

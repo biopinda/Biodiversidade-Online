@@ -48,7 +48,7 @@ async function safeInsertMany(
       return returns.reduce((acc, cur) => ({
         acknowledged: acc.acknowledged && cur.acknowledged,
         insertedCount: acc.insertedCount + cur.insertedCount,
-        insertedIds: { ...acc.insertedIds, ...cur.insertedIds },
+        insertedIds: { ...acc.insertedIds, ...cur.insertedIds }
       }))
     } catch (_e) {
       chunkSize = Math.floor(chunkSize / 2)
@@ -83,7 +83,7 @@ const csvContents = await readFile(
   'utf-8'
 )
 const { data: iptSources } = Papa.parse<IptSource>(csvContents, {
-  header: true,
+  header: true
 })
 
 const mongoUri = process.env.MONGO_URI
@@ -126,12 +126,12 @@ try {
       { key: { iptKingdoms: 1 }, name: 'iptKingdoms' },
       { key: { year: 1 }, name: 'year' },
       { key: { month: 1 }, name: 'month' },
-      { key: { eventDate: 1 }, name: 'eventDate' },
+      { key: { eventDate: 1 }, name: 'eventDate' }
     ]),
     createIndexSafely(iptsCol, [
       { key: { tag: 1 }, name: 'tag' },
-      { key: { ipt: 1 }, name: 'ipt' },
-    ]),
+      { key: { ipt: 1 }, name: 'ipt' }
+    ])
   ])
 
   console.log('Indexes created successfully')
@@ -252,7 +252,7 @@ try {
             ) {
               ocorrencia[1].geoPoint = {
                 type: 'Point',
-                coordinates: [longitude, latitude],
+                coordinates: [longitude, latitude]
               }
             }
           }
@@ -263,7 +263,7 @@ try {
             ocorrencia[1].infragenericEpithet,
             ocorrencia[1].specificEpithet,
             ocorrencia[1].infraspecificEpithet,
-            ocorrencia[1].cultivarEpiteth,
+            ocorrencia[1].cultivarEpiteth
           ]
             .filter(Boolean)
             .join(' ')
@@ -331,11 +331,11 @@ try {
             )
               .replace(/[^a-zA-Z0-9]/g, '')
               .toLocaleLowerCase(),
-            ...processedData,
+            ...processedData
           }
         }),
         {
-          ordered: false,
+          ordered: false
         }
       )
       bar.increment(Math.floor(batch.length / 4))

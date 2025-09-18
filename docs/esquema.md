@@ -1,8 +1,7 @@
-
 ```mermaid
 flowchart LR
     0[IPTs institucionais] --> 1[SiBBr]
-    
+
     0 --> 2[JBRJ]
     2 --> 3[JABOT]
     2 --> 4[REFLORA]

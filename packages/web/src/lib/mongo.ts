@@ -3,9 +3,14 @@ import { type Collection, MongoClient } from 'mongodb'
 // Debug environment variables
 console.log('🔍 Debug env vars:', {
   nodeEnv: typeof process !== 'undefined' ? process.env.NODE_ENV : 'undefined',
-  mongoFromProcess: typeof process !== 'undefined' ? process.env.MONGO_URI : 'undefined', 
-  mongoFromGlobal: typeof globalThis !== 'undefined' && globalThis.process?.env?.MONGO_URI,
-  importMetaEnv: typeof import.meta !== 'undefined' ? import.meta.env?.MONGO_URI : 'undefined'
+  mongoFromProcess:
+    typeof process !== 'undefined' ? process.env.MONGO_URI : 'undefined',
+  mongoFromGlobal:
+    typeof globalThis !== 'undefined' && globalThis.process?.env?.MONGO_URI,
+  importMetaEnv:
+    typeof import.meta !== 'undefined'
+      ? import.meta.env?.MONGO_URI
+      : 'undefined'
 })
 
 const url =
@@ -798,15 +803,13 @@ export async function getCalFenoData(filter: Record<string, any> = {}) {
       console.warn('⚠️  calFeno view not available')
       return []
     }
-    
+
     // A view calFeno já filtra plantas com dados de floração
     const baseFilter = {
       ...filter
     }
-    
-    return await calFeno
-      .find(baseFilter)
-      .toArray()
+
+    return await calFeno.find(baseFilter).toArray()
   } catch (error) {
     console.error('❌ Error querying phenological data:', error)
     return []
@@ -817,9 +820,9 @@ export async function getCalFenoFamilies() {
   try {
     const calFeno = await getCollection('dwc2json', 'calFeno')
     if (!calFeno) return []
-    
+
     const families = await calFeno.distinct('family', {})
-    return families.filter(f => f && f.trim() !== '').sort()
+    return families.filter((f) => f && f.trim() !== '').sort()
   } catch (error) {
     console.error('❌ Error getting families:', error)
     return []
@@ -830,11 +833,11 @@ export async function getCalFenoGenera(family: string) {
   try {
     const calFeno = await getCollection('dwc2json', 'calFeno')
     if (!calFeno) return []
-    
-    const genera = await calFeno.distinct('genus', { 
-      family: family 
+
+    const genera = await calFeno.distinct('genus', {
+      family: family
     })
-    return genera.filter(g => g && g.trim() !== '').sort()
+    return genera.filter((g) => g && g.trim() !== '').sort()
   } catch (error) {
     console.error('❌ Error getting genera:', error)
     return []
@@ -845,12 +848,12 @@ export async function getCalFenoSpecies(family: string, genus: string) {
   try {
     const calFeno = await getCollection('dwc2json', 'calFeno')
     if (!calFeno) return []
-    
-    const species = await calFeno.distinct('canonicalName', { 
+
+    const species = await calFeno.distinct('canonicalName', {
       family: family,
       genus: genus
     })
-    return species.filter(s => s && s.trim() !== '').sort()
+    return species.filter((s) => s && s.trim() !== '').sort()
   } catch (error) {
     console.error('❌ Error getting species:', error)
     return []
@@ -859,21 +862,31 @@ export async function getCalFenoSpecies(family: string, genus: string) {
 
 export function generatePhenologicalHeatmap(occurrences: any[]) {
   const monthCounts = Array(12).fill(0)
-  
-  occurrences.forEach(occ => {
+
+  occurrences.forEach((occ) => {
     const month = parseInt(occ.month)
     if (month >= 1 && month <= 12) {
       monthCounts[month - 1] += 1
     }
   })
-  
+
   const maxCount = Math.max(...monthCounts)
-  
+
   return monthCounts.map((count, index) => ({
     month: index + 1,
     monthName: [
-      'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez'
     ][index],
     count,
     intensity: maxCount > 0 ? count / maxCount : 0

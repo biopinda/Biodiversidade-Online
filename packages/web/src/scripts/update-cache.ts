@@ -15,7 +15,9 @@ async function updateCache() {
     console.log(`✅ Cache atualizado com sucesso!`)
     console.log(`   - ${cache.families.length} famílias`)
     console.log(`   - ${Object.keys(cache.genera).length} famílias com gêneros`)
-    console.log(`   - ${Object.keys(cache.species).length} combinações família/gênero com espécies`)
+    console.log(
+      `   - ${Object.keys(cache.species).length} combinações família/gênero com espécies`
+    )
     console.log(`   - Última atualização: ${cache.lastUpdated}`)
   } catch (error) {
     console.error('❌ Erro ao atualizar cache:', error)

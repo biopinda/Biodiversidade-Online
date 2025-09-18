@@ -66,4 +66,3 @@ jobs:
               workflow_id: 'ssh-deploy.yml',
               ref: 'main'
             })
-

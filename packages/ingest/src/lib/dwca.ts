@@ -33,7 +33,7 @@ type DwcJson = Record<
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
-  attributeNamePrefix: '@',
+  attributeNamePrefix: '@'
 })
 
 const _parseJsonEntry = (entry: CoreSpec | ExtensionSpec) => {
@@ -130,15 +130,18 @@ const addExtension = async (
       obj[id][extensionName] = []
     }
     ;(obj[id][extensionName] as Record<string, unknown>[]).push(
-      fields.reduce((acc, field, index) => {
-        if (field !== 'INDEX' && values[index]) {
-          acc[field] =
-            values[index].charAt(0) === '{'
-              ? jsonSafeParse(values[index])
-              : values[index]
-        }
-        return acc
-      }, {} as Record<string, unknown>)
+      fields.reduce(
+        (acc, field, index) => {
+          if (field !== 'INDEX' && values[index]) {
+            acc[field] =
+              values[index].charAt(0) === '{'
+                ? jsonSafeParse(values[index])
+                : values[index]
+          }
+          return acc
+        },
+        {} as Record<string, unknown>
+      )
     )
   })
   if (unknownCount > 0) {
@@ -156,7 +159,7 @@ export const buildJson = async (folder: string) => {
     extensions: (Array.isArray(archive.extension)
       ? archive.extension
       : [archive.extension].filter(Boolean)
-    ).map(_parseJsonEntry),
+    ).map(_parseJsonEntry)
   }
   const root = await getFileFields(
     path.join(folder, ref.core!.file),
@@ -177,7 +180,7 @@ export const buildJson = async (folder: string) => {
           await readFile(path.join(folder, 'eml.xml'), 'utf-8')
         ) as OuterEml
       )
-    ),
+    )
   }
 }
 
@@ -214,7 +217,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
     extensions: (Array.isArray(archive.extension)
       ? archive.extension
       : [archive.extension].filter(Boolean)
-    ).map(_parseJsonEntry),
+    ).map(_parseJsonEntry)
   }
   const extensionRefs = ref.extensions.filter(Boolean)
 
@@ -222,7 +225,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
     {
       clearOnComplete: false,
       hideCursor: true,
-      format: ' {bar} | {filename} | {value}/{total}',
+      format: ' {bar} | {filename} | {value}/{total}'
     },
     cliProgress.Presets.shades_grey
   )
@@ -239,7 +242,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
     coreLineCount++
   })
   const coreProgress = multibar.create(coreLineCount || 1, 0, {
-    filename: ref.core!.file,
+    filename: ref.core!.file
   })
   db.exec('BEGIN TRANSACTION')
   try {
@@ -274,7 +277,7 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
       lineCount++
     })
     const extensionProgress = multibar.create(lineCount || 1, 0, {
-      filename: extension.file,
+      filename: extension.file
     })
     db.exec('BEGIN TRANSACTION')
     try {
@@ -343,9 +346,9 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
 
   return {
     get length() {
-      const row = db
-        .query('SELECT COUNT(id) as count FROM core')
-        .get() as { count: number } | undefined
+      const row = db.query('SELECT COUNT(id) as count FROM core').get() as
+        | { count: number }
+        | undefined
       return row?.count ?? 0
     },
     *[Symbol.iterator]() {
@@ -369,14 +372,14 @@ export const buildSqlite = async (folder: string, chunkSize = 5000) => {
         }
         const batch = rows.map(({ id, json }) => [
           id,
-          json ? JSON.parse(json) : {},
+          json ? JSON.parse(json) : {}
         ]) as [string, RU][]
         yield batch
         offset += chunkSize
       }
       db.close()
       return null
-    },
+    }
   }
 }
 
@@ -475,7 +478,7 @@ export async function processaZip(
 
   try {
     await extract(path.join('.temp', 'temp.zip'), {
-      dir: path.resolve('.temp'),
+      dir: path.resolve('.temp')
     })
     const ret = sqlite
       ? await buildSqlite('.temp', chunkSize)

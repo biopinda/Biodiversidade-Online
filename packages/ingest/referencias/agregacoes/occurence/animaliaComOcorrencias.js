@@ -1,16 +1,16 @@
-[
+;[
   {
     $match: {
-      kingdom: "Animalia",
-    },
+      kingdom: 'Animalia'
+    }
   },
   {
     $match: {
       ocorrencias: {
         $not: {
-          $size: 0,
-        },
-      },
-    },
-  },
+          $size: 0
+        }
+      }
+    }
+  }
 ]

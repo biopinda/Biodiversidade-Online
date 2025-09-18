@@ -1,10 +1,10 @@
-[
-    {
-      $group: {
-        _id: "$ipt",
-        total: {
-          $count: {},
-        },
-      },
-    },
-  ]
+;[
+  {
+    $group: {
+      _id: '$ipt',
+      total: {
+        $count: {}
+      }
+    }
+  }
+]

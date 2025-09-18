@@ -1,5 +1,5 @@
 {
-    "ipt": "jbrj",
-    "baseUrl": "https://ipt.jbrj.gov.br/jbrj/",
-    "datasets": ["jbrj_rb"]
-  }
+  "ipt": "jbrj",
+  "baseUrl": "https://ipt.jbrj.gov.br/jbrj/",
+  "datasets": ["jbrj_rb"]
+}
