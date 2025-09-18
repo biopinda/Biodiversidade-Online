@@ -1,5 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { createRequire } from 'node:module'
 import {
   APICallError,
   experimental_createMCPClient,
@@ -63,6 +64,13 @@ const input = z.object({
 
 const systemPrompt = prompt
 
+const nodeRequire = createRequire(import.meta.url)
+let cachedMongoMcpBinary: string | undefined
+const getMongoMcpBinary = () => {
+  cachedMongoMcpBinary ??= nodeRequire.resolve('mongodb-mcp-server')
+  return cachedMongoMcpBinary
+}
+
 export async function POST({ request }: APIContext) {
   const { error, data } = input.safeParse(await request.json())
   if (error) {
@@ -92,11 +100,7 @@ export async function POST({ request }: APIContext) {
 
   const mongodbTransport = new Experimental_StdioMCPTransport({
     command: 'node',
-    args: [
-      '../..//node_modules/mongodb-mcp-server',
-      '--connectionString',
-      mongoDBConnectionString!
-    ]
+    args: [getMongoMcpBinary(), '--connectionString', mongoDBConnectionString!]
   })
   const mongodbClient = await experimental_createMCPClient({
     transport: mongodbTransport

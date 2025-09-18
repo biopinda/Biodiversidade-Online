@@ -1,5 +1,21 @@
+diff --git a/node_modules/mongodb-mcp-server/dist/tools/mongodb/read/aggregate.js b/node_modules/mongodb-mcp-server/dist/tools/mongodb/read/aggregate.js
+index 56f7d60..50be24e 100644
+--- a/node_modules/mongodb-mcp-server/dist/tools/mongodb/read/aggregate.js
++++ b/node_modules/mongodb-mcp-server/dist/tools/mongodb/read/aggregate.js
+@@ -26,7 +26,10 @@ export class AggregateTool extends MongoDBToolBase {
+                     .explain("queryPlanner");
+             });
+         }
+-        const documents = await provider.aggregate(database, collection, pipeline).toArray();
++        const aggregateOptions = {
++            maxTimeMS: 120000
++        };
++        const documents = await provider.aggregate(database, collection, pipeline, aggregateOptions).toArray();
+         const content = [
+             {
+                 text: `Found ${documents.length} documents in the collection "${collection}":`,
 diff --git a/node_modules/mongodb-mcp-server/src/tools/mongodb/read/aggregate.ts b/node_modules/mongodb-mcp-server/src/tools/mongodb/read/aggregate.ts
-index a1b2c3d..e4b8c7d 100644
+index aa21fc5..b1343d0 100644
 --- a/node_modules/mongodb-mcp-server/src/tools/mongodb/read/aggregate.ts
 +++ b/node_modules/mongodb-mcp-server/src/tools/mongodb/read/aggregate.ts
 @@ -34,7 +34,11 @@ export class AggregateTool extends MongoDBToolBase {
