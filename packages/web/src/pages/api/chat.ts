@@ -93,7 +93,7 @@ export async function POST({ request }: APIContext) {
   const mongodbTransport = new Experimental_StdioMCPTransport({
     command: 'node',
     args: [
-      './node_modules/mongodb-mcp-server',
+      '../..//node_modules/mongodb-mcp-server',
       '--connectionString',
       mongoDBConnectionString!
     ]
