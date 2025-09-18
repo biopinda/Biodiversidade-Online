@@ -27,7 +27,7 @@ import {
   CornerDownRightIcon,
   HistoryIcon,
   InfoIcon,
-  PlusIcon,
+  MessageSquarePlusIcon,
   Trash2Icon
 } from 'lucide-react'
 import {
@@ -434,7 +434,7 @@ export default function Chat() {
       storedCurrentId &&
       initialHistory.some((session) => session.id === storedCurrentId)
         ? storedCurrentId
-        : initialHistory[0].id
+        : (initialHistory[0]?.id ?? '')
 
     const initialMessages =
       initialHistory.find((session) => session.id === initialCurrentId)
@@ -481,7 +481,7 @@ export default function Chat() {
       }
 
       const currentSession = previousHistory[index]
-      if (messagesEqual(currentSession.messages, messages)) {
+      if (!currentSession || messagesEqual(currentSession.messages, messages)) {
         return previousHistory
       }
 
@@ -489,7 +489,9 @@ export default function Chat() {
       nextHistory[index] = {
         ...currentSession,
         messages,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        id: currentSession.id,
+        createdAt: currentSession.createdAt
       }
 
       return sortSessions(nextHistory)
@@ -568,19 +570,27 @@ export default function Chat() {
 
         const sorted = sortSessions(filtered)
         if (chatId === currentChatId) {
-          const [nextSession] = sorted
-          nextState = {
-            chatId: nextSession.id,
-            messages: nextSession.messages
+          const nextSession = sorted[0]
+          if (nextSession) {
+            nextState = {
+              chatId: nextSession.id,
+              messages: nextSession.messages
+            }
           }
         }
 
         return sorted
       })
 
-      if (nextState) {
-        setCurrentChatId(nextState.chatId)
-        setMessages(nextState.messages)
+      if (nextState !== null) {
+        const state = nextState as { chatId: string; messages: Message[] }
+        setCurrentChatId(state.chatId)
+        setMessages(state.messages)
+      } else {
+        // Fallback: create a new session if no valid next state
+        const newSession = createSessionObject()
+        setCurrentChatId(newSession.id)
+        setMessages([])
       }
     },
     [createSessionObject, currentChatId, setMessages, stop]
@@ -600,11 +610,18 @@ export default function Chat() {
         return prev
       }
 
+      const currentSession = prev[index]
+      if (!currentSession) {
+        return prev
+      }
+
       const updated = [...prev]
       updated[index] = {
-        ...prev[index],
+        ...currentSession,
         messages: [],
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        id: currentSession.id,
+        createdAt: currentSession.createdAt
       }
 
       return sortSessions(updated)
@@ -659,7 +676,7 @@ export default function Chat() {
                 </SheetContent>
               </Sheet>
               <Button type="button" size="sm" onClick={handleCreateNewChat}>
-                <PlusIcon className="mr-2 h-4 w-4" aria-hidden />
+                <MessageSquarePlusIcon className="mr-2 h-4 w-4" aria-hidden />
                 Nova
               </Button>
             </div>

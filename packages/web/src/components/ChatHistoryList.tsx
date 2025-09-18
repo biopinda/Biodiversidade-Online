@@ -14,7 +14,11 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
-import { MessageSquareIcon, PlusIcon, Trash2Icon } from 'lucide-react'
+import {
+  MessageSquareIcon,
+  MessageSquarePlusIcon,
+  Trash2Icon
+} from 'lucide-react'
 
 export type ChatHistoryEntry = {
   id: string
@@ -61,60 +65,67 @@ function ChatHistoryRow({
     return `${chat.messageCount} ${suffix}`
   }, [chat.messageCount])
 
+  const showDeleteAction = !(active && chat.messageCount === 0)
+
   return (
-    <AlertDialog>
-      <div
-        className={cn(
-          'flex items-center gap-2 rounded-md border border-transparent px-3 py-2 text-sm transition-colors',
-          active
-            ? 'border-slate-300 bg-slate-100'
-            : 'hover:border-slate-200 hover:bg-slate-50'
-        )}
+    <div
+      className={cn(
+        'flex items-center gap-2 rounded-md border border-transparent px-3 py-2 text-sm transition-colors',
+        active
+          ? 'border-slate-300 bg-slate-100'
+          : 'hover:border-slate-200 hover:bg-slate-50'
+      )}
+    >
+      <button
+        type="button"
+        className="flex-1 text-left"
+        onClick={() => onSelect(chat.id)}
       >
-        <button
-          type="button"
-          className="flex-1 text-left"
-          onClick={() => onSelect(chat.id)}
-        >
-          <div className="flex items-center gap-2 font-medium text-slate-900">
-            <MessageSquareIcon className="h-4 w-4" aria-hidden />
-            <span>{formatDate(chat.updatedAt || chat.createdAt)}</span>
-          </div>
-          <span className="text-xs text-slate-500">{messageLabel}</span>
-        </button>
-        <AlertDialogTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={(event) => {
-              event.stopPropagation()
-            }}
-          >
-            <Trash2Icon className="h-4 w-4" aria-hidden />
-            <span className="sr-only">Excluir conversa</span>
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir esta conversa?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação remove o histórico de mensagens desta conversa.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                onDelete(chat.id)
+        <div className="flex items-center gap-2 font-medium text-slate-900">
+          <MessageSquareIcon className="h-4 w-4" aria-hidden />
+          <span>{formatDate(chat.updatedAt || chat.createdAt)}</span>
+        </div>
+        <span className="text-xs text-slate-500">{messageLabel}</span>
+      </button>
+      {showDeleteAction && (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={(event) => {
+                event.stopPropagation()
               }}
             >
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </div>
-    </AlertDialog>
+              <Trash2Icon className="h-4 w-4" aria-hidden />
+              <span className="sr-only">Excluir conversa</span>
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Limpar a conversa selecionada?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta ação remove todas as mensagens desta conversa. O histórico
+                permanece salvo somente no seu navegador.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  onDelete(chat.id)
+                }}
+              >
+                Limpar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </div>
   )
 }
 
@@ -138,7 +149,7 @@ export default function ChatHistoryList({
           Conversas
         </span>
         <Button type="button" size="sm" onClick={onCreateChat}>
-          <PlusIcon className="mr-2 h-4 w-4" aria-hidden />
+          <MessageSquarePlusIcon className="mr-2 h-4 w-4" aria-hidden />
           Nova
         </Button>
       </div>
