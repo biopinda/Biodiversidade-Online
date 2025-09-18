@@ -2,6 +2,10 @@ name: Create and publish Docker image
 
 on:
   push:
+    paths:
+      - 'packages/web/**'
+      - '.github/workflows/docker.yml'
+  workflow_dispatch:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
