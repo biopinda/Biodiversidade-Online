@@ -158,6 +158,12 @@ docker pull ghcr.io/biopinda/darwincorejson:latest
 docker run ghcr.io/biopinda/darwincorejson:latest
 ```
 
+## Projetos Relacionados
+
+### 🔧 **Canonicalização de Coletores**
+
+O projeto [coletoresDWC2JSON](https://github.com/edalcin/coletoresDWC2JSON) complementa o DarwinCoreJSON fornecendo ferramentas especializadas para melhoria da qualidade dos dados de coletores. Este sistema implementa algoritmos de canonicalização que normalizam e agrupam variações de nomes de coletores (ex: "FORZZA", "Forzza, R." e "R.C. Forzza"), aumentando a consistência dos dados e facilitando análises posteriores da base de dados integrada.
+
 ## Contribuições
 
 Dúvidas, sugestões e contribuições são bem-vindas através das [issues do projeto](https://github.com/biopinda/DarwinCoreJSON/issues).
