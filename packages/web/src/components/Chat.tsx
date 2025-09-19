@@ -52,6 +52,7 @@ type StoredChatSession = {
   createdAt: string
   updatedAt: string
   messages: Message[]
+  lastError: string | null
 }
 
 const CHAT_HISTORY_STORAGE_KEY = 'chatHistory'
@@ -340,6 +341,65 @@ export default function Chat() {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false)
   const [isHistorySheetOpen, setIsHistorySheetOpen] = useState(false)
+  const [persistentError, setPersistentError] = useState<string | null>(null)
+
+  const persistErrorForCurrentChat = useCallback(
+    (
+      message: string | null,
+      { updateTimestamp = true }: { updateTimestamp?: boolean } = {}
+    ) => {
+      if (!currentChatId) {
+        return
+      }
+
+      setChatHistory((previousHistory) => {
+        const index = previousHistory.findIndex(
+          (session) => session.id === currentChatId
+        )
+
+        if (index === -1) {
+          return previousHistory
+        }
+
+        const currentSession = previousHistory[index]
+        if (!currentSession) {
+          return previousHistory
+        }
+
+        if (currentSession.lastError === message && !updateTimestamp) {
+          return previousHistory
+        }
+
+        const nextHistory = [...previousHistory]
+        nextHistory[index] = {
+          ...currentSession,
+          lastError: message,
+          updatedAt: updateTimestamp
+            ? new Date().toISOString()
+            : currentSession.updatedAt
+        }
+
+        return sortSessions(nextHistory)
+      })
+    },
+    [currentChatId]
+  )
+
+  const registerErrorForCurrentChat = useCallback(
+    (message: string) => {
+      setPersistentError(message)
+      persistErrorForCurrentChat(message)
+    },
+    [persistErrorForCurrentChat]
+  )
+
+  const clearErrorForCurrentChat = useCallback(
+    ({ updateTimestamp = false }: { updateTimestamp?: boolean } = {}) => {
+      setPersistentError(null)
+      persistErrorForCurrentChat(null, { updateTimestamp })
+    },
+    [persistErrorForCurrentChat]
+  )
 
   const createSessionObject = useCallback((): StoredChatSession => {
     const now = new Date().toISOString()
@@ -352,7 +412,8 @@ export default function Chat() {
       id,
       createdAt: now,
       updatedAt: now,
-      messages: []
+      messages: [],
+      lastError: null
     }
   }, [])
 
@@ -384,14 +445,20 @@ export default function Chat() {
     input,
     handleInputChange,
     handleSubmit,
-    error,
     reload,
     status,
     stop,
     setMessages
   } = useChat({
     api: '/api/chat',
-    body: { apiKey, model: selectedModel }
+    body: { apiKey, model: selectedModel },
+    onError: (err) => {
+      const message = err?.message ?? 'Erro desconhecido'
+      registerErrorForCurrentChat(message)
+    },
+    onFinish: () => {
+      clearErrorForCurrentChat()
+    }
   })
 
   useEffect(() => {
@@ -413,10 +480,22 @@ export default function Chat() {
               (session): session is StoredChatSession =>
                 typeof session?.id === 'string'
             )
-            .map((session) => ({
-              ...session,
-              messages: Array.isArray(session.messages) ? session.messages : []
-            }))
+            .map((session) => {
+              const historyEntry = session as unknown as {
+                lastError?: unknown
+              }
+
+              return {
+                ...session,
+                messages: Array.isArray(session.messages)
+                  ? session.messages
+                  : [],
+                lastError:
+                  typeof historyEntry.lastError === 'string'
+                    ? historyEntry.lastError
+                    : null
+              }
+            })
         }
       } catch (error) {
         console.error('Erro ao carregar histórico do chat', error)
@@ -436,13 +515,16 @@ export default function Chat() {
         ? storedCurrentId
         : (initialHistory[0]?.id ?? '')
 
-    const initialMessages =
-      initialHistory.find((session) => session.id === initialCurrentId)
-        ?.messages ?? []
+    const initialSession = initialHistory.find(
+      (session) => session.id === initialCurrentId
+    )
+
+    const initialMessages = initialSession?.messages ?? []
 
     setChatHistory(initialHistory)
     setCurrentChatId(initialCurrentId)
     setMessages(initialMessages)
+    setPersistentError(initialSession?.lastError ?? null)
     setChatHistoryLoaded(true)
   }, [chatHistoryLoaded, createSessionObject, setMessages])
 
@@ -491,10 +573,11 @@ export default function Chat() {
         messages,
         updatedAt: new Date().toISOString(),
         id: currentSession.id,
-        createdAt: currentSession.createdAt
+        createdAt: currentSession.createdAt,
+        lastError: currentSession.lastError
       }
 
-      return sortSessions(nextHistory)
+      return nextHistory
     })
   }, [messages, chatHistoryLoaded, currentChatId])
 
@@ -538,8 +621,9 @@ export default function Chat() {
       stop()
       setCurrentChatId(chatId)
       setMessages(session.messages)
+      setPersistentError(session.lastError ?? null)
     },
-    [chatHistory, currentChatId, setMessages, stop]
+    [chatHistory, currentChatId, setMessages, stop, setPersistentError]
   )
 
   const handleCreateNewChat = useCallback(() => {
@@ -548,13 +632,18 @@ export default function Chat() {
     setChatHistory((prev) => sortSessions([...prev, newSession]))
     setCurrentChatId(newSession.id)
     setMessages([])
+    setPersistentError(null)
     setIsHistorySheetOpen(false)
-  }, [createSessionObject, setMessages, stop])
+  }, [createSessionObject, setMessages, stop, setPersistentError])
 
   const handleDeleteChat = useCallback(
     (chatId: string) => {
       stop()
-      let nextState: { chatId: string; messages: Message[] } | null = null
+      let nextState: {
+        chatId: string
+        messages: Message[]
+        lastError: string | null
+      } | null = null
 
       setChatHistory((prev) => {
         const filtered = prev.filter((session) => session.id !== chatId)
@@ -564,7 +653,11 @@ export default function Chat() {
 
         if (filtered.length === 0) {
           const fallbackSession = createSessionObject()
-          nextState = { chatId: fallbackSession.id, messages: [] }
+          nextState = {
+            chatId: fallbackSession.id,
+            messages: [],
+            lastError: fallbackSession.lastError
+          }
           return [fallbackSession]
         }
 
@@ -574,7 +667,8 @@ export default function Chat() {
           if (nextSession) {
             nextState = {
               chatId: nextSession.id,
-              messages: nextSession.messages
+              messages: nextSession.messages,
+              lastError: nextSession.lastError ?? null
             }
           }
         }
@@ -583,26 +677,34 @@ export default function Chat() {
       })
 
       if (nextState !== null) {
-        const state = nextState as { chatId: string; messages: Message[] }
+        const state = nextState as {
+          chatId: string
+          messages: Message[]
+          lastError: string | null
+        }
         setCurrentChatId(state.chatId)
         setMessages(state.messages)
+        setPersistentError(state.lastError ?? null)
       } else {
         // Fallback: create a new session if no valid next state
         const newSession = createSessionObject()
         setCurrentChatId(newSession.id)
         setMessages([])
+        setPersistentError(null)
       }
     },
-    [createSessionObject, currentChatId, setMessages, stop]
+    [createSessionObject, currentChatId, setMessages, stop, setPersistentError]
   )
 
   const handleClearChat = useCallback(() => {
     if (!currentChatId) {
       setMessages([])
+      setPersistentError(null)
       return
     }
 
     stop()
+    clearErrorForCurrentChat({ updateTimestamp: false })
     setMessages([])
     setChatHistory((prev) => {
       const index = prev.findIndex((session) => session.id === currentChatId)
@@ -621,14 +723,23 @@ export default function Chat() {
         messages: [],
         updatedAt: new Date().toISOString(),
         id: currentSession.id,
-        createdAt: currentSession.createdAt
+        createdAt: currentSession.createdAt,
+        lastError: null
       }
 
       return sortSessions(updated)
     })
-  }, [currentChatId, setMessages, stop])
+  }, [clearErrorForCurrentChat, currentChatId, setMessages, stop])
 
   const canClearCurrentChat = (currentSession?.messages?.length ?? 0) > 0
+  const hasActiveError = persistentError !== null
+  const displayedErrorMessage = persistentError ?? ''
+
+  const handleRetry = useCallback(() => {
+    clearErrorForCurrentChat()
+
+    void reload()
+  }, [clearErrorForCurrentChat, reload])
 
   const isMac =
     typeof window !== 'undefined' &&
@@ -814,14 +925,13 @@ export default function Chat() {
               </div>
             </div>
 
-            {error && (
+            {hasActiveError && (
               <div className="flex items-center gap-2">
-                <div>Ocorreu um erro.</div>
-                <Button
-                  type="button"
-                  onClick={() => reload()}
-                  variant="outline"
-                >
+                <div>
+                  Ocorreu um erro
+                  {displayedErrorMessage ? `: ${displayedErrorMessage}` : '.'}
+                </div>
+                <Button type="button" onClick={handleRetry} variant="outline">
                   Tentar novamente
                 </Button>
               </div>
@@ -859,7 +969,7 @@ export default function Chat() {
                       }
                     }}
                     onChange={handleInputChange}
-                    disabled={error != null || status === 'streaming'}
+                    disabled={hasActiveError || status === 'streaming'}
                     className="field-sizing-content min-h-24 border-slate-400"
                   />
                 )}
@@ -879,7 +989,7 @@ export default function Chat() {
                     type="submit"
                     disabled={
                       !input ||
-                      error != null ||
+                      hasActiveError ||
                       status === 'streaming' ||
                       status === 'submitted'
                     }
