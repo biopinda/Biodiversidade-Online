@@ -1,7 +1,7 @@
-[![Update MongoDB - Flora](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-flora.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-flora.yml)
-[![Update MongoDB - Fauna](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml)
-[![Update MongoDB - Ocorrências](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml)
-[![Docker Image](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/docker.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/pkgs/container/darwincorejson)
+[![Update MongoDB - Flora](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-flora.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-flora.yml)
+[![Update MongoDB - Fauna](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-fauna.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-fauna.yml)
+[![Update MongoDB - Ocorrências](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-occurrences.yml)
+[![Docker Image](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/docker.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/pkgs/container/darwincorejson)
 
 # Base de Dados Integrada da Biodiversidade Brasileira
 
@@ -10,7 +10,7 @@
 [Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)<br>
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15261018.svg)](https://doi.org/10.5281/zenodo.15261018)
 
-> :warning: **Atenção:** Acompanhe o desenvolvimento do ["ChatBB"](https://github.com/edalcin/DarwinCoreJSON/blob/main/chatbb.md).
+> :warning: **Atenção:** Acompanhe o desenvolvimento do ["ChatBB"](https://github.com/biopinda/Biodiversidade-Online/blob/main/chatbb.md).
 
 ## Histórico do Projeto
 
@@ -25,9 +25,9 @@ Com a agregação das duas fontes de dados - flora (+fungi) e fauna, um conjunto
 - [Mapa de Distribuição](https://dwc2json.dalc.in/mapa)
 - [Dashboard](https://dwc2json.dalc.in/dashboard)
 
-Na terceira etapa, resolvemos agregar dados de ocorrência, provenientes se 15 diferentes [IPTs](https://www.gbif.org/pt/ipt), disponibilizando 493 conjuntos de dados de ocorrências ([lista](https://github.com/edalcin/DarwinCoreJSON/blob/main/packages/ingest/referencias/occurrences.csv)). Vale notar que os conjuntos de dados passam por uma curadoria, evitando a duplicação de dados na base do MongoDB, por conjuntos de dados que estão publicados em diferentes IPTs (ver ["matriz de seleção"](https://github.com/edalcin/DarwinCoreJSON/blob/main/packages/ingest/referencias/matrizSelecaoFontes.md)).
+Na terceira etapa, resolvemos agregar dados de ocorrência, provenientes se 15 diferentes [IPTs](https://www.gbif.org/pt/ipt), disponibilizando 493 conjuntos de dados de ocorrências ([lista](https://github.com/biopinda/Biodiversidade-Online/blob/main/packages/ingest/referencias/occurrences.csv)). Vale notar que os conjuntos de dados passam por uma curadoria, evitando a duplicação de dados na base do MongoDB, por conjuntos de dados que estão publicados em diferentes IPTs (ver ["matriz de seleção"](https://github.com/biopinda/Biodiversidade-Online/blob/main/packages/ingest/referencias/matrizSelecaoFontes.md)).
 
-Um diferencial desta base de dados é que todo o domingo 3 "actions" de atualização da base de dados no MongoDB são acionadas, percorrendo [uma rotina](https://github.com/edalcin/DarwinCoreJSON/blob/main/atualizacao.md) que atualiza a base de dados taxonômica e de ocorrências, com base nas últimas versões dos conjuntos de dados disponíveis nos IPTs.
+Um diferencial desta base de dados é que todo o domingo 3 "actions" de atualização da base de dados no MongoDB são acionadas, percorrendo [uma rotina](https://github.com/biopinda/Biodiversidade-Online/blob/main/atualizacao.md) que atualiza a base de dados taxonômica e de ocorrências, com base nas últimas versões dos conjuntos de dados disponíveis nos IPTs.
 
 ## Versão atual da proposta do projeto - versão 4.0
 
@@ -41,4 +41,4 @@ Acreditamos que uma versão integrada destes conjuntos de dados - fauna, flora, 
 
 Uma vez que o produto deste projeto são os dois conjuntos de dados em formato JSON, gerenciados pelo MongoDB - "taxa" e "ocorrencias", pensamos que o futuro da proposta pode ser direcionado para agregar qualidade nestes conjuntos de dados, em espacial nos dados de ocorrência, [notoriamente de baixa qualidade](https://www.ibge.gov.br/geociencias/investigacoes-experimentais-geo/informacoes-geocientificas-experimentais/38371-avaliacao-dos-dados-sobre-a-biodiversidade-brasileira.html).
 
-Comentários e sugestões são muito bem-vindos, na [área de "issues"](https://github.com/edalcin/DarwinCoreJSON/issues).
+Comentários e sugestões são muito bem-vindos, na [área de "issues"](https://github.com/biopinda/Biodiversidade-Online/issues).

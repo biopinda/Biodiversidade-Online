@@ -68,7 +68,7 @@ export const processaFlora = (dwcJson: FloraJson): FloraJson => {
 
         if (taxon.higherClassification) {
           // Usa somente segundo componente da string separada por ;
-          // https://github.com/biopinda/DarwinCoreJSON/issues/13
+          // https://github.com/biopinda/Biodiversidade-Online/issues/13
           taxon.higherClassification = (
             taxon.higherClassification as string
           ).split(';')[1]

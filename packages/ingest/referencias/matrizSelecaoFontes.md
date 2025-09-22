@@ -12,4 +12,4 @@ Alguns recursos, especialmente herbários, estão publicados em diferentes repos
 | JABOT         |               |               | JABOT       |
 |               |               | SpeciesLink   | SpeciesLink |
 
-A lista completa dos recursos está em https://github.com/biopinda/DarwinCoreJSON/blob/main/packages/ingest/referencias/occurrences.csv
+A lista completa dos recursos está em https://github.com/biopinda/Biodiversidade-Online/blob/main/packages/ingest/referencias/occurrences.csv

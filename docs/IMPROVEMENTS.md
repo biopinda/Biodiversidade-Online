@@ -1,8 +1,8 @@
-# Plano de Melhorias - DarwinCoreJSON
+# Plano de Melhorias - Biodiversidade Online
 
 ## Resumo Executivo
 
-Este documento apresenta um conjunto abrangente de melhorias técnicas e arquiteturais para o projeto DarwinCoreJSON, baseado na análise das tecnologias atuais, padrões de uso e requisitos de escalabilidade para um sistema que processa mais de 12 milhões de registros de biodiversidade de 500+ repositórios IPT.
+Este documento apresenta um conjunto abrangente de melhorias técnicas e arquiteturais para o projeto Biodiversidade Online, baseado na análise das tecnologias atuais, padrões de uso e requisitos de escalabilidade para um sistema que processa mais de 12 milhões de registros de biodiversidade de 500+ repositórios IPT.
 
 ## 1. Arquitetura e Infraestrutura
 
@@ -551,7 +551,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/biopinda/DarwinCoreJSON
+    repoURL: https://github.com/biopinda/Biodiversidade-Online
     targetRevision: HEAD
     path: k8s/overlays/production
   destination:
@@ -760,4 +760,4 @@ export class WebhookManager {
 
 ---
 
-_Este plano de melhorias representa um roteiro abrangente para transformar o DarwinCoreJSON em uma plataforma de biodiversidade de classe enterprise, mantendo sua missão de democratizar o acesso aos dados científicos brasileiros._
+_Este plano de melhorias representa um roteiro abrangente para transformar o Biodiversidade Online em uma plataforma de biodiversidade de classe enterprise, mantendo sua missão de democratizar o acesso aos dados científicos brasileiros._

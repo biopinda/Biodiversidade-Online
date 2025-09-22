@@ -1,14 +1,12 @@
-# Base de Dados Integrada da Biodiversidade Brasileira
-
-# (DarwinCoreJSON)
+# Biodiversidade.Online - Uma Base de Dados Integrada da Biodiversidade Brasileira
 
 [Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)<br>
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15261018.svg)](https://doi.org/10.5281/zenodo.15261018)
 
-[![Update MongoDB - Flora](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-flora.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-flora.yml)
-[![Update MongoDB - Fauna](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-fauna.yml)
-[![Update MongoDB - Ocorrências](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/update-mongodb-occurrences.yml)
-[![Docker Image](https://github.com/biopinda/DarwinCoreJSON/actions/workflows/docker.yml/badge.svg)](https://github.com/biopinda/DarwinCoreJSON/pkgs/container/darwincorejson)
+[![Update MongoDB - Flora](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-flora.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-flora.yml)
+[![Update MongoDB - Fauna](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-fauna.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-fauna.yml)
+[![Update MongoDB - Ocorrências](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-occurrences.yml)
+[![Docker Image](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/docker.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/pkgs/container/biodiversidade-online)
 
 ## Histórico do Projeto
 
@@ -24,7 +22,7 @@ A versão atual integra uma vasta gama de fontes de dados da biodiversidade bras
 
 ## Versão Atual - V5.0
 
-O **DarwinCoreJSON** é um sistema automatizado de integração e processamento de dados de biodiversidade brasileira, desenvolvido em TypeScript executado com Bun. O projeto consolida informações taxonômicas e de ocorrências de múltiplas fontes científicas em uma base de dados MongoDB unificada, facilitando consultas e análises da biodiversidade nacional.
+O **Biodiversidade.Online** é um sistema automatizado de integração e processamento de dados de biodiversidade brasileira, desenvolvido em TypeScript executado com Bun. O projeto consolida informações taxonômicas e de ocorrências de múltiplas fontes científicas em uma base de dados MongoDB unificada, facilitando consultas e análises da biodiversidade nacional.
 
 ## Funcionalidades Principais
 
@@ -162,22 +160,22 @@ docker run ghcr.io/biopinda/darwincorejson:latest
 
 ### 🔧 **Canonicalização de Coletores**
 
-O projeto [coletoresDWC2JSON](https://github.com/edalcin/coletoresDWC2JSON) complementa o DarwinCoreJSON fornecendo ferramentas especializadas para melhoria da qualidade dos dados de coletores. Este sistema implementa algoritmos de canonicalização que normalizam e agrupam variações de nomes de coletores (ex: "FORZZA", "Forzza, R." e "R.C. Forzza"), aumentando a consistência dos dados e facilitando análises posteriores da base de dados integrada.
+O projeto [coletoresDWC2JSON](https://github.com/edalcin/coletoresDWC2JSON) complementa o Biodiversidade.Online fornecendo ferramentas especializadas para melhoria da qualidade dos dados de coletores. Este sistema implementa algoritmos de canonicalização que normalizam e agrupam variações de nomes de coletores (ex: "FORZZA", "Forzza, R." e "R.C. Forzza"), aumentando a consistência dos dados e facilitando análises posteriores da base de dados integrada.
 
 ## Contribuições
 
-Dúvidas, sugestões e contribuições são bem-vindas através das [issues do projeto](https://github.com/biopinda/DarwinCoreJSON/issues).
+Dúvidas, sugestões e contribuições são bem-vindas através das [issues do projeto](https://github.com/biopinda/Biodiversidade-Online/issues).
 
 ## Citação
 
 ```bibtex
 @software{pinheiro_dalcin_2025,
-  title = {DarwinCoreJSON: Sistema de Integração de Dados de Biodiversidade},
+  title = {Biodiversidade.Online: Uma Base de Dados Integrada da Biodiversidade Brasileira},
   author = {Pinheiro, Henrique and Dalcin, Eduardo},
   year = {2025},
   version = {5.0},
   doi = {10.5281/zenodo.15511063},
-  url = {https://github.com/biopinda/DarwinCoreJSON}
+  url = {https://github.com/biopinda/Biodiversidade-Online}
 }
 ```
 

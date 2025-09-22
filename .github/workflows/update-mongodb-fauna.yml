@@ -31,16 +31,16 @@ jobs:
       - name: Install zip
         run: sudo apt update && sudo apt install zip
       - name: Install dependencies
-        run: bun install --frozen-lockfile --filter @darwincore/ingest
+        run: bun install --frozen-lockfile --filter @biodiversidade/ingest
       - name: Update DB from web
         if: ${{ github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-          TEMPDIR: /home/runner/work/DarwinCoreJSON/
-        run: bun run --filter @darwincore/ingest fauna -- "${{ github.event.inputs.DWCA_URL }}"
+          TEMPDIR: /home/runner/work/Biodiversidade-Online/
+        run: bun run --filter @biodiversidade/ingest fauna -- "${{ github.event.inputs.DWCA_URL }}"
       - name: Update DB
         if: ${{ !github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-          TEMPDIR: /home/runner/work/DarwinCoreJSON/
-        run: bun run --filter @darwincore/ingest fauna -- "${{ env.DWCA_URL }}"
+          TEMPDIR: /home/runner/work/Biodiversidade-Online/
+        run: bun run --filter @biodiversidade/ingest fauna -- "${{ env.DWCA_URL }}"
