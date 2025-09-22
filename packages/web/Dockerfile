@@ -13,12 +13,12 @@ RUN apt-get update \
 COPY package.json bun.lock tsconfig.base.json ./
 COPY packages/ingest/package.json ./packages/ingest/
 COPY packages/web/package.json packages/web/tsconfig.json packages/web/astro.config.mjs packages/web/components.json packages/web/cron-dashboard.js packages/web/README.md ./packages/web/
-COPY packages/web/patches ./packages/web/patches
+COPY patches ./patches
 COPY packages/web/public ./packages/web/public
 COPY packages/web/src ./packages/web/src
 
 # Install only the web workspace deps and build
-RUN bun install --frozen-lockfile --filter @darwincore/web
+RUN bun install --frozen-lockfile --filter @biodiversidade/web
 
 WORKDIR /app/packages/web
 RUN bun run build

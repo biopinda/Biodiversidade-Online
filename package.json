@@ -6,7 +6,6 @@
     "@types/papaparse": "^5.3.16",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
-    "patch-package": "^8.0.0",
     "prettier": "^3.6.2"
   },
   "packageManager": "bun@1.2.21",
@@ -24,7 +23,7 @@
     "ruler:revert": "npx ruler revert",
     "ruler:init": "npx ruler init",
     "format": "npx prettier --write . --experimental-cli",
-    "postinstall": "patch-package --patch-dir packages/web/patches && npx ruler apply",
+    "postinstall": "npx ruler apply",
     "prepare": "husky"
   },
   "workspaces": {
@@ -44,5 +43,8 @@
   },
   "lint-staged": {
     "*": "npx prettier -w --experimental-cli"
+  },
+  "patchedDependencies": {
+    "mongodb-mcp-server@1.0.1": "patches/mongodb-mcp-server@1.0.1.patch"
   }
 }
