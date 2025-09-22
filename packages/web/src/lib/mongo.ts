@@ -892,3 +892,130 @@ export function generatePhenologicalHeatmap(occurrences: any[]) {
     intensity: maxCount > 0 ? count / maxCount : 0
   }))
 }
+
+// State name harmonization mapping
+const stateMapping: Record<string, string> = {
+  // Norte
+  'AC': 'Acre', 'Acre': 'Acre',
+  'AP': 'Amapá', 'Amapá': 'Amapá', 'Amapa': 'Amapá',
+  'AM': 'Amazonas', 'Amazonas': 'Amazonas',
+  'PA': 'Pará', 'Pará': 'Pará', 'Para': 'Pará',
+  'RO': 'Rondônia', 'Rondônia': 'Rondônia', 'Rondonia': 'Rondônia',
+  'RR': 'Roraima', 'Roraima': 'Roraima',
+  'TO': 'Tocantins', 'Tocantins': 'Tocantins',
+
+  // Nordeste
+  'AL': 'Alagoas', 'Alagoas': 'Alagoas',
+  'BA': 'Bahia', 'Bahia': 'Bahia',
+  'CE': 'Ceará', 'Ceará': 'Ceará', 'Ceara': 'Ceará',
+  'MA': 'Maranhão', 'Maranhão': 'Maranhão', 'Maranhao': 'Maranhão',
+  'PB': 'Paraíba', 'Paraíba': 'Paraíba', 'Paraiba': 'Paraíba',
+  'PE': 'Pernambuco', 'Pernambuco': 'Pernambuco',
+  'PI': 'Piauí', 'Piauí': 'Piauí', 'Piaui': 'Piauí',
+  'RN': 'Rio Grande do Norte', 'Rio Grande do Norte': 'Rio Grande do Norte',
+  'SE': 'Sergipe', 'Sergipe': 'Sergipe',
+
+  // Centro-Oeste
+  'GO': 'Goiás', 'Goiás': 'Goiás', 'Goias': 'Goiás',
+  'MT': 'Mato Grosso', 'Mato Grosso': 'Mato Grosso',
+  'MS': 'Mato Grosso do Sul', 'Mato Grosso do Sul': 'Mato Grosso do Sul',
+  'DF': 'Distrito Federal', 'Distrito Federal': 'Distrito Federal',
+
+  // Sudeste
+  'ES': 'Espírito Santo', 'Espírito Santo': 'Espírito Santo', 'Espirito Santo': 'Espírito Santo',
+  'MG': 'Minas Gerais', 'Minas Gerais': 'Minas Gerais',
+  'RJ': 'Rio de Janeiro', 'Rio de Janeiro': 'Rio de Janeiro',
+  'SP': 'São Paulo', 'São Paulo': 'São Paulo', 'Sao Paulo': 'São Paulo',
+
+  // Sul
+  'PR': 'Paraná', 'Paraná': 'Paraná', 'Parana': 'Paraná',
+  'RS': 'Rio Grande do Sul', 'Rio Grande do Sul': 'Rio Grande do Sul',
+  'SC': 'Santa Catarina', 'Santa Catarina': 'Santa Catarina'
+}
+
+function normalizeStateName(stateName: string): string {
+  if (!stateName) return 'Unknown'
+  const trimmed = stateName.trim()
+  return stateMapping[trimmed] || trimmed
+}
+
+export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
+  const occurrences = await getCollection('dwc2json', 'ocorrencias')
+  if (!occurrences) return null
+
+  const matchStage: Record<string, unknown> = {}
+
+  // Add all filters as case-insensitive regex
+  Object.entries(filter).forEach(([key, value]) => {
+    if (value) {
+      if (key === 'genus' || key === 'specificEpithet') {
+        matchStage[key] =
+          value instanceof RegExp ? value : new RegExp(`^${value.trim()}$`, 'i')
+      } else {
+        matchStage[key] =
+          value instanceof RegExp
+            ? value
+            : new RegExp(`\\b${value.trim()}\\b`, 'i')
+      }
+    }
+  })
+
+  const [result] = await occurrences
+    .aggregate([
+      {
+        $match: matchStage
+      },
+      {
+        $facet: {
+          total: [
+            {
+              $count: 'count'
+            }
+          ],
+          byRegion: [
+            {
+              $group: {
+                _id: '$stateProvince',
+                count: { $sum: 1 }
+              }
+            },
+            {
+              $match: {
+                _id: { $ne: null, $ne: '', $exists: true }
+              }
+            },
+            {
+              $sort: { count: -1 }
+            }
+          ]
+        }
+      }
+    ])
+    .toArray()
+
+  if (!result) {
+    return { total: 0, regions: [] }
+  }
+
+  const total = result.total[0]?.count || 0
+  const rawRegions = result.byRegion || []
+
+  // Normalize state names and aggregate counts
+  const stateCountMap = new Map<string, number>()
+
+  rawRegions.forEach((region: { _id: string; count: number }) => {
+    const normalizedState = normalizeStateName(region._id)
+    const currentCount = stateCountMap.get(normalizedState) || 0
+    stateCountMap.set(normalizedState, currentCount + region.count)
+  })
+
+  // Convert back to array format
+  const regions = Array.from(stateCountMap.entries())
+    .map(([state, count]) => ({ _id: state, count }))
+    .sort((a, b) => b.count - a.count)
+
+  return {
+    total,
+    regions
+  }
+}
