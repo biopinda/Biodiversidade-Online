@@ -99,28 +99,43 @@ This is a monorepo project with the following structure:
 ```
 /
 ├── .github/                 # GitHub workflows and Copilot instructions
+├── docs/                    # Documentation files
 ├── packages/
 │   ├── ingest/              # Data ingestion package
 │   │   ├── package.json     # Package dependencies (references catalog)
-│   │   ├── src/             # Bun TypeScript scripts for data processing
-│   │   │   ├── fauna.ts     # Fauna data processing
-│   │   │   ├── flora.ts     # Flora data processing
-│   │   │   ├── ocorrencia.ts# Occurrence data processing
-│   │   │   └── lib/dwca.ts  # Darwin Core Archive utilities
-│   │   ├── tests/           # Test files
-│   │   └── types/           # Type definitions
+│   │   ├── tsconfig.json    # TypeScript config
+│   │   ├── chatbb/          # ChatBB specific data
+│   │   │   └── fontes/      # Source data files
+│   │   ├── referencias/     # Reference data and documentation
+│   │   │   ├── agregacoes/  # Aggregation views
+│   │   │   ├── api/         # API examples
+│   │   │   ├── dataHandling/# Data processing utilities
+│   │   │   ├── filtros/     # Filter utilities
+│   │   │   └── sourcesRepositorios/ # Repository source configs
+│   │   └── src/             # Bun TypeScript scripts for data processing
+│   │       ├── fauna.ts     # Fauna data processing
+│   │       ├── flora.ts     # Flora data processing
+│   │       ├── ocorrencia.ts# Occurrence data processing
+│   │       └── lib/
+│   │           └── dwca.ts  # Darwin Core Archive utilities
 │   └── web/                 # Main Astro.js web application
-│       ├── src/
-│       │   ├── pages/       # Astro pages (chat.astro, dashboard.astro, etc.)
-│       │   ├── components/  # React components
-│       │   ├── scripts/     # TypeScript utilities
-│       │   └── prompts/     # AI prompt configurations
-│       ├── package.json     # Package dependencies (references catalog)
+│       ├── astro.config.mjs # Astro configuration
+│       ├── components.json  # ShadCN Component configuration
+│       ├── cron-dashboard.js# Dashboard cron job
 │       ├── Dockerfile       # Production container build
-│       └── patches/         # Package patches
-├── web/                     # Build output directory (generated)
-├── docs/                    # Documentation files
-├── package.json             # Root package.json with workspaces and catalog
+│       ├── package.json     # Package dependencies (references catalog)
+│       ├── cache/           # Cached dashboard data
+│       └── src/             # Source code
+│           ├── components/  # React components
+│           ├── data/        # Data utilities
+│           ├── layouts/     # Astro layouts
+│           ├── lib/         # Library utilities
+│           ├── pages/       # Astro pages
+│           ├── prompts/     # AI prompt configurations
+│           ├── scripts/     # TypeScript utilities
+│           └── styles/      # Tailwind Stylesheets
+├── patches/                 # Package patches
+├── scripts/                 # Python utility scripts
 ├── bun.lock                 # Root Bun lockfile
 ├── tsconfig.json            # TypeScript project references
 └── tsconfig.base.json       # Base TypeScript config
