@@ -1,0 +1,114 @@
+services:
+  # =============================================================================
+  # Web Application - Development
+  # =============================================================================
+  biodiversidade-web:
+    build:
+      context: .
+      dockerfile: packages/web/Dockerfile
+      target: development
+      args:
+        NODE_VERSION: 20.19.4
+        BUN_VERSION: 1.2.22
+    container_name: biodiversidade-web-dev
+    ports:
+      - '4321:4321'
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/biodiversidade}
+      - ASTRO_TELEMETRY_DISABLED=1
+    volumes:
+      # Mount source code for hot reload
+      - ./packages/web/src:/app/packages/web/src:cached
+      - ./packages/web/public:/app/packages/web/public:cached
+      - ./packages/web/astro.config.mjs:/app/packages/web/astro.config.mjs:cached
+      - ./packages/web/tsconfig.json:/app/packages/web/tsconfig.json:cached
+      # Preserve node_modules and Astro build cache
+      - biodiversidade_node_modules:/app/node_modules
+      - biodiversidade_astro_cache:/app/packages/web/.astro
+    depends_on:
+      - mongodb
+    networks:
+      - biodiversidade-network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4321/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # =============================================================================
+  # MongoDB Database
+  # =============================================================================
+  mongodb:
+    image: mongo:7.0
+    container_name: biodiversidade-mongodb
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-biodiversidade}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+      # Initialize database with sample data (optional)
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - biodiversidade-network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # =============================================================================
+  # MongoDB Express - Database Admin UI (Optional)
+  # =============================================================================
+  mongo-express:
+    image: mongo-express:1.0.0-20
+    container_name: biodiversidade-mongo-express
+    ports:
+      - '8081:8081'
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD:-password}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD:-password}@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME:-admin}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-pass}
+    depends_on:
+      - mongodb
+    networks:
+      - biodiversidade-network
+    restart: unless-stopped
+    profiles:
+      - admin # Only start with --profile admin
+
+# =============================================================================
+# Production Override
+# =============================================================================
+# To run production: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  biodiversidade-network:
+    driver: bridge
+    name: biodiversidade-network
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  mongodb_data:
+    name: biodiversidade_mongodb_data
+  mongodb_config:
+    name: biodiversidade_mongodb_config
+  biodiversidade_node_modules:
+    name: biodiversidade_node_modules
+  biodiversidade_astro_cache:
+    name: biodiversidade_astro_cache

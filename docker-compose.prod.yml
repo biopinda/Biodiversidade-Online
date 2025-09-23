@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # =============================================================================
+  # Web Application - Production
+  # =============================================================================
+  biodiversidade-web:
+    build:
+      context: .
+      dockerfile: packages/web/Dockerfile
+      target: production
+      args:
+        NODE_VERSION: 20.19.4
+        BUN_VERSION: 1.2.22
+    container_name: biodiversidade-web-prod
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/biodiversidade}
+      - PORT=4321
+      - HOST=0.0.0.0
+    volumes:
+      # No source code volumes in production
+      - /dev/null:/app/packages/web/src
+    restart: always
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # =============================================================================
+  # MongoDB - Production Configuration
+  # =============================================================================
+  mongodb:
+    command: mongod --auth --config /etc/mongod.conf
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-biodiversidade}
+    volumes:
+      - mongodb_data_prod:/data/db
+      - mongodb_config_prod:/data/configdb
+      - ./config/mongod.conf:/etc/mongod.conf:ro
+    restart: always
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+
+# =============================================================================
+# Production Volumes
+# =============================================================================
+volumes:
+  mongodb_data_prod:
+    name: biodiversidade_mongodb_data_prod
+  mongodb_config_prod:
+    name: biodiversidade_mongodb_config_prod
