@@ -896,47 +896,112 @@ export function generatePhenologicalHeatmap(occurrences: any[]) {
 // State name harmonization mapping
 const stateMapping: Record<string, string> = {
   // Norte
-  'AC': 'Acre', 'Acre': 'Acre',
-  'AP': 'Amapá', 'Amapá': 'Amapá', 'Amapa': 'Amapá',
-  'AM': 'Amazonas', 'Amazonas': 'Amazonas',
-  'PA': 'Pará', 'Pará': 'Pará', 'Para': 'Pará',
-  'RO': 'Rondônia', 'Rondônia': 'Rondônia', 'Rondonia': 'Rondônia',
-  'RR': 'Roraima', 'Roraima': 'Roraima',
-  'TO': 'Tocantins', 'Tocantins': 'Tocantins',
+  AC: 'Acre',
+  Acre: 'Acre',
+  AP: 'Amapá',
+  Amapá: 'Amapá',
+  Amapa: 'Amapá',
+  AM: 'Amazonas',
+  Amazonas: 'Amazonas',
+  PA: 'Pará',
+  Pará: 'Pará',
+  Para: 'Pará',
+  RO: 'Rondônia',
+  Rondônia: 'Rondônia',
+  Rondonia: 'Rondônia',
+  RR: 'Roraima',
+  Roraima: 'Roraima',
+  TO: 'Tocantins',
+  Tocantins: 'Tocantins',
 
   // Nordeste
-  'AL': 'Alagoas', 'Alagoas': 'Alagoas',
-  'BA': 'Bahia', 'Bahia': 'Bahia',
-  'CE': 'Ceará', 'Ceará': 'Ceará', 'Ceara': 'Ceará',
-  'MA': 'Maranhão', 'Maranhão': 'Maranhão', 'Maranhao': 'Maranhão',
-  'PB': 'Paraíba', 'Paraíba': 'Paraíba', 'Paraiba': 'Paraíba',
-  'PE': 'Pernambuco', 'Pernambuco': 'Pernambuco',
-  'PI': 'Piauí', 'Piauí': 'Piauí', 'Piaui': 'Piauí',
-  'RN': 'Rio Grande do Norte', 'Rio Grande do Norte': 'Rio Grande do Norte',
-  'SE': 'Sergipe', 'Sergipe': 'Sergipe',
+  AL: 'Alagoas',
+  Alagoas: 'Alagoas',
+  BA: 'Bahia',
+  Bahia: 'Bahia',
+  CE: 'Ceará',
+  Ceará: 'Ceará',
+  Ceara: 'Ceará',
+  MA: 'Maranhão',
+  Maranhão: 'Maranhão',
+  Maranhao: 'Maranhão',
+  PB: 'Paraíba',
+  Paraíba: 'Paraíba',
+  Paraiba: 'Paraíba',
+  PE: 'Pernambuco',
+  Pernambuco: 'Pernambuco',
+  PI: 'Piauí',
+  Piauí: 'Piauí',
+  Piaui: 'Piauí',
+  RN: 'Rio Grande do Norte',
+  'Rio Grande do Norte': 'Rio Grande do Norte',
+  SE: 'Sergipe',
+  Sergipe: 'Sergipe',
 
   // Centro-Oeste
-  'GO': 'Goiás', 'Goiás': 'Goiás', 'Goias': 'Goiás',
-  'MT': 'Mato Grosso', 'Mato Grosso': 'Mato Grosso',
-  'MS': 'Mato Grosso do Sul', 'Mato Grosso do Sul': 'Mato Grosso do Sul',
-  'DF': 'Distrito Federal', 'Distrito Federal': 'Distrito Federal',
+  GO: 'Goiás',
+  Goiás: 'Goiás',
+  Goias: 'Goiás',
+  MT: 'Mato Grosso',
+  'Mato Grosso': 'Mato Grosso',
+  MS: 'Mato Grosso do Sul',
+  'Mato Grosso do Sul': 'Mato Grosso do Sul',
+  DF: 'Distrito Federal',
+  'Distrito Federal': 'Distrito Federal',
 
   // Sudeste
-  'ES': 'Espírito Santo', 'Espírito Santo': 'Espírito Santo', 'Espirito Santo': 'Espírito Santo',
-  'MG': 'Minas Gerais', 'Minas Gerais': 'Minas Gerais',
-  'RJ': 'Rio de Janeiro', 'Rio de Janeiro': 'Rio de Janeiro',
-  'SP': 'São Paulo', 'São Paulo': 'São Paulo', 'Sao Paulo': 'São Paulo',
+  ES: 'Espírito Santo',
+  'Espírito Santo': 'Espírito Santo',
+  'Espirito Santo': 'Espírito Santo',
+  MG: 'Minas Gerais',
+  'Minas Gerais': 'Minas Gerais',
+  RJ: 'Rio de Janeiro',
+  'Rio de Janeiro': 'Rio de Janeiro',
+  SP: 'São Paulo',
+  'São Paulo': 'São Paulo',
+  'Sao Paulo': 'São Paulo',
 
   // Sul
-  'PR': 'Paraná', 'Paraná': 'Paraná', 'Parana': 'Paraná',
-  'RS': 'Rio Grande do Sul', 'Rio Grande do Sul': 'Rio Grande do Sul',
-  'SC': 'Santa Catarina', 'Santa Catarina': 'Santa Catarina'
+  PR: 'Paraná',
+  Paraná: 'Paraná',
+  Parana: 'Paraná',
+  RS: 'Rio Grande do Sul',
+  'Rio Grande do Sul': 'Rio Grande do Sul',
+  SC: 'Santa Catarina',
+  'Santa Catarina': 'Santa Catarina'
 }
 
 function normalizeStateName(stateName: string): string {
   if (!stateName) return 'Unknown'
   const trimmed = stateName.trim()
   return stateMapping[trimmed] || trimmed
+}
+
+// MongoDB aggregation expression for state normalization
+const createStateNormalizationExpression = () => {
+  const conditions = Object.entries(stateMapping).map(([input, output]) => ({
+    case: { $eq: ['$stateProvince', input] },
+    then: output
+  }))
+
+  return {
+    $switch: {
+      branches: conditions,
+      default: {
+        $cond: {
+          if: {
+            $or: [
+              { $eq: ['$stateProvince', null] },
+              { $eq: ['$stateProvince', ''] },
+              { $not: { $ifNull: ['$stateProvince', false] } }
+            ]
+          },
+          then: null, // Will be filtered out
+          else: '$stateProvince' // Keep original if not in mapping
+        }
+      }
+    }
+  }
 }
 
 export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
@@ -960,6 +1025,11 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
     }
   })
 
+  console.log(
+    '🔍 MongoDB aggregation pipeline starting with filters:',
+    matchStage
+  )
+
   const [result] = await occurrences
     .aggregate([
       {
@@ -973,17 +1043,26 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
             }
           ],
           byRegion: [
+            // Add normalized state field using aggregation pipeline
+            {
+              $addFields: {
+                normalizedState: createStateNormalizationExpression()
+              }
+            },
+            // Group by normalized state name
             {
               $group: {
-                _id: '$stateProvince',
+                _id: '$normalizedState',
                 count: { $sum: 1 }
               }
             },
+            // Filter out null/empty states
             {
               $match: {
-                _id: { $ne: null, $ne: '', $exists: true }
+                _id: { $exists: true, $nin: [null, ''] }
               }
             },
+            // Sort by count descending
             {
               $sort: { count: -1 }
             }
@@ -994,25 +1073,16 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
     .toArray()
 
   if (!result) {
+    console.warn('⚠️ No result from aggregation pipeline')
     return { total: 0, regions: [] }
   }
 
   const total = result.total[0]?.count || 0
-  const rawRegions = result.byRegion || []
+  const regions = result.byRegion || []
 
-  // Normalize state names and aggregate counts
-  const stateCountMap = new Map<string, number>()
-
-  rawRegions.forEach((region: { _id: string; count: number }) => {
-    const normalizedState = normalizeStateName(region._id)
-    const currentCount = stateCountMap.get(normalizedState) || 0
-    stateCountMap.set(normalizedState, currentCount + region.count)
-  })
-
-  // Convert back to array format
-  const regions = Array.from(stateCountMap.entries())
-    .map(([state, count]) => ({ _id: state, count }))
-    .sort((a, b) => b.count - a.count)
+  console.log(
+    `✅ Aggregation completed: ${total} total records, ${regions.length} regions`
+  )
 
   return {
     total,

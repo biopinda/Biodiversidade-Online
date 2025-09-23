@@ -2,15 +2,11 @@ import { Card } from '@/components/ui/card'
 import { useCallback } from 'react'
 import FilterPopover from './FilterPopover'
 import type { FilterField } from '@/types'
+import { type MapFilterProps } from '@/types/occurrence'
 
 type FilterCriterion = {
   field: FilterField
   value: string
-}
-
-type Props = {
-  onFilterChange: (filters: Record<string, string>) => void
-  totalCount: number
 }
 
 const numberFormatter = new Intl.NumberFormat()
@@ -26,7 +22,11 @@ const fieldToParam: Record<FilterField, string> = {
   'epíteto específico': 'specificEpithet'
 }
 
-export default function MapFilter({ onFilterChange, totalCount }: Props) {
+export default function MapFilter({
+  onFilterChange,
+  totalCount,
+  isLoading
+}: MapFilterProps) {
   const handleFilterChange = useCallback(
     (filters: FilterCriterion[]) => {
       const params: Record<string, string> = {}
@@ -44,10 +44,21 @@ export default function MapFilter({ onFilterChange, totalCount }: Props) {
 
   return (
     <Card className="p-2 flex gap-2 items-center rounded-none">
-      <FilterPopover onFilterChange={handleFilterChange} />
+      <FilterPopover onFilterChange={handleFilterChange} disabled={isLoading} />
+
       <div className="flex-1" />
-      <div className="font-semibold">
-        Total: {numberFormatter.format(totalCount)}
+
+      <div className="flex items-center gap-2">
+        {isLoading && (
+          <div className="flex items-center text-sm text-gray-500">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+            Carregando...
+          </div>
+        )}
+
+        <div className="font-semibold">
+          Total: {numberFormatter.format(totalCount)}
+        </div>
       </div>
     </Card>
   )
