@@ -1005,87 +1005,189 @@ const createStateNormalizationExpression = () => {
 }
 
 export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
+  const startTime = Date.now()
+
+  // Generate cache key based on filters
+  const cacheKey = JSON.stringify(filter)
+  const crypto = await import('crypto')
+  const cacheKeyHash = crypto.createHash('md5').update(cacheKey).digest('hex')
+
+  // Try to get from cache first
+  const cache = await getCollection('dwc2json', 'occurrenceCache')
+  if (cache) {
+    const cached = await cache.findOne({ key: cacheKeyHash })
+    if (cached && cached.data) {
+      console.log(
+        `⚡ Cache hit for occurrence query (${Date.now() - startTime}ms)`
+      )
+      return cached.data
+    }
+  }
+
   const occurrences = await getCollection('dwc2json', 'ocorrencias')
   if (!occurrences) return null
 
+  // Build optimized match stage
   const matchStage: Record<string, unknown> = {}
 
-  // Add all filters as case-insensitive regex
+  // Add all filters with optimized regex patterns
   Object.entries(filter).forEach(([key, value]) => {
-    if (value) {
+    if (value && value.trim()) {
+      const trimmedValue = value.trim()
+
       if (key === 'genus' || key === 'specificEpithet') {
-        matchStage[key] =
-          value instanceof RegExp ? value : new RegExp(`^${value.trim()}$`, 'i')
+        // Exact match for genus and specific epithet
+        matchStage[key] = new RegExp(`^${trimmedValue}$`, 'i')
       } else {
-        matchStage[key] =
-          value instanceof RegExp
-            ? value
-            : new RegExp(`\\b${value.trim()}\\b`, 'i')
+        // Word boundary match for other taxonomic fields
+        matchStage[key] = new RegExp(`\\b${trimmedValue}\\b`, 'i')
       }
     }
   })
 
-  console.log(
-    '🔍 MongoDB aggregation pipeline starting with filters:',
-    matchStage
-  )
+  console.log('🔍 Optimized aggregation pipeline with filters:', matchStage)
 
-  const [result] = await occurrences
-    .aggregate([
-      {
-        $match: matchStage
-      },
+  try {
+    // Use optimized aggregation with timeout
+    const pipeline = [
+      // Match stage with index-friendly queries
+      { $match: matchStage },
+
+      // Limit early to avoid processing too many documents
+      ...(Object.keys(matchStage).length === 0 ? [{ $limit: 100000 }] : []),
+
       {
         $facet: {
-          total: [
-            {
-              $count: 'count'
-            }
-          ],
+          total: [{ $count: 'count' }],
           byRegion: [
-            // Add normalized state field using aggregation pipeline
+            // Use pre-computed normalized state expression
             {
               $addFields: {
                 normalizedState: createStateNormalizationExpression()
               }
             },
-            // Group by normalized state name
+            // Group by state
             {
               $group: {
                 _id: '$normalizedState',
                 count: { $sum: 1 }
               }
             },
-            // Filter out null/empty states
+            // Filter valid states
             {
               $match: {
-                _id: { $exists: true, $nin: [null, ''] }
+                _id: { $exists: true, $nin: [null, '', 'Unknown'] }
               }
             },
             // Sort by count descending
-            {
-              $sort: { count: -1 }
-            }
+            { $sort: { count: -1 } }
           ]
         }
       }
-    ])
-    .toArray()
+    ]
 
-  if (!result) {
-    console.warn('⚠️ No result from aggregation pipeline')
-    return { total: 0, regions: [] }
-  }
+    const results = await occurrences
+      .aggregate(pipeline, {
+        maxTimeMS: 25000, // 25 second timeout
+        allowDiskUse: true // Allow disk usage for large datasets
+      })
+      .toArray()
 
-  const total = result.total[0]?.count || 0
-  const regions = result.byRegion || []
+    const result = results[0]
+    if (!result) {
+      console.warn('⚠️ No result from aggregation pipeline')
+      return { total: 0, regions: [] }
+    }
 
-  console.log(
-    `✅ Aggregation completed: ${total} total records, ${regions.length} regions`
-  )
+    const total = result.total[0]?.count || 0
+    const regions = result.byRegion || []
 
-  return {
-    total,
-    regions
+    const responseData = { total, regions }
+
+    // Cache the result for future requests
+    if (cache) {
+      try {
+        await cache.replaceOne(
+          { key: cacheKeyHash },
+          {
+            key: cacheKeyHash,
+            data: responseData,
+            createdAt: new Date(),
+            filters: filter
+          },
+          { upsert: true }
+        )
+        console.log('💾 Result cached successfully')
+      } catch (cacheError) {
+        console.warn('⚠️ Failed to cache result:', cacheError.message)
+      }
+    }
+
+    const queryTime = Date.now() - startTime
+    console.log(
+      `✅ Optimized aggregation completed: ${total} total, ${regions.length} regions (${queryTime}ms)`
+    )
+
+    return responseData
+  } catch (error) {
+    const queryTime = Date.now() - startTime
+    console.error(`❌ Aggregation error (${queryTime}ms):`, error)
+
+    // If timeout, try a simpler query
+    if (error.code === 50 || error.message.includes('timeout')) {
+      console.log('⏰ Query timeout, attempting fallback...')
+
+      try {
+        // Fallback: just count total and get top 10 states
+        const totalCount = await occurrences.countDocuments(matchStage, {
+          maxTimeMS: 10000
+        })
+
+        const topStates = await occurrences
+          .aggregate(
+            [
+              { $match: matchStage },
+              { $limit: 50000 }, // Smaller sample
+              {
+                $addFields: {
+                  normalizedState: createStateNormalizationExpression()
+                }
+              },
+              {
+                $group: {
+                  _id: '$normalizedState',
+                  count: { $sum: 1 }
+                }
+              },
+              {
+                $match: {
+                  _id: { $exists: true, $nin: [null, '', 'Unknown'] }
+                }
+              },
+              { $sort: { count: -1 } },
+              { $limit: 27 } // All Brazilian states
+            ],
+            { maxTimeMS: 10000 }
+          )
+          .toArray()
+
+        const fallbackData = {
+          total: totalCount,
+          regions: topStates
+        }
+
+        console.log(
+          `⚡ Fallback query completed: ${totalCount} total, ${topStates.length} regions`
+        )
+        return fallbackData
+      } catch (fallbackError) {
+        console.error('❌ Fallback query also failed:', fallbackError)
+        throw new Error(
+          'Consulta demorou muito para responder. Tente filtros mais específicos.'
+        )
+      }
+    }
+
+    throw error
   }
 }
