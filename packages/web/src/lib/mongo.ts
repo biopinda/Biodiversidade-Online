@@ -893,82 +893,170 @@ export function generatePhenologicalHeatmap(occurrences: any[]) {
   }))
 }
 
-// State name harmonization mapping
+// State name harmonization mapping - comprehensive variations
 const stateMapping: Record<string, string> = {
   // Norte
   AC: 'Acre',
+  ACRE: 'Acre',
   Acre: 'Acre',
+  acre: 'Acre',
   AP: 'Amapá',
+  AMAPÁ: 'Amapá',
+  AMAPA: 'Amapá',
   Amapá: 'Amapá',
   Amapa: 'Amapá',
+  amapá: 'Amapá',
+  amapa: 'Amapá',
   AM: 'Amazonas',
+  AMAZONAS: 'Amazonas',
   Amazonas: 'Amazonas',
+  amazonas: 'Amazonas',
   PA: 'Pará',
+  PARÁ: 'Pará',
+  PARA: 'Pará',
   Pará: 'Pará',
   Para: 'Pará',
+  pará: 'Pará',
+  para: 'Pará',
   RO: 'Rondônia',
+  RONDÔNIA: 'Rondônia',
+  RONDONIA: 'Rondônia',
   Rondônia: 'Rondônia',
   Rondonia: 'Rondônia',
+  rondônia: 'Rondônia',
+  rondonia: 'Rondônia',
   RR: 'Roraima',
+  RORAIMA: 'Roraima',
   Roraima: 'Roraima',
+  roraima: 'Roraima',
   TO: 'Tocantins',
+  TOCANTINS: 'Tocantins',
   Tocantins: 'Tocantins',
+  tocantins: 'Tocantins',
 
   // Nordeste
   AL: 'Alagoas',
+  ALAGOAS: 'Alagoas',
   Alagoas: 'Alagoas',
+  alagoas: 'Alagoas',
   BA: 'Bahia',
+  BAHIA: 'Bahia',
   Bahia: 'Bahia',
+  bahia: 'Bahia',
   CE: 'Ceará',
+  CEARÁ: 'Ceará',
+  CEARA: 'Ceará',
   Ceará: 'Ceará',
   Ceara: 'Ceará',
+  ceará: 'Ceará',
+  ceara: 'Ceará',
   MA: 'Maranhão',
+  MARANHÃO: 'Maranhão',
+  MARANHAO: 'Maranhão',
   Maranhão: 'Maranhão',
   Maranhao: 'Maranhão',
+  maranhão: 'Maranhão',
+  maranhao: 'Maranhão',
   PB: 'Paraíba',
+  PARAÍBA: 'Paraíba',
+  PARAIBA: 'Paraíba',
   Paraíba: 'Paraíba',
   Paraiba: 'Paraíba',
+  paraíba: 'Paraíba',
+  paraiba: 'Paraíba',
   PE: 'Pernambuco',
+  PERNAMBUCO: 'Pernambuco',
   Pernambuco: 'Pernambuco',
+  pernambuco: 'Pernambuco',
   PI: 'Piauí',
+  PIAUÍ: 'Piauí',
+  PIAUI: 'Piauí',
   Piauí: 'Piauí',
   Piaui: 'Piauí',
+  piauí: 'Piauí',
+  piaui: 'Piauí',
   RN: 'Rio Grande do Norte',
+  'RIO GRANDE DO NORTE': 'Rio Grande do Norte',
   'Rio Grande do Norte': 'Rio Grande do Norte',
+  'rio grande do norte': 'Rio Grande do Norte',
+  'Rio grande do norte': 'Rio Grande do Norte',
   SE: 'Sergipe',
+  SERGIPE: 'Sergipe',
   Sergipe: 'Sergipe',
+  sergipe: 'Sergipe',
 
   // Centro-Oeste
   GO: 'Goiás',
+  GOIÁS: 'Goiás',
+  GOIAS: 'Goiás',
   Goiás: 'Goiás',
   Goias: 'Goiás',
+  goiás: 'Goiás',
+  goias: 'Goiás',
   MT: 'Mato Grosso',
+  'MATO GROSSO': 'Mato Grosso',
   'Mato Grosso': 'Mato Grosso',
+  'mato grosso': 'Mato Grosso',
+  'Mato grosso': 'Mato Grosso',
   MS: 'Mato Grosso do Sul',
+  'MATO GROSSO DO SUL': 'Mato Grosso do Sul',
   'Mato Grosso do Sul': 'Mato Grosso do Sul',
+  'mato grosso do sul': 'Mato Grosso do Sul',
+  'Mato grosso do sul': 'Mato Grosso do Sul',
   DF: 'Distrito Federal',
+  'DISTRITO FEDERAL': 'Distrito Federal',
   'Distrito Federal': 'Distrito Federal',
+  'distrito federal': 'Distrito Federal',
+  'Distrito federal': 'Distrito Federal',
 
   // Sudeste
   ES: 'Espírito Santo',
+  'ESPÍRITO SANTO': 'Espírito Santo',
+  'ESPIRITO SANTO': 'Espírito Santo',
   'Espírito Santo': 'Espírito Santo',
   'Espirito Santo': 'Espírito Santo',
+  'espírito santo': 'Espírito Santo',
+  'espirito santo': 'Espírito Santo',
+  'Espírito santo': 'Espírito Santo',
+  'Espirito santo': 'Espírito Santo',
   MG: 'Minas Gerais',
+  'MINAS GERAIS': 'Minas Gerais',
   'Minas Gerais': 'Minas Gerais',
+  'minas gerais': 'Minas Gerais',
+  'Minas gerais': 'Minas Gerais',
   RJ: 'Rio de Janeiro',
+  'RIO DE JANEIRO': 'Rio de Janeiro',
   'Rio de Janeiro': 'Rio de Janeiro',
+  'rio de janeiro': 'Rio de Janeiro',
+  'Rio de janeiro': 'Rio de Janeiro',
   SP: 'São Paulo',
+  'SÃO PAULO': 'São Paulo',
+  'SAO PAULO': 'São Paulo',
   'São Paulo': 'São Paulo',
   'Sao Paulo': 'São Paulo',
+  'são paulo': 'São Paulo',
+  'sao paulo': 'São Paulo',
+  'São paulo': 'São Paulo',
+  'Sao paulo': 'São Paulo',
 
   // Sul
   PR: 'Paraná',
+  PARANÁ: 'Paraná',
+  PARANA: 'Paraná',
   Paraná: 'Paraná',
   Parana: 'Paraná',
+  paraná: 'Paraná',
+  parana: 'Paraná',
   RS: 'Rio Grande do Sul',
+  'RIO GRANDE DO SUL': 'Rio Grande do Sul',
   'Rio Grande do Sul': 'Rio Grande do Sul',
+  'rio grande do sul': 'Rio Grande do Sul',
+  'Rio grande do sul': 'Rio Grande do Sul',
   SC: 'Santa Catarina',
-  'Santa Catarina': 'Santa Catarina'
+  'SANTA CATARINA': 'Santa Catarina',
+  'Santa Catarina': 'Santa Catarina',
+  'santa catarina': 'Santa Catarina',
+  'Santa catarina': 'Santa Catarina'
 }
 
 function normalizeStateName(stateName: string): string {
@@ -1048,13 +1136,10 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
   console.log('🔍 Optimized aggregation pipeline with filters:', matchStage)
 
   try {
-    // Use optimized aggregation with timeout
+    // Use optimized aggregation with timeout - process ALL records with stateProvince
     const pipeline = [
       // Match stage with index-friendly queries
       { $match: matchStage },
-
-      // Limit early to avoid processing too many documents
-      ...(Object.keys(matchStage).length === 0 ? [{ $limit: 100000 }] : []),
 
       {
         $facet: {
@@ -1147,7 +1232,6 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
           .aggregate(
             [
               { $match: matchStage },
-              { $limit: 50000 }, // Smaller sample
               {
                 $addFields: {
                   normalizedState: createStateNormalizationExpression()
@@ -1167,7 +1251,7 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
               { $sort: { count: -1 } },
               { $limit: 27 } // All Brazilian states
             ],
-            { maxTimeMS: 10000 }
+            { maxTimeMS: 15000 }
           )
           .toArray()
 
