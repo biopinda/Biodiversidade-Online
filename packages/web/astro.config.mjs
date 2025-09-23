@@ -14,7 +14,13 @@ export default defineConfig({
   },
   output: 'server',
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    server: {
+      host: true,
+      hmr: {
+        host: 'localhost'
+      }
+    }
   },
   integrations: [partytown(), react()],
   adapter: node({
