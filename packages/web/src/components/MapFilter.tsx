@@ -44,7 +44,10 @@ export default function MapFilter({
 
   return (
     <Card className="p-2 flex gap-2 items-center rounded-none">
-      <FilterPopover onFilterChange={handleFilterChange} disabled={isLoading} />
+      <FilterPopover
+        onFilterChange={handleFilterChange}
+        disabled={!!isLoading}
+      />
 
       <div className="flex-1" />
 

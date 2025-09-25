@@ -15,8 +15,9 @@ type FilterCriterion = {
   value: string
 }
 
-type Props = {
+interface Props {
   onFilterChange: (filters: FilterCriterion[]) => void
+  disabled?: boolean
 }
 
 const KINGDOM_OPTIONS = [
@@ -25,7 +26,10 @@ const KINGDOM_OPTIONS = [
   { label: 'Animalia', value: 'Animalia' }
 ]
 
-export default function FilterPopover({ onFilterChange }: Props) {
+export default function FilterPopover({
+  onFilterChange,
+  disabled = false
+}: Props) {
   const [filters, setFilters] = useState<FilterCriterion[]>([])
   const [open, setOpen] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -89,9 +93,14 @@ export default function FilterPopover({ onFilterChange }: Props) {
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(v) => !disabled && setOpen(v)}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-[180px]">
+        <Button
+          variant="outline"
+          className="w-[180px]"
+          disabled={disabled}
+          title={disabled ? 'Aguarde carregamento' : 'Adicionar/editar filtros'}
+        >
           Filtros ({filters.length})
         </Button>
       </PopoverTrigger>
@@ -128,6 +137,7 @@ export default function FilterPopover({ onFilterChange }: Props) {
                   }
                   className="flex h-9 pr-8 w-full rounded-e-md border border-input bg-transparent px-3 py-1 text-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="Digite o valor..."
+                  disabled={disabled}
                 />
               )}
               <Button
@@ -135,6 +145,7 @@ export default function FilterPopover({ onFilterChange }: Props) {
                 variant="ghost"
                 size="icon"
                 onClick={() => removeFilter(index)}
+                disabled={disabled}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -142,7 +153,12 @@ export default function FilterPopover({ onFilterChange }: Props) {
           )
         })}
         {remainingFields.length > 0 && (
-          <Button variant="outline" className="mt-2 w-full" onClick={addFilter}>
+          <Button
+            variant="outline"
+            className="mt-2 w-full"
+            onClick={addFilter}
+            disabled={disabled}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Adicionar filtro
           </Button>

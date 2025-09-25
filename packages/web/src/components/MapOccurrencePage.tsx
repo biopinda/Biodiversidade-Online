@@ -2,9 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Map from './Map.tsx'
 import MapFilter from './MapFilter.tsx'
 import {
-  type OccurrenceResponse,
   type MapOccurrencePageState,
-  type LoadingState,
   convertToChartData,
   validateOccurrenceResponse,
   validateErrorResponse
