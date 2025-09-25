@@ -1059,12 +1059,6 @@ const stateMapping: Record<string, string> = {
   'Santa catarina': 'Santa Catarina'
 }
 
-function normalizeStateName(stateName: string): string {
-  if (!stateName) return 'Unknown'
-  const trimmed = stateName.trim()
-  return stateMapping[trimmed] || trimmed
-}
-
 // MongoDB aggregation expression for state normalization
 const createStateNormalizationExpression = () => {
   const conditions = Object.entries(stateMapping).map(([input, output]) => ({
@@ -1163,7 +1157,7 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
 
   // Add all filters with optimized regex patterns
   Object.entries(filter).forEach(([key, value]) => {
-    if (value && value.trim()) {
+    if (typeof value === 'string' && value.trim()) {
       const trimmedValue = value.trim()
 
       if (key === 'genus' || key === 'specificEpithet') {
@@ -1173,6 +1167,8 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
         // Word boundary match for other taxonomic fields
         matchStage[key] = new RegExp(`\\b${trimmedValue}\\b`, 'i')
       }
+    } else if (value instanceof RegExp) {
+      matchStage[key] = value
     }
   })
 
@@ -1304,7 +1300,18 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
         )
         console.log('💾 Result cached successfully')
       } catch (cacheError) {
-        console.warn('⚠️ Failed to cache result:', cacheError.message)
+        if (
+          cacheError &&
+          typeof cacheError === 'object' &&
+          'message' in cacheError
+        ) {
+          console.warn(
+            '⚠️ Failed to cache result:',
+            (cacheError as { message?: string }).message
+          )
+        } else {
+          console.warn('⚠️ Failed to cache result:', cacheError)
+        }
       }
     }
 
@@ -1319,95 +1326,103 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
     console.error(`❌ Aggregation error (${queryTime}ms):`, error)
 
     // If timeout, try a simpler query
-    if (error.code === 50 || error.message.includes('timeout')) {
-      console.log('⏰ Query timeout, attempting fallback...')
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      ('code' in error || 'message' in error)
+    ) {
+      const err = error as { code?: number; message?: string }
+      if (err.code === 50 || (err.message && err.message.includes('timeout'))) {
+        console.log('⏰ Query timeout, attempting fallback...')
 
-      try {
-        console.log('🚀 Attempting ultra-fast fallback with sampling...')
+        try {
+          console.log('🚀 Attempting ultra-fast fallback with sampling...')
 
-        // Ultra-fast fallback: use small sample for quick results
-        const sampleSize = Object.keys(matchStage).length === 0 ? 50000 : 10000
+          // Ultra-fast fallback: use small sample for quick results
+          const sampleSize =
+            Object.keys(matchStage).length === 0 ? 50000 : 10000
 
-        const fallbackPipeline = [
-          {
-            $match: {
-              ...matchStage,
-              stateProvince: { $exists: true, $nin: [null, ''] }
-            }
-          },
-          { $sample: { size: sampleSize } },
-          {
-            $facet: {
-              total: [
-                { $count: 'sampleCount' },
-                {
-                  $project: {
-                    count: {
-                      $multiply: [
-                        '$sampleCount',
-                        Object.keys(matchStage).length === 0 ? 220 : 1
-                      ]
+          const fallbackPipeline = [
+            {
+              $match: {
+                ...matchStage,
+                stateProvince: { $exists: true, $nin: [null, ''] }
+              }
+            },
+            { $sample: { size: sampleSize } },
+            {
+              $facet: {
+                total: [
+                  { $count: 'sampleCount' },
+                  {
+                    $project: {
+                      count: {
+                        $multiply: [
+                          '$sampleCount',
+                          Object.keys(matchStage).length === 0 ? 220 : 1
+                        ]
+                      }
                     }
                   }
-                }
-              ],
-              byRegion: [
-                {
-                  $addFields: {
-                    normalizedState: createStateNormalizationExpression()
-                  }
-                },
-                {
-                  $group: {
-                    _id: '$normalizedState',
-                    count: { $sum: 1 }
-                  }
-                },
-                {
-                  $match: {
-                    _id: { $exists: true, $nin: [null, '', 'Unknown'] }
-                  }
-                },
-                {
-                  $project: {
-                    _id: 1,
-                    count: {
-                      $multiply: [
-                        '$count',
-                        Object.keys(matchStage).length === 0 ? 220 : 1
-                      ]
+                ],
+                byRegion: [
+                  {
+                    $addFields: {
+                      normalizedState: createStateNormalizationExpression()
                     }
-                  }
-                },
-                { $sort: { count: -1 } },
-                { $limit: 27 }
-              ]
+                  },
+                  {
+                    $group: {
+                      _id: '$normalizedState',
+                      count: { $sum: 1 }
+                    }
+                  },
+                  {
+                    $match: {
+                      _id: { $exists: true, $nin: [null, '', 'Unknown'] }
+                    }
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      count: {
+                        $multiply: [
+                          '$count',
+                          Object.keys(matchStage).length === 0 ? 220 : 1
+                        ]
+                      }
+                    }
+                  },
+                  { $sort: { count: -1 } },
+                  { $limit: 27 }
+                ]
+              }
             }
+          ]
+
+          const fallbackResults = await occurrences
+            .aggregate(fallbackPipeline, { maxTimeMS: 8000 })
+            .toArray()
+
+          const fallbackResult = fallbackResults[0]
+          const totalCount = fallbackResult?.total[0]?.count || 0
+          const topStates = fallbackResult?.byRegion || []
+
+          const fallbackData = {
+            total: totalCount,
+            regions: topStates
           }
-        ]
 
-        const fallbackResults = await occurrences
-          .aggregate(fallbackPipeline, { maxTimeMS: 8000 })
-          .toArray()
-
-        const fallbackResult = fallbackResults[0]
-        const totalCount = fallbackResult?.total[0]?.count || 0
-        const topStates = fallbackResult?.byRegion || []
-
-        const fallbackData = {
-          total: totalCount,
-          regions: topStates
+          console.log(
+            `⚡ Fallback query completed: ${totalCount} total, ${topStates.length} regions`
+          )
+          return fallbackData
+        } catch (fallbackError) {
+          console.error('❌ Fallback query also failed:', fallbackError)
+          throw new Error(
+            'Consulta demorou muito para responder. Tente filtros mais específicos.'
+          )
         }
-
-        console.log(
-          `⚡ Fallback query completed: ${totalCount} total, ${topStates.length} regions`
-        )
-        return fallbackData
-      } catch (fallbackError) {
-        console.error('❌ Fallback query also failed:', fallbackError)
-        throw new Error(
-          'Consulta demorou muito para responder. Tente filtros mais específicos.'
-        )
       }
     }
 
