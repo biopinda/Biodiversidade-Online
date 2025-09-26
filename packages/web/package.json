@@ -4,7 +4,6 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "predev": "bun install",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
