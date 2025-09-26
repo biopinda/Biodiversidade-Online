@@ -1064,7 +1064,7 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
 
     const results = await occurrences
       .aggregate(pipeline, {
-        maxTimeMS: useStatisticalSampling ? 15000 : 25000, // Shorter timeout for sampling
+        maxTimeMS: 120000,
         allowDiskUse: true // Allow disk usage for large datasets
       })
       .toArray()
