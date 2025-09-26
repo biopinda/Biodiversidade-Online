@@ -35,3 +35,8 @@ jobs:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/Biodiversidade-Online/
         run: bun run --filter @biodiversidade/ingest occurrences
+      - name: Export map initial load JSON
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          TEMPDIR: /home/runner/work/Biodiversidade-Online/
+        run: bun run --filter @biodiversidade/ingest export-map-cache

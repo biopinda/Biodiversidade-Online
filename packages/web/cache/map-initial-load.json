@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2025-09-26T00:00:00.000Z",
+  "total": 8876100,
+  "regions": [
+    { "_id": "São Paulo", "count": 1400000 },
+    { "_id": "Minas Gerais", "count": 1250000 },
+    { "_id": "Rio de Janeiro", "count": 950000 },
+    { "_id": "Bahia", "count": 880000 },
+    { "_id": "Paraná", "count": 720000 },
+    { "_id": "Rio Grande do Sul", "count": 680000 },
+    { "_id": "Santa Catarina", "count": 560000 },
+    { "_id": "Espírito Santo", "count": 480000 },
+    { "_id": "Goiás", "count": 440000 },
+    { "_id": "Mato Grosso", "count": 400000 },
+    { "_id": "Pará", "count": 384000 },
+    { "_id": "Ceará", "count": 336000 },
+    { "_id": "Pernambuco", "count": 304000 },
+    { "_id": "Mato Grosso do Sul", "count": 280000 },
+    { "_id": "Amazonas", "count": 256000 },
+    { "_id": "Maranhão", "count": 224000 },
+    { "_id": "Paraíba", "count": 192000 },
+    { "_id": "Rio Grande do Norte", "count": 176000 },
+    { "_id": "Alagoas", "count": 144000 },
+    { "_id": "Piauí", "count": 128000 },
+    { "_id": "Distrito Federal", "count": 112000 },
+    { "_id": "Sergipe", "count": 96000 },
+    { "_id": "Tocantins", "count": 80000 },
+    { "_id": "Rondônia", "count": 64000 },
+    { "_id": "Acre", "count": 48000 },
+    { "_id": "Roraima", "count": 32000 },
+    { "_id": "Amapá", "count": 24000 }
+  ]
+}
