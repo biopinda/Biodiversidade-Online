@@ -28,28 +28,9 @@ export default function MapOccurrencePage() {
       const params = new URLSearchParams(filter)
       console.log('🔄 Fetching occurrence data with filters:', filter)
 
-      // Cache-first: if there are no filters, try the precomputed JSON
-      let response: Response
-      if (Object.keys(filter).length === 0) {
-        try {
-          response = await fetch('/cache/map-initial-load.json')
-          if (!response.ok) {
-            // fallback to API
-            response = await fetch(
-              `/api/occurrenceCountByState?${params.toString()}`
-            )
-          }
-        } catch (err) {
-          // network error fetching cache -> fallback to API
-          response = await fetch(
-            `/api/occurrenceCountByState?${params.toString()}`
-          )
-        }
-      } else {
-        response = await fetch(
-          `/api/occurrenceCountByState?${params.toString()}`
-        )
-      }
+      const response = await fetch(
+        `/api/occurrenceCountByState?${params.toString()}`
+      )
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))

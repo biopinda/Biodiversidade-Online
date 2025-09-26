@@ -949,66 +949,40 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
     let pipeline
 
     if (useStatisticalSampling) {
-      // Emergency fallback: return cached data or hardcoded realistic data
-      // This is much faster than trying to aggregate millions of records
-      console.log('🚀 Using emergency fallback for dashboard query')
-
-      const emergencyData = {
-        total: 8876100, // ~90% of Brazilian records
-        regions: [
-          { _id: 'São Paulo', count: 1400000 },
-          { _id: 'Minas Gerais', count: 1250000 },
-          { _id: 'Rio de Janeiro', count: 950000 },
-          { _id: 'Bahia', count: 880000 },
-          { _id: 'Paraná', count: 720000 },
-          { _id: 'Rio Grande do Sul', count: 680000 },
-          { _id: 'Santa Catarina', count: 560000 },
-          { _id: 'Espírito Santo', count: 480000 },
-          { _id: 'Goiás', count: 440000 },
-          { _id: 'Mato Grosso', count: 400000 },
-          { _id: 'Pará', count: 384000 },
-          { _id: 'Ceará', count: 336000 },
-          { _id: 'Pernambuco', count: 304000 },
-          { _id: 'Mato Grosso do Sul', count: 280000 },
-          { _id: 'Amazonas', count: 256000 },
-          { _id: 'Maranhão', count: 224000 },
-          { _id: 'Paraíba', count: 192000 },
-          { _id: 'Rio Grande do Norte', count: 176000 },
-          { _id: 'Alagoas', count: 144000 },
-          { _id: 'Piauí', count: 128000 },
-          { _id: 'Distrito Federal', count: 112000 },
-          { _id: 'Sergipe', count: 96000 },
-          { _id: 'Tocantins', count: 80000 },
-          { _id: 'Rondônia', count: 64000 },
-          { _id: 'Acre', count: 48000 },
-          { _id: 'Roraima', count: 32000 },
-          { _id: 'Amapá', count: 24000 }
-        ]
-      }
-
-      // Cache the result
-      if (cache) {
-        try {
-          await cache.replaceOne(
-            { key: cacheKeyHash },
-            {
-              key: cacheKeyHash,
-              data: emergencyData,
-              createdAt: new Date(),
-              filters: filter
-            },
-            { upsert: true }
-          )
-          console.log('💾 Emergency data cached successfully')
-        } catch (cacheError) {
-          console.warn('⚠️ Failed to cache emergency data:', cacheError)
+      // Use optimized aggregation for dashboard queries
+      pipeline = [
+        {
+          $match: {
+            country: {
+              $in: ['Brasil', 'brasil', 'BRASIL', 'Brazil', 'brazil', 'BRAZIL']
+            }
+          }
+        },
+        {
+          $facet: {
+            total: [{ $count: 'count' }],
+            byRegion: [
+              {
+                $addFields: {
+                  normalizedState: createStateNormalizationExpression()
+                }
+              },
+              {
+                $group: {
+                  _id: '$normalizedState',
+                  count: { $sum: 1 }
+                }
+              },
+              {
+                $match: {
+                  _id: { $exists: true, $nin: [null, '', 'Unknown'] }
+                }
+              },
+              { $sort: { count: -1 } }
+            ]
+          }
         }
-      }
-
-      const queryTime = Date.now() - startTime
-      console.log(`⚡ Emergency data returned in ${queryTime}ms`)
-
-      return emergencyData
+      ]
     } else {
       // Use optimized aggregation for filtered queries
       pipeline = [

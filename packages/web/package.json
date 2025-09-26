@@ -9,8 +9,9 @@
     "build": "astro build",
     "preview": "node ./dist/server/entry.mjs",
     "astro": "astro",
-    "cache-dashboard": "dotenv -e .env -- bunx tsx src/scripts/dashboard-cache-job.ts",
-    "cache-pheno": "dotenv -e .env -- bunx tsx src/scripts/update-cache.ts",
+    "cache-dashboard": "bun src/scripts/dashboard-cache-job.ts",
+    "cache-pheno": "bun src/scripts/update-cache.ts",
+    "clear-occurrence-cache": "bun src/scripts/clear-occurrence-cache.ts",
     "start-cache-cron": "node cron-dashboard.js"
   },
   "dependencies": {
