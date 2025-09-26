@@ -21,9 +21,29 @@ export default function MapPage() {
 
   const fetchRegions = async (filter: Record<string, string>) => {
     try {
+      // If no filters, try cache-first JSON for fast initial load
+      if (!filter || Object.keys(filter).length === 0) {
+        try {
+          const cacheResp = await fetch('/cache/map-initial-load.json')
+          if (cacheResp.ok) {
+            const cacheData = await cacheResp.json()
+            setTaxaData({
+              total: cacheData.total || 0,
+              regions: cacheData.regions || []
+            })
+            return
+          }
+        } catch (err) {
+          // fallthrough to API if cache read fails
+          console.warn('Cache inicial não disponível, consultando API...', err)
+        }
+      }
+
       const params = new URLSearchParams(filter)
 
-      const response = await fetch(`/api/taxaCountByState?${params.toString()}`)
+      const response = await fetch(
+        `/api/occurrenceCountByState?${params.toString()}`
+      )
       if (!response.ok) {
         throw new Error('Falha ao carregar dados dos estados')
       }

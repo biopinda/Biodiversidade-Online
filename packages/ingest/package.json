@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "occurrences": "bun src/ocorrencia.ts",
+    "export-map-cache": "bun src/export-map-cache.ts",
     "flora": "bun src/flora.ts",
     "fauna": "bun src/fauna.ts"
   },

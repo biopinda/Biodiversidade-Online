@@ -1,0 +1,118 @@
+{
+  "generatedAt": "2025-09-26T16:06:01.969Z",
+  "total": 9489431,
+  "regions": [
+    {
+      "_id": "São Paulo",
+      "count": 1040923
+    },
+    {
+      "_id": "Minas Gerais",
+      "count": 892136
+    },
+    {
+      "_id": "Bahia",
+      "count": 845014
+    },
+    {
+      "_id": "Paraná",
+      "count": 838790
+    },
+    {
+      "_id": "Pará",
+      "count": 696276
+    },
+    {
+      "_id": "Amazonas",
+      "count": 565855
+    },
+    {
+      "_id": "Rio de Janeiro",
+      "count": 552853
+    },
+    {
+      "_id": "Rio Grande do Sul",
+      "count": 518435
+    },
+    {
+      "_id": "Mato Grosso",
+      "count": 399120
+    },
+    {
+      "_id": "Santa Catarina",
+      "count": 386383
+    },
+    {
+      "_id": "Espírito Santo",
+      "count": 371132
+    },
+    {
+      "_id": "Goiás",
+      "count": 355622
+    },
+    {
+      "_id": "Distrito Federal",
+      "count": 279275
+    },
+    {
+      "_id": "Mato Grosso do Sul",
+      "count": 260956
+    },
+    {
+      "_id": "Pernambuco",
+      "count": 234321
+    },
+    {
+      "_id": "Rondônia",
+      "count": 217257
+    },
+    {
+      "_id": "Ceará",
+      "count": 142148
+    },
+    {
+      "_id": "Maranhão",
+      "count": 117011
+    },
+    {
+      "_id": "Tocantins",
+      "count": 107884
+    },
+    {
+      "_id": "Paraíba",
+      "count": 104815
+    },
+    {
+      "_id": "Sergipe",
+      "count": 96847
+    },
+    {
+      "_id": "Acre",
+      "count": 82620
+    },
+    {
+      "_id": "Rio Grande do Norte",
+      "count": 77897
+    },
+    {
+      "_id": "Amapá",
+      "count": 77105
+    },
+    {
+      "_id": "Piauí",
+      "count": 73805
+    },
+    {
+      "_id": "Roraima",
+      "count": 69268
+    },
+    {
+      "_id": "Alagoas",
+      "count": 62847
+    },
+    {
+      "_id": "Outros",
+      "count": 22836
+    }
+  ]
+}

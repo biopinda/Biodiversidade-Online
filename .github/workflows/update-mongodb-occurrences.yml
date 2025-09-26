@@ -35,3 +35,27 @@ jobs:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/Biodiversidade-Online/
         run: bun run --filter @biodiversidade/ingest occurrences
+      - name: Export map initial load JSON
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          TEMPDIR: /home/runner/work/Biodiversidade-Online/
+        run: bun run --filter @biodiversidade/ingest export-map-cache
+
+      - name: Validate exported map JSON
+        env:
+          WORKDIR: /home/runner/work/Biodiversidade-Online/
+        run: |
+          sudo apt-get update && sudo apt-get install -y jq || true
+          FILE="packages/web/cache/map-initial-load.json"
+          if [ ! -f "$FILE" ]; then
+            echo "Cache file not found: $FILE"
+            exit 1
+          fi
+          # Basic structure checks
+          total=$(jq '.total' "$FILE" 2>/dev/null || echo 0)
+          regions=$(jq '.regions | length' "$FILE" 2>/dev/null || echo 0)
+          if [ "$total" -le 0 ] || [ "$regions" -le 0 ]; then
+            echo "Invalid cache JSON: total=$total regions=$regions"
+            jq '.' "$FILE" || true
+            exit 1
+          fi
