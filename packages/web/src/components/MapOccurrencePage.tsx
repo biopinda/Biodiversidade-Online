@@ -5,8 +5,16 @@ import {
   type MapOccurrencePageState,
   convertToChartData,
   validateOccurrenceResponse,
-  validateErrorResponse
+  validateErrorResponse,
+  filterFieldMapping
 } from '@/types/occurrence'
+import {
+  parseRecord,
+  serializeRecord,
+  useSearchParamsState
+} from '@/lib/url/useSearchParamsState'
+
+const allowedFilterKeys = Object.values(filterFieldMapping)
 
 export default function MapOccurrencePage() {
   const [state, setState] = useState<MapOccurrencePageState>({
@@ -16,7 +24,18 @@ export default function MapOccurrencePage() {
     currentFilters: {}
   })
 
-  const fetchRegions = async (filter: Record<string, string>) => {
+  const parseFilters = useCallback(
+    (params: URLSearchParams) => parseRecord(params, allowedFilterKeys),
+    []
+  )
+
+  const [filters, setFilters] = useSearchParamsState<Record<string, string>>({
+    defaultState: {},
+    parse: parseFilters,
+    serialize: serializeRecord
+  })
+
+  const fetchRegions = useCallback(async (filter: Record<string, string>) => {
     setState((prev) => ({
       ...prev,
       isLoading: true,
@@ -84,20 +103,23 @@ export default function MapOccurrencePage() {
         error: errorMessage
       }))
     }
-  }
-
-  const handleFilterChange = useCallback((filters: Record<string, string>) => {
-    fetchRegions(filters)
   }, [])
 
-  // Initial load
+  const handleFilterChange = useCallback(
+    (filters: Record<string, string>) => {
+      setFilters(filters)
+    },
+    [setFilters]
+  )
+
   useEffect(() => {
-    fetchRegions({})
-  }, [])
+    fetchRegions(filters)
+  }, [fetchRegions, filters])
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden">
       <MapFilter
+        filters={filters}
         onFilterChange={handleFilterChange}
         totalCount={state.occurrenceData.total}
         isLoading={state.isLoading}

@@ -18,9 +18,13 @@ export default function MapPage() {
     regions: []
   })
   const [error, setError] = useState<string | null>(null)
+  const [currentFilters, setCurrentFilters] = useState<Record<string, string>>(
+    {}
+  )
 
-  const fetchRegions = async (filter: Record<string, string>) => {
+  const fetchRegions = useCallback(async (filter: Record<string, string>) => {
     try {
+      setCurrentFilters(filter)
       // If no filters, try cache-first JSON for fast initial load
       if (!filter || Object.keys(filter).length === 0) {
         try {
@@ -56,20 +60,24 @@ export default function MapPage() {
           : 'Falha ao carregar dados dos estados'
       )
     }
-  }
-
-  const handleFilterChange = useCallback((filters: Record<string, string>) => {
-    fetchRegions(filters)
   }, [])
+
+  const handleFilterChange = useCallback(
+    (filters: Record<string, string>) => {
+      fetchRegions(filters)
+    },
+    [fetchRegions]
+  )
 
   // Initial load
   useEffect(() => {
     fetchRegions({})
-  }, [])
+  }, [fetchRegions])
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden">
       <MapFilter
+        filters={currentFilters}
         onFilterChange={handleFilterChange}
         totalCount={taxaData.total}
       />

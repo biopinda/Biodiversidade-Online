@@ -67,6 +67,7 @@ export interface MapFilterProps {
   onFilterChange: (filters: Record<string, string>) => void
   totalCount: number
   isLoading?: boolean
+  filters: Record<string, string>
 }
 
 /**

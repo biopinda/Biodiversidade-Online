@@ -5,7 +5,7 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { Plus, X } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import FilterSelect from './FilterSelect'
 import SimpleSelect from './SimpleSelect'
 import type { FilterField } from '@/types'
@@ -16,6 +16,7 @@ type FilterCriterion = {
 }
 
 interface Props {
+  value: FilterCriterion[]
   onFilterChange: (filters: FilterCriterion[]) => void
   disabled?: boolean
 }
@@ -27,12 +28,17 @@ const KINGDOM_OPTIONS = [
 ]
 
 export default function FilterPopover({
+  value,
   onFilterChange,
   disabled = false
 }: Props) {
-  const [filters, setFilters] = useState<FilterCriterion[]>([])
+  const [filters, setFilters] = useState<FilterCriterion[]>(value)
   const [open, setOpen] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+
+  useEffect(() => {
+    setFilters(value)
+  }, [value])
 
   const availableFields: FilterField[] = [
     'reino',
