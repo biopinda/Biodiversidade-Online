@@ -94,11 +94,11 @@
           "count": 1
         },
         {
-          "_id": "Subespécie que sai da Lista",
+          "_id": "[Sinonímia M. hypostoma]",
           "count": 1
         },
         {
-          "_id": "[Sinonímia M. hypostoma]",
+          "_id": "Subespécie que sai da Lista",
           "count": 1
         },
         {
@@ -106,11 +106,11 @@
           "count": 1
         },
         {
-          "_id": "[Não é espécie brasileira]",
+          "_id": "Criticamente Em Perigo (CR)",
           "count": 1
         },
         {
-          "_id": "Criticamente Em Perigo (CR)",
+          "_id": "[Não é espécie brasileira]",
           "count": 1
         }
       ]
@@ -152,15 +152,15 @@
         "count": 8
       },
       {
-        "_id": "Anura",
-        "count": 7
-      },
-      {
         "_id": "Spionida",
         "count": 7
       },
       {
         "_id": "Cyprinodontiformes",
+        "count": 7
+      },
+      {
+        "_id": "Anura",
         "count": 7
       }
     ],
@@ -178,11 +178,11 @@
         "count": 9
       },
       {
-        "_id": "Myrtaceae",
+        "_id": "Pinaceae",
         "count": 8
       },
       {
-        "_id": "Pinaceae",
+        "_id": "Myrtaceae",
         "count": 8
       },
       {
@@ -463,5 +463,5 @@
       }
     ]
   },
-  "lastUpdated": "2025-09-27T11:06:55.729Z"
+  "lastUpdated": "2025-09-27T12:26:05.445Z"
 }
