@@ -1,13 +1,13 @@
 {
   "occurrences": {
-    "plantae": 5659707,
-    "fungi": 240586,
-    "animalia": 3084163
+    "plantae": 4615089,
+    "fungi": 240958,
+    "animalia": 3116840
   },
   "taxa": {
-    "plantae": 53264,
-    "fungi": 8468,
-    "animalia": 134582
+    "plantae": 53391,
+    "fungi": 8508,
+    "animalia": 78803
   },
   "threatened": {
     "counts": {
@@ -74,11 +74,11 @@
           "count": 36
         },
         {
-          "_id": "Quase Ameaçada (NT)",
+          "_id": "Dados Insuficientes (DD)",
           "count": 35
         },
         {
-          "_id": "Dados Insuficientes (DD)",
+          "_id": "Quase Ameaçada (NT)",
           "count": 35
         },
         {
@@ -90,15 +90,7 @@
           "count": 3
         },
         {
-          "_id": "[Não é mais táxon válido]",
-          "count": 1
-        },
-        {
-          "_id": "Criticamente Em Perigo (CR)",
-          "count": 1
-        },
-        {
-          "_id": "[Não é espécie brasileira]",
+          "_id": "Extinta na Natureza (EW)",
           "count": 1
         },
         {
@@ -110,7 +102,15 @@
           "count": 1
         },
         {
-          "_id": "Extinta na Natureza (EW)",
+          "_id": "[Não é mais táxon válido]",
+          "count": 1
+        },
+        {
+          "_id": "[Não é espécie brasileira]",
+          "count": 1
+        },
+        {
+          "_id": "Criticamente Em Perigo (CR)",
           "count": 1
         }
       ]
@@ -152,7 +152,7 @@
         "count": 8
       },
       {
-        "_id": "Cyprinodontiformes",
+        "_id": "Anura",
         "count": 7
       },
       {
@@ -160,7 +160,7 @@
         "count": 7
       },
       {
-        "_id": "Gymnotiformes",
+        "_id": "Cyprinodontiformes",
         "count": 7
       }
     ],
@@ -186,10 +186,6 @@
         "count": 8
       },
       {
-        "_id": "Arecaceae",
-        "count": 7
-      },
-      {
         "_id": "Asteraceae",
         "count": 7
       },
@@ -198,11 +194,15 @@
         "count": 7
       },
       {
+        "_id": "Arecaceae",
+        "count": 7
+      },
+      {
         "_id": "Araceae",
         "count": 6
       },
       {
-        "_id": "Euphorbiaceae",
+        "_id": "Moraceae",
         "count": 5
       }
     ]
@@ -211,49 +211,49 @@
     "ordersAnimalia": [
       {
         "_id": "Coleoptera",
-        "count": 37537
-      },
-      {
-        "_id": "Lepidoptera",
-        "count": 15601
-      },
-      {
-        "_id": "Diptera",
-        "count": 12380
+        "count": 21732
       },
       {
         "_id": "Hymenoptera",
-        "count": 11713
+        "count": 9576
+      },
+      {
+        "_id": "Diptera",
+        "count": 8935
       },
       {
         "_id": "Hemiptera",
-        "count": 9886
+        "count": 7932
+      },
+      {
+        "_id": "Lepidoptera",
+        "count": 2993
       },
       {
         "_id": "Araneae",
-        "count": 3080
-      },
-      {
-        "_id": "Passeriformes",
-        "count": 2358
+        "count": 2555
       },
       {
         "_id": "Orthoptera",
-        "count": 1850
-      },
-      {
-        "_id": "Trombidiformes",
-        "count": 1512
+        "count": 1674
       },
       {
         "_id": "Siluriformes",
-        "count": 1394
+        "count": 1203
+      },
+      {
+        "_id": "Opiliones",
+        "count": 996
+      },
+      {
+        "_id": "Anura",
+        "count": 977
       }
     ],
     "familiesPlantae": [
       {
         "_id": "Fabaceae",
-        "count": 3917
+        "count": 3932
       },
       {
         "_id": "Orchidaceae",
@@ -261,7 +261,7 @@
       },
       {
         "_id": "Asteraceae",
-        "count": 2541
+        "count": 2545
       },
       {
         "_id": "[Algae]: Bacillariophyceae",
@@ -269,7 +269,7 @@
       },
       {
         "_id": "Poaceae",
-        "count": 1756
+        "count": 1757
       },
       {
         "_id": "Melastomataceae",
@@ -277,7 +277,7 @@
       },
       {
         "_id": "Rubiaceae",
-        "count": 1643
+        "count": 1644
       },
       {
         "_id": "Bromeliaceae",
@@ -285,7 +285,7 @@
       },
       {
         "_id": "Myrtaceae",
-        "count": 1359
+        "count": 1360
       },
       {
         "_id": "[Algae]: Zygnematophyceae",
@@ -295,7 +295,7 @@
     "ordersFungi": [
       {
         "_id": "Agaricales",
-        "count": 1156
+        "count": 1157
       },
       {
         "_id": "Pucciniales",
@@ -307,15 +307,15 @@
       },
       {
         "_id": "Polyporales",
-        "count": 541
+        "count": 543
       },
       {
         "_id": "Xylariales",
-        "count": 329
+        "count": 330
       },
       {
         "_id": "Lecanorales",
-        "count": 286
+        "count": 309
       },
       {
         "_id": "Asterinales",
@@ -327,11 +327,11 @@
       },
       {
         "_id": "Hymenochaetales",
-        "count": 214
+        "count": 215
       },
       {
-        "_id": "Pleosporales",
-        "count": 178
+        "_id": "Russulales",
+        "count": 179
       }
     ]
   },
@@ -355,15 +355,11 @@
       },
       {
         "_id": "Coleção Taxonômica do Departamento de Ecologia e Biologia Evolutiva da UFSCar",
-        "count": 158760
+        "count": 159621
       },
       {
         "_id": "Coleção de Abelhas",
-        "count": 128444
-      },
-      {
-        "_id": "Museu de Zoologia da USP",
-        "count": 121741
+        "count": 128446
       },
       {
         "_id": "Fonoteca Neotropical Jacques Vielliard",
@@ -376,48 +372,52 @@
       {
         "_id": "Museu Nacional/UFRJ",
         "count": 72863
+      },
+      {
+        "_id": "Coleção Entomológica Prof. J.M.F. Camargo, FFCLRP/USP",
+        "count": 71607
       }
     ],
     "plantae": [
       {
-        "_id": "Rio de Janeiro Botanical Garden",
-        "count": 824025
-      },
-      {
         "_id": "Museu Botânico Municipal",
-        "count": 329873
+        "count": 330332
       },
       {
         "_id": "Universidade de Brasília - UnB",
-        "count": 274772
+        "count": 275375
       },
       {
         "_id": "Herbário do Estado Maria Eneyda P. Kaufmann Fidalgo - Coleção de Plantas Vasculares",
-        "count": 269503
-      },
-      {
-        "_id": "Instituto Nacional de Pesquisas da Amazônia (INPA)",
-        "count": 249910
+        "count": 269466
       },
       {
         "_id": "Herbário da Universidade de Brasília",
-        "count": 205242
+        "count": 205360
       },
       {
         "_id": "Herbário da Universidade Estadual de Campinas",
-        "count": 199813
+        "count": 200308
       },
       {
         "_id": "Herbário da Embrapa Recursos Genéticos e Biotecnologia",
-        "count": 133274
+        "count": 134839
       },
       {
         "_id": "Universidade Federal do Paraná",
-        "count": 98415
+        "count": 99121
       },
       {
         "_id": "Herbarium Anchieta - Coleção de Angiospermas",
         "count": 93432
+      },
+      {
+        "_id": "Herbário - IPA Dárdano de Andrade Lima",
+        "count": 88369
+      },
+      {
+        "_id": "HERBÁRIO IBGE",
+        "count": 87754
       }
     ],
     "fungi": [
@@ -427,11 +427,11 @@
       },
       {
         "_id": "Maria Eneyda Pacheco Kauffmann Fidalgo",
-        "count": 32643
+        "count": 32608
       },
       {
         "_id": "Fundação Universidade Federal de Mato Grosso do Sul",
-        "count": 20644
+        "count": 20662
       },
       {
         "_id": "Herbário ISE",
@@ -439,7 +439,7 @@
       },
       {
         "_id": "Universidade Federal de Santa Catarina",
-        "count": 11660
+        "count": 11813
       },
       {
         "_id": "Herbarium Anchieta - Fungi Rickiani",
@@ -447,7 +447,7 @@
       },
       {
         "_id": "Universidade Federal do Paraná",
-        "count": 5960
+        "count": 5961
       },
       {
         "_id": "Universidade Estadual de Goiás",
@@ -459,9 +459,9 @@
       },
       {
         "_id": "Herbário Alarich Rudolf Holger Schultz -Coleções de Plantas e Fungos",
-        "count": 4718
+        "count": 4719
       }
     ]
   },
-  "lastUpdated": "2025-08-21T13:22:29.381Z"
+  "lastUpdated": "2025-09-27T11:06:55.729Z"
 }

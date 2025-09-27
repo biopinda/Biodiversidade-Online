@@ -958,9 +958,21 @@ export async function countOccurrenceRegions(
       pipeline = [
         {
           $match: {
-            country: {
-              $in: ['Brasil', 'brasil', 'BRASIL', 'Brazil', 'brazil', 'BRAZIL']
-            }
+            $and: [
+              {
+                country: {
+                  $in: [
+                    'Brasil',
+                    'brasil',
+                    'BRASIL',
+                    'Brazil',
+                    'brazil',
+                    'BRAZIL'
+                  ]
+                }
+              },
+              createBrazilianStateFilter()
+            ]
           }
         },
         {
@@ -1006,7 +1018,8 @@ export async function countOccurrenceRegions(
                     'BRAZIL'
                   ]
                 }
-              }
+              },
+              createBrazilianStateFilter()
             ]
           }
         },
@@ -1210,5 +1223,135 @@ export async function countOccurrenceRegions(
     }
 
     throw error
+  }
+}
+
+// Lista de estados brasileiros válidos para filtragem
+const validBrazilianStates = [
+  'Acre',
+  'Amapá',
+  'Amazonas',
+  'Pará',
+  'Rondônia',
+  'Roraima',
+  'Tocantins',
+  'Alagoas',
+  'Bahia',
+  'Ceará',
+  'Maranhão',
+  'Paraíba',
+  'Pernambuco',
+  'Piauí',
+  'Rio Grande do Norte',
+  'Sergipe',
+  'Goiás',
+  'Mato Grosso',
+  'Mato Grosso do Sul',
+  'Distrito Federal',
+  'Espírito Santo',
+  'Minas Gerais',
+  'Rio de Janeiro',
+  'São Paulo',
+  'Paraná',
+  'Rio Grande do Sul',
+  'Santa Catarina'
+]
+
+// Lista de variações possíveis dos estados brasileiros (com/sempre acento)
+const brazilianStateVariations = [
+  // Abreviações oficiais
+  'ac',
+  'ap',
+  'am',
+  'pa',
+  'ro',
+  'rr',
+  'to',
+  'al',
+  'ba',
+  'ce',
+  'ma',
+  'pb',
+  'pe',
+  'pi',
+  'rn',
+  'se',
+  'go',
+  'mt',
+  'ms',
+  'df',
+  'es',
+  'mg',
+  'rj',
+  'sp',
+  'pr',
+  'rs',
+  'sc',
+  // Nomes completos (com acento)
+  'acre',
+  'amapá',
+  'amazonas',
+  'pará',
+  'rondônia',
+  'roraima',
+  'tocantins',
+  'alagoas',
+  'bahia',
+  'ceará',
+  'maranhão',
+  'paraíba',
+  'pernambuco',
+  'piauí',
+  'rio grande do norte',
+  'sergipe',
+  'goiás',
+  'mato grosso',
+  'mato grosso do sul',
+  'distrito federal',
+  'espírito santo',
+  'minas gerais',
+  'rio de janeiro',
+  'são paulo',
+  'paraná',
+  'rio grande do sul',
+  'santa catarina',
+  // Nomes completos (sem acento)
+  'amapa',
+  'para',
+  'rondonia',
+  'goias',
+  'maranhao',
+  'paraiba',
+  'piaui',
+  'espirito santo',
+  'sao paulo',
+  'parana',
+  'ceara'
+]
+
+/**
+ * Gera condição MongoDB para filtrar apenas ocorrências com stateProvince válido brasileiro
+ */
+function createBrazilianStateFilter() {
+  return {
+    $and: [
+      { stateProvince: { $exists: true, $ne: null } },
+      { stateProvince: { $ne: '' } },
+      {
+        $or: [
+          // Estado já está na forma canônica
+          { stateProvince: { $in: validBrazilianStates } },
+          // Estado está em alguma variação conhecida (case insensitive)
+          {
+            $expr: {
+              $in: [
+                { $toLower: { $trim: { input: '$stateProvince' } } },
+                brazilianStateVariations
+              ]
+            }
+          }
+        ]
+      }
+    ]
   }
 }
