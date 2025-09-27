@@ -98,111 +98,54 @@ export async function countOccurrenceRegions(
   }
 
   try {
-    // Use statistical sampling only when no filters are applied (dashboard view)
-    // When filters are applied, use full aggregation for accuracy
-    const useStatisticalSampling = Object.keys(matchStage).length === 0
-
-    let pipeline
-
-    if (useStatisticalSampling) {
-      // Use optimized aggregation for dashboard queries
-      pipeline = [
-        {
-          $match: {
-            $and: [
-              {
-                country: {
-                  $in: [
-                    'Brasil',
-                    'brasil',
-                    'BRASIL',
-                    'Brazil',
-                    'brazil',
-                    'BRAZIL'
-                  ]
-                }
-              },
-              createBrazilianStateFilter()
-            ]
-          }
-        },
-        {
-          $facet: {
-            total: [{ $count: 'count' }],
-            byRegion: [
-              {
-                $addFields: {
-                  normalizedState: createStateNormalizationExpression()
-                }
-              },
-              {
-                $group: {
-                  _id: '$normalizedState',
-                  count: { $sum: 1 }
-                }
-              },
-              {
-                $match: {
-                  _id: { $exists: true, $nin: [null, '', 'Unknown'] }
-                }
-              },
-              { $sort: { count: -1 } }
-            ]
-          }
+    // Build the match conditions - always include country and state filters
+    const baseConditions = [
+      {
+        country: {
+          $in: ['Brasil', 'brasil', 'BRASIL', 'Brazil', 'brazil', 'BRAZIL']
         }
-      ]
-    } else {
-      // Use optimized aggregation for filtered queries
-      pipeline = [
-        {
-          $match: {
-            $and: [
-              matchStage,
-              {
-                country: {
-                  $in: [
-                    'Brasil',
-                    'brasil',
-                    'BRASIL',
-                    'Brazil',
-                    'brazil',
-                    'BRAZIL'
-                  ]
-                }
-              },
-              createBrazilianStateFilter()
-            ]
-          }
-        },
-        {
-          $facet: {
-            total: [{ $count: 'count' }],
-            byRegion: [
-              {
-                $addFields: {
-                  normalizedState: createStateNormalizationExpression()
-                }
-              },
-              {
-                $group: {
-                  _id: '$normalizedState',
-                  count: { $sum: 1 }
-                }
-              },
-              {
-                $match: {
-                  _id: { $exists: true, $nin: [null, '', 'Unknown'] }
-                }
-              },
-              { $sort: { count: -1 } }
-            ]
-          }
+      },
+      createBrazilianStateFilter()
+    ]
+
+    // Create the final match object
+    const matchFilter =
+      Object.keys(matchStage).length > 0
+        ? { $and: [matchStage, ...baseConditions] }
+        : { $and: baseConditions }
+
+    const pipeline = [
+      {
+        $match: matchFilter
+      },
+      {
+        $facet: {
+          total: [{ $count: 'count' }],
+          byRegion: [
+            {
+              $addFields: {
+                normalizedState: createStateNormalizationExpression()
+              }
+            },
+            {
+              $group: {
+                _id: '$normalizedState',
+                count: { $sum: 1 }
+              }
+            },
+            {
+              $match: {
+                _id: { $exists: true, $nin: [null, '', 'Unknown'] }
+              }
+            },
+            { $sort: { count: -1 } }
+          ]
         }
-      ]
-    }
+      }
+    ]
 
     console.log(
-      `🔍 Using ${useStatisticalSampling ? 'statistical sampling' : 'full aggregation'} strategy`
+      `🔍 Running aggregation ${Object.keys(matchStage).length === 0 ? 'without filters' : 'with filters'}`
     )
 
     const results = await occurrences
