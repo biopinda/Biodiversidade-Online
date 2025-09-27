@@ -45,16 +45,16 @@
 
 ## Phase 3.1: Setup
 
-- [ ] T001 Create mongo module directory structure in packages/web/src/lib/mongo/
-- [ ] T002 [P] Create connection.ts module for MongoDB connection utilities
-- [ ] T003 [P] Create taxa.ts module for taxonomic data operations
-- [ ] T004 [P] Create occurrences.ts module for occurrence data operations
-- [ ] T005 [P] Create threatened.ts module for threatened species operations
-- [ ] T006 [P] Create invasive.ts module for invasive species operations
-- [ ] T007 [P] Create phenological.ts module for phenological calendar operations
-- [ ] T008 [P] Create cache.ts module for cache management utilities
-- [ ] T009 [P] Create utils.ts module for shared utilities
-- [ ] T010 Create index.ts barrel exports file
+- [x] T001 Create mongo module directory structure in packages/web/src/lib/mongo/
+- [x] T002 [P] Create connection.ts module for MongoDB connection utilities
+- [x] T003 [P] Create taxa.ts module for taxonomic data operations
+- [x] T004 [P] Create occurrences.ts module for occurrence data operations
+- [x] T005 [P] Create threatened.ts module for threatened species operations
+- [x] T006 [P] Create invasive.ts module for invasive species operations
+- [x] T007 [P] Create phenological.ts module for phenological calendar operations
+- [x] T008 [P] Create cache.ts module for cache management utilities
+- [x] T009 [P] Create utils.ts module for shared utilities
+- [x] T010 Create index.ts barrel exports file
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 
@@ -87,26 +87,26 @@
 
 ## Phase 3.4: Integration
 
-- [ ] T032 Update imports in packages/web/src/scripts/init-occurrence-cache.ts to use new mongo modules
-- [ ] T033 Update imports in packages/web/src/pages/taxon/[taxonId].json.ts to use new mongo modules
-- [ ] T034 Update imports in packages/web/src/pages/api/occurrenceCountByState.ts to use new mongo modules
-- [ ] T035 Update imports in packages/web/src/pages/api/taxaCountByState.ts to use new mongo modules
-- [ ] T036 Update imports in packages/web/src/pages/api/taxa.ts to use new mongo modules
-- [ ] T037 Update imports in packages/web/src/pages/api/family/[kingdom].ts to use new mongo modules
-- [ ] T038 Test migration by running build and type checking
-- [ ] T039 Test migration by running quickstart validation scenarios
+- [x] T032 Update imports in packages/web/src/scripts/init-occurrence-cache.ts to use new mongo modules
+- [x] T033 Update imports in packages/web/src/pages/taxon/[taxonId].json.ts to use new mongo modules
+- [x] T034 Update imports in packages/web/src/pages/api/occurrenceCountByState.ts to use new mongo modules
+- [x] T035 Update imports in packages/web/src/pages/api/taxaCountByState.ts to use new mongo modules
+- [x] T036 Update imports in packages/web/src/pages/api/taxa.ts to use new mongo modules
+- [x] T037 Update imports in packages/web/src/pages/api/family/[kingdom].ts to use new mongo modules
+- [x] T038 Test migration by running build and type checking
+- [x] T039 Test migration by running quickstart validation scenarios
 
 ## Phase 3.5: Polish
 
-- [ ] T040 [P] Run TypeScript compilation check (bunx tsc --noEmit)
-- [ ] T041 [P] Run Prettier formatting check (bunx prettier --check src/)
-- [ ] T042 [P] Run build validation (bun run build)
-- [ ] T043 [P] Run Docker production test build
-- [ ] T044 [P] Update documentation in packages/web/README.md
-- [ ] T045 [P] Update documentation in docs/ with mongo module references
-- [ ] T046 Remove original packages/web/src/lib/mongo.ts file
-- [ ] T047 [P] Run final performance validation (< 60 seconds build, < 2 seconds startup)
-- [ ] T048 [P] Run final functionality validation (all quickstart scenarios pass)
+- [x] T040 [P] Run TypeScript compilation check (bunx tsc --noEmit)
+- [x] T041 [P] Run Prettier formatting check (bunx prettier --check src/)
+- [x] T042 [P] Run build validation (bun run build)
+- [x] T043 [P] Run Docker production test build
+- [x] T044 [P] Update documentation in packages/web/README.md
+- [x] T045 [P] Update documentation in docs/ with mongo module references
+- [x] T046 Remove original packages/web/src/lib/mongo.ts file
+- [x] T047 [P] Run final performance validation (< 60 seconds build, < 2 seconds startup)
+- [x] T048 [P] Run final functionality validation (all quickstart scenarios pass)
 
 ## Dependencies
 

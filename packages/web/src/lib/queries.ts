@@ -1,4 +1,4 @@
-import { listOccurrences } from './mongo.ts'
+import { listOccurrences } from './mongo'
 
 type OccurrenceQuery = {
   canonicalName?: string

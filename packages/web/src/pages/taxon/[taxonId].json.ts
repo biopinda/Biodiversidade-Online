@@ -1,4 +1,4 @@
-import { getTaxon } from '../../lib/mongo.ts'
+import { getTaxon } from '../../lib/mongo'
 
 type Params = {
   taxonId: string

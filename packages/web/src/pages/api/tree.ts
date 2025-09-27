@@ -1,4 +1,4 @@
-import { getTree } from '../../lib/mongo.ts'
+import { getTree } from '../../lib/mongo'
 
 export async function GET() {
   return new Response(JSON.stringify(await getTree()), {
