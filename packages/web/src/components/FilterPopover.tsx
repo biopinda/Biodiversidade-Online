@@ -5,7 +5,7 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { Plus, X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import FilterSelect from './FilterSelect'
 import SimpleSelect from './SimpleSelect'
 import type { FilterField } from '@/types'
@@ -50,15 +50,10 @@ export default function FilterPopover({
     (field) => !usedFields.has(field)
   )
 
-  // Debounce the filter changes
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const validFilters = filters.filter((filter) => filter.value !== '')
-      onFilterChange(validFilters)
-    }, 300)
-
-    return () => clearTimeout(timeoutId)
-  }, [filters, onFilterChange])
+  const applyFilters = () => {
+    const validFilters = filters.filter((filter) => filter.value !== '')
+    onFilterChange(validFilters)
+  }
 
   const addFilter = () => {
     const firstAvailableField = remainingFields[0]
@@ -163,6 +158,14 @@ export default function FilterPopover({
             Adicionar filtro
           </Button>
         )}
+        <Button
+          variant="default"
+          className="mt-2 w-full"
+          onClick={applyFilters}
+          disabled={disabled || filters.length === 0}
+        >
+          Filtrar
+        </Button>
       </PopoverContent>
     </Popover>
   )
