@@ -19,11 +19,11 @@
     "web:build": "bun run --filter @biodiversidade/web build",
     "web:preview": "bun run --filter @biodiversidade/web preview",
     "web:start": "bun run --filter @biodiversidade/web start",
-    "ruler:apply": "npx ruler apply",
-    "ruler:revert": "npx ruler revert",
-    "ruler:init": "npx ruler init",
-    "format": "npx prettier --write . --experimental-cli",
-    "postinstall": "npx ruler apply",
+    "ruler:apply": "ruler apply",
+    "ruler:revert": "ruler revert",
+    "ruler:init": "ruler init",
+    "format": "prettier --write . --experimental-cli",
+    "postinstall": "ruler apply",
     "prepare": "husky"
   },
   "workspaces": {
