@@ -896,7 +896,10 @@ export function generatePhenologicalHeatmap(occurrences: any[]) {
 
 // Harmonização de estados movida para util: stateNormalization.ts
 
-export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
+export async function countOccurrenceRegions(
+  filter: TaxaFilter = {},
+  forceRefresh = false
+) {
   const startTime = Date.now()
 
   // Generate cache key based on filters
@@ -904,9 +907,11 @@ export async function countOccurrenceRegions(filter: TaxaFilter = {}) {
   const crypto = await import('crypto')
   const cacheKeyHash = crypto.createHash('md5').update(cacheKey).digest('hex')
 
-  // Try to get from cache first
+  // Get cache collection reference
   const cache = await getCollection('dwc2json', 'occurrenceCache')
-  if (cache) {
+
+  // Try to get from cache first (unless force refresh is requested)
+  if (!forceRefresh && cache) {
     const cached = await cache.findOne({ key: cacheKeyHash })
     if (cached && cached.data) {
       console.log(

@@ -89,10 +89,17 @@ export const GET: APIRoute = async ({ url }) => {
     // Validate and sanitize input parameters
     const filter = validateAndSanitizeFilters(url.searchParams)
 
-    console.log(`🔍 Occurrence query with filters:`, filter)
+    // Check if refresh is requested
+    const forceRefresh = url.searchParams.get('refresh') === 'true'
+
+    console.log(
+      `🔍 Occurrence query with filters:`,
+      filter,
+      forceRefresh ? '(forced refresh)' : '(using cache)'
+    )
 
     // Query the database
-    const regions = await countOccurrenceRegions(filter)
+    const regions = await countOccurrenceRegions(filter, forceRefresh)
 
     // Handle database connection failures
     if (!regions) {
