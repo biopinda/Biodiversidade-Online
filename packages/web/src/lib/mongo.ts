@@ -14,28 +14,45 @@ console.log('🔍 Debug env vars:', {
       : 'undefined'
 })
 
-const url =
+function getMongoUrl(): string {
   // Try different ways to get MONGO_URI
-  (typeof process !== 'undefined' && process.env.MONGO_URI) ??
-  (typeof globalThis !== 'undefined' && globalThis.process?.env?.MONGO_URI) ??
-  (typeof import.meta !== 'undefined' && import.meta.env?.MONGO_URI) ??
-  // Fallback hardcoded for local development
-  'mongodb://dwc2json:REDACTED_PASSWORD@192.168.1.10:27017/?authSource=admin&authMechanism=DEFAULT'
+  const url =
+    (typeof process !== 'undefined' && process.env.MONGO_URI) ??
+    (typeof globalThis !== 'undefined' && globalThis.process?.env?.MONGO_URI) ??
+    (typeof import.meta !== 'undefined' && import.meta.env?.MONGO_URI)
 
-console.log('🔗 Using MongoDB URL:', url ? 'Found' : 'Not found')
+  console.log('🔗 Using MongoDB URL:', url ? 'Found' : 'Not found')
 
-if (!url) {
-  console.error('❌ MONGO_URI environment variable is not defined')
-  throw new Error(
-    'Please define the MONGO_URI environment variable inside .env.local'
-  )
+  if (!url) {
+    console.error('❌ MONGO_URI environment variable is not defined')
+    throw new Error(
+      'Please define the MONGO_URI environment variable inside .env.local'
+    )
+  }
+
+  return url
 }
 
-// console.log('🔗 Connecting to MongoDB...')
-const client = new MongoClient(url)
+// Create client lazily to avoid connection issues at module load time
+let client: MongoClient | null = null
+
+function getClient(): MongoClient {
+  if (!client) {
+    const url = getMongoUrl()
+    client = new MongoClient(url, {
+      // Add connection options to improve reliability
+      connectTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 10000,
+      maxPoolSize: 10,
+      retryWrites: true
+    })
+  }
+  return client
+}
 
 function connectClientWithTimeout(timeout = 5000) {
   return new Promise((resolve) => {
+    const client = getClient()
     const timeoutTimer = setTimeout(() => {
       console.warn('⚠️  MongoDB connection timeout after', timeout, 'ms')
       resolve(false)
@@ -66,6 +83,7 @@ export async function getCollection(dbName: string, collection: string) {
       )
       return null
     }
+    const client = getClient()
     return client.db(dbName).collection(collection) as Collection
   } catch (error) {
     console.error(`❌ Error getting collection ${dbName}.${collection}:`, error)
@@ -912,12 +930,19 @@ export async function countOccurrenceRegions(
 
   // Try to get from cache first (unless force refresh is requested)
   if (!forceRefresh && cache) {
-    const cached = await cache.findOne({ key: cacheKeyHash })
-    if (cached && cached.data) {
-      console.log(
-        `⚡ Cache hit for occurrence query (${Date.now() - startTime}ms)`
+    try {
+      const cached = await cache.findOne({ key: cacheKeyHash })
+      if (cached && cached.data) {
+        console.log(
+          `⚡ Cache hit for occurrence query (${Date.now() - startTime}ms)`
+        )
+        return cached.data
+      }
+    } catch (cacheError) {
+      console.warn(
+        '⚠️ Failed to read from cache, proceeding with database query:',
+        cacheError
       )
-      return cached.data
     }
   }
 
@@ -1100,6 +1125,8 @@ export async function countOccurrenceRegions(
           console.warn('⚠️ Failed to cache result:', cacheError)
         }
       }
+    } else {
+      console.warn('⚠️ Cache collection not available, skipping cache write')
     }
 
     const queryTime = Date.now() - startTime
