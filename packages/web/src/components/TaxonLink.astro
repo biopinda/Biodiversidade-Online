@@ -1,5 +1,5 @@
 ---
-import { getTaxon } from '../lib/mongo'
+import { getTaxon } from '@/lib/mongo'
 const { kingdom, taxonId } = Astro.props
 const taxon = await getTaxon(kingdom, taxonId)
 ---

@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro'
-import { getTaxonomicStatusPerKingdom } from '../../../lib/mongo'
+import { getTaxonomicStatusPerKingdom } from '@/lib/mongo'
 
 export const GET: APIRoute = async ({ params }) => {
   const { kingdom } = params

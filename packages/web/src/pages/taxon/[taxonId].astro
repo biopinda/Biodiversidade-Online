@@ -1,7 +1,7 @@
 ---
-import Taxon from '../../components/Taxon.astro'
-import Layout from '../../layouts/base.astro'
-import { getTaxon } from '../../lib/mongo'
+import Taxon from '@/components/Taxon.astro'
+import Layout from '@/layouts/base.astro'
+import { getTaxon } from '@/lib/mongo'
 
 const { taxonId } = Astro.params as { taxonId: string }
 const [kingdomId, id] = [taxonId[0], taxonId.slice(1)]

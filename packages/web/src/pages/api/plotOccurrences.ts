@@ -1,6 +1,6 @@
 import type { APIContext } from 'astro'
 
-import { getOccurrencePlot } from '../../lib/queries.ts'
+import { getOccurrencePlot } from '@/lib/queries.ts'
 
 export async function GET({ request: { url } }: APIContext) {
   const searchParams = new URL(url).searchParams

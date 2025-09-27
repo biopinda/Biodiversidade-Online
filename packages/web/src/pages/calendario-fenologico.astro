@@ -1,14 +1,14 @@
 ---
-import Layout from '../layouts/base.astro'
+import Layout from '@/layouts/base.astro'
 import { 
   getCalFenoData, 
   generatePhenologicalHeatmap 
-} from '../lib/mongo'
+} from '@/lib/mongo'
 import {
   getCachedFamilies,
   getCachedGenera, 
   getCachedSpecies
-} from '../lib/cache'
+} from '@/lib/cache'
 
 export const prerender = false
 

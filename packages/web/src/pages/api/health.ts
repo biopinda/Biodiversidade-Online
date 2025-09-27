@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro'
-import { getCollection } from '../../lib/mongo'
+import { getCollection } from '@/lib/mongo'
 
 export const GET: APIRoute = async () => {
   try {

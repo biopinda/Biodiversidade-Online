@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Script para atualizar o cache taxonomico manualmente ou via cron job
-import { generateCache } from '../lib/cache.js'
+import { generateCache } from '@/lib/cache.js'
 
 async function updateCache() {
   try {

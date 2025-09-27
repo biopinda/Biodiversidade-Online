@@ -1,4 +1,4 @@
-import { countOccurrenceRegions } from '../lib/mongo'
+import { countOccurrenceRegions } from '@/lib/mongo'
 
 async function testCache() {
   console.log('🧪 Testando cache de ocorrências...')

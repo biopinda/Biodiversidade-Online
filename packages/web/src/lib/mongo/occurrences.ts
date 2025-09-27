@@ -1,5 +1,5 @@
 import { getCollection } from './connection'
-import { createStateNormalizationExpression } from '../stateNormalization'
+import { createStateNormalizationExpression } from '@/lib/stateNormalization'
 import { createBrazilianStateFilter } from './utils'
 import type { TaxaFilter } from './taxa'
 

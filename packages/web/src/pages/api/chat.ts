@@ -8,7 +8,7 @@ import {
   type Tool
 } from 'ai'
 import { Experimental_StdioMCPTransport } from 'ai/mcp-stdio'
-import prompt from '../../prompts/prompt.md?raw'
+import prompt from '@/prompts/prompt.md?raw'
 
 import type { APIContext } from 'astro'
 import { z } from 'zod'

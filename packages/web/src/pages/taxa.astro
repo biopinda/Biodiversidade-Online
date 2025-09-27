@@ -1,6 +1,6 @@
 ---
-import BaseLayout from '../layouts/base.astro'
-import { countTaxa, listTaxaPaginated } from '../lib/mongo'
+import BaseLayout from '@/layouts/base.astro'
+import { countTaxa, listTaxaPaginated } from '@/lib/mongo'
 
 const taxaNum = (await countTaxa()) ?? 0
 
