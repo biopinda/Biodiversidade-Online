@@ -1,7 +1,8 @@
 ---
 import MapOccurrencePage from '../components/MapOccurrencePage.tsx'
-import styles from '../styles/global.css?url'
+import Layout from '../layouts/base.astro'
 ---
 
-<link rel="stylesheet" href={styles} />
-<MapOccurrencePage client:idle />
+<Layout title="Mapa de Ocorrências" bodyClasses="overflow-hidden">
+	<MapOccurrencePage client:idle />
+</Layout>

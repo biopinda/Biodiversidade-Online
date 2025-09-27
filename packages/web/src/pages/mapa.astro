@@ -1,7 +1,8 @@
 ---
 import MapPage from '../components/MapPage.tsx'
-import styles from '../styles/global.css?url'
+import Layout from '../layouts/base.astro'
 ---
 
-<link rel="stylesheet" href={styles} />
-<MapPage client:idle />
+<Layout title="Mapa de Biodiversidade" bodyClasses="overflow-hidden">
+	<MapPage client:idle />
+</Layout>
