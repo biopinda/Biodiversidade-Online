@@ -69,6 +69,9 @@ export default function FilterPopover({
   const removeFilter = (index: number) => {
     const newFilters = filters.filter((_, i) => i !== index)
     setFilters(newFilters)
+    // Apply filters automatically when removing a filter
+    const validFilters = newFilters.filter((filter) => filter.value !== '')
+    onFilterChange(validFilters)
   }
 
   const updateFilter = (index: number, updates: Partial<FilterCriterion>) => {
