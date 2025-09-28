@@ -1,7 +1,5 @@
-import { createStateNormalizationExpression } from '@/lib/stateNormalization'
 import { getCollection } from './connection'
 import type { TaxaFilter } from './taxa'
-import { createBrazilianStateFilter } from './utils'
 
 const FALLBACK_SAMPLE_MULTIPLIER = 220
 const FALLBACK_SAMPLE_SIZE_DASHBOARD = 50000
@@ -98,14 +96,14 @@ export async function countOccurrenceRegions(
   }
 
   try {
-    // Build the match conditions - always include country and state filters
+    // Build the match conditions - now simplified since data is pre-normalized
     const baseConditions = [
       {
-        country: {
-          $in: ['Brasil', 'brasil', 'BRASIL', 'Brazil', 'brazil', 'BRAZIL']
-        }
+        country: 'Brasil' // Exact match since data is normalized
       },
-      createBrazilianStateFilter()
+      {
+        stateProvince: { $exists: true, $nin: [null, '', 'Unknown'] } // Simple existence check
+      }
     ]
 
     // Create the final match object
@@ -122,14 +120,10 @@ export async function countOccurrenceRegions(
         $facet: {
           total: [{ $count: 'count' }],
           byRegion: [
-            {
-              $addFields: {
-                normalizedState: createStateNormalizationExpression()
-              }
-            },
+            // No need for complex normalization - data is already normalized
             {
               $group: {
-                _id: '$normalizedState',
+                _id: '$stateProvince', // Direct field reference
                 count: { $sum: 1 }
               }
             },
@@ -229,16 +223,7 @@ export async function countOccurrenceRegions(
           const fallbackPipeline = [
             {
               $match: {
-                country: {
-                  $in: [
-                    'Brasil',
-                    'brasil',
-                    'BRASIL',
-                    'Brazil',
-                    'brazil',
-                    'BRAZIL'
-                  ]
-                }
+                country: 'Brasil' // Exact match since data is normalized
               }
             },
             { $sample: { size: sampleSize } },
@@ -260,14 +245,10 @@ export async function countOccurrenceRegions(
                   }
                 ],
                 byRegion: [
-                  {
-                    $addFields: {
-                      normalizedState: createStateNormalizationExpression()
-                    }
-                  },
+                  // No need for complex normalization - data is already normalized
                   {
                     $group: {
-                      _id: '$normalizedState',
+                      _id: '$stateProvince', // Direct field reference
                       count: { $sum: 1 }
                     }
                   },

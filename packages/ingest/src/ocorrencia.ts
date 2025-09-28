@@ -12,6 +12,12 @@ import {
   type Ipt
 } from './lib/dwca.ts'
 
+// Import normalization utilities
+import {
+  normalizeCountryName,
+  normalizeStateName
+} from './lib/normalization.js'
+
 /**
  * Utility function to convert string fields to numbers with validation
  * Keeps invalid values as original strings for backward compatibility
@@ -401,6 +407,25 @@ try {
             'day',
             (num) => num >= 1 && num <= 31
           )
+
+          // Normalize country and stateProvince for Brazilian data
+          if (processedData.country) {
+            const normalizedCountry = normalizeCountryName(
+              processedData.country
+            )
+            if (normalizedCountry) {
+              processedData.country = normalizedCountry
+            }
+          }
+
+          if (processedData.stateProvince) {
+            const normalizedState = normalizeStateName(
+              processedData.stateProvince
+            )
+            if (normalizedState) {
+              processedData.stateProvince = normalizedState
+            }
+          }
 
           if (
             processedData.eventDate &&
