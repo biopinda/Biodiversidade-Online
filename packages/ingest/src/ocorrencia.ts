@@ -158,7 +158,52 @@ try {
       { key: { iptKingdoms: 1 }, name: 'iptKingdoms' },
       { key: { year: 1 }, name: 'year' },
       { key: { month: 1 }, name: 'month' },
-      { key: { eventDate: 1 }, name: 'eventDate' }
+      { key: { eventDate: 1 }, name: 'eventDate' },
+      // Basic field indexes
+      { key: { country: 1 }, name: 'country' },
+      { key: { stateProvince: 1 }, name: 'stateProvince' },
+      { key: { genus: 1 }, name: 'genus' },
+      { key: { specificEpithet: 1 }, name: 'specificEpithet' },
+      { key: { kingdom: 1 }, name: 'kingdom' },
+      { key: { family: 1 }, name: 'family' },
+      { key: { recordedBy: 1 }, name: 'recordedBy' },
+      { key: { recordNumber: 1 }, name: 'recordNumber' },
+      { key: { locality: 1 }, name: 'locality' },
+      { key: { tag: 1 }, name: 'tag' },
+      { key: { phylum: 1 }, name: 'phylum' },
+      { key: { class: 1 }, name: 'class' },
+      { key: { order: 1 }, name: 'order' },
+      // Compound indexes for performance optimization
+      {
+        key: { country: 1, stateProvince: 1 },
+        name: 'country_stateProvince_compound'
+      },
+      {
+        key: { genus: 1, specificEpithet: 1 },
+        name: 'genus_specificEpithet_compound'
+      },
+      { key: { kingdom: 1, country: 1 }, name: 'kingdom_country_compound' },
+      {
+        key: { kingdom: 1, stateProvince: 1 },
+        name: 'kingdom_stateProvince_index'
+      },
+      { key: { kingdom: 1, family: 1 }, name: 'kingdom_family_index' },
+      // Geospatial index
+      { key: { geoPoint: '2dsphere' }, name: 'geoPoint_2dsphere' },
+      // Complex taxonomy index
+      {
+        key: {
+          stateProvince: 1,
+          kingdom: 1,
+          phylum: 1,
+          class: 1,
+          order: 1,
+          family: 1,
+          genus: 1,
+          specificEpithet: 1
+        },
+        name: 'idx_taxonomy_state'
+      }
     ]),
     createIndexSafely(iptsCol, [
       { key: { tag: 1 }, name: 'tag' },
