@@ -5,6 +5,7 @@ import {
 } from '@/lib/url/useSearchParamsState'
 import {
   type MapOccurrencePageState,
+  type OccurrenceResponse,
   convertToChartData,
   filterFieldMapping,
   validateErrorResponse,
@@ -15,6 +16,41 @@ import Map from './Map.tsx'
 import MapFilter from './MapFilter.tsx'
 
 const allowedFilterKeys = Object.values(filterFieldMapping)
+
+const estadosValidos = [
+  'Acre',
+  'Amapá',
+  'Amazonas',
+  'Pará',
+  'Rondônia',
+  'Roraima',
+  'Tocantins',
+  'Alagoas',
+  'Bahia',
+  'Ceará',
+  'Maranhão',
+  'Paraíba',
+  'Pernambuco',
+  'Piauí',
+  'Rio Grande do Norte',
+  'Sergipe',
+  'Goiás',
+  'Mato Grosso',
+  'Mato Grosso do Sul',
+  'Distrito Federal',
+  'Espírito Santo',
+  'Minas Gerais',
+  'Rio de Janeiro',
+  'São Paulo',
+  'Paraná',
+  'Rio Grande do Sul',
+  'Santa Catarina'
+]
+
+const filtraEstados = (data: OccurrenceResponse) => ({
+  ...data,
+  regions: data.regions.filter((region) => estadosValidos.includes(region._id))
+})
 
 export default function MapOccurrencePage() {
   const [state, setState] = useState<MapOccurrencePageState>({
@@ -158,7 +194,7 @@ export default function MapOccurrencePage() {
             className="h-full w-full"
             full
             isLoading={state.isLoading}
-            data={convertToChartData(state.occurrenceData)}
+            data={convertToChartData(filtraEstados(state.occurrenceData))}
           />
         </div>
       )}
