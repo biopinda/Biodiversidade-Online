@@ -1,6 +1,6 @@
-import type { APIRoute } from 'astro'
 import { countOccurrenceRegions, type TaxaFilter } from '@/lib/mongo'
-import { type OccurrenceResponse, type ErrorResponse } from '@/types/occurrence'
+import { type ErrorResponse, type OccurrenceResponse } from '@/types/occurrence'
+import type { APIRoute } from 'astro'
 
 // Valid taxonomic filter parameters
 const VALID_TAXONOMIC_FIELDS: Set<string> = new Set([

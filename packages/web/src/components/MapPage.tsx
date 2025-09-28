@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
 import Map from '@/components/Map.tsx'
 import MapFilter from '@/components/MapFilter.tsx'
+import { useCallback, useEffect, useState } from 'react'
 
 interface RegionData {
   _id: string
@@ -75,14 +75,14 @@ export default function MapPage() {
   }, [fetchRegions])
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden">
+    <div className="flex h-screen w-screen flex-col overflow-hidden">
       <MapFilter
         filters={currentFilters}
         onFilterChange={handleFilterChange}
         totalCount={taxaData.total}
       />
       {error ? (
-        <div className="flex-1 flex items-center justify-center text-red-500">
+        <div className="flex flex-1 items-center justify-center text-red-500">
           {error}
         </div>
       ) : (

@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 import {
   Sheet,
   SheetContent,
@@ -40,12 +40,12 @@ import {
 } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import ModelSelector, { type Provider } from './ModelSelector'
 import ChatHistoryList, { type ChatHistoryEntry } from './ChatHistoryList'
+import ModelSelector, { type Provider } from './ModelSelector'
 import PasswordInput from './PasswordInput'
 import { Badge } from './ui/badge'
-import { Textarea } from './ui/textarea'
 import { ScrollArea } from './ui/scroll-area'
+import { Textarea } from './ui/textarea'
 
 type StoredChatSession = {
   id: string
@@ -95,12 +95,12 @@ function ConfigForm({
   const geminiKeyRef = useRef<HTMLInputElement>(null)
 
   return (
-    <div className="flex gap-2 items-end">
-      <div className="flex flex-col gap-2 flex-1">
-        <div className="flex gap-2 text-sm items-center">
+    <div className="flex items-end gap-2">
+      <div className="flex flex-1 flex-col gap-2">
+        <div className="flex items-center gap-2 text-sm">
           Defina suas chaves de API aqui.
           <Button
-            className="py-1 !px-1 h-auto"
+            className="h-auto !px-1 py-1"
             variant={showInfo ? 'default' : 'ghost'}
             onClick={() => setShowInfo((prev) => !prev)}
           >
@@ -108,17 +108,17 @@ function ConfigForm({
           </Button>
         </div>
         {showInfo && (
-          <div className="bg-slate-800 rounded-md p-2 text-white text-sm self-start">
+          <div className="self-start rounded-md bg-slate-800 p-2 text-sm text-white">
             Uma chave de API é necessária para usar o chat. Elas são armazenadas
             apenas no seu navegador.
           </div>
         )}
-        <div className="flex gap-2 text-sm items-center">
+        <div className="flex items-center gap-2 text-sm">
           <b>OpenAI</b>{' '}
           <i>
             Obtenha uma em{' '}
             <a
-              className="hover:underline text-black"
+              className="text-black hover:underline"
               href="https://platform.openai.com/api-keys"
               target="_blank"
               rel="noopener noreferrer"
@@ -132,12 +132,12 @@ function ConfigForm({
           initialValue={initialKeys.openAIKey}
           placeholder="Chave de API OpenAI"
         />
-        <div className="flex gap-2 text-sm items-center">
+        <div className="flex items-center gap-2 text-sm">
           <b>Google Gemini</b>{' '}
           <i>
             Obtenha uma em{' '}
             <a
-              className="hover:underline text-black"
+              className="text-black hover:underline"
               href="https://aistudio.google.com/app/apikey"
               target="_blank"
               rel="noopener noreferrer"
@@ -177,7 +177,7 @@ function ChatBubble({
   return (
     <div
       className={cn(
-        'rounded-lg py-2 px-4 bg-slate-200 flex flex-col gap-2',
+        'flex flex-col gap-2 rounded-lg bg-slate-200 px-4 py-2',
         align === 'left' ? 'mr-24' : 'ml-24'
       )}
     >
@@ -211,7 +211,7 @@ function ToolCall({
       <>
         <div
           className={cn(
-            'flex flex-col gap-2 max-w-full',
+            'flex max-w-full flex-col gap-2',
             showDetails && 'w-full'
           )}
         >
@@ -219,7 +219,7 @@ function ToolCall({
             <>
               <Badge
                 className={cn(
-                  'text-xs cursor-default',
+                  'cursor-default text-xs',
                   waiting && 'animate-pulse',
                   results?.length > 0 && 'rounded-e-none'
                 )}
@@ -229,7 +229,7 @@ function ToolCall({
               </Badge>
               {results?.length > 0 && (
                 <Badge
-                  className="text-xs cursor-default bg-slate-50 text-slate-800 rounded-s-none"
+                  className="cursor-default rounded-s-none bg-slate-50 text-xs text-slate-800"
                   title={results
                     .map((content: { text: string }) => content?.text)
                     .join('\n')}
@@ -240,18 +240,18 @@ function ToolCall({
             </>
           </div>
           {showDetails && (
-            <div className="flex gap-1 justify-between">
-              <ScrollArea className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
-                <pre className="whitespace-pre-wrap break-all">
+            <div className="flex justify-between gap-1">
+              <ScrollArea className="max-h-32 w-full overflow-y-auto rounded-md border border-slate-300 bg-slate-800 p-2 text-xs text-white">
+                <pre className="break-all whitespace-pre-wrap">
                   {JSON.stringify(toolCall.args, null, 2)}
                 </pre>
               </ScrollArea>
-              <ScrollArea className="rounded-md border-slate-300 border p-2 text-xs bg-slate-800 text-white w-full max-h-32 overflow-y-auto">
+              <ScrollArea className="max-h-32 w-full overflow-y-auto rounded-md border border-slate-300 bg-slate-800 p-2 text-xs text-white">
                 {toolCall.result?.content?.map(({ text }) => {
                   try {
                     const json = JSON.parse(text)
                     return (
-                      <pre className="whitespace-pre-wrap break-all">
+                      <pre className="break-all whitespace-pre-wrap">
                         {JSON.stringify(json, null, 2)}
                       </pre>
                     )
@@ -281,7 +281,7 @@ function ReasoningPart({ part }: { part: any }) {
     <>
       <div
         className={cn(
-          'flex flex-col gap-2 max-w-full',
+          'flex max-w-full flex-col gap-2',
           showDetails && 'w-full'
         )}
       >
@@ -289,7 +289,7 @@ function ReasoningPart({ part }: { part: any }) {
           <>
             <Badge
               className={cn(
-                'text-xs cursor-pointer',
+                'cursor-pointer text-xs',
                 showDetails ? 'bg-slate-800 text-white' : '',
                 'inline-flex items-center'
               )}
@@ -300,7 +300,7 @@ function ReasoningPart({ part }: { part: any }) {
           </>
         </div>
         {showDetails && (
-          <ScrollArea className="prose prose-p:my-0 prose-td:py-0 prose-custom-code rounded-md border border-slate-300 p-2 text-xs bg-slate-100 text-black w-full max-h-32 overflow-y-auto max-w-none flex flex-col-reverse">
+          <ScrollArea className="prose prose-p:my-0 prose-td:py-0 prose-custom-code flex max-h-32 w-full max-w-none flex-col-reverse overflow-y-auto rounded-md border border-slate-300 bg-slate-100 p-2 text-xs text-black">
             <div className="flex flex-col gap-1">
               {part.details && part.details.length > 0
                 ? part.details.map((detail: any, i: number) => (

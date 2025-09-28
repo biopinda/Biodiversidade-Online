@@ -42,7 +42,7 @@ const searchParamsWithPage = (page: number) => {
 ---
 
 <BaseLayout title="Procura de Taxa">
-  <section class="m-2 p-2 border rounded border-slate-400 inline-block">
+  <section class="m-2 inline-block rounded border border-slate-400 p-2">
     <h2 class="text-xl font-bold">Filtro</h2>
     <form class="inline-flex flex-col gap-1">
       <div class="row">
@@ -51,14 +51,14 @@ const searchParamsWithPage = (page: number) => {
           id="scientificName"
           name="scientificName"
           type="text"
-          class="border border-green-800 rounded p-1"
+          class="rounded border border-green-800 p-1"
           value={searchParams.scientificName}
         />
       </div>
-      <div class="flex justify-between items-center">
+      <div class="flex items-center justify-between">
         <div>Taxa disponíveis: <b>{taxaNum}</b></div>
         <input
-          class="p-1 px-2 rounded bg-green-800 text-white"
+          class="rounded bg-green-800 p-1 px-2 text-white"
           type="submit"
           value="Filtrar"
         />
@@ -68,12 +68,12 @@ const searchParamsWithPage = (page: number) => {
   {
     taxa.length > 0 && (
       <section class="m-2">
-        <div class="flex flex-row items-center pb-2 gap-2">
+        <div class="flex flex-row items-center gap-2 pb-2">
           <h2 class="text-xl font-bold">
             Resultados{total > 0 && <>: {total}</>}
           </h2>
           <a
-            class="p-1 px-2 rounded bg-green-800 text-white hover:drop-shadow"
+            class="rounded bg-green-800 p-1 px-2 text-white hover:drop-shadow"
             href={`/api/taxa?scientificName=${searchParams.scientificName}`}
             download={`${searchParams.scientificName}.json`}
           >
@@ -90,7 +90,7 @@ const searchParamsWithPage = (page: number) => {
               <div class="flex flex-row gap-1">
                 {currentPage > 1 && (
                   <a
-                    class="p-1 px-2 rounded bg-green-800 text-white"
+                    class="rounded bg-green-800 p-1 px-2 text-white"
                     href={searchParamsWithPage(currentPage - 1)}
                   >
                     Anterior
@@ -98,7 +98,7 @@ const searchParamsWithPage = (page: number) => {
                 )}
                 {currentPage < totalPages && (
                   <a
-                    class="p-1 px-2 rounded bg-green-800 text-white"
+                    class="rounded bg-green-800 p-1 px-2 text-white"
                     href={searchParamsWithPage(currentPage + 1)}
                   >
                     Próxima
@@ -114,7 +114,7 @@ const searchParamsWithPage = (page: number) => {
               taxon.taxonID
             }`
             return (
-              <li class="border border-slate-400 rounded p-1">
+              <li class="rounded border border-slate-400 p-1">
                 <a
                   class="text-green-800"
                   href={`/taxon/${(taxon.kingdom as string)[0]?.toUpperCase()}${

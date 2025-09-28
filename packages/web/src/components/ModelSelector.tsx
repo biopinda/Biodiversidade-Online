@@ -43,7 +43,7 @@ export default function ModelSelector({
           : ''
       }
     >
-      <SelectTrigger className="p-1 px-2 text-xs h-auto">
+      <SelectTrigger className="h-auto p-1 px-2 text-xs">
         <SelectValue placeholder="modelo" />
       </SelectTrigger>
       <SelectContent>

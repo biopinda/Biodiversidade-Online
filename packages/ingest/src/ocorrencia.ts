@@ -1,8 +1,8 @@
-import { MongoClient } from 'mongodb'
 import { calculateObjectSize } from 'bson'
 import cliProgress from 'cli-progress'
-import Papa from 'papaparse'
+import { MongoClient } from 'mongodb'
 import { readFile } from 'node:fs/promises'
+import Papa from 'papaparse'
 
 import {
   getEml,

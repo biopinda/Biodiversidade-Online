@@ -1,6 +1,6 @@
-import { defineConfig } from 'astro/config'
 import partytown from '@astrojs/partytown'
 import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'astro/config'
 
 import node from '@astrojs/node'
 

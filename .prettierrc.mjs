@@ -4,7 +4,12 @@ const config = {
   tabWidth: 2,
   printWidth: 80,
   singleQuote: true,
-  trailingComma: 'none'
+  trailingComma: 'none',
+  plugins: [
+    'prettier-plugin-astro',
+    'prettier-plugin-organize-imports',
+    'prettier-plugin-tailwindcss'
+  ]
 }
 
 export default config

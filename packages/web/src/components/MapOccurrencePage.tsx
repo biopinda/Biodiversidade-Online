@@ -1,18 +1,18 @@
-import { useCallback, useEffect, useState } from 'react'
-import Map from './Map.tsx'
-import MapFilter from './MapFilter.tsx'
-import {
-  type MapOccurrencePageState,
-  convertToChartData,
-  validateOccurrenceResponse,
-  validateErrorResponse,
-  filterFieldMapping
-} from '@/types/occurrence'
 import {
   parseRecord,
   serializeRecord,
   useSearchParamsState
 } from '@/lib/url/useSearchParamsState'
+import {
+  type MapOccurrencePageState,
+  convertToChartData,
+  filterFieldMapping,
+  validateErrorResponse,
+  validateOccurrenceResponse
+} from '@/types/occurrence'
+import { useCallback, useEffect, useState } from 'react'
+import Map from './Map.tsx'
+import MapFilter from './MapFilter.tsx'
 
 const allowedFilterKeys = Object.values(filterFieldMapping)
 
@@ -117,7 +117,7 @@ export default function MapOccurrencePage() {
   }, [fetchRegions, filters])
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden">
+    <div className="flex h-screen w-screen flex-col overflow-hidden">
       <MapFilter
         filters={filters}
         onFilterChange={handleFilterChange}
@@ -126,15 +126,15 @@ export default function MapOccurrencePage() {
       />
 
       {state.error ? (
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
           <div className="max-w-md">
-            <div className="text-red-500 text-lg font-semibold mb-2">
+            <div className="mb-2 text-lg font-semibold text-red-500">
               ⚠️ Erro ao carregar dados
             </div>
-            <div className="text-gray-600 mb-4">{state.error}</div>
+            <div className="mb-4 text-gray-600">{state.error}</div>
             <button
               onClick={() => fetchRegions(state.currentFilters)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
               disabled={state.isLoading}
             >
               {state.isLoading ? 'Carregando...' : 'Tentar novamente'}
@@ -142,11 +142,11 @@ export default function MapOccurrencePage() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 relative">
+        <div className="relative flex-1">
           {state.isLoading && (
-            <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+            <div className="bg-opacity-75 absolute inset-0 z-10 flex items-center justify-center bg-white">
               <div className="flex flex-col items-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+                <div className="mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500"></div>
                 <div className="text-gray-600">
                   Carregando dados de ocorrências...
                 </div>
@@ -155,7 +155,7 @@ export default function MapOccurrencePage() {
           )}
 
           <Map
-            className="w-full h-full"
+            className="h-full w-full"
             full
             isLoading={state.isLoading}
             data={convertToChartData(state.occurrenceData)}

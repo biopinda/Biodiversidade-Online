@@ -137,8 +137,7 @@ const stateMapping = {
 ### 3. Nova Página: `mapaocorrencia.astro`
 
 ```astro
-// Estrutura idêntica a mapa.astro
-- Usar MapOccurrencePage ao invés de MapPage
+// Estrutura idêntica a mapa.astro - Usar MapOccurrencePage ao invés de MapPage
 - Manter mesmo CSS e layout
 ```
 

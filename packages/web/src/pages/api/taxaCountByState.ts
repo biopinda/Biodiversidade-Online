@@ -1,5 +1,5 @@
-import type { APIRoute } from 'astro'
 import { countTaxaRegions, type TaxaFilter } from '@/lib/mongo'
+import type { APIRoute } from 'astro'
 
 export const GET: APIRoute = async ({ url }) => {
   try {

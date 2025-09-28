@@ -1,8 +1,8 @@
 import { Card } from '@/components/ui/card'
-import { useCallback, useMemo } from 'react'
-import FilterPopover from './FilterPopover'
 import type { FilterField } from '@/types'
 import { type MapFilterProps } from '@/types/occurrence'
+import { useCallback, useMemo } from 'react'
+import FilterPopover from './FilterPopover'
 
 type FilterCriterion = {
   field: FilterField
@@ -65,7 +65,7 @@ export default function MapFilter({
   )
 
   return (
-    <Card className="p-2 flex gap-2 items-center rounded-none">
+    <Card className="flex items-center gap-2 rounded-none p-2">
       <FilterPopover
         value={activeFilters}
         onFilterChange={handleFilterChange}
@@ -77,7 +77,7 @@ export default function MapFilter({
       <div className="flex items-center gap-2">
         {isLoading && (
           <div className="flex items-center text-sm text-gray-500">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-blue-500"></div>
             Carregando...
           </div>
         )}

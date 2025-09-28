@@ -1,5 +1,10 @@
 import { getCollection } from './connection'
 
+export interface PhenologicalOccurrence {
+  month: string
+  // Add other relevant fields if needed
+}
+
 export async function getCalFenoData(filter: Record<string, unknown> = {}) {
   try {
     const calFeno = await getCollection('dwc2json', 'calFeno')
@@ -13,7 +18,9 @@ export async function getCalFenoData(filter: Record<string, unknown> = {}) {
       ...filter
     }
 
-    return await calFeno.find(baseFilter).toArray()
+    return (await calFeno
+      .find(baseFilter)
+      .toArray()) as unknown as PhenologicalOccurrence[]
   } catch (error) {
     console.error('❌ Error querying phenological data:', error)
     return []
@@ -64,14 +71,9 @@ export async function getCalFenoSpecies(family: string, genus: string) {
   }
 }
 
-interface PhenologicalOccurrence {
-  month: string
-  // Add other relevant fields if needed
-}
-
 export function generatePhenologicalHeatmap(
   occurrences: PhenologicalOccurrence[]
-) {
+): { month: number; monthName: string; count: number; intensity: number }[] {
   const monthCounts = Array(12).fill(0)
 
   occurrences.forEach((occ) => {
@@ -98,7 +100,7 @@ export function generatePhenologicalHeatmap(
       'Out',
       'Nov',
       'Dez'
-    ][index],
+    ][index]!,
     count,
     intensity: maxCount > 0 ? count / maxCount : 0
   }))

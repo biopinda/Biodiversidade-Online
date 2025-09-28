@@ -1,5 +1,5 @@
-import { config } from 'dotenv'
 import { countOccurrenceRegions } from '@/lib/mongo'
+import { config } from 'dotenv'
 
 // Carregar variáveis de ambiente
 config()

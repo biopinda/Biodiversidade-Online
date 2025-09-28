@@ -1,6 +1,6 @@
-import { twMerge } from 'tailwind-merge'
-import { useEffect, useRef } from 'react'
 import { type MapProps } from '@/types/occurrence'
+import { useEffect, useRef } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 const Map = ({
   full,
@@ -64,14 +64,14 @@ const Map = ({
   return (
     <div
       className={twMerge(
-        full ? 'w-full h-full' : 'h-[200px] w-auto',
+        full ? 'h-full w-full' : 'h-[200px] w-auto',
         'relative',
         className
       )}
       ref={chartRef}
     >
       {isLoading && (
-        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
           <div className="text-gray-500">Preparando visualização...</div>
         </div>
       )}

@@ -3,65 +3,55 @@ import FichaLink from './FichaLink.astro'
 import Map from './Map.astro'
 import Section from './Section.astro'
 import TaxonLink from './TaxonLink.astro'
-
-type R<T> = Record<string, T>
-type RU = R<unknown>
-
+import type {
+  ReferenceEntry,
+  TaxonDocument,
+  VernacularNameEntry
+} from '@/lib/mongo'
 interface Props {
-  json: {
-    [key: string]: unknown
-    taxonID: string
-    kingdom: 'Animalia' | 'Plantae' | 'Fungi'
-    distribution: {
-      origin: string
-      endemism: string
-      phytogeographicDomains: string[]
-      occurrence: string[]
-      vegetationType: string[]
-    }
-    reference: RU[]
-    othernames: RU[]
-    vernacularname: R<string>[]
-    occurrences: R<RU>[]
-    bibliographicCitation?: string
-  }
+  json: TaxonDocument
   pageId: string
 }
 const { pageId, json } = Astro.props
 
 const fichaId: string =
   json.kingdom === 'Animalia'
-    ? json.bibliographicCitation?.match(/.+\/(\w+)/)?.[1] ?? ''
+    ? (json.bibliographicCitation?.match(/.+\/(\w+)/)?.[1] ?? '')
     : json.taxonID
+
+const hasOccurrences = (json.occurrences?.length ?? 0) > 0
+const hasOtherNames = (json.othernames?.length ?? 0) > 0
+const hasVernacularNames = (json.vernacularname?.length ?? 0) > 0
+const hasReferences = (json.reference?.length ?? 0) > 0
 ---
 
 <div
-  class="m-4 w-full lg:w-[960px] bg-white shadow-lg border-slate-200 border rounded"
+  class="m-4 w-full rounded border border-slate-200 bg-white shadow-lg lg:w-[960px]"
 >
   <div
-    class="bg-green-800 text-white p-4 mb-4 rounded-t sticky top-0 z-10 flex gap-4 items-center"
+    class="sticky top-0 z-10 mb-4 flex items-center gap-4 rounded-t bg-green-800 p-4 text-white"
   >
     <a
       href="/taxa"
-      class="p-1 px-2 bg-white text-black rounded-lg hover:text-green-800 whitespace-nowrap"
+      class="rounded-lg bg-white p-1 px-2 whitespace-nowrap text-black hover:text-green-800"
       ><i class="las la-search"></i> Busca</a
     >
-    <h1 class="font-bold text-lg" transition:name={`hero-${pageId}`}>
+    <h1 class="text-lg font-bold" transition:name={`hero-${pageId}`}>
       {json.scientificName}
     </h1>
     <div class="flex-1"></div>
     {
-      json.occurrences?.length > 0 && (
+      hasOccurrences && (
         <a
           href={`/taxon/${pageId}/ocorrencias`}
-          class="p-1 px-2 bg-white text-black rounded-lg hover:text-green-800 whitespace-nowrap"
+          class="rounded-lg bg-white p-1 px-2 whitespace-nowrap text-black hover:text-green-800"
         >
           <i class="las la-th-list" /> Ocorrências
         </a>
       )
     }
   </div>
-  <div class="grid grid-cols-1 lg:grid-cols-2 p-4 gap-2">
+  <div class="grid grid-cols-1 gap-2 p-4 lg:grid-cols-2">
     <Section
       kingdom={json.kingdom}
       fields={{
@@ -117,10 +107,10 @@ const fichaId: string =
       )
     }
     {
-      json.othernames?.length > 0 && (
+      hasOtherNames && (
         <details>
           <summary class="pt-2 font-bold">Outros nomes</summary>
-          <ul class="list-disc list-inside">
+          <ul class="list-inside list-disc">
             {json.othernames?.map(({ taxonID, taxonomicStatus }) => (
               <li class="pl-2">
                 <TaxonLink kingdom={json.kingdom} taxonId={taxonID} /> -{' '}
@@ -132,36 +122,44 @@ const fichaId: string =
       )
     }
     {
-      json.vernacularname && (
+      hasVernacularNames && (
         <details>
           <summary class="pt-2 font-bold">Nomes vernaculares</summary>
           <ul class="list-disc pl-5">
             {json.vernacularname
-              .sort(
-                (a, b) =>
-                  a.vernacularName?.localeCompare(b.vernacularName ?? '') ?? 0
+              ?.sort((a: VernacularNameEntry, b: VernacularNameEntry) =>
+                (a.vernacularName ?? '').localeCompare(b.vernacularName ?? '')
               )
-              .map(({ vernacularName, language, locality }) => (
-                <li>
-                  {vernacularName}, {locality} -{' '}
-                  <span class="text-xs italic">{language}</span>
-                </li>
-              ))}
+              .map((entry: VernacularNameEntry) => {
+                const vernacular = entry?.vernacularName ?? ''
+                const locality = entry?.locality ?? ''
+                const language = entry?.language ?? ''
+                return (
+                  <li>
+                    {vernacular}
+                    {locality ? `, ${locality}` : ''} -{' '}
+                    <span class="text-xs italic">{language}</span>
+                  </li>
+                )
+              })}
           </ul>
         </details>
       )
     }
   </div>
 
-  <footer class="p-2 col-span-2 bg-slate-100 rounded-b" title="Referência">
+  <footer class="col-span-2 rounded-b bg-slate-100 p-2" title="Referência">
     {
-      json.reference?.length > 0 && (
+      hasReferences && (
         <div class="italic">
-          {json.reference?.map(({ creator, bibliographicCitation }) => (
-            <div>
-              {[creator, bibliographicCitation].filter(Boolean).join(', ')}
-            </div>
-          ))}
+          {json.reference?.map((reference: ReferenceEntry) => {
+            const creator = reference?.creator
+            const citation = reference?.bibliographicCitation
+            const parts = [creator, citation].filter((value): value is string =>
+              Boolean(value)
+            )
+            return <div>{parts.join(', ')}</div>
+          })}
         </div>
       )
     }

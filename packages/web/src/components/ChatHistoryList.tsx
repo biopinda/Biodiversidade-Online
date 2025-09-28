@@ -1,7 +1,5 @@
 'use client'
 
-import { useMemo } from 'react'
-import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,12 +11,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
   MessageSquareIcon,
   MessageSquarePlusIcon,
   Trash2Icon
 } from 'lucide-react'
+import { useMemo } from 'react'
 
 export type ChatHistoryEntry = {
   id: string
@@ -145,7 +145,7 @@ export default function ChatHistoryList({
       )}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <span className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
           Conversas
         </span>
         <Button type="button" size="sm" onClick={onCreateChat}>

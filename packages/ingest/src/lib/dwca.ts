@@ -1,12 +1,12 @@
-import { XMLParser } from 'fast-xml-parser'
-import extract from 'extract-zip'
 import { Database, Statement } from 'bun:sqlite'
 import cliProgress from 'cli-progress'
-import path from 'node:path'
+import extract from 'extract-zip'
+import { XMLParser } from 'fast-xml-parser'
+import { once } from 'node:events'
 import { createReadStream, createWriteStream } from 'node:fs'
 import { mkdir, readFile, rm } from 'node:fs/promises'
+import path from 'node:path'
 import { Readable } from 'node:stream'
-import { once } from 'node:events'
 
 type WithAttribute<A extends string, T> = {
   [key in `@${A}`]: T

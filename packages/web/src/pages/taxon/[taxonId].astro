@@ -24,7 +24,7 @@ const taxon = kingdom && (await getTaxon(kingdom, id, true))
     : null}
   bodyClasses="bg-green-100"
 >
-  <div class="flex flex-row justify-center items-start">
+  <div class="flex flex-row items-start justify-center">
     {
       taxon ? (
         <Taxon pageId={taxonId} json={taxon} />

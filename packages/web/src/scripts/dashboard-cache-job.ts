@@ -1,16 +1,16 @@
+import { config } from 'dotenv'
 import fs from 'fs'
 import path from 'path'
-import { config } from 'dotenv'
 import {
-  getOccurrenceCountPerKingdom,
-  getTaxaCountPerKingdom,
-  getThreatenedCountPerKingdom,
-  getThreatenedCategoriesPerKingdom,
   getInvasiveCountPerKingdom,
-  getInvasiveTopOrders,
   getInvasiveTopFamilies,
-  getTaxaCountPerOrderByKingdom,
+  getInvasiveTopOrders,
+  getOccurrenceCountPerKingdom,
   getTaxaCountPerFamilyByKingdom,
+  getTaxaCountPerKingdom,
+  getTaxaCountPerOrderByKingdom,
+  getThreatenedCategoriesPerKingdom,
+  getThreatenedCountPerKingdom,
   getTopCollectionsByKingdom
 } from '../lib/mongo'
 

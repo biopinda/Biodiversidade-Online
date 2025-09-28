@@ -1,7 +1,7 @@
-import { getCollection } from './connection'
 import { createStateNormalizationExpression } from '@/lib/stateNormalization'
-import { createBrazilianStateFilter } from './utils'
+import { getCollection } from './connection'
 import type { TaxaFilter } from './taxa'
+import { createBrazilianStateFilter } from './utils'
 
 const FALLBACK_SAMPLE_MULTIPLIER = 220
 const FALLBACK_SAMPLE_SIZE_DASHBOARD = 50000

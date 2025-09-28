@@ -15,7 +15,7 @@ function TableHeader({
 }) {
   return (
     <th
-      className="sticky top-0 px-2 z-10 bg-gray-200 text-left"
+      className="sticky top-0 z-10 bg-gray-200 px-2 text-left"
       onClick={onClick}
     >
       {title}
@@ -47,9 +47,9 @@ export default function Ocorrencias({ occurrences }: Props) {
     (occurrence) => occurrence._id === selectedOccurrence
   )
   return (
-    <div className="grid gap-2 grid-cols-1 lg:grid-cols-2 border border-slate-200 h-full overflow-y-auto">
-      <div className="overflow-auto h-64 lg:h-auto border-b lg:border-r lg:border-b-0 border-slate-200 lg:row-span-2">
-        <table className="border-collapse w-full cursor-default">
+    <div className="grid h-full grid-cols-1 gap-2 overflow-y-auto border border-slate-200 lg:grid-cols-2">
+      <div className="h-64 overflow-auto border-b border-slate-200 lg:row-span-2 lg:h-auto lg:border-r lg:border-b-0">
+        <table className="w-full border-collapse cursor-default">
           <thead>
             <tr>
               <TableHeader
@@ -111,7 +111,7 @@ export default function Ocorrencias({ occurrences }: Props) {
                 key={occurrence._id as string}
                 className={
                   selectedOccurrence === occurrence._id
-                    ? 'bg-blue-600 text-white sticky top-6 bottom-0'
+                    ? 'sticky top-6 bottom-0 bg-blue-600 text-white'
                     : ''
                 }
                 onClick={() => {
@@ -128,13 +128,13 @@ export default function Ocorrencias({ occurrences }: Props) {
           </tbody>
         </table>
       </div>
-      <div className="mt-2 p-2 w-full h-64 lg:h-auto overflow-y-auto break-words">
+      <div className="mt-2 h-64 w-full overflow-y-auto p-2 break-words lg:h-auto">
         {Object.entries(occurrence ?? {}).map(([key, value]) => (
           <div>
             <span className="font-bold">{key}: </span>
             {Array.isArray(value) ? (
               value.map((item: Record<string, string>) => (
-                <div className="border-l-4 border-slate-800 ml-2 pl-2">
+                <div className="ml-2 border-l-4 border-slate-800 pl-2">
                   {Object.entries(item).map(([_key, _value]) => (
                     <div>
                       <span className="font-bold">{_key}: </span>
@@ -151,13 +151,13 @@ export default function Ocorrencias({ occurrences }: Props) {
           </div>
         ))}
       </div>
-      <div className="grid gap-2 items-start grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 items-start gap-2 md:grid-cols-3 lg:grid-cols-4">
         {(occurrence?.multimedia as Record<string, string>[])?.map(
           ({ identifier, rightsHolder, created }) => (
             <div className="relative">
               <a href={`https://${identifier}`} target="_blank">
                 <img src={`https://${identifier}`} alt={rightsHolder} />
-                <div className="absolute bottom-0 right-0 left-0 bg-gray-200 text-xs px-2">
+                <div className="absolute right-0 bottom-0 left-0 bg-gray-200 px-2 text-xs">
                   {created}
                 </div>
               </a>

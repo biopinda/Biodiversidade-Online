@@ -6,7 +6,10 @@
     "@types/papaparse": "^5.3.16",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "prettier-plugin-tailwindcss": "^0.6.14"
   },
   "packageManager": "bun@1.2.21",
   "private": true,
@@ -23,6 +26,7 @@
     "ruler:revert": "ruler revert",
     "ruler:init": "ruler init",
     "format": "prettier --write . --experimental-cli",
+    "typecheck": "bun tsc --build && cd packages/web && bunx astro check --minimumSeverity error",
     "postinstall": "ruler apply",
     "prepare": "husky"
   },

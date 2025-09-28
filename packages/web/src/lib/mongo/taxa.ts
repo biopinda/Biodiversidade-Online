@@ -1,4 +1,5 @@
 import { getCollection } from './connection'
+import type { TaxonDocument } from './index'
 
 export interface TaxaFilter {
   [key: string]: string | RegExp
@@ -463,11 +464,11 @@ export async function getTaxon(
   kingdom: 'Plantae' | 'Fungi' | 'Animalia',
   id: string,
   includeOccurrences = false
-) {
+): Promise<TaxonDocument | null> {
   const taxa = await getCollection('dwc2json', 'taxa')
   if (!taxa) return null
   return includeOccurrences
-    ? (
+    ? ((
         await taxa
           .aggregate([
             {
@@ -486,6 +487,9 @@ export async function getTaxon(
             }
           ])
           .toArray()
-      )[0]
-    : await taxa.findOne({ kingdom, taxonID: id })
+      )[0] as unknown as TaxonDocument) || null
+    : ((await taxa.findOne({
+        kingdom,
+        taxonID: id
+      })) as unknown as TaxonDocument) || null
 }

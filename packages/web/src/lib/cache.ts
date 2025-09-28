@@ -1,7 +1,7 @@
-import { getCollection } from './mongo'
-import { writeFile, readFile } from 'fs/promises'
 import { existsSync } from 'fs'
+import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
+import { getCollection } from './mongo'
 
 export interface TaxonomicCache {
   families: string[]

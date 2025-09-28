@@ -2,6 +2,7 @@
 import Layout from '@/layouts/base.astro'
 import { getTaxon } from '@/lib/mongo'
 import OcorrenciasComponent from '@/components/ocorrencias'
+import type { OccurrenceRecord, TaxonDocument } from '@/lib/mongo'
 
 const { taxonId } = Astro.params as { taxonId: string }
 const [kingdomId, id] = [taxonId[0], taxonId.slice(1)]
@@ -11,55 +12,55 @@ const kingdom = {
   A: 'Animalia'
 }[kingdomId as string] as Parameters<typeof getTaxon>[0] | undefined
 
-type Taxon = {
-  [key: string]: unknown
-  occurrences?: {
-    _id?: { toString: () => string }
-  }[]
-}
-const taxon: Taxon = kingdom && (await getTaxon(kingdom, id, true))
+const taxonData: TaxonDocument | null = kingdom
+  ? await getTaxon(kingdom, id, true)
+  : null
+
+const occurrences: Record<string, unknown>[] = (
+  taxonData?.occurrences ?? []
+).map((occurrence: OccurrenceRecord) => {
+  const normalized: Record<string, unknown> = { ...occurrence }
+  if (occurrence._id?.toString) {
+    normalized._id = occurrence._id.toString()
+  }
+  return normalized
+})
 ---
 
 <Layout
   useTransition
   title={`Taxon: ${
-    taxon ? taxon.scientificName : `<não encontrado (${taxonId})>`
+    taxonData ? taxonData.scientificName : `<não encontrado (${taxonId})>`
   }`}
-  metaDescription={taxon?.scientificName
-    ? `Flora e Funga do Brasil: ${taxon.scientificName}`
+  metaDescription={taxonData?.scientificName
+    ? `Flora e Funga do Brasil: ${taxonData.scientificName}`
     : null}
   bodyClasses="bg-green-100"
 >
-  <div class="flex flex-row justify-center items-start">
+  <div class="flex flex-row items-start justify-center">
     <div
-      class="mt-4 lg:mt-0 lg:top-4 lg:absolute lg:bottom-0 w-full lg:w-[960px] bg-white shadow-lg border-slate-200 border rounded"
+      class="mt-4 w-full rounded border border-slate-200 bg-white shadow-lg lg:absolute lg:top-4 lg:bottom-0 lg:mt-0 lg:w-[960px]"
     >
       <div
-        class="bg-green-800 text-white p-4 rounded-t sticky top-0 z-10 flex gap-4 items-center"
+        class="sticky top-0 z-10 flex items-center gap-4 rounded-t bg-green-800 p-4 text-white"
       >
         <a
           href="/taxa"
-          class="p-1 px-2 bg-white text-black rounded-lg hover:text-green-800 whitespace-nowrap"
+          class="rounded-lg bg-white p-1 px-2 whitespace-nowrap text-black hover:text-green-800"
           ><i class="las la-search"></i> Busca</a
         >
-        <a href={`/taxon/${taxonId}`} class="font-bold text-lg">
-          {taxon.scientificName}
+        <a href={`/taxon/${taxonId}`} class="text-lg font-bold">
+          {taxonData?.scientificName}
         </a>
         <div class="flex-1"></div>
         <div
-          class="p-1 px-2 bg-white text-green-800 rounded-lg hover:text-green-800 whitespace-nowrap font-bold cursor-default"
+          class="cursor-default rounded-lg bg-white p-1 px-2 font-bold whitespace-nowrap text-green-800 hover:text-green-800"
         >
           <i class="las la-th-list"></i> Ocorrências
         </div>
       </div>
       <div class="h-auto lg:h-[calc(100vh-81px)]">
-        <OcorrenciasComponent
-          occurrences={taxon.occurrences?.map(({ _id, ...occurrence }) => ({
-            _id: _id?.toString(),
-            ...occurrence
-          })) ?? []}
-          client:idle
-        />
+        <OcorrenciasComponent occurrences={occurrences} client:idle />
       </div>
     </div>
   </div>
