@@ -62,26 +62,26 @@ Cada tipo de dados (fauna, flora, ocorrências) terá:
 
 ## Fase 3.1: Preparação e Análise
 
-- [ ] T001 Analisar estrutura atual dos scripts em `packages/ingest/src/fauna.ts`
-- [ ] T002 [P] Analisar estrutura atual dos scripts em `packages/ingest/src/flora.ts`
-- [ ] T003 [P] Analisar estrutura atual dos scripts em `packages/ingest/src/ocorrencia.ts`
-- [ ] T004 [P] Analisar função `processaZip()` em `packages/ingest/src/lib/dwca.ts`
-- [ ] T005 Criar documentação de pontos de integração baseada na análise
-- [ ] T006 [P] Configurar índices MongoDB para novas coleções `taxaOriginal` e `ocorrenciasOriginal`
+- [x] T001 Analisar estrutura atual dos scripts em `packages/ingest/src/fauna.ts`
+- [x] T002 [P] Analisar estrutura atual dos scripts em `packages/ingest/src/flora.ts`
+- [x] T003 [P] Analisar estrutura atual dos scripts em `packages/ingest/src/ocorrencia.ts`
+- [x] T004 [P] Analisar função `processaZip()` em `packages/ingest/src/lib/dwca.ts`
+- [x] T005 Criar documentação de pontos de integração baseada na análise
+- [x] T006 [P] Configurar índices MongoDB para novas coleções `taxaOriginal` e `ocorrenciasOriginal`
 
 ## Fase 3.2: Testes Primeiro (TDD) ⚠️ DEVE COMPLETAR ANTES DA 3.3
 
 **CRÍTICO: Estes testes DEVEM ser escritos e DEVEM FALHAR antes de QUALQUER implementação**
 
-- [ ] T007 [P] Teste de contrato para `ingerir-fauna.ts` usando bun:test em `packages/ingest/tests/contracts/ingerir-fauna.test.ts`
-- [ ] T008 [P] Teste de contrato para `ingerir-flora.ts` usando bun:test em `packages/ingest/tests/contracts/ingerir-flora.test.ts`
-- [ ] T009 [P] Teste de contrato para `ingerir-ocorrencias.ts` usando bun:test em `packages/ingest/tests/contracts/ingerir-ocorrencias.test.ts`
-- [ ] T010 [P] Teste de contrato para `transformar-fauna.ts` usando bun:test em `packages/ingest/tests/contracts/transformar-fauna.test.ts`
-- [ ] T011 [P] Teste de contrato para `transformar-flora.ts` usando bun:test em `packages/ingest/tests/contracts/transformar-flora.test.ts`
-- [ ] T012 [P] Teste de contrato para `transformar-ocorrencias.ts` usando bun:test em `packages/ingest/tests/contracts/transformar-ocorrencias.test.ts`
-- [ ] T013 [P] Teste de integração de preservação de dados originais usando bun:test em `packages/ingest/tests/integration/preservacao-dados-originais.test.ts`
-- [ ] T014 [P] Teste de integração de rastreabilidade bidirecional usando bun:test em `packages/ingest/tests/integration/rastreabilidade-bidirecional.test.ts`
-- [ ] T015 [P] Teste de integração de controle de concorrência usando bun:test em `packages/ingest/tests/integration/controle-concorrencia.test.ts`
+- [x] T007 [P] Teste de contrato para `ingerir-fauna.ts` usando bun:test em `packages/ingest/tests/contracts/ingerir-fauna.test.ts`
+- [x] T008 [P] Teste de contrato para `ingerir-flora.ts` usando bun:test em `packages/ingest/tests/contracts/ingerir-flora.test.ts`
+- [x] T009 [P] Teste de contrato para `ingerir-ocorrencias.ts` usando bun:test em `packages/ingest/tests/contracts/ingerir-ocorrencias.test.ts`
+- [x] T010 [P] Teste de contrato para `transformar-fauna.ts` usando bun:test em `packages/ingest/tests/contracts/transformar-fauna.test.ts`
+- [x] T011 [P] Teste de contrato para `transformar-flora.ts` usando bun:test em `packages/ingest/tests/contracts/transformar-flora.test.ts`
+- [x] T012 [P] Teste de contrato para `transformar-ocorrencias.ts` usando bun:test em `packages/ingest/tests/contracts/transformar-ocorrencias.test.ts`
+- [x] T013 [P] Teste de integração de preservação de dados originais usando bun:test em `packages/ingest/tests/integration/preservacao-dados-originais.test.ts`
+- [x] T014 [P] Teste de integração de rastreabilidade bidirecional usando bun:test em `packages/ingest/tests/integration/rastreabilidade-bidirecional.test.ts`
+- [x] T015 [P] Teste de integração de controle de concorrência usando bun:test em `packages/ingest/tests/integration/controle-concorrencia.test.ts`
 
 ## Fase 3.3: Implementação Core (SOMENTE após testes falhando)
 

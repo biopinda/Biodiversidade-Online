@@ -1,5 +1,10 @@
 import { MongoClient } from 'mongodb'
 import { type DbIpt, processaZip } from './lib/dwca.ts'
+import {
+  initializeDataPreserver,
+  preserveOriginalData,
+  saveTransformedWithReference
+} from './lib/preservador-dados-originais.ts'
 
 export const findTaxonByName = (
   obj: Record<string, { scientificName?: string }>,
@@ -118,86 +123,195 @@ async function main() {
     )
     process.exit(1)
   }
-  const { json, ipt } = await processaFaunaZip(url).catch((error) => {
-    // Handle 404 errors when IPT resources no longer exist
-    if (
-      error.name === 'Http' &&
-      (error.message.includes('404') ||
-        error.message.includes('Not Found') ||
-        error.message.includes('status 404'))
-    ) {
-      console.log(`Fauna resource no longer exists (404) - exiting`)
-      process.exit(0)
-    }
-    // Re-throw other errors for proper error handling
-    console.error(`Error downloading fauna data:`, error.message)
-    throw error
-  })
+
+  // MongoDB connection
   const mongoUri = process.env.MONGO_URI
   if (!mongoUri) {
     console.error('MONGO_URI environment variable is required')
     process.exit(1)
   }
+
   const client = new MongoClient(mongoUri)
   await client.connect()
   const db = client.db('dwc2json')
-  const iptsCol = db.collection<DbIpt>('ipts')
-  const collection = db.collection('taxa')
-  const dbVersion = (
-    (await iptsCol.findOne({ _id: ipt.id })) as DbIpt | undefined
-  )?.version
-  if (dbVersion === ipt.version) {
-    console.debug(`Fauna already on version ${ipt.version}`)
-  } else {
-    console.debug('Cleaning collection')
-    const { deletedCount } = await collection.deleteMany({
-      kingdom: 'Animalia'
-    })
-    console.log(`Deleted ${deletedCount ?? 0} existing fauna records`)
-    console.debug('Inserting taxa')
-    const taxa = Object.values(json)
-    for (let i = 0, n = taxa.length; i < n; i += 5000) {
-      console.log(`Inserting ${i} to ${Math.min(i + 5000, n)}`)
-      await collection.insertMany(taxa.slice(i, i + 5000), { ordered: false })
+
+  try {
+    // Initialize preservation system (optional for now)
+    let preservador: any = null
+    try {
+      preservador = await initializeDataPreserver(mongoUri)
+      console.debug('Data preservation system initialized')
+    } catch (error) {
+      console.warn(
+        'Failed to initialize preservation system:',
+        (error as Error).message
+      )
     }
-    console.debug(`Inserting IPT`)
-    const { id: _id, ...iptDb } = ipt
-    await iptsCol.updateOne(
-      { _id: ipt.id },
-      { $set: { _id, ...iptDb, ipt: 'fauna', set: 'fauna' } },
-      { upsert: true }
-    )
+
+    // Process the DwC-A archive
+    const { json, ipt } = await processaFaunaZip(url).catch((error) => {
+      // Handle 404 errors when IPT resources no longer exist
+      if (
+        error.name === 'Http' &&
+        (error.message.includes('404') ||
+          error.message.includes('Not Found') ||
+          error.message.includes('status 404'))
+      ) {
+        console.log(`Fauna resource no longer exists (404) - exiting`)
+        process.exit(0)
+      }
+      // Re-throw other errors for proper error handling
+      console.error(`Error downloading fauna data:`, error.message)
+      throw error
+    })
+
+    const iptsCol = db.collection<DbIpt>('ipts')
+    const collection = db.collection('taxa')
+    const dbVersion = (
+      (await iptsCol.findOne({ _id: ipt.id })) as DbIpt | undefined
+    )?.version
+
+    if (dbVersion === ipt.version) {
+      console.debug(`Fauna already on version ${ipt.version}`)
+    } else {
+      console.debug(`Processing fauna data from ${ipt.id} v${ipt.version}`)
+
+      // Step 1: Preserve original data (if preservation system is available)
+      if (preservador) {
+        try {
+          console.debug('Preserving original data...')
+          const preservationResult = await preserveOriginalData(
+            json,
+            ipt,
+            'fauna',
+            {
+              batch_size: 5000
+            }
+          )
+
+          if (
+            preservationResult.status === 'success' ||
+            preservationResult.status === 'partial'
+          ) {
+            console.log(
+              `Preserved ${preservationResult.documents_preserved} original documents`
+            )
+            if (preservationResult.failed_documents > 0) {
+              console.warn(
+                `Failed to preserve ${preservationResult.failed_documents} documents`
+              )
+            }
+          } else {
+            console.warn(
+              'Failed to preserve original data, continuing with transformation only'
+            )
+          }
+        } catch (error) {
+          console.warn(
+            'Preservation failed, continuing with legacy approach:',
+            (error as Error).message
+          )
+        }
+      }
+
+      // Step 2: Transform data (existing logic)
+      console.debug('Transforming fauna data...')
+      const faunaJson = processaFauna(json)
+
+      // Step 3: Legacy storage approach (maintain compatibility)
+      console.debug('Cleaning collection')
+      const { deletedCount } = await collection.deleteMany({
+        kingdom: 'Animalia'
+      })
+      console.log(`Deleted ${deletedCount ?? 0} existing fauna records`)
+
+      console.debug('Inserting taxa')
+      const taxa = Object.values(faunaJson)
+      for (let i = 0, n = taxa.length; i < n; i += 5000) {
+        console.log(`Inserting ${i} to ${Math.min(i + 5000, n)}`)
+        await collection.insertMany(taxa.slice(i, i + 5000), { ordered: false })
+      }
+
+      console.debug(`Inserting IPT`)
+      const { id: _id, ...iptDb } = ipt
+      await iptsCol.updateOne(
+        { _id: ipt.id },
+        { $set: { _id, ...iptDb, ipt: 'fauna', set: 'fauna' } },
+        { upsert: true }
+      )
+
+      // Step 4: Save transformed data with references (if preservation system is available)
+      if (preservador) {
+        try {
+          console.debug('Saving transformed data with references...')
+          const transformFunctions = [
+            'processaFauna',
+            'applyFaunaTransformations'
+          ]
+          const saveResult = await saveTransformedWithReference(
+            taxa,
+            ipt,
+            'fauna',
+            transformFunctions
+          )
+
+          if (saveResult.inserted > 0) {
+            console.log(
+              `Linked ${saveResult.inserted} transformed documents to originals`
+            )
+          }
+          if (saveResult.failed > 0) {
+            console.warn(
+              `Failed to link ${saveResult.failed} documents:`,
+              saveResult.errors
+            )
+          }
+        } catch (error) {
+          console.warn(
+            'Failed to save transformation references:',
+            (error as Error).message
+          )
+        }
+      }
+    }
+
+    // Step 5: Create indexes (unchanged)
+    console.log('Creating indexes')
+    await collection.createIndexes([
+      {
+        key: { scientificName: 1 },
+        name: 'scientificName'
+      },
+      {
+        key: { kingdom: 1 },
+        name: 'kingdom'
+      },
+      {
+        key: { family: 1 },
+        name: 'family'
+      },
+      {
+        key: { genus: 1 },
+        name: 'genus'
+      },
+      {
+        key: { taxonID: 1, kingdom: 1 },
+        name: 'taxonKingdom'
+      },
+      {
+        key: { canonicalName: 1 },
+        name: 'canonicalName'
+      },
+      { key: { flatScientificName: 1 }, name: 'flatScientificName' }
+    ])
+
+    console.debug('Fauna processing completed successfully')
+  } catch (error) {
+    console.error('Error during fauna processing:', error)
+    throw error
+  } finally {
+    await client.close()
   }
-  console.log('Creating indexes')
-  await collection.createIndexes([
-    {
-      key: { scientificName: 1 },
-      name: 'scientificName'
-    },
-    {
-      key: { kingdom: 1 },
-      name: 'kingdom'
-    },
-    {
-      key: { family: 1 },
-      name: 'family'
-    },
-    {
-      key: { genus: 1 },
-      name: 'genus'
-    },
-    {
-      key: { taxonID: 1, kingdom: 1 },
-      name: 'taxonKingdom'
-    },
-    {
-      key: { canonicalName: 1 },
-      name: 'canonicalName'
-    },
-    { key: { flatScientificName: 1 }, name: 'flatScientificName' }
-  ])
-  console.debug('Done')
-  await client.close()
 }
 
 if (import.meta.main) {
