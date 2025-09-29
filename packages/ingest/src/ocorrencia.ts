@@ -18,6 +18,13 @@ import {
   normalizeStateName
 } from './lib/normalization.js'
 
+// Import data preservation system
+import {
+  initializeDataPreserver,
+  preserveOriginalData,
+  saveTransformedWithReference
+} from './lib/preservador-dados-originais.ts'
+
 /**
  * Utility function to convert string fields to numbers with validation
  * Keeps invalid values as original strings for backward compatibility
@@ -132,6 +139,18 @@ const client = new MongoClient(mongoUri)
 await client.connect()
 const iptsCol = client.db('dwc2json').collection<DbIpt>('ipts')
 const ocorrenciasCol = client.db('dwc2json').collection('ocorrencias')
+
+// Initialize preservation system (optional for now)
+let preservador: any = null
+try {
+  preservador = await initializeDataPreserver(mongoUri)
+  console.debug('Data preservation system initialized')
+} catch (error) {
+  console.warn(
+    'Failed to initialize preservation system:',
+    (error as Error).message
+  )
+}
 
 console.log('Connecting to MongoDB...')
 let exitCode = 0
@@ -346,6 +365,56 @@ try {
       continue
     }
 
+    // Step 1: Preserve original data (if preservation system is available)
+    if (preservador) {
+      try {
+        console.debug(`Preserving original data for ${repositorio}:${tag}`)
+
+        // Convert array-based format to object format for preservation
+        const ocorrenciasJson: Record<string, any> = {}
+        let recordIndex = 0
+        for (const batch of ocorrencias) {
+          if (!batch || !batch.length) continue
+          for (const ocorrencia of batch) {
+            if (ocorrencia && ocorrencia[1]) {
+              ocorrenciasJson[`${ipt.id}_${recordIndex++}`] = ocorrencia[1]
+            }
+          }
+        }
+
+        const preservationResult = await preserveOriginalData(
+          ocorrenciasJson,
+          ipt,
+          'ocorrencias',
+          { batch_size: 5000 }
+        )
+
+        if (
+          preservationResult.status === 'success' ||
+          preservationResult.status === 'partial'
+        ) {
+          console.log(
+            `Preserved ${preservationResult.documents_preserved} original documents for ${repositorio}:${tag}`
+          )
+          if (preservationResult.failed_documents > 0) {
+            console.warn(
+              `Failed to preserve ${preservationResult.failed_documents} documents`
+            )
+          }
+        } else {
+          console.warn(
+            `Failed to preserve original data for ${repositorio}:${tag}, continuing with transformation only`
+          )
+        }
+      } catch (error) {
+        console.warn(
+          `Preservation failed for ${repositorio}:${tag}, continuing with legacy approach:`,
+          (error as Error).message
+        )
+      }
+    }
+
+    // Step 2: Legacy processing approach (maintain compatibility)
     console.debug(`Cleaning ${repositorio}:${tag}`)
     console.log(
       `Deleted ${
@@ -483,6 +552,51 @@ try {
       { $set: { _id, ...iptDb, tag, ipt: repositorio, kingdom } },
       { upsert: true }
     )
+
+    // Step 3: Save transformed data with references (if preservation system is available)
+    if (preservador) {
+      try {
+        console.debug(
+          `Saving transformation references for ${repositorio}:${tag}`
+        )
+
+        // Get all transformed documents for this IPT
+        const transformedDocs = await ocorrenciasCol
+          .find({ iptId: ipt.id })
+          .toArray()
+
+        if (transformedDocs.length > 0) {
+          const transformFunctions = [
+            'processaOcorrencias',
+            'normalizeFields',
+            'addGeoPoint'
+          ]
+          const saveResult = await saveTransformedWithReference(
+            transformedDocs,
+            ipt,
+            'ocorrencias',
+            transformFunctions
+          )
+
+          if (saveResult.inserted > 0) {
+            console.log(
+              `Linked ${saveResult.inserted} transformed documents to originals for ${repositorio}:${tag}`
+            )
+          }
+          if (saveResult.failed > 0) {
+            console.warn(
+              `Failed to link ${saveResult.failed} documents for ${repositorio}:${tag}:`,
+              saveResult.errors
+            )
+          }
+        }
+      } catch (error) {
+        console.warn(
+          `Failed to save transformation references for ${repositorio}:${tag}:`,
+          (error as Error).message
+        )
+      }
+    }
   }
 
   // Report failed IPTs
