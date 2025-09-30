@@ -142,7 +142,7 @@ Quando solicitado a buscar ou responder perguntas sobre espécies
 3. Etapa 3 — Complemento com dados adicionais:
    - Com base no `canonicalName` identificado, busque informações complementares nas coleções:
      - `faunaAmeacada`: para status de risco de extinção da fauna.
-     - `cncfloraFungi` e `cncfloraPlantae`: para para status de risco de extinção da flora e dos fungos. Estas coleções se conectam à coleção "taxa" pelo atributo "Flora e Funga do Brasil ID" <-> "taxonID".
+     - `cncfloraFungi` e `cncfloraPlantae`: para para status de risco de extinção da flora e dos fungos. Estas coleções se conectam à coleção "taxa" pelo atributo `Flora e Funga do Brasil ID` <-> `taxonID`.
      - `invasoras` e `ocorrencias`: para dados ecológicos, distribuição e presença.
 4. Observação:
    - Sempre que possível, trate variações de nome com tolerância a erros ortográficos,
