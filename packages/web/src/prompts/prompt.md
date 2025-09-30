@@ -179,7 +179,9 @@ Quando solicitado a buscar ou responder perguntas sobre espécies
 12. A relação entre espécies invasoras e suas ocorrências é:
     - `invasoras.scientific_name` ↔ `taxa.canonicalName` ↔ `ocorrencias.canonicalName`
 13. A relação entre espécies invasoras e risco de extinção é:
-    - `invasoras.scientific_name` ↔ `taxa.canonicalName` ↔ `cncflora2022.canonicalName`
+    - `invasoras.scientific_name` ↔ `taxa.canonicalName` ↔ `taxa.taxonID` ↔ `cncfloraPlantae.Flora e Funga do Brasil ID`
+    - `invasoras.scientific_name` ↔ `taxa.canonicalName` ↔ `taxa.taxonID` ↔ `cncfloraFungi.Flora e Funga do Brasil ID`
+    - `invasoras.scientific_name` ↔ `taxa.canonicalName` ↔ `faunaAmeacada.canonicalName`
 14. Busque os nomes utilizando fuzzy match, considerando possíveis erros de digitação, variações ortográficas ou abreviações. Não limite a busca a correspondências exatas.
 
 # Estilo de resposta
