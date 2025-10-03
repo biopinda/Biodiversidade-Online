@@ -1,0 +1,487 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "_id",
+      "basisOfRecord",
+      "canonicalName",
+      "flatScientificName",
+      "ipt",
+      "iptId",
+      "occurrenceID"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "objectId"
+      },
+      "acceptedNameUsage": {
+        "bsonType": "string"
+      },
+      "accessRights": {
+        "bsonType": "string"
+      },
+      "associatedMedia": {
+        "bsonType": "string"
+      },
+      "associatedTaxa": {
+        "bsonType": "string"
+      },
+      "basisOfRecord": {
+        "bsonType": "string"
+      },
+      "bibliographicCitation": {
+        "bsonType": "string"
+      },
+      "canonicalName": {
+        "bsonType": "string"
+      },
+      "catalogNumber": {
+        "bsonType": "string"
+      },
+      "class": {
+        "bsonType": "string"
+      },
+      "collectionCode": {
+        "bsonType": "string"
+      },
+      "collectionID": {
+        "bsonType": "string"
+      },
+      "continent": {
+        "bsonType": "string"
+      },
+      "coordinateUncertaintyInMeters": {
+        "bsonType": "string"
+      },
+      "country": {
+        "bsonType": "string"
+      },
+      "countryCode": {
+        "bsonType": "string"
+      },
+      "county": {
+        "bsonType": "string"
+      },
+      "datasetName": {
+        "bsonType": "string"
+      },
+      "dateIdentified": {
+        "bsonType": "string"
+      },
+      "day": {
+        "bsonType": ["int", "string"]
+      },
+      "decimalLatitude": {
+        "bsonType": "string"
+      },
+      "decimalLongitude": {
+        "bsonType": "string"
+      },
+      "disposition": {
+        "bsonType": "string"
+      },
+      "dynamicProperties": {
+        "bsonType": "string"
+      },
+      "establishmentMeans": {
+        "bsonType": "string"
+      },
+      "eventDate": {
+        "bsonType": ["string", "date"]
+      },
+      "eventID": {
+        "bsonType": "string"
+      },
+      "eventRemarks": {
+        "bsonType": "string"
+      },
+      "eventTime": {
+        "bsonType": "string"
+      },
+      "family": {
+        "bsonType": "string"
+      },
+      "fieldNotes": {
+        "bsonType": "string"
+      },
+      "fieldNumber": {
+        "bsonType": "string"
+      },
+      "flatScientificName": {
+        "bsonType": "string"
+      },
+      "genus": {
+        "bsonType": "string"
+      },
+      "geodeticDatum": {
+        "bsonType": "string"
+      },
+      "geoPoint": {
+        "bsonType": "object",
+        "properties": {
+          "coordinates": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": ["double", "int"]
+            }
+          },
+          "type": {
+            "bsonType": "string"
+          }
+        },
+        "required": ["coordinates", "type"]
+      },
+      "georeferencedBy": {
+        "bsonType": "string"
+      },
+      "georeferencedDate": {
+        "bsonType": "string"
+      },
+      "georeferenceProtocol": {
+        "bsonType": "string"
+      },
+      "georeferenceRemarks": {
+        "bsonType": "string"
+      },
+      "georeferenceSources": {
+        "bsonType": "string"
+      },
+      "habitat": {
+        "bsonType": "string"
+      },
+      "higherClassification": {
+        "bsonType": "string"
+      },
+      "higherGeography": {
+        "bsonType": "string"
+      },
+      "identification": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "object",
+          "properties": {
+            "dateIdentified": {
+              "bsonType": "string"
+            },
+            "family": {
+              "bsonType": "string"
+            },
+            "genus": {
+              "bsonType": "string"
+            },
+            "identificationQualifier": {
+              "bsonType": "string"
+            },
+            "identificationRemarks": {
+              "bsonType": "string"
+            },
+            "identificationVerificationStatus": {
+              "bsonType": "string"
+            },
+            "identifiedBy": {
+              "bsonType": "string"
+            },
+            "infraspecificEpithet": {
+              "bsonType": "string"
+            },
+            "kingdom": {
+              "bsonType": "string"
+            },
+            "scientificName": {
+              "bsonType": "string"
+            },
+            "scientificNameAuthorship": {
+              "bsonType": "string"
+            },
+            "specificEpithet": {
+              "bsonType": "string"
+            },
+            "taxonRank": {
+              "bsonType": "string"
+            },
+            "typeStatus": {
+              "bsonType": "string"
+            }
+          }
+        }
+      },
+      "identificationQualifier": {
+        "bsonType": "string"
+      },
+      "identificationRemarks": {
+        "bsonType": "string"
+      },
+      "identificationVerificationStatus": {
+        "bsonType": "string"
+      },
+      "identifiedBy": {
+        "bsonType": "string"
+      },
+      "image": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "object",
+          "properties": {
+            "format": {
+              "bsonType": "string"
+            },
+            "identifier": {
+              "bsonType": "string"
+            },
+            "license": {
+              "bsonType": "string"
+            },
+            "references": {
+              "bsonType": "string"
+            },
+            "rightsHolder": {
+              "bsonType": "string"
+            }
+          },
+          "required": [
+            "format",
+            "identifier",
+            "license",
+            "references",
+            "rightsHolder"
+          ]
+        }
+      },
+      "individualCount": {
+        "bsonType": "string"
+      },
+      "informationWithheld": {
+        "bsonType": "string"
+      },
+      "infraspecificEpithet": {
+        "bsonType": "string"
+      },
+      "institutionCode": {
+        "bsonType": "string"
+      },
+      "institutionID": {
+        "bsonType": "string"
+      },
+      "ipt": {
+        "bsonType": "string"
+      },
+      "iptId": {
+        "bsonType": "string"
+      },
+      "iptKingdoms": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "string"
+        }
+      },
+      "island": {
+        "bsonType": "string"
+      },
+      "islandGroup": {
+        "bsonType": "string"
+      },
+      "kingdom": {
+        "bsonType": "string"
+      },
+      "language": {
+        "bsonType": "string"
+      },
+      "license": {
+        "bsonType": "string"
+      },
+      "lifeStage": {
+        "bsonType": "string"
+      },
+      "locality": {
+        "bsonType": "string"
+      },
+      "locationRemarks": {
+        "bsonType": "string"
+      },
+      "maximumDepthInMeters": {
+        "bsonType": "string"
+      },
+      "maximumElevationInMeters": {
+        "bsonType": "string"
+      },
+      "measurementorfacts": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "object",
+          "properties": {}
+        }
+      },
+      "minimumDepthInMeters": {
+        "bsonType": "string"
+      },
+      "minimumElevationInMeters": {
+        "bsonType": "string"
+      },
+      "modified": {
+        "bsonType": "string"
+      },
+      "month": {
+        "bsonType": ["int", "string"]
+      },
+      "multimedia": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "object",
+          "properties": {
+            "created": {
+              "bsonType": "string"
+            },
+            "format": {
+              "bsonType": "string"
+            },
+            "identifier": {
+              "bsonType": "string"
+            },
+            "license": {
+              "bsonType": "string"
+            },
+            "references": {
+              "bsonType": "string"
+            },
+            "rightsHolder": {
+              "bsonType": "string"
+            },
+            "type": {
+              "bsonType": "string"
+            }
+          },
+          "required": [
+            "format",
+            "identifier",
+            "license",
+            "references",
+            "rightsHolder"
+          ]
+        }
+      },
+      "municipality": {
+        "bsonType": "string"
+      },
+      "nameAccordingTo": {
+        "bsonType": "string"
+      },
+      "nomenclaturalCode": {
+        "bsonType": "string"
+      },
+      "occurrenceID": {
+        "bsonType": "string"
+      },
+      "occurrenceRemarks": {
+        "bsonType": "string"
+      },
+      "occurrenceStatus": {
+        "bsonType": "string"
+      },
+      "order": {
+        "bsonType": "string"
+      },
+      "otherCatalogNumbers": {
+        "bsonType": "string"
+      },
+      "ownerInstitutionCode": {
+        "bsonType": "string"
+      },
+      "phylum": {
+        "bsonType": "string"
+      },
+      "preparations": {
+        "bsonType": "string"
+      },
+      "previousIdentifications": {
+        "bsonType": "string"
+      },
+      "recordedBy": {
+        "bsonType": "string"
+      },
+      "recordNumber": {
+        "bsonType": "string"
+      },
+      "references": {
+        "bsonType": "string"
+      },
+      "reproductiveCondition": {
+        "bsonType": "string"
+      },
+      "rightsHolder": {
+        "bsonType": "string"
+      },
+      "samplingEffort": {
+        "bsonType": "string"
+      },
+      "samplingProtocol": {
+        "bsonType": "string"
+      },
+      "scientificName": {
+        "bsonType": "string"
+      },
+      "scientificNameAuthorship": {
+        "bsonType": "string"
+      },
+      "scientificNameID": {
+        "bsonType": "string"
+      },
+      "sex": {
+        "bsonType": "string"
+      },
+      "specificEpithet": {
+        "bsonType": "string"
+      },
+      "stateProvince": {
+        "bsonType": "string"
+      },
+      "subgenus": {
+        "bsonType": "string"
+      },
+      "taxonomicStatus": {
+        "bsonType": "string"
+      },
+      "taxonRank": {
+        "bsonType": "string"
+      },
+      "type": {
+        "bsonType": "string"
+      },
+      "typeStatus": {
+        "bsonType": "string"
+      },
+      "verbatimCoordinates": {
+        "bsonType": "string"
+      },
+      "verbatimCoordinateSystem": {
+        "bsonType": "string"
+      },
+      "verbatimElevation": {
+        "bsonType": "string"
+      },
+      "verbatimEventDate": {
+        "bsonType": "string"
+      },
+      "verbatimLatitude": {
+        "bsonType": "string"
+      },
+      "verbatimLocality": {
+        "bsonType": "string"
+      },
+      "verbatimLongitude": {
+        "bsonType": "string"
+      },
+      "verbatimSRS": {
+        "bsonType": "string"
+      },
+      "vernacularName": {
+        "bsonType": "string"
+      },
+      "waterBody": {
+        "bsonType": "string"
+      },
+      "year": {
+        "bsonType": ["int", "string"]
+      }
+    }
+  }
+}
