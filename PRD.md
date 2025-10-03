@@ -20,16 +20,16 @@ Quero refatorar este projeto para uma nova estrutura e novos fluxos de processam
 
 ### Taxa Ingestion
 
-[A SER DFINIDO]
+[A SER DEFINIDO]
 
 ### Occurrences Ingestion
 
-[A SER DFINIDO]
+[A SER DEFINIDO]
 
 ### Taxa Transformation
 
-[A SER DFINIDO]
+[A SER DEFINIDO]
 
 ### Occurrences Transformation
 
-[A SER DFINIDO]
+[A SER DEFINIDO]
