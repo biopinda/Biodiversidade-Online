@@ -9,8 +9,8 @@ import {
 } from './ui/select'
 
 const availableModels = {
-  OpenAI: ['gpt-4.1', 'gpt-4.1-mini'],
-  Google: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash']
+  OpenAI: ['gpt-4o', 'gpt-4o-mini'],
+  Google: ['gemini-2.0-flash-exp', 'gemini-1.5-pro', 'gemini-1.5-flash']
 }
 
 export type Provider = 'openai' | 'google'
