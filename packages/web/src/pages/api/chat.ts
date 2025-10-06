@@ -98,9 +98,20 @@ export async function POST({ request }: APIContext) {
     })
   }
 
+  const isWindows = process.platform === 'win32'
+  const base = isWindows
+    ? {
+        command: 'cmd',
+        args: ['/c', 'npx', '-y', 'mongodb-mcp-server', '--readOnly']
+      }
+    : { command: 'npx', args: ['-y', 'mongodb-mcp-server', '--readOnly'] }
+
   const mongodbTransport = new Experimental_StdioMCPTransport({
-    command: 'node',
-    args: [getMongoMcpBinary(), '--connectionString', mongoDBConnectionString!]
+    command: base.command,
+    args: base.args,
+    env: {
+      MDB_MCP_CONNECTION_STRING: mongoDBConnectionString
+    }
   })
   const mongodbClient = await experimental_createMCPClient({
     transport: mongodbTransport
