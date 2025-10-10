@@ -22,6 +22,11 @@
     "web:build": "bun run --filter @biodiversidade/web build",
     "web:preview": "bun run --filter @biodiversidade/web preview",
     "web:start": "bun run --filter @biodiversidade/web start",
+    "mcp:build": "bun run --filter @biodiversidade/mcp-server build",
+    "mcp:dev": "bun run --filter @biodiversidade/mcp-server dev",
+    "mcp:start": "bun run --filter @biodiversidade/mcp-server start",
+    "mcp:stdio": "bun run --filter @biodiversidade/mcp-server start:stdio",
+    "mcp:http": "bun run --filter @biodiversidade/mcp-server start:http",
     "ruler:apply": "ruler apply",
     "ruler:revert": "ruler revert",
     "ruler:init": "ruler init",
@@ -50,5 +55,8 @@
   },
   "patchedDependencies": {
     "mongodb-mcp-server@1.0.1": "patches/mongodb-mcp-server@1.0.1.patch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.2"
   }
 }

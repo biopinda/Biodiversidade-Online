@@ -1,0 +1,25 @@
+{
+  "name": "@biodiversidade/mcp-server",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "description": "MCP server para acesso à coleção taxa da Biodiversidade.Online",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "start:stdio": "node dist/index.js --stdio",
+    "start:http": "node dist/index.js --http"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.2",
+    "mongodb": "catalog:",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "tsx": "^4.11.2",
+    "typescript": "^5.9.2"
+  }
+}

@@ -6,6 +6,9 @@
     },
     {
       "path": "./packages/web"
+    },
+    {
+      "path": "./packages/mcp-server"
     }
   ]
 }
