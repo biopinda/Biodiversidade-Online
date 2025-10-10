@@ -25,9 +25,13 @@ Quero refatorar este projeto para uma nova estrutura e novos fluxos de processam
 
 # IMPORTANTE
 
-- aproveitar os códigos, funções e rotinas existentes;
+- Toda plataforma tecnológica deve ser mantida como está;
+- O \_ID do regristros em "taxa_ipt" serão exatamente iguais aos mesmos registros em "taxa"
+- O \_ID do regristros em "occurrences_ipt" serão exatamente iguais aos mesmos registros em "occurrences"
+- aproveitar ao máximo os códigos, funções e rotinas existentes;
 - seguir a estrutura `packages\ingest` para as rotinas de ingestão, `packages\web` para interface e criar `packages\transform` para as rotinas de transformação;
 - a estrutura do docker deve ser mantida, com variáveis de ambiente sendo passadas para strings de conexão e KEYs. Nenhuma informação sensível deve ficar exposta no repositório público;
+- O Meilisearch pode ser usado, quando necessário. Da mesma forma que o MongoDB, temos um servidor Meilisearch operacional;
 
 ## Fluxos de trabalho
 
