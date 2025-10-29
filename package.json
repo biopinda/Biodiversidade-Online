@@ -46,7 +46,7 @@
     }
   },
   "lint-staged": {
-    "*": "npx prettier -w --experimental-cli"
+    "*": "bunx prettier -w --experimental-cli"
   },
   "patchedDependencies": {
     "mongodb-mcp-server@1.0.1": "patches/mongodb-mcp-server@1.0.1.patch"
