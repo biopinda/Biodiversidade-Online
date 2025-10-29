@@ -1,0 +1,755 @@
+openapi: 3.0.3
+info:
+  title: Biodiversidade.Online - Occurrences API
+  description: |
+    API para consulta de dados de ocorrências (observações e coletas) da biodiversidade brasileira.
+
+    Esta API serve dados da collection MongoDB `occurrences` (transformada), que contém registros
+    validados, georreferenciados e enriquecidos de 507 repositórios IPT catalogados.
+
+    **Rastreabilidade**: Cada registro pode ser rastreado à sua fonte original via `_id` 
+    na collection `occurrences_ipt` (dados brutos sem transformações).
+
+    **Filtro automático**: Apenas ocorrências de país "Brasil" são servidas por esta API.
+  version: 2.0.0
+  contact:
+    name: Biodiversidade.Online
+    url: https://biodiversidade.online
+
+servers:
+  - url: http://localhost:4321/api
+    description: Servidor de desenvolvimento local
+  - url: https://biodiversidade.online/api
+    description: Servidor de produção
+
+tags:
+  - name: Occurrences
+    description: Operações sobre dados de ocorrências
+
+paths:
+  /occurrences:
+    get:
+      summary: Lista ocorrências com filtros
+      description: |
+        Retorna lista paginada de ocorrências filtradas por parâmetros de busca.
+
+        **Filtros geográficos**: Suporta busca por bounding box, estado, município.
+        **Filtros taxonômicos**: Pode filtrar por nome científico, família, gênero, etc.
+        **Filtros temporais**: Suporta busca por ano, mês, ou range de datas.
+      tags:
+        - Occurrences
+      operationId: listOccurrences
+      parameters:
+        - name: scientificName
+          in: query
+          description: Nome científico completo ou parcial (case-insensitive)
+          schema:
+            type: string
+            example: Panthera onca
+
+        - name: canonicalName
+          in: query
+          description: Nome canônico (busca exata)
+          schema:
+            type: string
+            example: Panthera onca
+
+        - name: taxonID
+          in: query
+          description: ID do táxon vinculado (referência à collection taxa)
+          schema:
+            type: string
+            example: 'taxon-12345'
+
+        - name: kingdom
+          in: query
+          description: Reino taxonômico (pode ser múltiplo via array iptKingdoms)
+          schema:
+            type: string
+            example: Animalia
+
+        - name: family
+          in: query
+          description: Família taxonômica
+          schema:
+            type: string
+            example: Felidae
+
+        - name: genus
+          in: query
+          description: Gênero taxonômico
+          schema:
+            type: string
+            example: Panthera
+
+        - name: stateProvince
+          in: query
+          description: Estado brasileiro (normalizado)
+          schema:
+            type: string
+            example: São Paulo
+
+        - name: county
+          in: query
+          description: Município (harmonizado com IBGE)
+          schema:
+            type: string
+            example: Campinas
+
+        - name: bbox
+          in: query
+          description: Bounding box geográfico (formato minLon,minLat,maxLon,maxLat)
+          schema:
+            type: string
+            pattern: '^-?\d+\.?\d*,-?\d+\.?\d*,-?\d+\.?\d*,-?\d+\.?\d*$'
+            example: '-46.5,-23.7,-46.3,-23.5'
+
+        - name: year
+          in: query
+          description: Ano da coleta/observação
+          schema:
+            type: integer
+            minimum: 1500
+            maximum: 2100
+            example: 2023
+
+        - name: month
+          in: query
+          description: Mês da coleta/observação (1-12)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+            example: 3
+
+        - name: yearFrom
+          in: query
+          description: Ano inicial para range temporal
+          schema:
+            type: integer
+            example: 2020
+
+        - name: yearTo
+          in: query
+          description: Ano final para range temporal
+          schema:
+            type: integer
+            example: 2024
+
+        - name: iptId
+          in: query
+          description: Identificador do repositório IPT de origem
+          schema:
+            type: string
+            example: 'ipt-jbrj-hash'
+
+        - name: basisOfRecord
+          in: query
+          description: Base do registro (HUMAN_OBSERVATION, PRESERVED_SPECIMEN, etc)
+          schema:
+            type: string
+            example: PRESERVED_SPECIMEN
+
+        - name: hasCoordinates
+          in: query
+          description: Filtrar apenas registros com coordenadas válidas (geoPoint presente)
+          schema:
+            type: boolean
+            example: true
+
+        - name: limit
+          in: query
+          description: Número máximo de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+            example: 50
+
+        - name: offset
+          in: query
+          description: Número de registros a pular (para paginação)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+
+      responses:
+        '200':
+          description: Lista de ocorrências retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - pagination
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Occurrence'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              example:
+                data:
+                  - _id: 'occ-abc123:ipt-jbrj'
+                    occurrenceID: 'occ-abc123'
+                    scientificName: 'Panthera onca'
+                    canonicalName: 'Panthera onca'
+                    taxonID: 'taxon-12345'
+                    kingdom: ['Animalia']
+                    family: 'Felidae'
+                    genus: 'Panthera'
+                    specificEpithet: 'onca'
+                    geoPoint:
+                      type: 'Point'
+                      coordinates: [-47.8, -15.5]
+                    stateProvince: 'Mato Grosso'
+                    locality: 'Parque Nacional do Pantanal'
+                    year: 2023
+                    month: 3
+                    day: 15
+                    eventDate: '2023-03-15T00:00:00.000Z'
+                    recordedBy: 'João Silva'
+                    iptId: 'ipt-jbrj-hash'
+                    ipt: 'JBRJ'
+                    basisOfRecord: 'HUMAN_OBSERVATION'
+                pagination:
+                  total: 5420
+                  limit: 100
+                  offset: 0
+                  hasMore: true
+
+        '400':
+          description: Parâmetros de consulta inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Invalid parameter'
+                message: "Parameter 'bbox' must follow format minLon,minLat,maxLon,maxLat"
+
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /occurrences/{occurrenceID}:
+    get:
+      summary: Obtém ocorrência por ID
+      description: |
+        Retorna detalhes completos de uma ocorrência específica pelo seu `_id`.
+
+        **Nota**: O `_id` combina occurrenceID com iptId para garantir unicidade
+        entre diferentes repositórios IPT. Formato: `{occurrenceID}:{iptId}`
+      tags:
+        - Occurrences
+      operationId: getOccurrenceById
+      parameters:
+        - name: occurrenceID
+          in: path
+          description: Identificador único da ocorrência (formato completo com iptId)
+          required: true
+          schema:
+            type: string
+            example: 'occ-abc123:ipt-jbrj'
+
+      responses:
+        '200':
+          description: Ocorrência encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Occurrence'
+              example:
+                _id: 'occ-abc123:ipt-jbrj'
+                occurrenceID: 'occ-abc123'
+                scientificName: 'Panthera onca'
+                canonicalName: 'Panthera onca'
+                flatScientificName: 'pantheraonca'
+                taxonID: 'taxon-12345'
+                iptKingdoms: ['Animalia']
+                family: 'Felidae'
+                genus: 'Panthera'
+                specificEpithet: 'onca'
+                geoPoint:
+                  type: 'Point'
+                  coordinates: [-56.8, -17.5]
+                continent: 'América do Sul'
+                country: 'Brasil'
+                stateProvince: 'Mato Grosso do Sul'
+                county: 'Corumbá'
+                locality: 'Parque Nacional do Pantanal Matogrossense'
+                year: 2023
+                month: 3
+                day: 15
+                eventDate: '2023-03-15T00:00:00.000Z'
+                recordedBy: 'João Silva'
+                collectors:
+                  - name: 'João Silva'
+                recordNumber: 'JS-2023-042'
+                catalogNumber: 'MPEG-12345'
+                iptId: 'ipt-jbrj-hash'
+                ipt: 'JBRJ - Jardim Botânico do Rio de Janeiro'
+                basisOfRecord: 'HUMAN_OBSERVATION'
+                parsingStatus: 'success'
+                _transformedAt: '2025-10-29T11:00:00.000Z'
+                _transformVersion: '2.0.0'
+
+        '404':
+          description: Ocorrência não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Not found'
+                message: "Occurrence with ID 'invalid-id' not found"
+
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /occurrences/count:
+    get:
+      summary: Conta ocorrências com filtros
+      description: |
+        Retorna contagem de ocorrências que correspondem aos filtros especificados.
+        Aceita os mesmos filtros que `/occurrences` (exceto limit/offset).
+
+        **Performance**: Queries com índices geoespaciais (bbox) são otimizadas.
+      tags:
+        - Occurrences
+      operationId: countOccurrences
+      parameters:
+        - name: scientificName
+          in: query
+          schema:
+            type: string
+        - name: stateProvince
+          in: query
+          schema:
+            type: string
+        - name: bbox
+          in: query
+          schema:
+            type: string
+        - name: year
+          in: query
+          schema:
+            type: integer
+        - name: kingdom
+          in: query
+          schema:
+            type: string
+        - name: hasCoordinates
+          in: query
+          schema:
+            type: boolean
+
+      responses:
+        '200':
+          description: Contagem retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - count
+                  - filters
+                properties:
+                  count:
+                    type: integer
+                    description: Número total de ocorrências que correspondem aos filtros
+                    example: 5420
+                  filters:
+                    type: object
+                    description: Filtros aplicados na contagem
+                    example:
+                      stateProvince: 'São Paulo'
+                      year: 2023
+                      hasCoordinates: true
+
+        '400':
+          description: Parâmetros de consulta inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /occurrences/geojson:
+    get:
+      summary: Retorna ocorrências em formato GeoJSON
+      description: |
+        Retorna ocorrências filtradas no formato GeoJSON FeatureCollection,
+        otimizado para renderização em mapas.
+
+        **Nota**: Apenas ocorrências com `geoPoint` válido são incluídas.
+        **Limite**: Máximo de 10.000 features por request para performance.
+      tags:
+        - Occurrences
+      operationId: getOccurrencesGeoJSON
+      parameters:
+        - name: bbox
+          in: query
+          description: Bounding box geográfico (obrigatório para GeoJSON)
+          required: true
+          schema:
+            type: string
+            example: '-46.5,-23.7,-46.3,-23.5'
+        - name: scientificName
+          in: query
+          schema:
+            type: string
+        - name: kingdom
+          in: query
+          schema:
+            type: string
+        - name: year
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            maximum: 10000
+            default: 1000
+
+      responses:
+        '200':
+          description: GeoJSON FeatureCollection retornada com sucesso
+          content:
+            application/geo+json:
+              schema:
+                type: object
+                required:
+                  - type
+                  - features
+                properties:
+                  type:
+                    type: string
+                    enum: [FeatureCollection]
+                  features:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - type
+                        - geometry
+                        - properties
+                      properties:
+                        type:
+                          type: string
+                          enum: [Feature]
+                        geometry:
+                          type: object
+                          required:
+                            - type
+                            - coordinates
+                          properties:
+                            type:
+                              type: string
+                              enum: [Point]
+                            coordinates:
+                              type: array
+                              items:
+                                type: number
+                              minItems: 2
+                              maxItems: 2
+                        properties:
+                          type: object
+                          properties:
+                            occurrenceID:
+                              type: string
+                            scientificName:
+                              type: string
+                            taxonID:
+                              type: string
+                            year:
+                              type: integer
+                            stateProvince:
+                              type: string
+              example:
+                type: 'FeatureCollection'
+                features:
+                  - type: 'Feature'
+                    geometry:
+                      type: 'Point'
+                      coordinates: [-46.4, -23.6]
+                    properties:
+                      occurrenceID: 'occ-xyz'
+                      scientificName: 'Panthera onca'
+                      taxonID: 'taxon-12345'
+                      year: 2023
+                      stateProvince: 'São Paulo'
+
+        '400':
+          description: Parâmetro bbox obrigatório ausente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Missing required parameter'
+                message: "Parameter 'bbox' is required for GeoJSON endpoint"
+
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Occurrence:
+      type: object
+      required:
+        - _id
+        - occurrenceID
+        - scientificName
+        - canonicalName
+        - iptId
+        - ipt
+      properties:
+        _id:
+          type: string
+          description: Identificador único (formato occurrenceID:iptId)
+          example: 'occ-abc123:ipt-jbrj'
+
+        occurrenceID:
+          type: string
+          description: ID da ocorrência do DwC-A original
+          example: 'occ-abc123'
+
+        scientificName:
+          type: string
+          description: Nome científico (pode ser substituído por nome aceito)
+          example: 'Panthera onca'
+
+        canonicalName:
+          type: string
+          description: Nome canônico gerado
+          example: 'Panthera onca'
+
+        flatScientificName:
+          type: string
+          description: Nome científico sem caracteres especiais, lowercase
+          example: 'pantheraonca'
+
+        taxonID:
+          type: string
+          description: ID do táxon vinculado (referência à collection taxa)
+          example: 'taxon-12345'
+
+        iptKingdoms:
+          type: array
+          description: Reinos taxonômicos (array do split de kingdom)
+          items:
+            type: string
+          example: ['Animalia']
+
+        family:
+          type: string
+          description: Família taxonômica
+          example: 'Felidae'
+
+        genus:
+          type: string
+          description: Gênero taxonômico
+          example: 'Panthera'
+
+        specificEpithet:
+          type: string
+          description: Epíteto específico
+          example: 'onca'
+
+        geoPoint:
+          type: object
+          description: Coordenadas geográficas (GeoJSON Point) - apenas se válidas
+          required:
+            - type
+            - coordinates
+          properties:
+            type:
+              type: string
+              enum: [Point]
+            coordinates:
+              type: array
+              description: [longitude, latitude]
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+              example: [-47.8, -15.5]
+
+        continent:
+          type: string
+          description: Continente harmonizado
+          example: 'América do Sul'
+
+        country:
+          type: string
+          description: País normalizado (sempre "Brasil" para esta API)
+          example: 'Brasil'
+
+        stateProvince:
+          type: string
+          description: Estado normalizado
+          example: 'Mato Grosso'
+
+        county:
+          type: string
+          description: Município harmonizado com IBGE
+          example: 'Cuiabá'
+
+        locality:
+          type: string
+          description: Localidade descritiva
+          example: 'Parque Nacional da Chapada dos Guimarães'
+
+        eventDate:
+          type: string
+          format: date-time
+          description: Data do evento (parseada)
+          example: '2023-03-15T00:00:00.000Z'
+
+        year:
+          type: integer
+          description: Ano (convertido para número se válido)
+          example: 2023
+
+        month:
+          type: integer
+          description: Mês (convertido para número se válido, 1-12)
+          example: 3
+
+        day:
+          type: integer
+          description: Dia (convertido para número se válido, 1-31)
+          example: 15
+
+        recordedBy:
+          type: string
+          description: Coletor(es) original
+          example: 'João Silva; Maria Santos'
+
+        collectors:
+          type: array
+          description: Coletores parseados (se parsing bem-sucedido)
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+          example:
+            - name: 'João Silva'
+            - name: 'Maria Santos'
+
+        recordNumber:
+          type: string
+          description: Número do registro do coletor
+          example: 'JS-2023-042'
+
+        catalogNumber:
+          type: string
+          description: Número de catálogo da coleção
+          example: 'MPEG-12345'
+
+        iptId:
+          type: string
+          description: Identificador do repositório IPT
+          example: 'ipt-jbrj-hash'
+
+        ipt:
+          type: string
+          description: Nome do repositório IPT
+          example: 'JBRJ - Jardim Botânico do Rio de Janeiro'
+
+        basisOfRecord:
+          type: string
+          description: Base do registro
+          example: 'PRESERVED_SPECIMEN'
+
+        reproductiveCondition:
+          type: string
+          description: Condição reprodutiva (para Plantae)
+          enum: [flor, fruto]
+          example: 'flor'
+
+        parsingStatus:
+          type: string
+          description: Status do parsing de coletores
+          enum: [success, failed]
+          example: 'success'
+
+        _transformedAt:
+          type: string
+          format: date-time
+          description: Timestamp da última transformação
+          example: '2025-10-29T11:00:00.000Z'
+
+        _transformVersion:
+          type: string
+          description: Versão do script de transformação
+          example: '2.0.0'
+
+    Pagination:
+      type: object
+      required:
+        - total
+        - limit
+        - offset
+        - hasMore
+      properties:
+        total:
+          type: integer
+          description: Número total de registros que correspondem aos filtros
+          example: 5420
+        limit:
+          type: integer
+          description: Número de registros por página
+          example: 100
+        offset:
+          type: integer
+          description: Número de registros pulados
+          example: 0
+        hasMore:
+          type: boolean
+          description: Indica se há mais páginas disponíveis
+          example: true
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Tipo do erro
+          example: 'Invalid parameter'
+        message:
+          type: string
+          description: Mensagem descritiva do erro
+          example: "Parameter 'bbox' must follow format minLon,minLat,maxLon,maxLat"
+        details:
+          type: object
+          description: Detalhes adicionais sobre o erro
