@@ -1,102 +1,187 @@
 import { calculateObjectSize } from 'bson'
 import cliProgress from 'cli-progress'
+import type {
+  AnyBulkWriteOperation,
+  Collection,
+  CreateIndexesOptions,
+  Document,
+  IndexDirection
+} from 'mongodb'
 import { MongoClient } from 'mongodb'
 import { readFile } from 'node:fs/promises'
 import Papa from 'papaparse'
 
+import { AUXILIARY_COLLECTIONS, getRawCollection } from './config/collections'
 import {
   getEml,
   processaEml,
   processaZip,
   type DbIpt,
   type Ipt
-} from './lib/dwca.ts'
-
-// Import normalization utilities
-import {
-  normalizeCountryName,
-  normalizeStateName
-} from './lib/normalization.js'
-
-/**
- * Utility function to convert string fields to numbers with validation
- * Keeps invalid values as original strings for backward compatibility
- */
-function tryConvertToNumber(
-  obj: Record<string, any>,
-  propName: string,
-  validator?: (num: number) => boolean
-): void {
-  if (obj[propName] && typeof obj[propName] === 'string') {
-    const numValue = parseInt(obj[propName], 10)
-    if (!isNaN(numValue) && (!validator || validator(numValue))) {
-      obj[propName] = numValue
-    }
-    // Invalid values remain as original strings
-  }
-}
-
-type InsertManyParams = Parameters<typeof ocorrenciasCol.insertMany>
-async function safeInsertMany(
-  collection: typeof ocorrenciasCol,
-  docs: InsertManyParams[0],
-  options?: InsertManyParams[1]
-): ReturnType<typeof iptsCol.insertMany> {
-  let chunkSize = docs.length
-  while (true) {
-    try {
-      const chunks: (typeof docs)[] = []
-      for (let i = 0; i < docs.length; i += chunkSize) {
-        chunks.push(docs.slice(i, i + chunkSize))
-      }
-      const returns: Awaited<ReturnType<typeof ocorrenciasCol.insertMany>>[] =
-        []
-      for (const chunk of chunks) {
-        if (calculateObjectSize(chunk) > 16 * 1024 * 1024) {
-          throw new Error('Chunk size exceeds the BSON document size limit')
-        }
-        returns.push(await collection.insertMany(chunk, options))
-      }
-      return returns.reduce((acc, cur) => ({
-        acknowledged: acc.acknowledged && cur.acknowledged,
-        insertedCount: acc.insertedCount + cur.insertedCount,
-        insertedIds: { ...acc.insertedIds, ...cur.insertedIds }
-      }))
-    } catch (_e) {
-      chunkSize = Math.floor(chunkSize / 2)
-      console.log(
-        `Can't insert chunk of ${docs.length} documents, trying with ${chunkSize}`
-      )
-      continue
-    }
-  }
-}
-
-function isNetworkError(error: Error): boolean {
-  return (
-    error.message.includes('timeout') ||
-    error.message.includes('Connection') ||
-    error.message.includes('ECONNRESET') ||
-    error.message.includes('ENOTFOUND') ||
-    error.message.includes('ECONNREFUSED') ||
-    error.message.includes('AbortError')
-  )
-}
+} from './lib/dwca'
+import { buildOccurrenceDeterministicId } from './utils/deterministic-id'
+import { IngestMetricsTracker } from './utils/metrics'
 
 type IptSource = {
   nome: string
   repositorio: string
-  kingdom: 'Animalia' | 'Plantae' | 'Fungi'
+  kingdom: string
   tag: string
   url: string
 }
 
-async function runWithConcurrency<T>(
+type OccurrenceRecord = Document
+type RawOccurrenceDocument = Document & { _id: string }
+type OccurrenceBatchEntry = [string, OccurrenceRecord]
+type OccurrenceBatch = OccurrenceBatchEntry[]
+
+type RawDocMetadata = {
+  ipt: Ipt
+  source: IptSource
+  ingestStartedAt: Date
+  archiveUrl: string
+}
+
+const RAW_COLLECTION_NAME = getRawCollection('occurrences')
+const METRICS_COLLECTION_NAME = AUXILIARY_COLLECTIONS.metrics
+const DEFAULT_DB_NAME = process.env.MONGO_DB_NAME ?? 'dwc2json'
+const BULK_MAX_OPERATIONS = 500
+const BULK_MAX_BYTES = 12 * 1024 * 1024 // stay well below 16MB limit
+const VERSION_CHECK_TIMEOUT_MS = 15_000
+const ARCHIVE_CHUNK_SIZE = 5000
+const CONCURRENCY_LIMIT = 10
+const CSV_PATH = new URL('../referencias/occurrences.csv', import.meta.url)
+
+const resolveRunnerId = () =>
+  process.env.GITHUB_RUN_ID ??
+  process.env.RUNNER_NAME ??
+  process.env.RUN_ID ??
+  process.env.HOSTNAME ??
+  undefined
+
+const resolveScriptVersion = () =>
+  process.env.GITHUB_SHA ?? process.env.INGEST_VERSION ?? 'local-dev'
+
+const shouldSkip404 = (error: unknown) =>
+  error instanceof Error &&
+  error.name === 'Http' &&
+  (error.message.includes('404') ||
+    error.message.includes('Not Found') ||
+    error.message.includes('status 404'))
+
+const isNetworkError = (error: Error) =>
+  error.message.includes('timeout') ||
+  error.message.includes('Connection') ||
+  error.message.includes('ECONNRESET') ||
+  error.message.includes('ENOTFOUND') ||
+  error.message.includes('ECONNREFUSED') ||
+  error.message.includes('AbortError')
+
+const cloneRecord = (record: OccurrenceRecord): OccurrenceRecord => {
+  if (typeof structuredClone === 'function') {
+    return structuredClone(record)
+  }
+  return JSON.parse(JSON.stringify(record)) as OccurrenceRecord
+}
+
+const buildRawOccurrenceDocument = (
+  raw: OccurrenceRecord,
+  metadata: RawDocMetadata
+): RawOccurrenceDocument => {
+  const doc = cloneRecord(raw) as RawOccurrenceDocument
+
+  const occurrenceID =
+    typeof doc.occurrenceID === 'string' && doc.occurrenceID.trim().length > 0
+      ? doc.occurrenceID.trim()
+      : undefined
+
+  const deterministicId = buildOccurrenceDeterministicId(
+    {
+      occurrenceID,
+      catalogNumber: doc.catalogNumber as string | undefined,
+      recordNumber: doc.recordNumber as string | undefined,
+      eventDate: doc.eventDate as string | undefined,
+      locality: doc.locality as string | undefined,
+      recordedBy: doc.recordedBy as string | undefined
+    },
+    metadata.ipt.id
+  )
+
+  doc._id = deterministicId
+  if (occurrenceID && !doc.occurrenceID) {
+    doc.occurrenceID = occurrenceID
+  }
+  doc.iptId = metadata.ipt.id
+  doc.ipt = metadata.source.repositorio
+  doc.iptTag = metadata.source.tag
+  doc.iptKingdom = metadata.source.kingdom
+  doc.iptVersion = metadata.ipt.version
+  doc.rawIngestedAt = metadata.ingestStartedAt
+  doc.rawSourceUrl = metadata.archiveUrl
+
+  return doc
+}
+
+type PendingBulkOperation<TSchema extends Document> = {
+  operation: AnyBulkWriteOperation<TSchema>
+  size: number
+}
+
+const executeBulkUpsert = async (
+  collection: Collection<RawOccurrenceDocument>,
+  operations: PendingBulkOperation<RawOccurrenceDocument>[],
+  metrics: IngestMetricsTracker
+) => {
+  const chunk: PendingBulkOperation<RawOccurrenceDocument>[] = []
+  let currentBytes = 0
+
+  const flush = async () => {
+    if (!chunk.length) {
+      return
+    }
+    try {
+      const result = await collection.bulkWrite(
+        chunk.map((item) => item.operation),
+        { ordered: false }
+      )
+      metrics.addInserted(result.upsertedCount ?? 0)
+      metrics.addUpdated(result.modifiedCount ?? 0)
+    } catch (error) {
+      metrics.addError('bulkWrite')
+      metrics.addFailed(chunk.length)
+      throw error
+    } finally {
+      chunk.length = 0
+      currentBytes = 0
+    }
+  }
+
+  for (const pending of operations) {
+    if (pending.size >= 15 * 1024 * 1024) {
+      metrics.addError('docTooLarge')
+      metrics.addFailed(1)
+      continue
+    }
+
+    if (
+      chunk.length >= BULK_MAX_OPERATIONS ||
+      currentBytes + pending.size >= BULK_MAX_BYTES
+    ) {
+      await flush()
+    }
+
+    chunk.push(pending)
+    currentBytes += pending.size
+  }
+
+  await flush()
+}
+
+const runWithConcurrency = async <T>(
   items: T[],
   limit: number,
   iterator: (item: T) => Promise<void>
-) {
-  // Simple promise pool to avoid overwhelming IPT servers during version checks
+) => {
   const executing: Promise<void>[] = []
   for (const item of items) {
     const task = Promise.resolve().then(() => iterator(item))
@@ -113,226 +198,87 @@ async function runWithConcurrency<T>(
   }
   await Promise.all(executing)
 }
-const csvContents = await readFile(
-  new URL('../referencias/occurrences.csv', import.meta.url),
-  'utf-8'
-)
-const { data: iptSources } = Papa.parse<IptSource>(csvContents, {
-  header: true
-})
 
-const VERSION_CHECK_TIMEOUT_MS = 10_000
-
-const mongoUri = process.env.MONGO_URI
-if (!mongoUri) {
-  console.error('MONGO_URI environment variable is required')
-  process.exit(1)
+type PendingIpt = {
+  index: number
+  source: IptSource
+  ipt: Ipt
+  iptBaseUrl: string
 }
-const client = new MongoClient(mongoUri)
-await client.connect()
-const iptsCol = client.db('dwc2json').collection<DbIpt>('ipts')
-const ocorrenciasCol = client.db('dwc2json').collection('ocorrencias')
 
-console.log('Connecting to MongoDB...')
-let exitCode = 0
-try {
-  console.log('Creating indexes')
+type SimpleIndexDefinition = {
+  key: Record<string, IndexDirection>
+  name?: string
+  options?: Omit<CreateIndexesOptions, 'name'>
+}
 
-  const createIndexSafely = async (collection: any, indexes: any[]) => {
-    for (const index of indexes) {
-      try {
-        await collection.createIndex(index.key, { name: index.name })
-      } catch (error: any) {
-        if (error.code === 85) {
-          console.log(
-            `Index ${index.name} already exists with different options, skipping`
-          )
-        } else {
-          throw error
-        }
-      }
-    }
-  }
+const RAW_OCCURRENCE_INDEXES: SimpleIndexDefinition[] = [
+  { key: { iptId: 1 }, name: 'iptId' },
+  { key: { occurrenceID: 1 }, name: 'occurrenceID' },
+  { key: { scientificName: 1 }, name: 'scientificName' }
+]
 
-  await Promise.all([
-    createIndexSafely(ocorrenciasCol, [
-      { key: { scientificName: 1 }, name: 'scientificName' },
-      { key: { iptId: 1 }, name: 'iptId' },
-      { key: { ipt: 1 }, name: 'ipt' },
-      { key: { canonicalName: 1 }, name: 'canonicalName' },
-      { key: { flatScientificName: 1 }, name: 'flatScientificName' },
-      { key: { iptKingdoms: 1 }, name: 'iptKingdoms' },
-      { key: { year: 1 }, name: 'year' },
-      { key: { month: 1 }, name: 'month' },
-      { key: { eventDate: 1 }, name: 'eventDate' },
-      // Basic field indexes
-      { key: { country: 1 }, name: 'country' },
-      { key: { stateProvince: 1 }, name: 'stateProvince' },
-      { key: { genus: 1 }, name: 'genus' },
-      { key: { specificEpithet: 1 }, name: 'specificEpithet' },
-      { key: { kingdom: 1 }, name: 'kingdom' },
-      { key: { family: 1 }, name: 'family' },
-      { key: { recordedBy: 1 }, name: 'recordedBy' },
-      { key: { recordNumber: 1 }, name: 'recordNumber' },
-      { key: { locality: 1 }, name: 'locality' },
-      { key: { tag: 1 }, name: 'tag' },
-      { key: { phylum: 1 }, name: 'phylum' },
-      { key: { class: 1 }, name: 'class' },
-      { key: { order: 1 }, name: 'order' },
-      // Compound indexes for performance optimization
-      {
-        key: { country: 1, stateProvince: 1 },
-        name: 'country_stateProvince_compound'
-      },
-      {
-        key: { genus: 1, specificEpithet: 1 },
-        name: 'genus_specificEpithet_compound'
-      },
-      { key: { kingdom: 1, country: 1 }, name: 'kingdom_country_compound' },
-      {
-        key: { kingdom: 1, stateProvince: 1 },
-        name: 'kingdom_stateProvince_index'
-      },
-      { key: { kingdom: 1, family: 1 }, name: 'kingdom_family_index' },
-      // Geospatial index
-      { key: { geoPoint: '2dsphere' }, name: 'geoPoint_2dsphere' },
-      // Complex taxonomy index
-      {
-        key: {
-          stateProvince: 1,
-          kingdom: 1,
-          phylum: 1,
-          class: 1,
-          order: 1,
-          family: 1,
-          genus: 1,
-          specificEpithet: 1
-        },
-        name: 'idx_taxonomy_state'
-      }
-    ]),
-    createIndexSafely(iptsCol, [
-      { key: { tag: 1 }, name: 'tag' },
-      { key: { ipt: 1 }, name: 'ipt' }
-    ])
-  ])
+const IPT_COLLECTION_INDEXES: SimpleIndexDefinition[] = [
+  { key: { tag: 1 }, name: 'tag' },
+  { key: { ipt: 1 }, name: 'ipt' }
+]
 
-  console.log('Indexes created successfully')
-
-  // Track failed IPT servers to skip resources from same server
-  const failedIpts = new Set<string>()
-
-  // Extract base URL from IPT URL for grouping
-  const getIptBaseUrl = (url: string) => {
+const ensureIndexes = async <TSchema extends Document>(
+  collection: Collection<TSchema>,
+  indexes: ReadonlyArray<SimpleIndexDefinition>
+) => {
+  for (const index of indexes) {
     try {
-      const urlObj = new URL(url)
-      return `${urlObj.protocol}//${urlObj.host}`
-    } catch {
-      return url
+      await collection.createIndex(index.key, {
+        name: index.name,
+        ...(index.options ?? {})
+      })
+    } catch (error) {
+      const conflict =
+        error instanceof Error && error.message.includes('already exists')
+      if (!conflict) {
+        console.warn('Failed to create index', index, error)
+      }
     }
   }
+}
 
-  const pendingProcessing: {
-    index: number
-    source: IptSource
-    ipt: Ipt
-    iptBaseUrl: string
-  }[] = []
+const ingestIptOccurrences = async (
+  client: MongoClient,
+  rawCollection: Collection<RawOccurrenceDocument>,
+  metricsCollection: Collection<Document>,
+  iptsCollection: Collection<DbIpt>,
+  pending: PendingIpt,
+  runnerId: string | undefined,
+  scriptVersion: string,
+  failedIpts: Set<string>
+) => {
+  const { source, ipt, iptBaseUrl } = pending
+  const archiveUrl = `${source.url}archive.do?r=${source.tag}`
 
-  await runWithConcurrency(
-    iptSources.map((source: IptSource, index: number) => ({ source, index })),
-    10,
-    async ({ source, index }: { source: IptSource; index: number }) => {
-      const { repositorio, kingdom, tag, url } = source
-      if (!repositorio || !tag) {
-        return
-      }
+  const ingestStartedAt = new Date()
+  const metrics = new IngestMetricsTracker({
+    processType: 'ingest_occurrences',
+    resourceIdentifier: ipt.id,
+    runnerId,
+    version: scriptVersion
+  })
 
-      const iptBaseUrl = getIptBaseUrl(url)
-      if (failedIpts.has(iptBaseUrl)) {
-        console.log(
-          `Skipping ${repositorio}:${tag} - IPT server ${iptBaseUrl} already failed`
-        )
-        return
-      }
-
-      console.debug(`Processing ${repositorio}:${tag}\n${url}eml.do?r=${tag}`)
-      const eml = await getEml(
-        `${url}eml.do?r=${tag}`,
-        VERSION_CHECK_TIMEOUT_MS
-      ).catch((error) => {
-        if (
-          error.name === 'Http' &&
-          (error.message.includes('404') ||
-            error.message.includes('Not Found') ||
-            error.message.includes('status 404'))
-        ) {
-          console.log(
-            `EML resource ${repositorio}:${tag} no longer exists (404) - skipping`
-          )
-          return null
-        }
-
-        if (isNetworkError(error)) {
-          console.log(
-            `IPT server ${iptBaseUrl} appears to be offline - marking for skip`
-          )
-          failedIpts.add(iptBaseUrl)
-        }
-
-        console.log('Erro baixando/processando eml', error.message)
-        return null
-      })
-
-      if (!eml) {
-        return
-      }
-
-      const ipt = processaEml(eml)
-      const dbVersion = (
-        (await iptsCol.findOne({ _id: ipt.id })) as DbIpt | null
-      )?.version
-
-      if (dbVersion === ipt.version) {
-        console.debug(`${repositorio}:${tag} already on version ${ipt.version}`)
-        return
-      }
-
-      console.log(
-        `Version mismatch: DB[${dbVersion}] vs REMOTE[${ipt.version}]`
-      )
-      pendingProcessing.push({ index, source, ipt, iptBaseUrl })
-    }
-  )
-
-  pendingProcessing.sort((a, b) => a.index - b.index)
-
-  for (const { source, ipt, iptBaseUrl } of pendingProcessing) {
-    const { repositorio, kingdom, tag, url } = source
-
-    if (failedIpts.has(iptBaseUrl)) {
-      console.log(
-        `Skipping ${repositorio}:${tag} - IPT server ${iptBaseUrl} already failed`
-      )
-      continue
-    }
-
-    console.debug(
-      `Downloading ${repositorio}:${tag} [${url}archive.do?r=${tag}]`
-    )
-    const ocorrencias = await processaZip(
-      `${url}archive.do?r=${tag}`,
+  try {
+    console.debug(`Downloading ${source.repositorio}:${source.tag}`)
+    const batches = (await processaZip(
+      archiveUrl,
       true,
-      5000
+      ARCHIVE_CHUNK_SIZE
     ).catch((error) => {
-      if (error.name === 'Http' && error.message.includes('404')) {
+      if (shouldSkip404(error)) {
         console.log(
-          `Resource ${repositorio}:${tag} no longer exists (404) - skipping`
+          `Resource ${source.repositorio}:${source.tag} no longer exists (404) - skipping`
         )
         return null
       }
 
-      if (isNetworkError(error)) {
+      if (error instanceof Error && isNetworkError(error)) {
         console.log(
           `IPT server ${iptBaseUrl} appears to be offline during archive download - marking for skip`
         )
@@ -340,170 +286,250 @@ try {
       }
 
       throw error
-    })
+    })) as OccurrenceBatch[] | null
 
-    if (!ocorrencias) {
-      continue
+    if (!batches) {
+      return
     }
 
-    console.debug(`Cleaning ${repositorio}:${tag}`)
-    console.log(
-      `Deleted ${
-        (await ocorrenciasCol.deleteMany({ iptId: ipt.id })).deletedCount
-      } entries`
-    )
-    const bar = new cliProgress.SingleBar(
-      {},
+    // Get total records before consuming the iterator
+    const totalRecords = batches.length
+
+    // Convert iterator to array to get accurate batch count
+    const batchArray = Array.from(batches)
+    const totalBatches = batchArray.length
+
+    const progressBar = new cliProgress.SingleBar(
+      {
+        format:
+          'Processing {bar} | {value}/{total} batches ({records} records) | ETA: {eta}s',
+        barCompleteChar: '\u2588',
+        barIncompleteChar: '\u2591',
+        hideCursor: true
+      },
       cliProgress.Presets.shades_classic
     )
-    bar.start(ocorrencias.length, 0)
-    for (const batch of ocorrencias) {
-      if (!batch || !batch.length) {
-        break
+    progressBar.start(totalBatches, 0, { records: totalRecords })
+
+    for (const batch of batchArray) {
+      if (!batch || batch.length === 0) {
+        progressBar.increment()
+        continue
       }
-      bar.increment(batch.length - Math.floor(batch.length / 4))
-      await safeInsertMany(
-        ocorrenciasCol,
-        batch.map((ocorrencia) => {
-          if (ocorrencia[1].decimalLatitude && ocorrencia[1].decimalLongitude) {
-            const latitude = +ocorrencia[1].decimalLatitude
-            const longitude = +ocorrencia[1].decimalLongitude
-            if (
-              !isNaN(latitude) &&
-              !isNaN(longitude) &&
-              latitude >= -90 &&
-              latitude <= 90 &&
-              longitude >= -180 &&
-              longitude <= 180
-            ) {
-              ocorrencia[1].geoPoint = {
-                type: 'Point',
-                coordinates: [longitude, latitude]
+
+      const operations: PendingBulkOperation<RawOccurrenceDocument>[] = []
+
+      for (const entry of batch) {
+        const raw = entry[1]
+        metrics.addProcessed(1)
+
+        try {
+          const document = buildRawOccurrenceDocument(raw, {
+            archiveUrl,
+            ingestStartedAt,
+            ipt,
+            source
+          })
+          operations.push({
+            operation: {
+              replaceOne: {
+                filter: { _id: document._id },
+                replacement: document,
+                upsert: true
               }
-            }
-          }
-          const canonicalName = [
-            ocorrencia[1].genus,
-            ocorrencia[1].genericName,
-            ocorrencia[1].subgenus,
-            ocorrencia[1].infragenericEpithet,
-            ocorrencia[1].specificEpithet,
-            ocorrencia[1].infraspecificEpithet,
-            ocorrencia[1].cultivarEpiteth
-          ]
-            .filter(Boolean)
-            .join(' ')
-          const iptKingdoms = kingdom.split(/, ?/)
-
-          const processedData = { ...ocorrencia[1] }
-          tryConvertToNumber(processedData, 'year', (num) => num > 0)
-          tryConvertToNumber(
-            processedData,
-            'month',
-            (num) => num >= 1 && num <= 12
-          )
-          tryConvertToNumber(
-            processedData,
-            'day',
-            (num) => num >= 1 && num <= 31
-          )
-
-          // Normalize country and stateProvince for Brazilian data
-          if (processedData.country) {
-            const normalizedCountry = normalizeCountryName(
-              processedData.country
-            )
-            if (normalizedCountry) {
-              processedData.country = normalizedCountry
-            }
-          }
-
-          if (processedData.stateProvince) {
-            const normalizedState = normalizeStateName(
-              processedData.stateProvince
-            )
-            if (normalizedState) {
-              processedData.stateProvince = normalizedState
-            }
-          }
-
-          if (
-            processedData.eventDate &&
-            typeof processedData.eventDate === 'string'
-          ) {
-            try {
-              const eventDateObj = new Date(processedData.eventDate)
-              if (
-                !isNaN(eventDateObj.getTime()) &&
-                eventDateObj.toString() !== 'Invalid Date'
-              ) {
-                if (!processedData.year || isNaN(Number(processedData.year))) {
-                  processedData.year = eventDateObj.getFullYear()
-                }
-                if (
-                  !processedData.month ||
-                  isNaN(Number(processedData.month))
-                ) {
-                  processedData.month = eventDateObj.getMonth() + 1
-                }
-                if (!processedData.day || isNaN(Number(processedData.day))) {
-                  processedData.day = eventDateObj.getDate()
-                }
-                processedData.eventDate = eventDateObj
-              }
-            } catch (_error) {
-              // If parsing fails, keep as original string
-            }
-          }
-
-          return {
-            iptId: ipt.id,
-            ipt: repositorio,
-            canonicalName,
-            iptKingdoms,
-            flatScientificName: (
-              (ocorrencia[1].scientificName as string) ?? canonicalName
-            )
-              .replace(/[^a-zA-Z0-9]/g, '')
-              .toLocaleLowerCase(),
-            ...processedData
-          }
-        }),
-        {
-          ordered: false
+            },
+            size: calculateObjectSize(document)
+          })
+        } catch (error) {
+          metrics.addError('deterministicId')
+          metrics.addFailed(1)
         }
-      )
-      bar.increment(Math.floor(batch.length / 4))
+      }
+
+      if (operations.length > 0) {
+        await executeBulkUpsert(rawCollection, operations, metrics)
+      }
+
+      progressBar.increment()
     }
-    bar.stop()
-    console.debug(`Inserting IPT ${repositorio}:${tag}`)
-    const { id: _id, ...iptDb } = ipt
-    await iptsCol.updateOne(
+
+    progressBar.stop()
+
+    const { id: _id, ...iptData } = ipt
+    await iptsCollection.updateOne(
       { _id: ipt.id },
-      { $set: { _id, ...iptDb, tag, ipt: repositorio, kingdom } },
+      {
+        $set: {
+          _id,
+          ...iptData,
+          ipt: source.repositorio,
+          tag: source.tag,
+          kingdom: source.kingdom,
+          set: 'occurrences_raw',
+          collection: RAW_COLLECTION_NAME,
+          lastIngestedAt: ingestStartedAt,
+          sourceUrl: source.url
+        }
+      },
       { upsert: true }
     )
+  } catch (error) {
+    metrics.addError('runtime')
+    throw error
+  } finally {
+    const metricsDoc = metrics.buildDocument()
+    await metricsCollection.insertOne(metricsDoc)
+  }
+}
+
+const ingestOccurrences = async () => {
+  const mongoUri = process.env.MONGO_URI
+  if (!mongoUri) {
+    throw new Error('MONGO_URI environment variable is required')
   }
 
-  // Report failed IPTs
-  if (failedIpts.size > 0) {
-    console.log(
-      `\nSummary: ${failedIpts.size} IPT server(s) were offline and skipped:`
+  const csvContents = await readFile(CSV_PATH, 'utf-8')
+  const { data: parsedSources } = Papa.parse<IptSource>(csvContents, {
+    header: true
+  })
+
+  const iptSources = parsedSources.filter(
+    (source) => source.repositorio && source.tag && source.url
+  )
+
+  const client = new MongoClient(mongoUri)
+  let exitCode = 0
+
+  try {
+    await client.connect()
+    const db = client.db(DEFAULT_DB_NAME)
+    const rawCollection =
+      db.collection<RawOccurrenceDocument>(RAW_COLLECTION_NAME)
+    const metricsCollection = db.collection(METRICS_COLLECTION_NAME)
+    const iptsCollection = db.collection<DbIpt>('ipts')
+
+    await ensureIndexes(rawCollection, RAW_OCCURRENCE_INDEXES)
+
+    await ensureIndexes(iptsCollection, IPT_COLLECTION_INDEXES)
+
+    const failedIpts = new Set<string>()
+    const pendingProcessing: PendingIpt[] = []
+    const runnerId = resolveRunnerId()
+    const scriptVersion = resolveScriptVersion()
+
+    await runWithConcurrency(
+      iptSources.map((source, index) => ({ source, index })),
+      CONCURRENCY_LIMIT,
+      async ({ source, index }) => {
+        const { repositorio, tag, url } = source
+        if (!repositorio || !tag || !url) {
+          return
+        }
+
+        const iptBaseUrl = (() => {
+          try {
+            const urlObj = new URL(url)
+            return `${urlObj.protocol}//${urlObj.host}`
+          } catch {
+            return url
+          }
+        })()
+
+        if (failedIpts.has(iptBaseUrl)) {
+          console.log(
+            `Skipping ${repositorio}:${tag} - IPT server ${iptBaseUrl} already failed`
+          )
+          return
+        }
+
+        const eml = await getEml(
+          `${url}eml.do?r=${tag}`,
+          VERSION_CHECK_TIMEOUT_MS
+        ).catch((error) => {
+          if (shouldSkip404(error)) {
+            console.log(
+              `EML resource ${repositorio}:${tag} no longer exists (404) - skipping`
+            )
+            return null
+          }
+
+          if (error instanceof Error && isNetworkError(error)) {
+            console.log(
+              `IPT server ${iptBaseUrl} appears offline during EML fetch - marking for skip`
+            )
+            failedIpts.add(iptBaseUrl)
+          }
+
+          console.log('Erro baixando/processando EML', error)
+          return null
+        })
+
+        if (!eml) {
+          return
+        }
+
+        const ipt = processaEml(eml)
+        const existing = (await iptsCollection.findOne({
+          _id: ipt.id
+        })) as DbIpt | null
+
+        if (existing?.version === ipt.version) {
+          console.debug(
+            `${repositorio}:${tag} already on version ${ipt.version}`
+          )
+          return
+        }
+
+        pendingProcessing.push({ index, source, ipt, iptBaseUrl })
+      }
     )
-    for (const iptUrl of failedIpts) {
-      console.log(`  - ${iptUrl}`)
-    }
-  }
 
-  console.log('Processing completed successfully')
-} catch (error) {
-  console.error('Error occurred during processing:', error)
-  exitCode = 1
-} finally {
-  console.log('Closing MongoDB connection')
-  await client.close(true)
-  console.log('MongoDB connection closed')
-  if (typeof process !== 'undefined') {
-    process.exit(exitCode)
+    pendingProcessing.sort((a, b) => a.index - b.index)
+
+    for (const pending of pendingProcessing) {
+      try {
+        await ingestIptOccurrences(
+          client,
+          rawCollection,
+          metricsCollection,
+          iptsCollection,
+          pending,
+          runnerId,
+          scriptVersion,
+          failedIpts
+        )
+      } catch (error) {
+        console.error(
+          `Error occurred during processing of ${pending.source.repositorio}:${pending.source.tag}:`,
+          error
+        )
+        exitCode = 1
+      }
+    }
+
+    if (failedIpts.size > 0) {
+      console.log(
+        `\nSummary: ${failedIpts.size} IPT server(s) were offline and skipped:`
+      )
+      for (const item of failedIpts) {
+        console.log(`  - ${item}`)
+      }
+    }
+
+    if (!pendingProcessing.length) {
+      console.log('No IPT resources required ingestion updates.')
+    } else {
+      console.log('Occurrence raw ingestion completed')
+    }
+  } finally {
+    await client.close(true)
+    process.exitCode = exitCode
   }
+}
+
+if (import.meta.main) {
+  ingestOccurrences().catch((error) => {
+    console.error('Occurrence ingestion failed', error)
+    process.exitCode = 1
+  })
 }

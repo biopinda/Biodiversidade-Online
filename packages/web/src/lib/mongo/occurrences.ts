@@ -6,11 +6,11 @@ const FALLBACK_SAMPLE_SIZE_DASHBOARD = 50000
 const FALLBACK_SAMPLE_SIZE_FILTERED = 10000
 
 export async function getOccurrenceCountPerKingdom(kingdom: string) {
-  const occurrences = await getCollection('dwc2json', 'ocorrencias')
+  const occurrences = await getCollection('dwc2json', 'occurrences')
   if (!occurrences) return null
 
   const result = await occurrences.countDocuments({
-    kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
+    iptKingdoms: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase()
   })
 
   return result
@@ -21,7 +21,7 @@ export async function listOccurrences(
   _projection: Record<string, unknown> = {}
 ) {
   try {
-    const occurrences = await getCollection('dwc2json', 'ocorrencias')
+    const occurrences = await getCollection('dwc2json', 'occurrences')
     if (!occurrences) {
       console.warn('⚠️  Occurrences collection not available')
       return []
@@ -68,7 +68,7 @@ export async function countOccurrenceRegions(
     }
   }
 
-  const occurrences = await getCollection('dwc2json', 'ocorrencias')
+  const occurrences = await getCollection('dwc2json', 'occurrences')
   if (!occurrences) return null
 
   // Build optimized match stage

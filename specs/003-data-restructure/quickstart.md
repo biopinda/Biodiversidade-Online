@@ -425,6 +425,135 @@ Após validação do quickstart:
 
 ---
 
+## Checklist de Validação Final
+
+Use este checklist para validar a implementação completa da feature 003-data-restructure:
+
+### ✅ Infraestrutura e Setup
+
+- [ ] Monorepo configurado com 3 packages: ingest, transform, web
+- [ ] Root `package.json` possui scripts: `ingest:flora`, `ingest:fauna`, `ingest:occurrences`, `transform:taxa`, `transform:occurrences`, `transform:check-lock`
+- [ ] TypeScript compila sem erros: `bunx tsc --noEmit`
+- [ ] Dependências instaladas com sucesso: `bun install`
+- [ ] MongoDB acessível e `MONGO_URI` configurado
+
+### ✅ US1: Ingestão de Taxa (Flora e Fauna)
+
+- [ ] Script `bun run ingest:flora` executa sem erros
+- [ ] Script `bun run ingest:fauna` executa sem erros
+- [ ] Coleção `taxa_ipt` existe e contém > 250.000 registros
+- [ ] Registros possuem `_id` baseado em `taxonID`
+- [ ] Ambos Plantae e Animalia presentes: `db.taxa_ipt.distinct('kingdom')`
+- [ ] Métricas registradas em `process_metrics` collection
+
+### ✅ US2: Ingestão de Ocorrências
+
+- [ ] Script `bun run ingest:occurrences` processa ~490+ IPTs
+- [ ] Coleção `occurrences_ipt` existe e contém > 1 milhão de registros
+- [ ] Registros possuem `_id` determinístico (occurrenceID + iptId)
+- [ ] Campo `iptId` presente em todos os registros
+- [ ] Métricas registradas em `process_metrics` collection
+
+### ✅ US3: Transformação de Taxa
+
+- [ ] Script `bun run transform:taxa` executa sem erros
+- [ ] Coleção `taxa` existe com registros filtrados (apenas ESPECIE, VARIEDADE, etc)
+- [ ] Campo `canonicalName` presente e normalizado
+- [ ] Campo `flatScientificName` criado corretamente
+- [ ] Array `vernacularname` processado
+- [ ] Campo `distribution` com `origin` e `occurrence` arrays
+- [ ] Enriquecimentos aplicados: `threatStatus`, `invasiveStatus`
+- [ ] **CRÍTICO**: Todo `taxa._id` existe em `taxa_ipt._id`
+- [ ] Lock registrado em `transform_status` durante execução
+- [ ] Métricas registradas em `process_metrics`
+
+### ✅ US4: Transformação de Ocorrências
+
+- [ ] Script `bun run transform:occurrences` executa sem erros
+- [ ] Coleção `occurrences` existe
+- [ ] Campo `geoPoint` criado com formato GeoJSON para registros com coordenadas válidas
+- [ ] Campos `year`, `month`, `day` convertidos para números
+- [ ] Campo `country` normalizado para "Brasil"
+- [ ] Campo `stateProvince` normalizado (nomes completos, não siglas)
+- [ ] Array `iptKingdoms` criado a partir de campo CSV
+- [ ] Vinculação com `taxa` via `taxonID` funcionando
+- [ ] **CRÍTICO**: Todo `occurrences._id` existe em `occurrences_ipt._id`
+- [ ] Filtro de país aplicado (apenas registros do Brasil)
+- [ ] Lock registrado em `transform_status` durante execução
+- [ ] Métricas registradas em `process_metrics`
+
+### ✅ US5: APIs RESTful
+
+- [ ] Endpoint GET `/api/taxa` retorna lista paginada
+- [ ] Endpoint GET `/api/taxa/{taxonID}` retorna táxon específico
+- [ ] Endpoint GET `/api/taxa/count` retorna contagem
+- [ ] Endpoint GET `/api/occurrences` retorna lista paginada
+- [ ] Endpoint GET `/api/occurrences/{occurrenceID}` retorna ocorrência específica
+- [ ] Endpoint GET `/api/occurrences/count` retorna contagem
+- [ ] Endpoint GET `/api/occurrences/geojson` retorna GeoJSON válido
+- [ ] Filtros funcionam corretamente em todas as APIs
+- [ ] Paginação funciona (limit, offset)
+- [ ] `/api/docs` ou `/public/api-spec.json` atualizado com novos endpoints
+
+### ✅ US6: Interface Web
+
+- [ ] `/taxa` - Busca de espécies funciona, usa API `/api/taxa`
+- [ ] `/mapa` - Mapa carrega e exibe distribuição por estado
+- [ ] `/dashboard` - Dashboard exibe estatísticas das collections transformadas
+- [ ] `/tree` - Árvore taxonômica carrega hierarquia de `taxa` collection
+- [ ] `/chat` - ChatBB consulta collections transformadas via MCP
+- [ ] `prompt.md` atualizado com referências a `taxa`/`occurrences` (não `ocorrencias`)
+- [ ] Cache do dashboard regenerado: `bun run cache-dashboard`
+
+### ✅ Automação e CI/CD
+
+- [ ] Workflow `.github/workflows/transform-taxa.yml` existe
+- [ ] Workflow `.github/workflows/transform-occurrences.yml` existe
+- [ ] Workflow `update-mongodb-flora.yml` chama `transform-taxa.yml` após ingestão
+- [ ] Workflow `update-mongodb-fauna.yml` chama `transform-taxa.yml` após ingestão
+- [ ] Workflow `update-mongodb-occurrences.yml` chama `transform-occurrences.yml` após ingestão
+- [ ] Workflows podem ser executados manualmente (workflow_dispatch)
+
+### ✅ Documentação
+
+- [ ] `README.md` atualizado com arquitetura raw → transform
+- [ ] `README.md` documenta novos comandos CLI
+- [ ] `docs/atualizacao.md` atualizado com fluxo de duas fases
+- [ ] `docs/atualizacao.md` documenta métricas e controle de concorrência
+- [ ] `packages/web/README.md` documenta APIs e fluxo de dados
+- [ ] `specs/003-data-restructure/quickstart.md` validado (este arquivo)
+
+### ✅ Rastreabilidade e Auditoria (CRÍTICO)
+
+- [ ] Validação 100%: `db.taxa.countDocuments() === db.taxa.aggregate([{$lookup:{from:'taxa_ipt', localField:'_id', foreignField:'_id', as:'raw'}}, {$match:{'raw.0':{$exists:true}}}, {$count:'c'}]).next().c`
+- [ ] Validação 100%: `db.occurrences.countDocuments() === db.occurrences.aggregate([{$lookup:{from:'occurrences_ipt', localField:'_id', foreignField:'_id', as:'raw'}}, {$match:{'raw.0':{$exists:true}}}, {$count:'c'}]).next().c`
+- [ ] Nenhum registro órfão em collections transformadas
+- [ ] Processo de transformação é idempotente (pode ser re-executado sem duplicatas)
+
+### ✅ Testes Manuais End-to-End
+
+- [ ] Executar ingestão completa: flora → fauna → occurrences
+- [ ] Executar transformação completa: taxa → occurrences
+- [ ] Testar todas as páginas web em desenvolvimento: `bun run web:dev`
+- [ ] Testar build de produção: `bun run web:build`
+- [ ] Iniciar servidor de produção e validar funcionalidade
+- [ ] Executar queries de auditoria no MongoDB (rastreabilidade de \_id)
+- [ ] Verificar que `process_metrics` contém registros de todas as execuções
+
+### ✅ Performance e Otimização
+
+- [ ] Índices MongoDB criados corretamente
+- [ ] Queries de API respondem em < 500ms (com dados locais)
+- [ ] Dashboard carrega em < 2 segundos (usando cache)
+- [ ] Transformações completam em tempo razoável (< 30 min para taxa, < 1h para occurrences)
+
+---
+
+**Total de Validações**: 90+  
+**Tempo Estimado de Validação Completa**: 3-4 horas
+
+---
+
 **Version**: 1.0  
-**Last Updated**: 2025-10-29  
+**Last Updated**: 2025-10-30  
 **Estimated Total Time**: 3-4 horas (incluindo tempos de ingestão/transformação)

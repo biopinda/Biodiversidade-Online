@@ -96,3 +96,14 @@ export async function getCollection(dbName: string, collection: string) {
     return null
   }
 }
+
+export async function getMongoDatabase() {
+  if (!(await connectClientWithTimeout())) {
+    throw new Error('Could not connect to MongoDB')
+  }
+  const client = getClient()
+  const url = getMongoUrl()
+  // Extract database name from connection string
+  const dbName = url.split('/').pop()?.split('?')[0] || 'biodiversidade'
+  return client.db(dbName)
+}

@@ -24,6 +24,28 @@ A versão atual integra uma vasta gama de fontes de dados da biodiversidade bras
 
 O **Biodiversidade.Online** é um sistema automatizado de integração e processamento de dados de biodiversidade brasileira, desenvolvido em TypeScript executado com Bun. O projeto consolida informações taxonômicas e de ocorrências de múltiplas fontes científicas em uma base de dados MongoDB unificada, facilitando consultas e análises da biodiversidade nacional.
 
+### Arquitetura de Dados: Pipeline Raw → Transform
+
+A versão 5.0 introduz uma arquitetura de processamento de dados em duas etapas:
+
+1. **Ingestão (Raw)**: Dados brutos são baixados de fontes DwC-A e armazenados sem transformações nas coleções `taxa_ipt` e `occurrences_ipt`, preservando campos originais e rastreabilidade.
+
+2. **Transformação (Transform)**: Scripts dedicados processam os dados brutos aplicando:
+   - **Validações**: Geográficas (coordenadas), temporais (datas), taxonômicas (ranks)
+   - **Normalizações**: Padronização de países, estados, nomes científicos
+   - **Enriquecimentos**: Status de ameaça, invasoras, unidades de conservação
+   - **Agregações**: Criação de campos derivados e índices otimizados
+
+Os dados transformados são armazenados nas coleções `taxa` e `occurrences`, que são consultadas pelas APIs e interfaces web.
+
+#### Benefícios da Arquitetura
+
+- ✅ **Rastreabilidade completa**: `_id` preservado entre coleções raw e transformadas
+- ✅ **Auditoria facilitada**: Comparação direta entre dados originais e processados
+- ✅ **Idempotência garantida**: Re-execuções seguras sem duplicação de dados
+- ✅ **Flexibilidade**: Modificar transformações sem re-baixar dados de origem
+- ✅ **Desempenho otimizado**: Índices e agregações pré-computadas nas coleções transformadas
+
 ## Funcionalidades Principais
 
 ### 🔄 Processamento Automático de Dados
@@ -53,16 +75,28 @@ O **Biodiversidade.Online** é um sistema automatizado de integração e process
 
 ```
 ├── packages/
-│   ├── ingest/
-│   │   ├── src/                # Processamento de flora, fauna e ocorrências
+│   ├── ingest/                 # Pipeline de ingestão de dados brutos
+│   │   ├── src/
+│   │   │   ├── flora.ts        # Ingestão de dados da Flora do Brasil → taxa_ipt
+│   │   │   ├── fauna.ts        # Ingestão de dados da Fauna do Brasil → taxa_ipt
+│   │   │   ├── ocorrencia.ts   # Ingestão de ~490 IPTs → occurrences_ipt
+│   │   │   └── lib/            # Utilitários DwC-A e normalização
 │   │   ├── referencias/        # Documentação e listas de referência
-│   │   ├── scripts/            # Utilitários e verificações auxiliares
-│   │   ├── tests/              # Testes Playwright e fixtures
 │   │   └── chatbb/             # Conjuntos de dados e prompts do assistente
-│   └── web/                    # Aplicação Astro/Tailwind
+│   ├── transform/              # Pipeline de transformação de dados
+│   │   ├── src/
+│   │   │   ├── taxa/           # Transformação taxa_ipt → taxa
+│   │   │   ├── occurrences/    # Transformação occurrences_ipt → occurrences
+│   │   │   ├── lib/            # Infraestrutura (database, locks, métricas)
+│   │   │   └── cli/            # Comandos CLI para orquestração
+│   │   └── test/               # Testes de validação
+│   └── web/                    # Aplicação web Astro.js
 │       ├── src/
+│       │   ├── pages/          # Interfaces web e APIs REST
+│       │   ├── components/     # Componentes React
+│       │   └── prompts/        # Prompts do ChatBB
 │       └── public/
-├── docs/                       # Histórico do projeto e notas adicionais
+├── docs/                       # Histórico do projeto e documentação
 └── .github/workflows/          # Automação CI/CD
 ```
 
@@ -136,17 +170,35 @@ _(Requer chave da OpenAI ou Gemini)_
 # Instalar dependências dos workspaces
 bun install
 
-# Processar dados de flora
-bun run --filter @darwincore/ingest flora -- <dwc-a url>
+# === Pipeline de Ingestão (Raw Data) ===
+# Processar dados de flora (DwC-A → taxa_ipt)
+bun run ingest:flora <dwc-a-url>
 
-# Processar dados de fauna
-bun run --filter @darwincore/ingest fauna -- <dwc-a url>
+# Processar dados de fauna (DwC-A → taxa_ipt)
+bun run ingest:fauna <dwc-a-url>
 
-# Processar ocorrências
-bun run --filter @darwincore/ingest occurrences
+# Processar ocorrências de todos os IPTs (DwC-A → occurrences_ipt)
+bun run ingest:occurrences
 
+# === Pipeline de Transformação (Processed Data) ===
+# Transformar dados taxonômicos (taxa_ipt → taxa)
+bun run transform:taxa
+
+# Transformar dados de ocorrências (occurrences_ipt → occurrences)
+bun run transform:occurrences
+
+# Verificar status de locks de transformação
+bun run transform:check-lock
+
+# === Aplicação Web ===
 # Iniciar a interface web em modo dev
 bun run web:dev
+
+# Build para produção
+bun run web:build
+
+# Executar servidor de produção
+cd packages/web && node dist/server/entry.mjs
 ```
 
 ### Via Docker

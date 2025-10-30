@@ -1,93 +1,761 @@
 {
-  "openapi": "3.1.0",
+  "openapi": "3.0.3",
   "info": {
-    "title": "D2J API",
-    "version": "0.1.10",
-    "description": "API para acesso à base de dados do projeto D2J"
+    "title": "Biodiversidade.Online API",
+    "version": "2.0.0",
+    "description": "API para consulta de dados taxonômicos e de ocorrências da biodiversidade brasileira.\n\nEsta API serve dados das collections MongoDB `taxa` e `occurrences` (transformadas), que contêm registros validados e enriquecidos dos catálogos oficiais (Flora e Funga do Brasil, Catálogo Taxonômico da Fauna do Brasil) e 507 repositórios IPT de ocorrências.\n\n**Rastreabilidade**: Cada registro pode ser rastreado à sua fonte original via `_id` nas collections `taxa_ipt` e `occurrences_ipt` (dados brutos sem transformações).",
+    "contact": {
+      "name": "Biodiversidade.Online",
+      "url": "https://biodiversidade.online"
+    }
   },
+  "servers": [
+    {
+      "url": "http://localhost:4321/api",
+      "description": "Servidor de desenvolvimento local"
+    },
+    {
+      "url": "https://biodiversidade.online/api",
+      "description": "Servidor de produção"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Taxa",
+      "description": "Operações sobre dados taxonômicos"
+    },
+    {
+      "name": "Occurrences",
+      "description": "Operações sobre dados de ocorrências"
+    },
+    {
+      "name": "Legacy",
+      "description": "Endpoints legados (mantidos para compatibilidade)"
+    }
+  ],
   "paths": {
     "/api/taxa": {
       "get": {
-        "summary": "Retorna dados de taxa",
+        "summary": "Lista táxons com filtros",
+        "description": "Retorna lista paginada de táxons filtrados por parâmetros de busca.\n\n**Filtros aplicados automaticamente:**\n- Apenas registros com `taxonRank` em ['ESPECIE', 'VARIEDADE', 'FORMA', 'SUB_ESPECIE']\n- Apenas registros de `kingdom` em ['Animalia', 'Plantae', 'Fungi']",
+        "tags": ["Taxa"],
+        "operationId": "listTaxa",
         "parameters": [
           {
             "name": "scientificName",
             "in": "query",
+            "description": "Nome científico completo ou parcial (case-insensitive)",
             "required": false,
             "schema": {
-              "type": "string"
-            },
-            "description": "O nome científico do taxon - aceita parcial"
+              "type": "string",
+              "example": "Panthera onca"
+            }
           },
           {
-            "name": "extraParams",
+            "name": "canonicalName",
             "in": "query",
+            "description": "Nome canônico (genus + specificEpithet) - busca exata",
             "required": false,
             "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              },
-              "example": {
-                "family": "Ctenidae",
-                "taxonomicStatus": "NOME ACEITO"
+              "type": "string",
+              "example": "Panthera onca"
+            }
+          },
+          {
+            "name": "kingdom",
+            "in": "query",
+            "description": "Reino taxonômico",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["Animalia", "Plantae", "Fungi"],
+              "example": "Animalia"
+            }
+          },
+          {
+            "name": "family",
+            "in": "query",
+            "description": "Família taxonômica",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "Felidae"
+            }
+          },
+          {
+            "name": "genus",
+            "in": "query",
+            "description": "Gênero taxonômico",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "Panthera"
+            }
+          },
+          {
+            "name": "taxonRank",
+            "in": "query",
+            "description": "Categoria taxonômica",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["ESPECIE", "VARIEDADE", "FORMA", "SUB_ESPECIE"],
+              "example": "ESPECIE"
+            }
+          },
+          {
+            "name": "taxonomicStatus",
+            "in": "query",
+            "description": "Status taxonômico",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "ACEITO"
+            }
+          },
+          {
+            "name": "threatStatus",
+            "in": "query",
+            "description": "Filtrar apenas espécies com algum status de ameaça",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "invasive",
+            "in": "query",
+            "description": "Filtrar apenas espécies invasoras",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Número máximo de resultados por página",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Número de registros a pular (para paginação)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "example": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de táxons retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "pagination"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Taxon"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parâmetros de consulta inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
               }
             }
           }
+        }
+      }
+    },
+    "/api/taxa/{taxonID}": {
+      "get": {
+        "summary": "Obtém táxon por ID",
+        "description": "Retorna detalhes completos de um táxon específico pelo seu `taxonID`.\n\n**Rastreabilidade**: O `_id` retornado é idêntico ao da collection `taxa_ipt`, permitindo auditoria do dado original.",
+        "tags": ["Taxa"],
+        "operationId": "getTaxonById",
+        "parameters": [
+          {
+            "name": "taxonID",
+            "in": "path",
+            "description": "Identificador único do táxon",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "taxon-12345"
+            }
+          }
         ],
         "responses": {
           "200": {
-            "description": "Dados de taxa",
+            "description": "Táxon encontrado",
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Taxon"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Táxon não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
             }
           }
         }
       }
     },
-    "/api/family/{kingdom}": {
+    "/api/taxa/count": {
       "get": {
-        "summary": "Retorna quantidades agrupadas por família",
+        "summary": "Conta táxons com filtros",
+        "description": "Retorna contagem de táxons que correspondem aos filtros especificados. Aceita os mesmos filtros que `/api/taxa` (exceto limit/offset).",
+        "tags": ["Taxa"],
+        "operationId": "countTaxa",
         "parameters": [
           {
-            "name": "kingdom",
-            "in": "path",
-            "required": true,
+            "name": "scientificName",
+            "in": "query",
             "schema": {
               "type": "string"
-            },
-            "description": "O nome do reino"
+            }
+          },
+          {
+            "name": "kingdom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["Animalia", "Plantae", "Fungi"]
+            }
+          },
+          {
+            "name": "family",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "genus",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "taxonRank",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["ESPECIE", "VARIEDADE", "FORMA", "SUB_ESPECIE"]
+            }
+          },
+          {
+            "name": "threatStatus",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "invasive",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Dados agrupados por família",
+            "description": "Contagem retornada com sucesso",
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["count", "filters"],
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "description": "Número total de táxons que correspondem aos filtros",
+                      "example": 150
+                    },
+                    "filters": {
+                      "type": "object",
+                      "description": "Filtros aplicados na contagem"
+                    }
+                  }
+                }
+              }
             }
           }
         }
       }
     },
-    "/api/taxonomicStatus/{kingdom}": {
+    "/api/occurrences": {
       "get": {
-        "summary": "Retorna quantidades agrupadas por status taxonômico",
+        "summary": "Lista ocorrências com filtros",
+        "description": "Retorna lista paginada de ocorrências filtradas por parâmetros de busca.\n\n**Filtros geográficos**: Suporta busca por bounding box, estado, município.\n**Filtros taxonômicos**: Pode filtrar por nome científico, família, gênero, etc.\n**Filtros temporais**: Suporta busca por ano, mês, ou range de datas.\n**Filtro automático**: Apenas ocorrências do Brasil.",
+        "tags": ["Occurrences"],
+        "operationId": "listOccurrences",
         "parameters": [
           {
-            "name": "kingdom",
-            "in": "path",
-            "required": true,
+            "name": "scientificName",
+            "in": "query",
+            "description": "Nome científico completo ou parcial (case-insensitive)",
             "schema": {
-              "type": "string"
-            },
-            "description": "O nome do reino"
+              "type": "string",
+              "example": "Panthera onca"
+            }
+          },
+          {
+            "name": "canonicalName",
+            "in": "query",
+            "description": "Nome canônico (busca exata)",
+            "schema": {
+              "type": "string",
+              "example": "Panthera onca"
+            }
+          },
+          {
+            "name": "taxonID",
+            "in": "query",
+            "description": "ID do táxon vinculado (referência à collection taxa)",
+            "schema": {
+              "type": "string",
+              "example": "taxon-12345"
+            }
+          },
+          {
+            "name": "kingdom",
+            "in": "query",
+            "description": "Reino taxonômico",
+            "schema": {
+              "type": "string",
+              "example": "Animalia"
+            }
+          },
+          {
+            "name": "family",
+            "in": "query",
+            "description": "Família taxonômica",
+            "schema": {
+              "type": "string",
+              "example": "Felidae"
+            }
+          },
+          {
+            "name": "genus",
+            "in": "query",
+            "description": "Gênero taxonômico",
+            "schema": {
+              "type": "string",
+              "example": "Panthera"
+            }
+          },
+          {
+            "name": "stateProvince",
+            "in": "query",
+            "description": "Estado brasileiro (normalizado)",
+            "schema": {
+              "type": "string",
+              "example": "São Paulo"
+            }
+          },
+          {
+            "name": "county",
+            "in": "query",
+            "description": "Município (harmonizado com IBGE)",
+            "schema": {
+              "type": "string",
+              "example": "Campinas"
+            }
+          },
+          {
+            "name": "bbox",
+            "in": "query",
+            "description": "Bounding box geográfico (formato minLon,minLat,maxLon,maxLat)",
+            "schema": {
+              "type": "string",
+              "pattern": "^-?\\d+\\.?\\d*,-?\\d+\\.?\\d*,-?\\d+\\.?\\d*,-?\\d+\\.?\\d*$",
+              "example": "-46.5,-23.7,-46.3,-23.5"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "description": "Ano da coleta/observação",
+            "schema": {
+              "type": "integer",
+              "minimum": 1500,
+              "maximum": 2100,
+              "example": 2023
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "description": "Mês da coleta/observação (1-12)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12,
+              "example": 3
+            }
+          },
+          {
+            "name": "yearFrom",
+            "in": "query",
+            "description": "Ano inicial para range temporal",
+            "schema": {
+              "type": "integer",
+              "example": 2020
+            }
+          },
+          {
+            "name": "yearTo",
+            "in": "query",
+            "description": "Ano final para range temporal",
+            "schema": {
+              "type": "integer",
+              "example": 2024
+            }
+          },
+          {
+            "name": "iptId",
+            "in": "query",
+            "description": "Identificador do repositório IPT de origem",
+            "schema": {
+              "type": "string",
+              "example": "ipt-jbrj-hash"
+            }
+          },
+          {
+            "name": "basisOfRecord",
+            "in": "query",
+            "description": "Base do registro (HUMAN_OBSERVATION, PRESERVED_SPECIMEN, etc)",
+            "schema": {
+              "type": "string",
+              "example": "PRESERVED_SPECIMEN"
+            }
+          },
+          {
+            "name": "hasCoordinates",
+            "in": "query",
+            "description": "Filtrar apenas registros com coordenadas válidas (geoPoint presente)",
+            "schema": {
+              "type": "boolean",
+              "example": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Número máximo de resultados por página",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Número de registros a pular (para paginação)",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "example": 0
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Dados agrupados por status taxonômico",
+            "description": "Lista de ocorrências retornada com sucesso",
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data", "pagination"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Occurrence"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parâmetros de consulta inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/occurrences/{occurrenceID}": {
+      "get": {
+        "summary": "Obtém ocorrência por ID",
+        "description": "Retorna detalhes completos de uma ocorrência específica pelo seu `_id`.\n\n**Nota**: O `_id` combina occurrenceID com iptId para garantir unicidade entre diferentes repositórios IPT. Formato: `{occurrenceID}:{iptId}`",
+        "tags": ["Occurrences"],
+        "operationId": "getOccurrenceById",
+        "parameters": [
+          {
+            "name": "occurrenceID",
+            "in": "path",
+            "description": "Identificador único da ocorrência (formato completo com iptId)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "occ-abc123:ipt-jbrj"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ocorrência encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Occurrence"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ocorrência não encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/occurrences/count": {
+      "get": {
+        "summary": "Conta ocorrências com filtros",
+        "description": "Retorna contagem de ocorrências que correspondem aos filtros especificados. Aceita os mesmos filtros que `/api/occurrences` (exceto limit/offset).",
+        "tags": ["Occurrences"],
+        "operationId": "countOccurrences",
+        "parameters": [
+          {
+            "name": "scientificName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stateProvince",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bbox",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "kingdom",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hasCoordinates",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contagem retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["count", "filters"],
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "description": "Número total de ocorrências que correspondem aos filtros",
+                      "example": 5420
+                    },
+                    "filters": {
+                      "type": "object",
+                      "description": "Filtros aplicados na contagem"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/occurrences/geojson": {
+      "get": {
+        "summary": "Retorna ocorrências em formato GeoJSON",
+        "description": "Retorna ocorrências filtradas no formato GeoJSON FeatureCollection, otimizado para renderização em mapas.\n\n**Nota**: Apenas ocorrências com `geoPoint` válido são incluídas.\n**Limite**: Máximo de 10.000 features por request para performance.",
+        "tags": ["Occurrences"],
+        "operationId": "getOccurrencesGeoJSON",
+        "parameters": [
+          {
+            "name": "bbox",
+            "in": "query",
+            "description": "Bounding box geográfico (obrigatório para GeoJSON)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "-46.5,-23.7,-46.3,-23.5"
+            }
+          },
+          {
+            "name": "scientificName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kingdom",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "default": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GeoJSON FeatureCollection retornada com sucesso",
+            "content": {
+              "application/geo+json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["type", "features"],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["FeatureCollection"]
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/GeoJSONFeature"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parâmetro bbox obrigatório ausente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
             }
           }
         }
@@ -95,7 +763,9 @@
     },
     "/api/plotOccurrences": {
       "get": {
-        "summary": "Retorna dados de plotagem de ocorrências em GeoJSON",
+        "summary": "[LEGACY] Retorna dados de plotagem de ocorrências em GeoJSON",
+        "description": "Endpoint legado mantido para compatibilidade. Recomenda-se usar `/api/occurrences/geojson`.",
+        "tags": ["Legacy"],
         "parameters": [
           {
             "name": "canonicalName",
@@ -104,7 +774,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "O \"nome canônico\" (espécie) do taxon"
+            "description": "O nome canônico (espécie) do taxon"
           },
           {
             "name": "lat",
@@ -140,41 +810,328 @@
             "content": {
               "application/json": {}
             }
-          },
-          "400": {
-            "description": "Pedido inválido, parâmetros obrigatórios ausentes",
+          }
+        }
+      }
+    },
+    "/api/family/{kingdom}": {
+      "get": {
+        "summary": "[LEGACY] Retorna quantidades agrupadas por família",
+        "tags": ["Legacy"],
+        "parameters": [
+          {
+            "name": "kingdom",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados agrupados por família",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string",
-                  "example": "Either canonicalName or Latitude and longitude are required"
-                }
-              }
+              "application/json": {}
             }
           }
         }
       }
     },
-    "/api/occurrences": {
+    "/api/taxonomicStatus/{kingdom}": {
       "get": {
-        "summary": "Retorna dados de ocorrências",
+        "summary": "[LEGACY] Retorna quantidades agrupadas por status taxonômico",
+        "tags": ["Legacy"],
         "parameters": [
           {
-            "name": "scientificName",
-            "in": "query",
+            "name": "kingdom",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "string"
-            },
-            "description": "O nome científico do taxon"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Dados de ocorrências",
+            "description": "Dados agrupados por status taxonômico",
             "content": {
               "application/json": {}
             }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Taxon": {
+        "type": "object",
+        "required": [
+          "_id",
+          "taxonID",
+          "scientificName",
+          "canonicalName",
+          "kingdom",
+          "taxonRank"
+        ],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Identificador único (idêntico ao taxonID)"
+          },
+          "taxonID": {
+            "type": "string",
+            "description": "ID taxonômico do DwC-A original"
+          },
+          "scientificName": {
+            "type": "string",
+            "description": "Nome científico completo com autor e ano"
+          },
+          "canonicalName": {
+            "type": "string",
+            "description": "Nome canônico (genus + specificEpithet + infraspecificEpithet)"
+          },
+          "flatScientificName": {
+            "type": "string",
+            "description": "Nome científico sem caracteres especiais, lowercase"
+          },
+          "kingdom": {
+            "type": "string",
+            "enum": ["Animalia", "Plantae", "Fungi"]
+          },
+          "phylum": {
+            "type": "string"
+          },
+          "class": {
+            "type": "string"
+          },
+          "order": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "genus": {
+            "type": "string"
+          },
+          "specificEpithet": {
+            "type": "string"
+          },
+          "taxonRank": {
+            "type": "string",
+            "enum": ["ESPECIE", "VARIEDADE", "FORMA", "SUB_ESPECIE"]
+          },
+          "taxonomicStatus": {
+            "type": "string"
+          },
+          "vernacularname": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "vernacularName": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "threatStatus": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "enum": ["cncfloraFungi", "cncfloraPlantae", "faunaAmeacada"]
+              },
+              "category": {
+                "type": "string"
+              }
+            }
+          },
+          "invasiveStatus": {
+            "type": "object",
+            "properties": {
+              "isInvasive": {
+                "type": "boolean"
+              },
+              "source": {
+                "type": "string",
+                "enum": ["invasoras"]
+              }
+            }
+          },
+          "_transformedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_transformVersion": {
+            "type": "string"
+          }
+        }
+      },
+      "Occurrence": {
+        "type": "object",
+        "required": [
+          "_id",
+          "occurrenceID",
+          "scientificName",
+          "canonicalName",
+          "iptId",
+          "ipt"
+        ],
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Identificador único (formato occurrenceID:iptId)"
+          },
+          "occurrenceID": {
+            "type": "string"
+          },
+          "scientificName": {
+            "type": "string"
+          },
+          "canonicalName": {
+            "type": "string"
+          },
+          "taxonID": {
+            "type": "string"
+          },
+          "iptKingdoms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "family": {
+            "type": "string"
+          },
+          "genus": {
+            "type": "string"
+          },
+          "geoPoint": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Point"]
+              },
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          },
+          "country": {
+            "type": "string"
+          },
+          "stateProvince": {
+            "type": "string"
+          },
+          "county": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "month": {
+            "type": "integer"
+          },
+          "day": {
+            "type": "integer"
+          },
+          "iptId": {
+            "type": "string"
+          },
+          "ipt": {
+            "type": "string"
+          },
+          "basisOfRecord": {
+            "type": "string"
+          },
+          "_transformedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "_transformVersion": {
+            "type": "string"
+          }
+        }
+      },
+      "GeoJSONFeature": {
+        "type": "object",
+        "required": ["type", "geometry", "properties"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["Feature"]
+          },
+          "geometry": {
+            "type": "object",
+            "required": ["type", "coordinates"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Point"]
+              },
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          },
+          "properties": {
+            "type": "object"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "required": ["total", "limit", "offset", "hasMore"],
+        "properties": {
+          "total": {
+            "type": "integer",
+            "description": "Número total de registros que correspondem aos filtros"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Número de registros por página"
+          },
+          "offset": {
+            "type": "integer",
+            "description": "Número de registros pulados"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Indica se há mais páginas disponíveis"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error", "message"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Tipo do erro"
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensagem descritiva do erro"
+          },
+          "details": {
+            "type": "object",
+            "description": "Detalhes adicionais sobre o erro"
           }
         }
       }

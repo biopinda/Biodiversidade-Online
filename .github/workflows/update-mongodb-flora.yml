@@ -17,7 +17,7 @@ env:
   DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=lista_especies_flora_brasil
 
 jobs:
-  update-db:
+  ingest:
     permissions:
       contents: 'read'
     runs-on: [self-hosted]
@@ -36,15 +36,20 @@ jobs:
         run: sudo apt update && sudo apt install zip
       - name: Install dependencies
         run: bun install --frozen-lockfile --filter @biodiversidade/ingest
-      - name: Update DB from web
+      - name: Ingest Flora from web
         if: ${{ github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/Biodiversidade-Online/
         run: bun run --filter @biodiversidade/ingest flora -- "${{ github.event.inputs.DWCA_URL }}"
-      - name: Update DB
+      - name: Ingest Flora
         if: ${{ !github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/Biodiversidade-Online/
         run: bun run --filter @biodiversidade/ingest flora -- "${{ env.DWCA_URL }}"
+
+  transform:
+    needs: ingest
+    uses: ./.github/workflows/transform-taxa.yml
+    secrets: inherit

@@ -1,37 +1,42 @@
 ---
 import BaseLayout from '@/layouts/base.astro'
-import { countTaxa, listTaxaPaginated } from '@/lib/mongo'
 
-const taxaNum = (await countTaxa()) ?? 0
+// Fetch total count from API for display
+const countResponse = await fetch(`${Astro.url.origin}/api/taxa/count`).catch(
+  () => null
+)
+const taxaNum = countResponse
+  ? ((await countResponse.json()) as { count: number }).count
+  : 0
 
 const searchParams: Record<string, string> = Object.fromEntries(
   Array.from(Astro.url.searchParams.entries())
 )
 
-const filter: Record<string, unknown> = structuredClone(searchParams)
-if (filter.scientificName !== undefined) {
-  filter.scientificName = new RegExp(filter.scientificName as string, 'i')
-}
-delete filter.page
-
+// Fetch taxa from API if there are search params
 let taxa: Record<string, unknown>[] = []
 let total = 0
 let totalPages = 0
 const currentPage = searchParams.page ? +searchParams.page : 1
-if (Object.keys(searchParams).length > 0) {
-  ;({
-    data: taxa,
-    total,
-    totalPages
-  } = (await listTaxaPaginated(
-    filter,
-    searchParams.page ? +searchParams.page - 1 : 0,
-    {
-      taxonID: 1,
-      scientificName: 1,
-      _id: 0
+const pageSize = 50
+
+if (Object.keys(searchParams).length > 0 && searchParams.scientificName) {
+  const offset = (currentPage - 1) * pageSize
+  const apiUrl = new URL('/api/taxa', Astro.url.origin)
+  apiUrl.searchParams.set('scientificName', searchParams.scientificName)
+  apiUrl.searchParams.set('limit', pageSize.toString())
+  apiUrl.searchParams.set('offset', offset.toString())
+
+  const response = await fetch(apiUrl.toString()).catch(() => null)
+  if (response) {
+    const result = (await response.json()) as {
+      data: Record<string, unknown>[]
+      pagination: { total: number; limit: number; offset: number }
     }
-  )) ?? { data: [], total: 0, totalPages: 0 })
+    taxa = result.data
+    total = result.pagination.total
+    totalPages = Math.ceil(total / pageSize)
+  }
 }
 
 const searchParamsWithPage = (page: number) => {

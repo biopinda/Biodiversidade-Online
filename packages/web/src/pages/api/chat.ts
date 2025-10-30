@@ -8,7 +8,6 @@ import {
   type Tool
 } from 'ai'
 import { Experimental_StdioMCPTransport } from 'ai/mcp-stdio'
-import { createRequire } from 'node:module'
 
 import type { APIContext } from 'astro'
 import { z } from 'zod'
@@ -63,13 +62,6 @@ const input = z.object({
 })
 
 const systemPrompt = prompt
-
-const nodeRequire = createRequire(import.meta.url)
-let cachedMongoMcpBinary: string | undefined
-const getMongoMcpBinary = () => {
-  cachedMongoMcpBinary ??= nodeRequire.resolve('mongodb-mcp-server')
-  return cachedMongoMcpBinary
-}
 
 export async function POST({ request }: APIContext) {
   const { error, data } = input.safeParse(await request.json())

@@ -31,3 +31,13 @@ node_modules/
 /CLAUDE.md
 /CLAUDE.md.bak
 # END Ruler Generated Files
+
+# Build artifacts
+dist/
+build/
+coverage/
+
+# Logs & OS artifacts
+*.log
+.DS_Store
+Thumbs.db

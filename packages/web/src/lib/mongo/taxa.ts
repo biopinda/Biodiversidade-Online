@@ -479,7 +479,7 @@ export async function getTaxon(
             },
             {
               $lookup: {
-                from: 'ocorrencias',
+                from: 'occurrences',
                 localField: 'scientificName',
                 foreignField: 'scientificName',
                 as: 'occurrences'

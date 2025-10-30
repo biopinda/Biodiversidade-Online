@@ -126,7 +126,7 @@ export default async function exportMapCache(): Promise<string> {
   try {
     await client.connect()
     const db = client.db('dwc2json')
-    const occurrences = db.collection('ocorrencias')
+    const occurrences = db.collection('occurrences')
 
     // Match occurrences where country or countryCode indicates Brazil.
     // We use a case-insensitive match by lowercasing the country field in aggregation.
