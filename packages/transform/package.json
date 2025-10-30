@@ -1,0 +1,22 @@
+{
+  "name": "@darwincore/transform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "taxa": "bun src/cli/runTransform.ts taxa",
+    "occurrences": "bun src/cli/runTransform.ts occurrences",
+    "check-lock": "bun src/cli/checkLock.ts"
+  },
+  "dependencies": {
+    "@darwincore/ingest": "workspace:*",
+    "mongodb": "catalog:",
+    "bson": "catalog:",
+    "cli-progress": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/cli-progress": "catalog:"
+  }
+}
