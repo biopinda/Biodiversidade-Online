@@ -16,7 +16,7 @@ on:
     - cron: '0 3 * * 0'
 
 jobs:
-  update-db:
+  ingest:
     permissions:
       contents: 'read'
     runs-on: [self-hosted]
@@ -35,7 +35,7 @@ jobs:
         run: sudo apt update && sudo apt install zip
       - name: Install dependencies
         run: bun install --frozen-lockfile
-      - name: Update DB
+      - name: Ingest Occurrences
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/Biodiversidade-Online/
@@ -44,3 +44,8 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: bun run --filter @biodiversidade/web clear-occurrence-cache
+
+  transform:
+    needs: ingest
+    uses: ./.github/workflows/transform-occurrences.yml
+    secrets: inherit

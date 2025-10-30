@@ -16,7 +16,7 @@
       },
     },
     "packages/ingest": {
-      "name": "@biodiversidade/ingest",
+      "name": "@darwincore/ingest",
       "version": "1.0.0",
       "dependencies": {
         "bson": "catalog:",
@@ -25,6 +25,20 @@
         "fast-xml-parser": "catalog:",
         "mongodb": "catalog:",
         "papaparse": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/transform": {
+      "name": "@darwincore/transform",
+      "version": "1.0.0",
+      "dependencies": {
+        "@darwincore/ingest": "workspace:*",
+        "bson": "catalog:",
+        "cli-progress": "catalog:",
+        "mongodb": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -240,11 +254,13 @@
 
     "@babel/types": ["@babel/types@7.28.4", "", { "dependencies": { "@babel/helper-string-parser": "^7.27.1", "@babel/helper-validator-identifier": "^7.27.1" } }, "sha512-bkFqkLhh3pMBUQQkpVgWDWq/lqzc2678eUyDlTBhRqhCHFguYYGM0Efga7tYk4TogG/3x0EEl66/OQ+WGbWB/Q=="],
 
-    "@biodiversidade/ingest": ["@biodiversidade/ingest@workspace:packages/ingest"],
-
     "@biodiversidade/web": ["@biodiversidade/web@workspace:packages/web"],
 
     "@capsizecss/unpack": ["@capsizecss/unpack@2.4.0", "", { "dependencies": { "blob-to-buffer": "^1.2.8", "cross-fetch": "^3.0.4", "fontkit": "^2.0.2" } }, "sha512-GrSU71meACqcmIUxPYOJvGKF0yryjN/L1aCuE9DViCTJI7bfkjgYDPD1zbNDcINJwSSP6UaBZY9GAbYDO7re0Q=="],
+
+    "@darwincore/ingest": ["@darwincore/ingest@workspace:packages/ingest"],
+
+    "@darwincore/transform": ["@darwincore/transform@workspace:packages/transform"],
 
     "@emmetio/abbreviation": ["@emmetio/abbreviation@2.3.3", "", { "dependencies": { "@emmetio/scanner": "^1.0.4" } }, "sha512-mgv58UrU3rh4YgbE/TzgLQwJ3pFsHHhCLqY20aJq+9comytTXUDNGG/SMtSeMJdkpxgXSXunBGLD8Boka3JyVA=="],
 

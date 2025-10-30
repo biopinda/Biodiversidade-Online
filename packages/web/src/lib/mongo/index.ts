@@ -76,6 +76,7 @@ export {
   connectClientWithTimeout,
   getClient,
   getCollection,
+  getMongoDatabase,
   getMongoUrl
 } from './connection'
 

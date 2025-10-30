@@ -3,14 +3,15 @@ import { getCollection } from './connection'
 // Shared utilities used across multiple modules
 
 export async function getTopCollectionsByKingdom(kingdom: string, limit = 10) {
-  const occurrences = await getCollection('dwc2json', 'ocorrencias')
+  const occurrences = await getCollection('dwc2json', 'occurrences')
   if (!occurrences) return null
 
   const result = await occurrences
     .aggregate([
       {
         $match: {
-          kingdom: kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
+          iptKingdoms:
+            kingdom[0]!.toUpperCase() + kingdom.slice(1).toLowerCase(),
           rightsHolder: { $exists: true, $ne: null, $not: { $eq: '' } }
         }
       },
