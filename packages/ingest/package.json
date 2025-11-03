@@ -10,6 +10,8 @@
     "fauna": "bun src/fauna.ts"
   },
   "dependencies": {
+    "@darwincore/shared": "workspace:*",
+    "@darwincore/transform": "workspace:*",
     "bson": "catalog:",
     "cli-progress": "catalog:",
     "extract-zip": "catalog:",

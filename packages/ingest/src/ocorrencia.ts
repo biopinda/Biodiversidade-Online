@@ -11,7 +11,12 @@ import { MongoClient } from 'mongodb'
 import { readFile } from 'node:fs/promises'
 import Papa from 'papaparse'
 
-import { AUXILIARY_COLLECTIONS, getRawCollection } from './config/collections'
+import { transformOccurrenceRecord } from '@darwincore/transform'
+import {
+  AUXILIARY_COLLECTIONS,
+  getRawCollection,
+  getTransformedCollection
+} from './config/collections'
 import {
   getEml,
   processaEml,
@@ -43,6 +48,7 @@ type RawDocMetadata = {
 }
 
 const RAW_COLLECTION_NAME = getRawCollection('occurrences')
+const TRANSFORMED_COLLECTION_NAME = getTransformedCollection('occurrences')
 const METRICS_COLLECTION_NAME = AUXILIARY_COLLECTIONS.metrics
 const DEFAULT_DB_NAME = process.env.MONGO_DB_NAME ?? 'dwc2json'
 const BULK_MAX_OPERATIONS = 500
@@ -246,6 +252,7 @@ const ensureIndexes = async <TSchema extends Document>(
 const ingestIptOccurrences = async (
   client: MongoClient,
   rawCollection: Collection<RawOccurrenceDocument>,
+  transformedCollection: Collection<Document>,
   metricsCollection: Collection<Document>,
   iptsCollection: Collection<DbIpt>,
   pending: PendingIpt,
@@ -311,6 +318,9 @@ const ingestIptOccurrences = async (
     )
     progressBar.start(totalBatches, 0, { records: totalRecords })
 
+    let transformInserted = 0
+    let transformUpdated = 0
+
     for (const batch of batchArray) {
       if (!batch || batch.length === 0) {
         progressBar.increment()
@@ -348,12 +358,62 @@ const ingestIptOccurrences = async (
 
       if (operations.length > 0) {
         await executeBulkUpsert(rawCollection, operations, metrics)
+
+        // INTEGRATED TRANSFORMATION: Transform and insert to occurrences collection inline
+        const db = client.db(DEFAULT_DB_NAME)
+        const transformOperations: AnyBulkWriteOperation<Document>[] = []
+
+        for (const entry of batch) {
+          const raw = entry[1]
+
+          try {
+            const rawDoc = buildRawOccurrenceDocument(raw, {
+              archiveUrl,
+              ingestStartedAt,
+              ipt,
+              source
+            })
+
+            const transformedDoc = await transformOccurrenceRecord(rawDoc, db)
+            if (transformedDoc) {
+              transformOperations.push({
+                replaceOne: {
+                  filter: { _id: transformedDoc._id } as any,
+                  replacement: transformedDoc,
+                  upsert: true
+                }
+              })
+            }
+          } catch (transformError) {
+            // Log but continue - raw data is preserved
+            console.warn(`Transform failed for occurrence:`, transformError)
+            metrics.addError('transformFailure')
+          }
+        }
+
+        if (transformOperations.length > 0) {
+          try {
+            const transformResult = await transformedCollection.bulkWrite(
+              transformOperations,
+              { ordered: false }
+            )
+            transformInserted += transformResult.upsertedCount ?? 0
+            transformUpdated += transformResult.modifiedCount ?? 0
+          } catch (transformError) {
+            console.warn('Bulk transform write failed:', transformError)
+            metrics.addError('transformBulkWrite', transformOperations.length)
+          }
+        }
       }
 
       progressBar.increment()
     }
 
     progressBar.stop()
+
+    console.log(
+      `${source.repositorio}:${source.tag} - TRANSFORM: inseridos=${transformInserted}, atualizados=${transformUpdated}`
+    )
 
     const { id: _id, ...iptData } = ipt
     await iptsCollection.updateOne(
@@ -405,6 +465,7 @@ const ingestOccurrences = async () => {
     const db = client.db(DEFAULT_DB_NAME)
     const rawCollection =
       db.collection<RawOccurrenceDocument>(RAW_COLLECTION_NAME)
+    const transformedCollection = db.collection(TRANSFORMED_COLLECTION_NAME)
     const metricsCollection = db.collection(METRICS_COLLECTION_NAME)
     const iptsCollection = db.collection<DbIpt>('ipts')
 
@@ -491,6 +552,7 @@ const ingestOccurrences = async () => {
         await ingestIptOccurrences(
           client,
           rawCollection,
+          transformedCollection,
           metricsCollection,
           iptsCollection,
           pending,

@@ -4,17 +4,27 @@ Aplicação web Astro.js para visualização e consulta de dados da biodiversida
 
 ## Arquitetura de Dados
 
-A aplicação consome dados de coleções MongoDB processadas em duas camadas:
+A aplicação consome dados de coleções MongoDB processadas em **pipeline integrado** (ingestão + transformação):
 
-### Coleções Raw (Não Consultar Diretamente)
+### Coleções Raw (Rastreabilidade - Não Consultar nas APIs)
 
-- `taxa_ipt` - Dados taxonômicos brutos
-- `occurrences_ipt` - Registros de ocorrências brutos
+- `taxa_ipt` - Dados taxonômicos brutos preservados (Flora/Fauna do Brasil)
+- `occurrences_ipt` - Registros de ocorrências brutos preservados (~490 IPTs)
 
-### Coleções Transformadas (Usar nas APIs e Interfaces)
+### Coleções Transformadas (Uso em APIs e Interfaces)
 
 - `taxa` - Dados taxonômicos normalizados e enriquecidos
+  - Normalizações: ranks, nomes científicos, localidades
+  - Enriquecimentos: status de ameaça (CNCFlora/MMA), espécies invasoras (GISD)
 - `occurrences` - Registros de ocorrências validados e geolocalizados
+  - Validações: coordenadas, datas, países (somente Brasil)
+  - Geolocalização: índice 2dsphere para queries espaciais
+  - Vinculação: referências cruzadas com táxons via `taxonID`
+
+### Coleções de Controle
+
+- `transform_status` - Registros de locks e status de re-transformações
+- `process_metrics` - Métricas de performance e auditoria
 
 ## APIs Disponíveis
 
@@ -147,7 +157,8 @@ O dashboard utiliza dados pré-computados armazenados em `cache/dashboard-data.j
 ```mermaid
 graph LR
     A[Ingestão DwC-A] --> B[taxa_ipt/occurrences_ipt]
-    B --> C[Transformação]
+    A --> |"Transform Inline"| D
+    B --> |"Re-transform"| C[Transform Package]
     C --> D[taxa/occurrences]
     D --> E[APIs REST]
     D --> F[Cache Dashboard]
@@ -155,13 +166,21 @@ graph LR
     F --> G
 ```
 
+**Ingestão Integrada**: Durante `ingest:flora`, `ingest:fauna`, `ingest:occurrences`, os dados são salvos em coleções raw **e** transformados inline para coleções processadas.
+
+**Re-transformação**: Quando a lógica muda (novos enriquecimentos), `transform:taxa` e `transform:occurrences` reprocessam todo o histórico raw.
+
 ## Desenvolvimento
 
 1. **Configurar MongoDB**:
 
    ```bash
-   # Certifique-se de que as coleções transformadas existem
-   # Execute os pipelines de transformação se necessário
+   # Ingestão integrada (raw + transform inline - rotina semanal)
+   bun run ingest:flora <URL_DWCA>
+   bun run ingest:fauna <URL_DWCA>
+   bun run ingest:occurrences
+
+   # Re-transformação (quando modificar lógica em packages/transform/)
    bun run transform:taxa
    bun run transform:occurrences
    ```

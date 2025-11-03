@@ -7,9 +7,15 @@ on:
       [
         'packages/ingest/src/lib/**',
         'packages/ingest/src/fauna.ts',
+        'packages/transform/src/**',
         '.github/workflows/update-mongodb-fauna.yml'
       ]
   workflow_dispatch:
+    inputs:
+      DWCA_URL:
+        description: 'Custom DWCA URL (optional)'
+        required: false
+        type: string
   schedule:
     - cron: '30 2 * * 0'
 
@@ -17,7 +23,7 @@ env:
   DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=catalogo_taxonomico_da_fauna_do_brasil
 
 jobs:
-  ingest:
+  ingest-and-transform:
     permissions:
       contents: 'read'
     runs-on: [self-hosted]
@@ -35,21 +41,16 @@ jobs:
       - name: Install zip
         run: sudo apt update && sudo apt install zip
       - name: Install dependencies
-        run: bun install --frozen-lockfile --filter @biodiversidade/ingest
-      - name: Ingest Fauna from web
+        run: bun install --frozen-lockfile
+      - name: Ingest and Transform Fauna from custom URL
         if: ${{ github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/Biodiversidade-Online/
-        run: bun run --filter @biodiversidade/ingest fauna -- "${{ github.event.inputs.DWCA_URL }}"
-      - name: Ingest Fauna
+        run: bun run ingest:fauna "${{ github.event.inputs.DWCA_URL }}"
+      - name: Ingest and Transform Fauna
         if: ${{ !github.event.inputs.DWCA_URL }}
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           TEMPDIR: /home/runner/work/Biodiversidade-Online/
-        run: bun run --filter @biodiversidade/ingest fauna -- "${{ env.DWCA_URL }}"
-
-  transform:
-    needs: ingest
-    uses: ./.github/workflows/transform-taxa.yml
-    secrets: inherit
+        run: bun run ingest:fauna "${{ env.DWCA_URL }}"

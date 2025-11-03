@@ -1,5 +1,6 @@
 import { getMongoDatabase } from '@/lib/mongo'
 import type { APIContext } from 'astro'
+import { ObjectId } from 'mongodb'
 
 export async function GET({ params }: APIContext) {
   try {
@@ -23,7 +24,15 @@ export async function GET({ params }: APIContext) {
     const db = await getMongoDatabase()
     const collection = db.collection('occurrences')
 
-    const occurrence = await collection.findOne({ _id: occurrenceID } as any)
+    // Try to find by _id, handling both ObjectId and string formats
+    let occurrence = null
+    if (ObjectId.isValid(occurrenceID)) {
+      occurrence = await collection.findOne({ _id: new ObjectId(occurrenceID) })
+    }
+    if (!occurrence) {
+      // Fallback to string search
+      occurrence = await collection.findOne({ _id: occurrenceID } as any)
+    }
 
     if (!occurrence) {
       return new Response(

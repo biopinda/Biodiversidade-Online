@@ -12,6 +12,8 @@ RUN apt-get update \
 # Copy workspace manifests, lockfile, and shared config
 COPY package.json bun.lock tsconfig.base.json ./
 COPY packages/ingest/package.json ./packages/ingest/
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/transform/package.json ./packages/transform/
 COPY packages/web/package.json packages/web/tsconfig.json packages/web/astro.config.mjs packages/web/components.json packages/web/cron-dashboard.js packages/web/README.md ./packages/web/
 COPY patches ./patches
 COPY packages/web/public ./packages/web/public

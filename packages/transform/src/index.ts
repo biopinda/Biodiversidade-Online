@@ -7,5 +7,7 @@ export * from './cli/transformTaxa'
 export * from './lib/concurrency'
 export * from './lib/database'
 export * from './lib/metrics'
+export * from './occurrences/transformOccurrenceRecord'
+export * from './taxa/transformTaxonRecord'
 
 initializeCliRegistry()

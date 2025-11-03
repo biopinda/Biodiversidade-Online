@@ -1,5 +1,6 @@
 import { getMongoDatabase } from '@/lib/mongo'
 import type { APIContext } from 'astro'
+import { ObjectId } from 'mongodb'
 
 export async function GET({ params }: APIContext) {
   try {
@@ -23,7 +24,15 @@ export async function GET({ params }: APIContext) {
     const db = await getMongoDatabase()
     const collection = db.collection('taxa')
 
-    const taxon = await collection.findOne({ _id: taxonID } as any)
+    // Try to find by _id, handling both ObjectId and string formats
+    let taxon = null
+    if (ObjectId.isValid(taxonID)) {
+      taxon = await collection.findOne({ _id: new ObjectId(taxonID) })
+    }
+    if (!taxon) {
+      // Fallback to string search
+      taxon = await collection.findOne({ _id: taxonID } as any)
+    }
 
     if (!taxon) {
       return new Response(
