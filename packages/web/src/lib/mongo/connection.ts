@@ -102,8 +102,7 @@ export async function getMongoDatabase() {
     throw new Error('Could not connect to MongoDB')
   }
   const client = getClient()
-  const url = getMongoUrl()
-  // Extract database name from connection string
-  const dbName = url.split('/').pop()?.split('?')[0] || 'biodiversidade'
+  // Use the same database name as the ingest scripts
+  const dbName = process.env.MONGO_DB_NAME ?? 'dwc2json'
   return client.db(dbName)
 }

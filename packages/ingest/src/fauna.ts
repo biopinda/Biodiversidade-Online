@@ -1,6 +1,11 @@
+import { transformTaxonRecord } from '@darwincore/transform'
 import type { AnyBulkWriteOperation, Document } from 'mongodb'
 import { MongoClient } from 'mongodb'
-import { AUXILIARY_COLLECTIONS, getRawCollection } from './config/collections'
+import {
+  AUXILIARY_COLLECTIONS,
+  getRawCollection,
+  getTransformedCollection
+} from './config/collections'
 import { type DbIpt, processaZip } from './lib/dwca'
 import { buildTaxonDeterministicId } from './utils/deterministic-id'
 import { IngestMetricsTracker } from './utils/metrics'
@@ -8,12 +13,12 @@ import { IngestMetricsTracker } from './utils/metrics'
 type RawTaxonDocument = Document & { _id: string }
 
 const RAW_COLLECTION_NAME = getRawCollection('taxa')
+const TRANSFORMED_COLLECTION_NAME = getTransformedCollection('taxa')
 const METRICS_COLLECTION_NAME = AUXILIARY_COLLECTIONS.metrics
 const BULK_BATCH_SIZE = 5000
 const DEFAULT_DB_NAME = process.env.MONGO_DB_NAME ?? 'dwc2json'
 
-// NOTE: All transformation logic has been moved to packages/transform
-// Raw ingestion now stores DwC-A data as-is for true source fidelity
+// NOTE: Integrated transformation - ingest stores raw AND transformed data inline
 
 const resolveRunnerId = () =>
   process.env.GITHUB_RUN_ID ??
@@ -54,6 +59,7 @@ const ingestFauna = async (url: string): Promise<void> => {
 
   const db = client.db(DEFAULT_DB_NAME)
   const rawCollection = db.collection<RawTaxonDocument>(RAW_COLLECTION_NAME)
+  const transformedCollection = db.collection(TRANSFORMED_COLLECTION_NAME)
   const metricsCollection = db.collection(METRICS_COLLECTION_NAME)
   const iptsCollection = db.collection<DbIpt>('ipts')
 
@@ -80,6 +86,8 @@ const ingestFauna = async (url: string): Promise<void> => {
 
   let inserted = 0
   let updated = 0
+  let transformInserted = 0
+  let transformUpdated = 0
   let hadError = false
 
   try {
@@ -126,6 +134,50 @@ const ingestFauna = async (url: string): Promise<void> => {
         if (failures > 0) {
           metrics.addError('writeFailure', failures)
         }
+
+        // INTEGRATED TRANSFORMATION: Transform and insert to taxa collection inline
+        const transformOperations: AnyBulkWriteOperation<Document>[] = []
+        for (const record of batch) {
+          const taxonID = record.taxonID as string | undefined
+          if (!taxonID) continue
+
+          const _id = buildTaxonDeterministicId({ taxonID, source: 'fauna' })
+          const rawDoc = cloneRecord(record) as RawTaxonDocument
+          rawDoc._id = _id
+
+          try {
+            const transformedDoc = await transformTaxonRecord(rawDoc, db)
+            if (transformedDoc) {
+              transformOperations.push({
+                replaceOne: {
+                  filter: { _id: transformedDoc._id } as any,
+                  replacement: transformedDoc,
+                  upsert: true
+                }
+              })
+            }
+          } catch (transformError) {
+            // Log but continue - raw data is preserved
+            console.warn(`Transform failed for ${_id}:`, transformError)
+            metrics.addError('transformFailure')
+          }
+        }
+
+        if (transformOperations.length > 0) {
+          try {
+            const transformResult = await transformedCollection.bulkWrite(
+              transformOperations,
+              {
+                ordered: false
+              }
+            )
+            transformInserted += transformResult.upsertedCount ?? 0
+            transformUpdated += transformResult.modifiedCount ?? 0
+          } catch (transformError) {
+            console.warn('Bulk transform write failed:', transformError)
+            metrics.addError('transformBulkWrite', transformOperations.length)
+          }
+        }
       } catch (error) {
         metrics.addError('bulkWrite', operations.length)
         throw error
@@ -166,7 +218,9 @@ const ingestFauna = async (url: string): Promise<void> => {
           metricsDoc.records_updated +
           metricsDoc.records_failed)
       console.log(
-        `Fauna ingestão concluída: processados=${metricsDoc.records_processed}, inseridos=${metricsDoc.records_inserted}, atualizados=${metricsDoc.records_updated}, falhas=${metricsDoc.records_failed}, inalterados=${skipped}`
+        `Fauna ingestão concluída:`,
+        `RAW: processados=${metricsDoc.records_processed}, inseridos=${metricsDoc.records_inserted}, atualizados=${metricsDoc.records_updated}, falhas=${metricsDoc.records_failed}, inalterados=${skipped}`,
+        `TRANSFORM: inseridos=${transformInserted}, atualizados=${transformUpdated}`
       )
     }
   }

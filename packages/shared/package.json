@@ -1,0 +1,20 @@
+{
+  "name": "@darwincore/shared",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shared utilities and types for DarwinCore data processing",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./utils/*": "./src/utils/*.ts",
+    "./lib/*": "./src/lib/*.ts",
+    "./config/*": "./src/config/*.ts"
+  },
+  "dependencies": {
+    "mongodb": "catalog:",
+    "bson": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:"
+  }
+}

@@ -15,100 +15,78 @@
 - Q: What metrics/monitoring targets should be implemented for operational health and observability? → A: Basic operational metrics (ingestion/transformation duration, record counts, error rates)
 - Q: Should transformation processes be triggered manually or automatically after ingestion completes? → A: Automatic transformation triggered immediately after each successful ingestion via GitHub workflows, with workflow_dispatch option for manual triggering
 
+### Session 2025-10-31
+
+- Q: Should transformation be a separate step after ingestion or integrated into ingestion? → A: Integrated into ingestion - transform immediately after inserting raw data using upsert to both raw and transformed collections
+- Q: How should we handle shared code between ingest and transform packages to avoid cyclic dependencies? → A: Create `packages/shared` for utilities like deterministic-id, database connections, collection names, and metrics
+- Q: When should bulk re-transformation be triggered? → A: Only when packages/transform version is bumped (indicating transformation logic changed) or via manual workflow_dispatch
+- Q: Should ingestion workflows chain to transformation workflows? → A: No - ingestion scripts import and call transformation functions directly; separate transform workflows only for bulk re-processing
+
 ## User Scenarios & Testing _(mandatory)_
 
-### User Story 1 - Ingestão Automática de Dados Brutos de Taxa (Priority: P1)
+### User Story 1 - Ingestão e Transformação Automática de Dados de Taxa (Priority: P1) 🎯 MVP
 
-O sistema deve baixar e processar automaticamente os dados taxonômicos da Flora e Fauna do Brasil diretamente dos repositórios IPT oficiais, armazenando-os sem modificações no MongoDB. Esta é a base fundamental do sistema - sem dados brutos, nenhuma outra funcionalidade pode operar.
+O sistema deve baixar e processar automaticamente os dados taxonômicos da Flora e Fauna do Brasil diretamente dos repositórios IPT oficiais, armazenando os dados brutos em `taxa_ipt` e imediatamente transformando-os para `taxa` no MongoDB. Esta é a base fundamental do sistema - em uma única operação, temos dados brutos para auditoria e dados transformados para uso.
 
-**Why this priority**: Esta história representa a fundação do sistema de dados. Todos os demais processos (transformação, API, interface) dependem da disponibilidade dos dados brutos. Sem este fluxo funcionando, o sistema não possui matéria-prima para trabalhar.
+**Why this priority**: Esta história representa a fundação do sistema de dados. Todos os demais processos (API, interface) dependem da disponibilidade dos dados transformados. Ao integrar ingestão e transformação em um único passo, garantimos consistência e simplificamos o pipeline.
 
-**Independent Test**: Pode ser totalmente testado executando o comando de ingestão de taxa e verificando se: (1) os arquivos DwC-A são baixados dos URLs corretos, (2) os registros são inseridos na coleção `taxa_ipt` com estrutura JSON conforme schema, (3) cada registro possui um `_id` único que será mantido na versão transformada.
+**Independent Test**: Pode ser totalmente testado executando o comando de ingestão de taxa e verificando se: (1) os arquivos DwC-A são baixados dos URLs corretos, (2) os registros são inseridos na coleção `taxa_ipt` com estrutura JSON conforme schema, (3) registros transformados são inseridos em `taxa` com mesmo `_id`, (4) transformações aplicadas corretamente (canonicalName, filtros, enriquecimentos).
 
 **Acceptance Scenarios**:
 
-1. **Given** que o repositório IPT da Fauna está disponível, **When** o sistema executa `bun run ingest:fauna`, **Then** todos os registros de espécies da fauna são baixados e inseridos em `taxa_ipt` com campos DwC originais preservados e `_id` baseado em `taxonID`
-2. **Given** que o repositório IPT da Flora está disponível, **When** o sistema executa `bun run ingest:flora`, **Then** todos os registros de espécies da flora e funga são baixados e inseridos em `taxa_ipt` mantendo a estrutura do schema e usando `taxonID` como `_id`
-3. **Given** que já existem registros em `taxa_ipt`, **When** uma nova ingestão é executada, **Then** registros duplicados são identificados pelo `_id` (taxonID) e atualizados (upsert) sem criar duplicatas
-4. **Given** que o download do arquivo DwC-A falha, **When** o sistema tenta acessar o IPT, **Then** uma mensagem de erro clara é exibida e o processo pode ser retomado posteriormente
-5. **Given** que dois registros possuem mesmo `taxonID`, **When** são inseridos em `taxa_ipt`, **Then** o segundo sobrescreve o primeiro (upsert) mantendo integridade de \_id único
+1. **Given** que o repositório IPT da Fauna está disponível, **When** o sistema executa `bun run ingest:fauna`, **Then** todos os registros de espécies da fauna são: (a) inseridos em `taxa_ipt` com campos DwC originais preservados, (b) transformados e inseridos em `taxa` com canonicalName, filtros e enriquecimentos aplicados, (c) ambos registros possuem `_id` idêntico baseado em `taxonID`
+2. **Given** que o repositório IPT da Flora está disponível, **When** o sistema executa `bun run ingest:flora`, **Then** todos os registros são processados em duas etapas: raw insert em `taxa_ipt` seguido de transform e upsert em `taxa`
+3. **Given** que já existem registros em `taxa_ipt` e `taxa`, **When** uma nova ingestão é executada, **Then** registros duplicados são identificados pelo `_id` (taxonID) e atualizados (upsert) em ambas coleções sem criar duplicatas
+4. **Given** que o download do arquivo DwC-A falha, **When** o sistema tenta acessar o IPT, **Then** uma mensagem de erro clara é exibida e o processo pode ser retomado posteriormente (nenhum registro é inserido em nenhuma coleção)
+5. **Given** que um registro é inserido em `taxa_ipt`, **When** a transformação automática falha, **Then** o erro é registrado mas o registro bruto permanece em `taxa_ipt` para auditoria
+6. **Given** que a transformação processa um registro, **When** cria o documento em `taxa`, **Then** o campo `canonicalName` é gerado corretamente a partir de `scientificName`, dados de ameaça/invasoras/UCs são agregados quando aplicável
+7. **Given** que um registro possui `taxonRank` = "GENERO", **When** a transformação automática é executada, **Then** o registro aparece em `taxa_ipt` mas NÃO em `taxa` (filtrado durante transformação)
 
 ---
 
-### User Story 2 - Ingestão Automática de Dados Brutos de Ocorrências (Priority: P1)
+### User Story 2 - Ingestão e Transformação Automática de Dados de Ocorrências (Priority: P1)
 
-O sistema deve processar todos os recursos DwC-A listados no arquivo `occurrences.csv`, baixando e armazenando os dados de ocorrências sem modificações no MongoDB. Juntamente com a ingestão de taxa, esta história completa a camada de dados brutos do sistema.
+O sistema deve processar todos os recursos DwC-A listados no arquivo `occurrences.csv`, armazenando os dados brutos em `occurrences_ipt` e imediatamente transformando-os para `occurrences` no MongoDB. Juntamente com a User Story 1, esta história completa o pipeline integrado de dados.
 
-**Why this priority**: Dados de ocorrências são essenciais para mapas, visualizações geográficas e análises de distribuição de espécies. Esta história e a User Story 1 formam o MVP de dados brutos - ambas devem funcionar para termos uma base completa.
+**Why this priority**: Dados de ocorrências são essenciais para mapas, visualizações geográficas e análises de distribuição de espécies. Esta história e a User Story 1 formam o MVP completo - ambas devem funcionar para termos dados brutos auditáveis e dados transformados prontos para uso.
 
-**Independent Test**: Pode ser totalmente testado executando o comando de ingestão de ocorrências e verificando se: (1) todos os 507 recursos listados em `occurrences.csv` são processados, (2) os registros são inseridos na coleção `occurrences_ipt` conforme schema, (3) cada registro preserva seus campos DwC originais e possui `_id` que será mantido na transformação.
+**Independent Test**: Pode ser totalmente testado executando o comando de ingestão de ocorrências e verificando se: (1) todos os 507 recursos listados em `occurrences.csv` são processados, (2) os registros são inseridos em `occurrences_ipt` e `occurrences` conforme schemas, (3) transformações são aplicadas (geoPoint, normalização de datas/estados, vinculação taxonômica), (4) `_id` é preservado entre coleções.
 
 **Acceptance Scenarios**:
 
-1. **Given** que o arquivo `occurrences.csv` contém 507 recursos IPT, **When** o sistema executa `bun run ingest:occurrences`, **Then** todos os recursos são iterados e seus dados inseridos em `occurrences_ipt` com `_id` gerado de forma determinística
+1. **Given** que o arquivo `occurrences.csv` contém 507 recursos IPT, **When** o sistema executa `bun run ingest:occurrences`, **Then** todos os recursos são processados: (a) dados brutos inseridos em `occurrences_ipt`, (b) dados transformados inseridos em `occurrences` com validações geográficas e enriquecimentos aplicados
 2. **Given** que um recurso IPT está temporariamente indisponível, **When** o sistema tenta baixá-lo, **Then** o erro é registrado e o processo continua com os próximos recursos sem interromper toda a ingestão
-3. **Given** que registros de ocorrências já existem, **When** uma nova ingestão é executada, **Then** registros são atualizados (upsert) usando `_id` como chave única
-4. **Given** que um arquivo DwC-A é baixado com sucesso, **When** o sistema processa os registros, **Then** campos geográficos (`decimalLatitude`, `decimalLongitude`) são preservados como strings exatamente como recebidos
-5. **Given** que duas ocorrências do mesmo IPT possuem `occurrenceID` idêntico, **When** são inseridas, **Then** o segundo registro sobrescreve o primeiro (upsert) garantindo unicidade de \_id
-6. **Given** que duas ocorrências de IPTs diferentes possuem `occurrenceID` idêntico, **When** são inseridas, **Then** ambas são armazenadas com `_id` distintos (combinação occurrenceID + iptId)
+3. **Given** que registros de ocorrências já existem, **When** uma nova ingestão é executada, **Then** registros são atualizados (upsert) em `occurrences_ipt` e `occurrences` usando `_id` como chave única
+4. **Given** que um arquivo DwC-A é processado, **When** a transformação automática cria registros em `occurrences`, **Then** campo `geoPoint` é criado quando coordenadas são válidas, datas são parseadas para day/month/year, estados são normalizados
+5. **Given** que duas ocorrências do mesmo IPT possuem `occurrenceID` idêntico, **When** são processadas, **Then** o segundo registro sobrescreve o primeiro (upsert) em ambas coleções garantindo unicidade de \_id
+6. **Given** que uma ocorrência possui `scientificName` que é sinônimo, **When** a transformação automática é executada, **Then** o nome é validado contra `taxa` e substituído pelo nome aceito com `taxonID` correto
+7. **Given** que uma ocorrência possui `country` diferente de "Brasil", **When** a transformação automática é executada, **Then** o registro aparece em `occurrences_ipt` mas NÃO em `occurrences` (filtrado durante transformação)
 
 ---
 
-### User Story 3 - Transformação de Dados Taxonômicos (Priority: P2)
+### User Story 3 - Re-transformação em Massa de Dados (Priority: P2)
 
-O sistema deve processar os dados brutos de `taxa_ipt`, aplicando transformações para harmonizar e enriquecer informações, criando registros na coleção `taxa`. Esta história adiciona inteligência aos dados brutos através de parsing de nomes científicos e agregação de informações de outras fontes. A transformação é disparada automaticamente via GitHub Actions após conclusão bem-sucedida da ingestão, mas também pode ser executada manualmente.
+O sistema deve permitir re-executar o processo de transformação sobre todos os dados brutos existentes em `taxa_ipt` e `occurrences_ipt`, regenerando as coleções `taxa` e `occurrences`. Esta funcionalidade é essencial quando a lógica de transformação é atualizada.
 
-**Why this priority**: A transformação torna os dados úteis para consumo. Sem ela, teríamos apenas dados brutos inconsistentes. Esta é a primeira camada de valor agregado, mas depende das User Stories 1 e 2 estarem completas.
+**Why this priority**: Re-transformação é necessária apenas quando a lógica de transformação muda (novo campo, filtro atualizado, correção de bug). Como ingestão já transforma automaticamente, esta história é secundária mas importante para manutenção.
 
-**Independent Test**: Pode ser totalmente testado executando o processo de transformação de taxa (via `bun run transform:taxa` ou workflow GitHub Actions) e verificando se: (1) cada registro em `taxa` possui o mesmo `_id` do registro correspondente em `taxa_ipt`, (2) o campo `canonicalName` é gerado corretamente a partir de `scientificName`, (3) dados de ameaça, invasoras e UCs são agregados quando aplicável.
+**Independent Test**: Pode ser totalmente testado: (1) modificando um arquivo em `packages/transform/src`, (2) incrementando a versão em `packages/transform/package.json`, (3) executando `bun run transform:taxa` ou `bun run transform:occurrences`, (4) verificando que todos os registros em `taxa_ipt`/`occurrences_ipt` foram reprocessados e atualizados em `taxa`/`occurrences`.
 
 **Acceptance Scenarios**:
 
-1. **Given** que um registro em `taxa_ipt` possui `scientificName` = "Panthera onca (Linnaeus, 1758)" e `_id` = "taxon123", **When** a transformação é executada, **Then** o registro em `taxa` possui `_id` = "taxon123" e `canonicalName` = "Panthera onca" (construído de genus + specificEpithet)
-2. **Given** que um registro possui `taxonRank` = "GENERO", **When** a transformação é executada, **Then** o registro é filtrado e NÃO aparece em `taxa` (apenas ESPECIE, VARIEDADE, FORMA, SUB_ESPECIE são aceitos)
-3. **Given** que um registro de Flora possui `higherClassification` = "Plantae;Magnoliophyta;Liliopsida", **When** a transformação é executada, **Then** o campo é substituído por "Magnoliophyta" (segundo componente após split por ';')
-4. **Given** que um registro possui `vernacularname` = [{"vernacularName": "Onça Pintada", "language": "PORTUGUÊS"}], **When** a transformação é executada, **Then** array é normalizado para [{"vernacularName": "onça-pintada", "language": "Português"}]
-5. **Given** que um registro de Flora possui array `distribution` com múltiplos elementos, **When** a transformação é executada, **Then** objeto distribution contém: origin, Endemism, phytogeographicDomains, occurrence (array de locationID ordenado), vegetationType
-6. **Given** que um registro de Fauna possui array `distribution`, **When** a transformação é executada, **Then** objeto distribution contém: origin, occurrence (locality split por ';'), countryCode (split por ';')
-7. **Given** que uma espécie existe nas coleções `cncfloraFungi`, `cncfloraPlantae` ou `faunaAmeacada`, **When** a transformação é executada, **Then** o registro em `taxa` inclui informações de status de ameaça agregadas
-8. **Given** que uma espécie está presente na coleção `invasoras`, **When** a transformação é executada, **Then** o registro em `taxa` é marcado com indicador de espécie invasora
-9. **Given** que o arquivo DwC-A do catálogo de UCs está disponível, **When** a transformação é executada, **Then** espécies presentes em Unidades de Conservação possuem esta informação agregada
-10. **Given** que todos os registros foram transformados, **When** contamos registros em `taxa` e `taxa_ipt`, **Then** apenas registros com taxonRank válido aparecem em `taxa` (quantidade será menor que taxa_ipt)
-11. **Given** que um registro em `taxa` possui `_id` = "taxon456", **When** fazemos auditoria buscando origem, **Then** query `db.taxa_ipt.findOne({_id: "taxon456"})` retorna exatamente o documento raw correspondente
+1. **Given** que a versão de `@darwincore/transform` foi incrementada de 1.0.0 para 1.1.0, **When** o workflow GitHub Actions detecta mudança no package.json, **Then** o workflow de re-transformação é disparado automaticamente
+2. **Given** que existem 100.000 registros em `taxa_ipt`, **When** o comando `bun run transform:taxa` é executado, **Then** todos os registros são reprocessados em lotes, transformados e atualizados em `taxa` preservando `_id`
+3. **Given** que a transformação de ocorrências está em execução, **When** outro processo tenta iniciar transformação, **Then** o sistema detecta lock em `transform_status` e aborta com mensagem clara
+4. **Given** que um usuário executa manualmente `workflow_dispatch` para transform-taxa, **When** o workflow é disparado, **Then** a re-transformação completa é executada independente da versão do pacote
+5. **Given** que a lógica de transformação falha em 10% dos registros, **When** a re-transformação é executada, **Then** os 90% restantes são processados com sucesso, erros são registrados em métricas, e registros com erro preservam versão anterior ou são marcados para revisão
 
 ---
 
-### User Story 4 - Transformação de Dados de Ocorrências (Priority: P2)
-
-O sistema deve processar os dados brutos de `occurrences_ipt`, aplicando validações, harmonizações geográficas e enriquecimento taxonômico, criando registros na coleção `occurrences`. Esta história garante qualidade e consistência dos dados de ocorrências. A transformação é disparada automaticamente via GitHub Actions após conclusão bem-sucedida da ingestão, mas também pode ser executada manualmente.
-
-**Why this priority**: Ocorrências transformadas são essenciais para mapas precisos e análises geográficas. Depende das User Stories 1, 2 e 3 (precisa de dados brutos e taxonomia transformada para vincular taxonIDs).
-
-**Independent Test**: Pode ser totalmente testado executando o processo de transformação de ocorrências (via `bun run transform:occurrences` ou workflow GitHub Actions) e verificando se: (1) cada registro em `occurrences` possui o mesmo `_id` do registro em `occurrences_ipt`, (2) nomes científicos são validados e vinculados a taxonIDs de `taxa`, (3) campos geográficos são harmonizados, (4) datas são parseadas para day/month/year e timestamp.
-
-**Acceptance Scenarios**:
-
-1. **Given** que um registro possui `decimalLatitude` = "15.5", `decimalLongitude` = "-47.8" e `_id` = "occ789", **When** a transformação é executada, **Then** registro em `occurrences` possui `_id` = "occ789" e campo `geoPoint` = {type: "Point", coordinates: [-47.8, 15.5]}
-2. **Given** que um registro possui `decimalLatitude` = "invalid", **When** a transformação é executada, **Then** campo `geoPoint` NÃO é criado (validação falha)
-3. **Given** que um registro possui `year` = "2023", `month` = "3", `day` = "15", **When** a transformação é executada, **Then** campos são convertidos para números: year = 2023, month = 3, day = 15
-4. **Given** que um registro possui `month` = "13" (inválido), **When** a transformação é executada, **Then** campo permanece como string "13" (validação falha mas não quebra processamento)
-5. **Given** que um registro possui `eventDate` = "2023-03-15" mas year/month/day ausentes, **When** a transformação é executada, **Then** Date é parseado e campos extraídos: year = 2023, month = 3, day = 15, eventDate = Date object
-6. **Given** que um registro possui `country` = "BRAZIL", **When** a transformação é executada, **Then** campo é normalizado para "Brasil"
-7. **Given** que um registro possui `stateProvince` = "SP", **When** a transformação é executada, **Then** campo é normalizado para "São Paulo"
-8. **Given** que um registro possui `stateProvince` = "rio de janeiro", **When** a transformação é executada, **Then** campo é normalizado para "Rio de Janeiro"
-9. **Given** que um registro possui kingdom="Plantae,Fungi" no CSV, **When** a transformação é executada, **Then** campo `iptKingdoms` = ["Plantae", "Fungi"]
-10. **Given** que um registro possui `scientificName` como sinônimo, **When** a transformação é executada, **Then** o registro em `occurrences` usa o nome aceito da coleção `taxa` e associa o `taxonID` correto
-11. **Given** que um registro possui `country` diferente de "Brasil" com alta certeza, **When** a transformação é executada, **Then** o registro é excluído da coleção `occurrences` (filtro de país)
-12. **Given** que um registro de Plantae possui `occurrenceRemarks` = "Coletada com flor", **When** a transformação é executada, **Then** o campo `reproductiveCondition` é definido como "flor"
-13. **Given** que um registro em `occurrences` possui `_id` = "occ999", **When** fazemos auditoria dos dados brutos, **Then** query `db.occurrences_ipt.findOne({_id: "occ999"})` retorna exatamente o documento raw original sem transformações
-
----
-
-### User Story 5 - Exposição de APIs RESTful (Priority: P3)
+### User Story 4 - Exposição de APIs RESTful (Priority: P3)
 
 O sistema deve expor endpoints de API documentados via Swagger para permitir consultas programáticas aos dados transformados de taxa e ocorrências. Esta história permite que sistemas externos e a interface web consumam os dados de forma estruturada.
 
-**Why this priority**: APIs são o mecanismo de acesso aos dados transformados. Sem elas, os dados existem mas não são acessíveis. Depende de todas as stories anteriores (precisa de dados transformados para expor).
+**Why this priority**: APIs são o mecanismo de acesso aos dados transformados. Sem elas, os dados existem mas não são acessíveis. Depende das stories anteriores (precisa de dados transformados para expor).
 
 **Independent Test**: Pode ser totalmente testado acessando a documentação Swagger e executando requests para: (1) consultar taxa por nome científico, (2) buscar ocorrências por coordenadas geográficas, (3) filtrar dados por múltiplos critérios, (4) obter estatísticas agregadas.
 
@@ -122,11 +100,11 @@ O sistema deve expor endpoints de API documentados via Swagger para permitir con
 
 ---
 
-### User Story 6 - Adaptação da Interface Web (Priority: P3)
+### User Story 5 - Adaptação da Interface Web (Priority: P3)
 
 As páginas web existentes (chat, taxa search, dashboard, map, tree view) devem ser adaptadas para consumir dados das novas coleções `taxa` e `occurrences` através das APIs, mantendo todas as funcionalidades atuais. Esta história garante que usuários finais continuem acessando os dados através das interfaces existentes.
 
-**Why this priority**: A interface web é a camada de apresentação para usuários finais. Sua adaptação é importante mas pode ser feita depois que APIs estejam disponíveis. Depende da User Story 5 (precisa de APIs funcionando).
+**Why this priority**: A interface web é a camada de apresentação para usuários finais. Sua adaptação é importante mas pode ser feita depois que APIs estejam disponíveis. Depende da User Story 4 (precisa de APIs funcionando).
 
 **Independent Test**: Pode ser totalmente testado navegando em cada página web e verificando se: (1) http://localhost:4321/taxa retorna resultados de busca, (2) http://localhost:4321/mapa exibe ocorrências georreferenciadas, (3) http://localhost:4321/dashboard mostra estatísticas atualizadas, (4) http://localhost:4321/tree exibe a árvore taxonômica.
 
@@ -163,7 +141,7 @@ As páginas web existentes (chat, taxa search, dashboard, map, tree view) devem 
 
 ### Functional Requirements
 
-**Ingestão de Dados Brutos:**
+**Ingestão e Transformação Integrada de Dados:**
 
 - **FR-001**: Sistema DEVE baixar automaticamente arquivos DwC-A dos URLs dos repositórios IPT especificados
 - **FR-002**: Sistema DEVE processar arquivos DwC-A da Fauna do Brasil do IPT JBRJ (`https://ipt.jbrj.gov.br/jbrj/archive.do?r=catalogo_taxonomico_da_fauna_do_brasil`)
@@ -171,37 +149,37 @@ As páginas web existentes (chat, taxa search, dashboard, map, tree view) devem 
 - **FR-004**: Sistema DEVE processar todos os 507 recursos DwC-A listados no arquivo `packages/ingest/referencias/occurrences.csv`
 - **FR-005**: Sistema DEVE armazenar dados taxonômicos brutos na coleção MongoDB `taxa_ipt` seguindo o schema `docs/schema-dwc2json-taxa-mongoDBJSON.json`
 - **FR-006**: Sistema DEVE armazenar dados de ocorrências brutas na coleção MongoDB `occurrences_ipt` seguindo o schema `docs/schema-dwc2json-ocorrencias-mongoDBJSON.json`
-- **FR-007**: Sistema DEVE preservar TODOS os campos DwC originais sem modificações durante a ingestão
+- **FR-007**: Sistema DEVE preservar TODOS os campos DwC originais sem modificações durante a ingestão em coleções `*_ipt`
 - **FR-008**: Sistema DEVE converter estrutura relacional DwC-A para estrutura de documento JSON MongoDB
 - **FR-009**: Sistema DEVE gerar `_id` determinístico baseado em chave natural (taxonID para taxa, occurrenceID para ocorrências) durante ingestão para garantir rastreabilidade entre coleções raw e transformadas
 - **FR-009a**: Para taxa, Sistema DEVE usar `taxonID` do DwC-A como `_id` em `taxa_ipt` (garantindo unicidade e rastreabilidade)
 - **FR-009b**: Para ocorrências, Sistema DEVE gerar `_id` combinando `occurrenceID` + `iptId` (hash ou concatenação) para garantir unicidade entre diferentes IPTs
-- **FR-009a**: Sistema DEVE reter dados brutos em `taxa_ipt` e `occurrences_ipt` indefinidamente até que deleção manual seja explicitamente acionada, para fins de auditoria, reprodutibilidade e rastreabilidade de dados
+- **FR-009c**: Sistema DEVE reter dados brutos em `taxa_ipt` e `occurrences_ipt` indefinidamente até que deleção manual seja explicitamente acionada, para fins de auditoria, reprodutibilidade e rastreabilidade de dados
+- **FR-010**: Sistema DEVE executar transformação imediatamente após inserir cada registro bruto, no mesmo processo de ingestão
+- **FR-010a**: Scripts de ingestão (flora.ts, fauna.ts, ocorrencia.ts) DEVEM importar funções de transformação de `@darwincore/transform`
+- **FR-010b**: Sistema DEVE realizar upsert em ambas coleções raw e transformed usando mesmo `_id` para manter rastreabilidade
+- **FR-010c**: Se transformação falhar para um registro específico, Sistema DEVE registrar erro mas continuar processamento, mantendo registro bruto em coleção `*_ipt`
 
 **Transformação de Dados Taxonômicos:**
 
-- **FR-010**: Sistema DEVE criar registro na coleção `taxa` para cada registro em `taxa_ipt` preservando EXATAMENTE o mesmo `_id` (rastreabilidade 1:1)
-- **FR-010a**: Sistema DEVE copiar `_id` de `taxa_ipt` para `taxa` sem modificação, garantindo que `taxa._id === taxa_ipt._id` para cada registro
-- **FR-011**: Sistema DEVE filtrar apenas registros com `taxonRank` em ['ESPECIE', 'VARIEDADE', 'FORMA', 'SUB_ESPECIE'] (transformação atual em flora.ts e fauna.ts)
-- **FR-012**: Sistema DEVE criar campo `canonicalName` concatenando campos: `genus`, `genericName`, `subgenus`, `infragenericEpithet`, `specificEpithet`, `infraspecificEpithet`, `cultivarEpiteth` (filtrados por Boolean e unidos com espaço)
-- **FR-013**: Sistema DEVE criar campo `flatScientificName` removendo caracteres não alfanuméricos de `scientificName` e convertendo para lowercase
-- **FR-014**: Sistema DEVE processar campo `higherClassification` usando apenas o segundo componente da string separada por ponto-e-vírgula (issue #13)
-- **FR-015**: Sistema DEVE normalizar `vernacularname` array: converter `vernacularName` para lowercase com hífens no lugar de espaços, e capitalizar primeira letra de `language`
-- **FR-016**: Para Flora/Fungi, Sistema DEVE transformar array `distribution` em objeto estruturado com: `origin` (estabelecimentoMeans do primeiro elemento), `Endemism` (occurrenceRemarks.endemism), `phytogeographicDomains`, `occurrence` (array de locationID ordenado), `vegetationType` (do speciesprofile[0].lifeForm.vegetationType)
-- **FR-017**: Para Fauna, Sistema DEVE transformar array `distribution` em objeto estruturado com: `origin`, `occurrence` (locality split por ';'), `countryCode` (split por ';')
-- **FR-018**: Sistema DEVE processar `resourcerelationship` array criando campo `othernames` com mapeamento de: `taxonID` (relatedResourceID), `scientificName` (buscado no dwcJson), `taxonomicStatus` (relationshipOfResource), e deletar campo original `resourcerelationship`
-- **FR-019**: Para Flora/Fungi, Sistema DEVE transformar `speciesprofile` array pegando primeiro elemento e removendo `vegetationType` de `lifeForm`
-- **FR-020**: Sistema DEVE definir `kingdom` = 'Animalia' para registros de Fauna durante transformação
-- **FR-021**: Sistema DEVE agregar dados de ameaça das coleções `cncfloraFungi`, `cncfloraPlantae` e `faunaAmeacada`
-- **FR-022**: Sistema DEVE agregar dados de espécies invasoras da coleção `invasoras`
-- **FR-023**: Sistema DEVE agregar dados de presença em Unidades de Conservação do arquivo DwC-A `https://ipt.jbrj.gov.br/jbrj/archive.do?r=catalogoucs`
-- **FR-024**: Sistema DEVE garantir que transformação é idempotente (múltiplas execuções produzem mesmo resultado)
-- **FR-024a**: Sistema DEVE usar coleção MongoDB `transform_status` com operações atômicas para controlar concorrência de processos de transformação, incluindo campos: process_type (taxa/occurrences), status (running/completed/failed), started_at (timestamp), updated_at (timestamp), process_id (identificador único do processo)
+- **FR-011**: Sistema DEVE criar registro na coleção `taxa` para cada registro em `taxa_ipt` preservando EXATAMENTE o mesmo `_id` (rastreabilidade 1:1)
+- **FR-012**: Sistema DEVE filtrar apenas registros com `taxonRank` em ['ESPECIE', 'VARIEDADE', 'FORMA', 'SUB_ESPECIE']
+- **FR-013**: Sistema DEVE criar campo `canonicalName` concatenando campos: `genus`, `genericName`, `subgenus`, `infragenericEpithet`, `specificEpithet`, `infraspecificEpithet`, `cultivarEpiteth` (filtrados por Boolean e unidos com espaço)
+- **FR-014**: Sistema DEVE criar campo `flatScientificName` removendo caracteres não alfanuméricos de `scientificName` e convertendo para lowercase
+- **FR-015**: Sistema DEVE processar campo `higherClassification` usando apenas o segundo componente da string separada por ponto-e-vírgula (issue #13)
+- **FR-016**: Sistema DEVE normalizar `vernacularname` array: converter `vernacularName` para lowercase com hífens no lugar de espaços, e capitalizar primeira letra de `language`
+- **FR-017**: Para Flora/Fungi, Sistema DEVE transformar array `distribution` em objeto estruturado com: `origin` (estabelecimentoMeans do primeiro elemento), `Endemism` (occurrenceRemarks.endemism), `phytogeographicDomains`, `occurrence` (array de locationID ordenado), `vegetationType` (do speciesprofile[0].lifeForm.vegetationType)
+- **FR-018**: Para Fauna, Sistema DEVE transformar array `distribution` em objeto estruturado com: `origin`, `occurrence` (locality split por ';'), `countryCode` (split por ';')
+- **FR-019**: Sistema DEVE processar `resourcerelationship` array criando campo `othernames` com mapeamento de: `taxonID` (relatedResourceID), `scientificName` (buscado no dwcJson), `taxonomicStatus` (relationshipOfResource), e deletar campo original `resourcerelationship`
+- **FR-020**: Para Flora/Fungi, Sistema DEVE transformar `speciesprofile` array pegando primeiro elemento e removendo `vegetationType` de `lifeForm`
+- **FR-021**: Sistema DEVE definir `kingdom` = 'Animalia' para registros de Fauna durante transformação
+- **FR-022**: Sistema DEVE agregar dados de ameaça das coleções `cncfloraFungi`, `cncfloraPlantae` e `faunaAmeacada`
+- **FR-023**: Sistema DEVE agregar dados de espécies invasoras da coleção `invasoras`
+- **FR-024**: Sistema DEVE agregar dados de presença em Unidades de Conservação do arquivo DwC-A `https://ipt.jbrj.gov.br/jbrj/archive.do?r=catalogoucs`
 
 **Transformação de Dados de Ocorrências:**
 
 - **FR-025**: Sistema DEVE criar registro na coleção `occurrences` para cada registro em `occurrences_ipt` preservando EXATAMENTE o mesmo `_id` (rastreabilidade 1:1)
-- **FR-025a**: Sistema DEVE copiar `_id` de `occurrences_ipt` para `occurrences` sem modificação, garantindo que `occurrences._id === occurrences_ipt._id` para cada registro
 - **FR-026**: Sistema DEVE criar campo `geoPoint` (tipo Point com coordinates [longitude, latitude]) quando `decimalLatitude` e `decimalLongitude` são válidos (numéricos e dentro dos ranges -90 a 90 e -180 a 180)
 - **FR-027**: Sistema DEVE criar campo `canonicalName` concatenando campos: `genus`, `genericName`, `subgenus`, `infragenericEpithet`, `specificEpithet`, `infraspecificEpithet`, `cultivarEpiteth` (filtrados por Boolean e unidos com espaço)
 - **FR-028**: Sistema DEVE criar campo `iptKingdoms` como array resultado do split de `kingdom` do CSV por vírgula ou vírgula-espaço
@@ -221,38 +199,48 @@ As páginas web existentes (chat, taxa search, dashboard, map, tree view) devem 
 - **FR-042**: Sistema DEVE aplicar algoritmo de parsing de coletores do repositório `https://github.com/biopinda/coletores-BO` ao campo `recordedBy`
 - **FR-042a**: Sistema DEVE preservar campo `recordedBy` original sem modificação quando algoritmo de parsing de coletores falha (repositório indisponível, erro de parsing), registrando warning em log para rastreabilidade
 
+**Re-transformação em Massa:**
+
+- **FR-043**: Sistema DEVE permitir re-executar transformação sobre todos dados brutos via comando CLI `bun run transform:taxa` e `bun run transform:occurrences`
+- **FR-044**: Sistema DEVE detectar mudanças de versão em `packages/transform/package.json` e disparar re-transformação via GitHub Actions
+- **FR-045**: Sistema DEVE suportar execução manual de re-transformação via `workflow_dispatch` no GitHub Actions
+- **FR-046**: Sistema DEVE processar re-transformação em lotes (batch) para evitar timeouts em grandes volumes
+- **FR-047**: Sistema DEVE usar coleção MongoDB `transform_status` com operações atômicas para controlar concorrência, incluindo campos: process_type (taxa/occurrences), status (running/completed/failed), started_at, updated_at, process_id
+- **FR-048**: Sistema DEVE registrar métricas de re-transformação na coleção `process_metrics` (duração, contagem de registros, taxa de erro)
+- **FR-049**: Sistema DEVE garantir que transformação é idempotente (múltiplas execuções produzem mesmo resultado)
+
 **Exposição de APIs:**
 
-- **FR-043**: Sistema DEVE expor APIs RESTful usando plataforma Swagger para documentação interativa
-- **FR-044**: APIs DEVEM permitir consultas à coleção `taxa` com filtros por campos taxonômicos
-- **FR-045**: APIs DEVEM permitir consultas à coleção `occurrences` com filtros geográficos e temporais
-- **FR-046**: APIs DEVEM suportar paginação de resultados
-- **FR-047**: APIs DEVEM retornar dados em formato JSON
-- **FR-048**: APIs DEVEM suportar filtros combinados (múltiplos parâmetros simultaneamente)
-- **FR-049**: APIs DEVEM incluir metadados de paginação (total de registros, página atual, total de páginas)
+- **FR-050**: Sistema DEVE expor APIs RESTful usando plataforma Swagger para documentação interativa
+- **FR-051**: APIs DEVEM permitir consultas à coleção `taxa` com filtros por campos taxonômicos
+- **FR-052**: APIs DEVEM permitir consultas à coleção `occurrences` com filtros geográficos e temporais
+- **FR-053**: APIs DEVEM suportar paginação de resultados
+- **FR-054**: APIs DEVEM retornar dados em formato JSON
+- **FR-055**: APIs DEVEM suportar filtros combinados (múltiplos parâmetros simultaneamente)
+- **FR-056**: APIs DEVEM incluir metadados de paginação (total de registros, página atual, total de páginas)
 
 **Adaptação de Interface Web:**
 
-- **FR-050**: Interface web DEVE consumir dados das coleções `taxa` e `occurrences` através das APIs expostas
-- **FR-051**: Página de busca de taxa (`/taxa`) DEVE buscar dados da coleção `taxa` via API
-- **FR-052**: Página de mapa (`/mapa`) DEVE carregar ocorrências georreferenciadas da coleção `occurrences` via API
-- **FR-053**: Página de dashboard (`/dashboard`) DEVE calcular estatísticas usando dados das coleções `taxa` e `occurrences`
-- **FR-054**: Página de árvore taxonômica (`/tree`) DEVE construir hierarquia a partir da coleção `taxa`
-- **FR-055**: Interface de chat (`/chat`) DEVE consultar coleções `taxa` e `occurrences` para responder perguntas sobre biodiversidade
+- **FR-057**: Interface web DEVE consumir dados das coleções `taxa` e `occurrences` através das APIs expostas
+- **FR-058**: Página de busca de taxa (`/taxa`) DEVE buscar dados da coleção `taxa` via API
+- **FR-059**: Página de mapa (`/mapa`) DEVE carregar ocorrências georreferenciadas da coleção `occurrences` via API
+- **FR-060**: Página de dashboard (`/dashboard`) DEVE calcular estatísticas usando dados das coleções `taxa` e `occurrences`
+- **FR-061**: Página de árvore taxonômica (`/tree`) DEVE construir hierarquia a partir da coleção `taxa`
+- **FR-062**: Interface de chat (`/chat`) DEVE consultar coleções `taxa` e `occurrences` para responder perguntas sobre biodiversidade
 
 **Requisitos Técnicos e de Arquitetura:**
 
-- **FR-056**: Rotinas de ingestão DEVEM estar organizadas no pacote `packages/ingest`
-- **FR-057**: Rotinas de transformação DEVEM estar organizadas no novo pacote `packages/transform`
-- **FR-058**: Interface web DEVE permanecer no pacote `packages/web`
-- **FR-059**: Sistema DEVE reutilizar código existente de funções e rotinas sempre que possível (especialmente processaZip, processaEml, normalização)
-- **FR-060**: Sistema DEVE manter plataforma tecnológica atual (Bun, Astro.js, TypeScript, MongoDB)
-- **FR-061**: Sistema DEVE usar Docker com variáveis de ambiente para strings de conexão e chaves sensíveis
-- **FR-062**: Sistema DEVE suportar integração opcional com Meilisearch quando necessário
-- **FR-063**: Nenhuma informação sensível DEVE estar exposta no repositório público
-- **FR-063a**: Sistema DEVE automatizar execução de transformações via GitHub Actions workflows que são disparados automaticamente após conclusão bem-sucedida de workflows de ingestão
-- **FR-063b**: Workflows de transformação DEVEM suportar `workflow_dispatch` permitindo execução manual via interface GitHub Actions
-- **FR-063c**: Workflows DEVEM implementar CLI commands `bun run transform:taxa` e `bun run transform:occurrences` que podem ser invocados tanto automaticamente quanto manualmente
+- **FR-063**: Código compartilhado entre pacotes DEVE estar organizado em `packages/shared` (deterministic-id, database connection, collection names, metrics)
+- **FR-064**: Rotinas de ingestão DEVEM estar organizadas no pacote `packages/ingest` e DEVEM importar transformações de `packages/transform`
+- **FR-065**: Rotinas de transformação (re-processamento em massa) DEVEM estar organizadas no pacote `packages/transform`
+- **FR-066**: Interface web DEVE permanecer no pacote `packages/web`
+- **FR-067**: Sistema DEVE reutilizar código existente de funções e rotinas sempre que possível (especialmente processaZip, processaEml, normalização)
+- **FR-068**: Sistema DEVE manter plataforma tecnológica atual (Bun, Astro.js, TypeScript, MongoDB)
+- **FR-069**: Sistema DEVE usar Docker com variáveis de ambiente para strings de conexão e chaves sensíveis
+- **FR-070**: Sistema DEVE suportar integração opcional com Meilisearch quando necessário
+- **FR-071**: Nenhuma informação sensível DEVE estar exposta no repositório público
+- **FR-072**: Workflows GitHub Actions de ingestão NÃO DEVEM chamar workflows de transformação (transformação integrada no processo de ingestão)
+- **FR-073**: Workflows GitHub Actions de transformação DEVEM ser disparados apenas por: (a) mudança de versão em `packages/transform/package.json`, (b) workflow_dispatch manual
 
 **Requisitos de Processamento em Lote e Resiliência (já implementados):**
 
