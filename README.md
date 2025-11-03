@@ -24,22 +24,21 @@ A versão atual integra uma vasta gama de fontes de dados da biodiversidade bras
 
 O **Biodiversidade.Online** é um sistema automatizado de integração e processamento de dados de biodiversidade brasileira, desenvolvido em TypeScript executado com Bun. O projeto consolida informações taxonômicas e de ocorrências de múltiplas fontes científicas em uma base de dados MongoDB unificada, facilitando consultas e análises da biodiversidade nacional.
 
-### Arquitetura de Dados: Pipeline Raw → Transform
+### Arquitetura de Dados: Pipeline Integrado Raw → Transform
 
-A versão 5.0 introduz uma arquitetura de processamento de dados em duas etapas:
+A versão 5.0 introduz uma arquitetura de processamento de dados **integrada** onde ingestão e transformação ocorrem no mesmo processo:
 
-1. **Ingestão (Raw)**: Dados brutos são baixados de fontes DwC-A e armazenados sem transformações nas coleções `taxa_ipt` e `occurrences_ipt`, preservando campos originais e rastreabilidade.
+1. **Ingestão Integrada**: Dados brutos são baixados de fontes DwC-A, armazenados nas coleções `taxa_ipt` e `occurrences_ipt`, e **imediatamente transformados** para as coleções `taxa` e `occurrences` no mesmo pipeline.
 
-2. **Transformação (Transform)**: Scripts dedicados processam os dados brutos aplicando:
-   - **Validações**: Geográficas (coordenadas), temporais (datas), taxonômicas (ranks)
-   - **Normalizações**: Padronização de países, estados, nomes científicos
-   - **Enriquecimentos**: Status de ameaça, invasoras, unidades de conservação
-   - **Agregações**: Criação de campos derivados e índices otimizados
+2. **Transformação Inline**: Para cada registro inserido:
+   - **Taxa**: Após inserir em `taxa_ipt`, chama `transformTaxonRecord()` aplicando validações, normalizações e enriquecimentos
+   - **Ocorrências**: Após cada batch (~5000 registros) em `occurrences_ipt`, transforma o batch completo inline
 
-Os dados transformados são armazenados nas coleções `taxa` e `occurrences`, que são consultadas pelas APIs e interfaces web.
+3. **Re-transformação**: Scripts CLI separados permitem re-processar todos dados quando lógica de transformação muda.
 
-#### Benefícios da Arquitetura
+#### Benefícios da Arquitetura Integrada
 
+- ✅ **Processamento automático**: Dados transformados ficam disponíveis imediatamente após ingestão
 - ✅ **Rastreabilidade completa**: `_id` preservado entre coleções raw e transformadas
 - ✅ **Auditoria facilitada**: Comparação direta entre dados originais e processados
 - ✅ **Idempotência garantida**: Re-execuções seguras sem duplicação de dados
@@ -51,9 +50,30 @@ Os dados transformados são armazenados nas coleções `taxa` e `occurrences`, q
 ### 🔄 Processamento Automático de Dados
 
 - **Integração contínua** via GitHub Actions com processamento automático de dados de flora, fauna e ocorrências
-- **Processamento de arquivos DwC-A** (Darwin Core Archive) de repositórios IPT
+- **Processamento integrado** de arquivos DwC-A (Darwin Core Archive) com transformação inline
+- **Re-transformação automática** quando lógica de processamento é modificada
 - **Normalização e estruturação** de dados taxonômicos seguindo padrões Darwin Core
-- **Atualização automática** do banco MongoDB com novos dados
+- **Atualização semanal** automática do banco MongoDB com novos dados
+
+#### Workflows Automáticos
+
+**Ingestão Semanal (Domingos):**
+
+- 02:00 UTC - Flora do Brasil (ingestão + transformação)
+- 02:30 UTC - Fauna do Brasil (ingestão + transformação)
+- 03:00 UTC - ~490 IPTs de ocorrências (ingestão + transformação)
+
+**Re-transformação Automática por Mudanças de Código:**
+
+- Modificações em `packages/transform/src/taxa/**` → Workflow `transform-taxa.yml`
+- Modificações em `packages/transform/src/occurrences/**` → Workflow `transform-occurrences.yml`
+- Modificações em `packages/shared/src/**` → Ambos workflows de transformação
+- Bump de versão em `packages/transform/package.json` → Ambos workflows
+
+**Execução Manual:**
+
+- Todos workflows disponíveis via GitHub Actions interface
+- Suporte a URLs customizadas para fontes DwC-A
 
 ### 📊 Fontes de Dados Integradas
 
@@ -75,18 +95,19 @@ Os dados transformados são armazenados nas coleções `taxa` e `occurrences`, q
 
 ```
 ├── packages/
-│   ├── ingest/                 # Pipeline de ingestão de dados brutos
+│   ├── shared/                 # Utilitários compartilhados (database, IDs, métricas)
+│   ├── ingest/                 # Pipeline de ingestão integrada (raw + transform)
 │   │   ├── src/
-│   │   │   ├── flora.ts        # Ingestão de dados da Flora do Brasil → taxa_ipt
-│   │   │   ├── fauna.ts        # Ingestão de dados da Fauna do Brasil → taxa_ipt
-│   │   │   ├── ocorrencia.ts   # Ingestão de ~490 IPTs → occurrences_ipt
+│   │   │   ├── flora.ts        # Ingestão + transformação inline → taxa_ipt + taxa
+│   │   │   ├── fauna.ts        # Ingestão + transformação inline → taxa_ipt + taxa
+│   │   │   ├── ocorrencia.ts   # Ingestão + transformação inline → occurrences_ipt + occurrences
 │   │   │   └── lib/            # Utilitários DwC-A e normalização
 │   │   ├── referencias/        # Documentação e listas de referência
 │   │   └── chatbb/             # Conjuntos de dados e prompts do assistente
-│   ├── transform/              # Pipeline de transformação de dados
+│   ├── transform/              # CLI para re-transformação em massa
 │   │   ├── src/
-│   │   │   ├── taxa/           # Transformação taxa_ipt → taxa
-│   │   │   ├── occurrences/    # Transformação occurrences_ipt → occurrences
+│   │   │   ├── taxa/           # Re-processamento taxa_ipt → taxa
+│   │   │   ├── occurrences/    # Re-processamento occurrences_ipt → occurrences
 │   │   │   ├── lib/            # Infraestrutura (database, locks, métricas)
 │   │   │   └── cli/            # Comandos CLI para orquestração
 │   │   └── test/               # Testes de validação
@@ -97,7 +118,7 @@ Os dados transformados são armazenados nas coleções `taxa` e `occurrences`, q
 │       │   └── prompts/        # Prompts do ChatBB
 │       └── public/
 ├── docs/                       # Histórico do projeto e documentação
-└── .github/workflows/          # Automação CI/CD
+└── .github/workflows/          # Automação CI/CD integrada
 ```
 
 ### Tecnologias Utilizadas
@@ -170,21 +191,21 @@ _(Requer chave da OpenAI ou Gemini)_
 # Instalar dependências dos workspaces
 bun install
 
-# === Pipeline de Ingestão (Raw Data) ===
-# Processar dados de flora (DwC-A → taxa_ipt)
+# === Pipeline Integrado (Ingestão + Transformação) ===
+# Processar dados de flora (DwC-A → taxa_ipt + transformação inline → taxa)
 bun run ingest:flora <dwc-a-url>
 
-# Processar dados de fauna (DwC-A → taxa_ipt)
+# Processar dados de fauna (Dwc-A → taxa_ipt + transformação inline → taxa)
 bun run ingest:fauna <dwc-a-url>
 
-# Processar ocorrências de todos os IPTs (DwC-A → occurrences_ipt)
+# Processar ocorrências de todos os IPTs (DwC-A → occurrences_ipt + transformação inline → occurrences)
 bun run ingest:occurrences
 
-# === Pipeline de Transformação (Processed Data) ===
-# Transformar dados taxonômicos (taxa_ipt → taxa)
+# === Re-transformação em Massa (quando lógica muda) ===
+# Re-processar todos dados taxonômicos (taxa_ipt → taxa)
 bun run transform:taxa
 
-# Transformar dados de ocorrências (occurrences_ipt → occurrences)
+# Re-processar todos dados de ocorrências (occurrences_ipt → occurrences)
 bun run transform:occurrences
 
 # Verificar status de locks de transformação

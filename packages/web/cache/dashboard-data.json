@@ -1,13 +1,13 @@
 {
   "occurrences": {
-    "plantae": 4615089,
-    "fungi": 240958,
-    "animalia": 3116840
+    "plantae": 7263398,
+    "fungi": 810450,
+    "animalia": 1891673
   },
   "taxa": {
-    "plantae": 53391,
-    "fungi": 8508,
-    "animalia": 78803
+    "plantae": 107050,
+    "fungi": 17128,
+    "animalia": 270500
   },
   "threatened": {
     "counts": {
@@ -74,11 +74,11 @@
           "count": 36
         },
         {
-          "_id": "Dados Insuficientes (DD)",
+          "_id": "Quase Ameaçada (NT)",
           "count": 35
         },
         {
-          "_id": "Quase Ameaçada (NT)",
+          "_id": "Dados Insuficientes (DD)",
           "count": 35
         },
         {
@@ -90,15 +90,7 @@
           "count": 3
         },
         {
-          "_id": "Extinta na Natureza (EW)",
-          "count": 1
-        },
-        {
-          "_id": "[Sinonímia M. hypostoma]",
-          "count": 1
-        },
-        {
-          "_id": "Subespécie que sai da Lista",
+          "_id": "[Não é espécie brasileira]",
           "count": 1
         },
         {
@@ -106,11 +98,19 @@
           "count": 1
         },
         {
+          "_id": "Extinta na Natureza (EW)",
+          "count": 1
+        },
+        {
           "_id": "Criticamente Em Perigo (CR)",
           "count": 1
         },
         {
-          "_id": "[Não é espécie brasileira]",
+          "_id": "Subespécie que sai da Lista",
+          "count": 1
+        },
+        {
+          "_id": "[Sinonímia M. hypostoma]",
           "count": 1
         }
       ]
@@ -156,7 +156,7 @@
         "count": 7
       },
       {
-        "_id": "Cyprinodontiformes",
+        "_id": "Gymnotiformes",
         "count": 7
       },
       {
@@ -178,15 +178,15 @@
         "count": 9
       },
       {
-        "_id": "Pinaceae",
-        "count": 8
-      },
-      {
         "_id": "Myrtaceae",
         "count": 8
       },
       {
-        "_id": "Asteraceae",
+        "_id": "Pinaceae",
+        "count": 8
+      },
+      {
+        "_id": "Arecaceae",
         "count": 7
       },
       {
@@ -194,7 +194,7 @@
         "count": 7
       },
       {
-        "_id": "Arecaceae",
+        "_id": "Asteraceae",
         "count": 7
       },
       {
@@ -211,257 +211,249 @@
     "ordersAnimalia": [
       {
         "_id": "Coleoptera",
-        "count": 21732
-      },
-      {
-        "_id": "Hymenoptera",
-        "count": 9576
-      },
-      {
-        "_id": "Diptera",
-        "count": 8935
-      },
-      {
-        "_id": "Hemiptera",
-        "count": 7932
+        "count": 75120
       },
       {
         "_id": "Lepidoptera",
-        "count": 2993
+        "count": 31196
+      },
+      {
+        "_id": "Diptera",
+        "count": 24770
+      },
+      {
+        "_id": "Hymenoptera",
+        "count": 23506
+      },
+      {
+        "_id": "Hemiptera",
+        "count": 19944
       },
       {
         "_id": "Araneae",
-        "count": 2555
+        "count": 6326
+      },
+      {
+        "_id": "Passeriformes",
+        "count": 4722
       },
       {
         "_id": "Orthoptera",
-        "count": 1674
+        "count": 3820
+      },
+      {
+        "_id": "Trombidiformes",
+        "count": 3016
       },
       {
         "_id": "Siluriformes",
-        "count": 1203
-      },
-      {
-        "_id": "Opiliones",
-        "count": 996
-      },
-      {
-        "_id": "Anura",
-        "count": 977
+        "count": 2866
       }
     ],
     "familiesPlantae": [
       {
         "_id": "Fabaceae",
-        "count": 3932
+        "count": 7884
       },
       {
         "_id": "Orchidaceae",
-        "count": 3332
+        "count": 6666
       },
       {
         "_id": "Asteraceae",
-        "count": 2545
+        "count": 5114
       },
       {
         "_id": "[Algae]: Bacillariophyceae",
-        "count": 1802
+        "count": 3608
       },
       {
         "_id": "Poaceae",
-        "count": 1757
+        "count": 3514
       },
       {
         "_id": "Melastomataceae",
-        "count": 1653
+        "count": 3312
       },
       {
         "_id": "Rubiaceae",
-        "count": 1644
+        "count": 3292
       },
       {
         "_id": "Bromeliaceae",
-        "count": 1600
+        "count": 3206
       },
       {
         "_id": "Myrtaceae",
-        "count": 1360
+        "count": 2726
       },
       {
         "_id": "[Algae]: Zygnematophyceae",
-        "count": 1166
+        "count": 2332
       }
     ],
     "ordersFungi": [
       {
         "_id": "Agaricales",
-        "count": 1157
+        "count": 2336
       },
       {
         "_id": "Pucciniales",
-        "count": 787
+        "count": 1574
       },
       {
         "_id": "Incertae sedis",
-        "count": 615
+        "count": 1230
       },
       {
         "_id": "Polyporales",
-        "count": 543
+        "count": 1104
       },
       {
         "_id": "Xylariales",
-        "count": 330
+        "count": 660
       },
       {
         "_id": "Lecanorales",
-        "count": 309
+        "count": 626
       },
       {
         "_id": "Asterinales",
-        "count": 268
+        "count": 536
       },
       {
         "_id": "Hypocreales",
-        "count": 263
+        "count": 528
       },
       {
         "_id": "Hymenochaetales",
-        "count": 215
+        "count": 434
       },
       {
         "_id": "Russulales",
-        "count": 179
+        "count": 374
       }
     ]
   },
   "top_collections": {
     "animalia": [
       {
-        "_id": "Museu Paraense Emílio Goeldi (MPEG)",
-        "count": 245922
-      },
-      {
-        "_id": "Museu Nacional do Rio de Janeiro",
-        "count": 207196
-      },
-      {
-        "_id": "Fiocruz",
-        "count": 205845
-      },
-      {
-        "_id": "Instituto Nacional de Pesquisas da Amazônia (INPA)",
-        "count": 190984
+        "_id": "Universidade Federal do Paraná",
+        "count": 298259
       },
       {
         "_id": "Coleção Taxonômica do Departamento de Ecologia e Biologia Evolutiva da UFSCar",
-        "count": 159621
-      },
-      {
-        "_id": "Coleção de Abelhas",
-        "count": 128446
-      },
-      {
-        "_id": "Fonoteca Neotropical Jacques Vielliard",
-        "count": 103162
-      },
-      {
-        "_id": "Museu Paraense Emílio Goeldi",
-        "count": 78283
-      },
-      {
-        "_id": "Museu Nacional/UFRJ",
-        "count": 72863
+        "count": 160862
       },
       {
         "_id": "Coleção Entomológica Prof. J.M.F. Camargo, FFCLRP/USP",
-        "count": 71607
+        "count": 65569
+      },
+      {
+        "_id": "Universidade Federal do Parana (UFPR)",
+        "count": 63574
+      },
+      {
+        "_id": "Coleção de Abelhas",
+        "count": 61538
+      },
+      {
+        "_id": "Universidade Federal de Mato Grosso (UFMT)",
+        "count": 56815
+      },
+      {
+        "_id": "Universidade Estadual de Londrina",
+        "count": 55187
+      },
+      {
+        "_id": "Coleção Entomológica Paulo Nogueira-Neto - IB/USP",
+        "count": 41054
+      },
+      {
+        "_id": "Museu de História Natural Capão da Imbuia",
+        "count": 38073
+      },
+      {
+        "_id": "Universidade Federal do Paraná (UFPR)",
+        "count": 30077
       }
     ],
     "plantae": [
       {
+        "_id": "Rio de Janeiro Botanical Garden",
+        "count": 767142
+      },
+      {
+        "_id": "NY",
+        "count": 375313
+      },
+      {
         "_id": "Museu Botânico Municipal",
-        "count": 330332
+        "count": 277410
       },
       {
         "_id": "Universidade de Brasília - UnB",
-        "count": 275375
+        "count": 265271
       },
       {
         "_id": "Herbário do Estado Maria Eneyda P. Kaufmann Fidalgo - Coleção de Plantas Vasculares",
-        "count": 269466
+        "count": 238416
+      },
+      {
+        "_id": "HUEFS",
+        "count": 230381
       },
       {
         "_id": "Herbário da Universidade de Brasília",
-        "count": 205360
+        "count": 204778
+      },
+      {
+        "_id": "K",
+        "count": 202226
       },
       {
         "_id": "Herbário da Universidade Estadual de Campinas",
-        "count": 200308
+        "count": 196978
       },
       {
-        "_id": "Herbário da Embrapa Recursos Genéticos e Biotecnologia",
-        "count": 134839
-      },
-      {
-        "_id": "Universidade Federal do Paraná",
-        "count": 99121
-      },
-      {
-        "_id": "Herbarium Anchieta - Coleção de Angiospermas",
-        "count": 93432
-      },
-      {
-        "_id": "Herbário - IPA Dárdano de Andrade Lima",
-        "count": 88369
-      },
-      {
-        "_id": "HERBÁRIO IBGE",
-        "count": 87754
+        "_id": "US",
+        "count": 127677
       }
     ],
     "fungi": [
       {
-        "_id": "Herbário Pe. Camille Torrend",
-        "count": 93312
+        "_id": "Rio de Janeiro Botanical Garden",
+        "count": 767142
       },
       {
         "_id": "Maria Eneyda Pacheco Kauffmann Fidalgo",
-        "count": 32608
-      },
-      {
-        "_id": "Fundação Universidade Federal de Mato Grosso do Sul",
-        "count": 20662
-      },
-      {
-        "_id": "Herbário ISE",
-        "count": 16927
-      },
-      {
-        "_id": "Universidade Federal de Santa Catarina",
-        "count": 11813
+        "count": 25954
       },
       {
         "_id": "Herbarium Anchieta - Fungi Rickiani",
-        "count": 11528
+        "count": 9340
       },
       {
-        "_id": "Universidade Federal do Paraná",
-        "count": 5961
+        "_id": "Coleção de Fungos UFRN",
+        "count": 3405
       },
       {
-        "_id": "Universidade Estadual de Goiás",
-        "count": 4939
+        "_id": "Herbário Central da Universidade Federal do Espírito Santo - Coleção de Fungos",
+        "count": 2053
       },
       {
-        "_id": "R-Fungi - Herbário do Museu Nacional",
-        "count": 4934
+        "_id": "Micoteca do Herbário da Universidade de Caxias do Sul",
+        "count": 2016
       },
       {
-        "_id": "Herbário Alarich Rudolf Holger Schultz -Coleções de Plantas e Fungos",
-        "count": 4719
+        "_id": "Herbário de fungos de São José do Rio Preto",
+        "count": 442
+      },
+      {
+        "_id": "Herbário Irina Delanova Gemtchújnicov - Coleção de Fungos",
+        "count": 98
       }
     ]
   },
-  "lastUpdated": "2025-09-27T12:26:05.445Z"
+  "lastUpdated": "2025-11-03T17:03:16.292Z"
 }

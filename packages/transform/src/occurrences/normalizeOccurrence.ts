@@ -1,7 +1,4 @@
-import {
-  normalizeCountryName,
-  normalizeStateName
-} from '../lib/normalization.ts'
+import { normalizeCountryName, normalizeStateName } from '../lib/normalization'
 import { buildFlatScientificName } from '../utils/name'
 
 export type RawOccurrenceDocument = Record<string, unknown> & { _id: string }
