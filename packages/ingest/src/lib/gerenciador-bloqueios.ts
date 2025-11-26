@@ -1,235 +1,367 @@
-import type { Collection, FindOneAndUpdateOptions } from 'mongodb'
-import type {
+import { Collection, Db, MongoClient, ObjectId } from 'mongodb'
+import {
   BloqueioProcessamento,
-  TipoRecursoProcessamento
+  CleanupOptions,
+  CleanupResult,
+  ForceRemoveOptions,
+  LockOptions,
+  LockResult,
+  LockStatus,
+  ResourceType
 } from '../types/bloqueio-processamento.ts'
 
-type AcquireOptions = {
-  owner: string
-  ttlSeconds: number
-  workflowRunId?: string
-  iptId?: string
-  estimatedDuration?: number
-  progressInfo?: string
-}
+/**
+ * Gerenciador de bloqueios para controle de concorrência
+ */
+export class GerenciadorBloqueios {
+  private db: Db
+  private collection: Collection<BloqueioProcessamento>
 
-type AcquireResult =
-  | { obtido: true; lock: BloqueioProcessamento }
-  | { obtido: false; motivo: string; lock?: BloqueioProcessamento }
-
-type ReleaseOptions = {
-  owner?: string
-}
-
-type ReleaseResult = {
-  liberado: boolean
-}
-
-type RenewOptions = {
-  owner: string
-  ttlSeconds: number
-}
-
-type RenewResult =
-  | { renovado: true; lock: BloqueioProcessamento }
-  | { renovado: false; motivo: string }
-
-const sanitizeProcessInfo = (options: AcquireOptions) => {
-  const processInfo: BloqueioProcessamento['process_info'] = {}
-  if (options.workflowRunId) {
-    processInfo.workflow_run_id = options.workflowRunId
+  constructor(db: Db) {
+    this.db = db
+    this.collection = db.collection<BloqueioProcessamento>('processingLocks')
   }
-  if (options.iptId) {
-    processInfo.iptId = options.iptId
-  }
-  if (options.estimatedDuration !== undefined) {
-    processInfo.estimated_duration = options.estimatedDuration
-  }
-  if (options.progressInfo) {
-    processInfo.progress_info = options.progressInfo
-  }
-  return Object.keys(processInfo).length > 0 ? processInfo : undefined
-}
 
-const defaultFindOneAndUpdateOptions: FindOneAndUpdateOptions = {
-  upsert: true,
-  returnDocument: 'after'
-}
+  /**
+   * Cria um novo lock para o recurso especificado
+   */
+  async createProcessingLock(
+    resourceType: ResourceType,
+    options: LockOptions
+  ): Promise<LockResult> {
+    try {
+      // Verificar se já existe lock ativo
+      const existingLock = await this.collection.findOne({
+        resource_type: resourceType,
+        is_locked: true
+      })
 
-export const createGerenciadorBloqueios = (
-  collection: Collection<BloqueioProcessamento>
-) => {
-  const adquirir = async (
-    resourceType: TipoRecursoProcessamento,
-    options: AcquireOptions
-  ): Promise<AcquireResult> => {
-    const now = new Date()
-    const expiresAt = new Date(now.getTime() + options.ttlSeconds * 1000)
+      if (existingLock && !options.force_override) {
+        // Verificar se não expirou
+        if (existingLock.lock_expires_at > new Date()) {
+          return {
+            success: false,
+            existing_lock: existingLock,
+            error: `Resource ${resourceType} is already locked by ${existingLock.locked_by}`
+          }
+        } else {
+          // Lock expirado, remover
+          await this.collection.updateOne(
+            { _id: existingLock._id },
+            { $set: { is_locked: false } }
+          )
+        }
+      }
 
-    const currentLock = await collection.findOne({
-      resource_type: resourceType
+      // Criar novo lock
+      const lockDoc: BloqueioProcessamento = {
+        _id: new ObjectId(),
+        resource_type: resourceType,
+        is_locked: true,
+        locked_at: new Date(),
+        locked_by: options.locked_by,
+        lock_expires_at: new Date(Date.now() + options.estimated_duration),
+        process_info: {
+          estimated_duration: options.estimated_duration,
+          workflow_run_id: options.process_info?.workflow_run_id,
+          iptId: options.process_info?.iptId,
+          progress_info: options.process_info?.progress_info,
+          runner_id: options.process_info?.runner_id
+        }
+      }
+
+      const result = await this.collection.insertOne(lockDoc)
+
+      return {
+        success: true,
+        lock_id: result.insertedId
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to create lock: ${(error as Error).message}`
+      }
+    }
+  }
+
+  /**
+   * Verifica o status de um lock
+   */
+  async checkLockStatus(resourceType: ResourceType): Promise<LockStatus> {
+    const lock = await this.collection.findOne({
+      resource_type: resourceType,
+      is_locked: true
     })
 
-    if (
-      currentLock &&
-      currentLock.is_locked === true &&
-      currentLock.locked_by &&
-      currentLock.locked_by !== options.owner &&
-      currentLock.lock_expires_at &&
-      currentLock.lock_expires_at > now
-    ) {
+    if (!lock) {
       return {
-        obtido: false,
-        motivo: `Recurso já está bloqueado por ${currentLock.locked_by} até ${currentLock.lock_expires_at.toISOString()}`,
-        lock: currentLock
-      }
-    }
-
-    const filter = {
-      resource_type: resourceType,
-      $or: [
-        { is_locked: { $ne: true } },
-        { lock_expires_at: { $lte: now } },
-        { locked_by: options.owner }
-      ]
-    }
-
-    const processInfo = sanitizeProcessInfo(options)
-    const unset: Record<string, unknown> = {}
-    const set: Record<string, unknown> = {
-      is_locked: true,
-      locked_at: now,
-      locked_by: options.owner,
-      lock_expires_at: expiresAt
-    }
-
-    if (processInfo) {
-      set.process_info = processInfo
-    } else {
-      unset.process_info = ''
-    }
-
-    const update: Record<string, unknown> = {
-      $set: set,
-      $setOnInsert: {
-        resource_type: resourceType
-      }
-    }
-
-    if (Object.keys(unset).length > 0) {
-      update.$unset = unset
-    }
-
-    const result = await collection.findOneAndUpdate(
-      filter,
-      update,
-      defaultFindOneAndUpdateOptions
-    )
-
-    if (result) {
-      return { obtido: true, lock: result }
-    }
-
-    const current =
-      currentLock ?? (await collection.findOne({ resource_type: resourceType }))
-    return {
-      obtido: false,
-      motivo: current
-        ? `Recurso já está bloqueado por ${current.locked_by} até ${current.lock_expires_at?.toISOString()}`
-        : 'Recurso indisponível para bloqueio',
-      lock: current ?? undefined
-    }
-  }
-
-  const liberar = async (
-    resourceType: TipoRecursoProcessamento,
-    options: ReleaseOptions = {}
-  ): Promise<ReleaseResult> => {
-    const filter: Record<string, unknown> = {
-      resource_type: resourceType
-    }
-
-    if (options.owner) {
-      filter.locked_by = options.owner
-    }
-
-    const result = await collection.findOneAndUpdate(
-      filter,
-      {
-        $set: {
-          is_locked: false,
-          locked_at: new Date(),
-          lock_expires_at: new Date(0)
-        },
-        $unset: {
-          locked_by: '',
-          process_info: ''
-        }
-      },
-      defaultFindOneAndUpdateOptions
-    )
-
-    return {
-      liberado: Boolean(result && result.is_locked === false)
-    }
-  }
-
-  const renovar = async (
-    resourceType: TipoRecursoProcessamento,
-    options: RenewOptions
-  ): Promise<RenewResult> => {
-    const now = new Date()
-    const expiresAt = new Date(now.getTime() + options.ttlSeconds * 1000)
-
-    const result = await collection.findOneAndUpdate(
-      {
         resource_type: resourceType,
-        locked_by: options.owner,
-        is_locked: true
-      },
-      {
-        $set: {
-          lock_expires_at: expiresAt,
-          locked_at: now
-        }
-      },
-      defaultFindOneAndUpdateOptions
-    )
-
-    if (!result) {
-      return {
-        renovado: false,
-        motivo: 'Lock inexistente ou pertencente a outro processo'
+        is_locked: false,
+        is_expired: false
       }
     }
 
+    const now = new Date()
+    const isExpired = lock.lock_expires_at <= now
+    const timeRemaining = Math.max(
+      0,
+      Math.floor((lock.lock_expires_at.getTime() - now.getTime()) / 1000)
+    )
+
     return {
-      renovado: true,
-      lock: result
+      resource_type: resourceType,
+      is_locked: !isExpired,
+      locked_by: lock.locked_by,
+      locked_at: lock.locked_at,
+      expires_at: lock.lock_expires_at,
+      is_expired: isExpired,
+      time_remaining: timeRemaining
     }
   }
 
-  const listarAtivos = () => {
-    return collection
-      .find({ is_locked: true })
-      .sort({ locked_at: -1 })
-      .toArray()
+  /**
+   * Remove locks expirados
+   */
+  async cleanupExpiredLocks(
+    options: CleanupOptions = {}
+  ): Promise<CleanupResult> {
+    try {
+      const now = new Date()
+      const query: any = {}
+
+      if (options.force_all) {
+        // Remover todos os locks
+        query.is_locked = true
+      } else if (options.older_than) {
+        // Remover locks mais antigos que data especificada
+        query.locked_at = { $lt: options.older_than }
+      } else {
+        // Remover apenas expirados
+        query.lock_expires_at = { $lt: now }
+        query.is_locked = true
+      }
+
+      if (options.resource_types && options.resource_types.length > 0) {
+        query.resource_type = { $in: options.resource_types }
+      }
+
+      // Buscar locks que serão removidos para relatório
+      const locksToRemove = await this.collection.find(query).toArray()
+
+      if (options.dry_run) {
+        return {
+          expired_locks_removed: locksToRemove.length,
+          active_locks: await this.collection.countDocuments({
+            is_locked: true
+          }),
+          errors: [],
+          removed_locks: locksToRemove.map((lock) => ({
+            resource_type: lock.resource_type,
+            locked_by: lock.locked_by,
+            expired_duration: Math.floor(
+              (now.getTime() - lock.lock_expires_at.getTime()) / 1000
+            )
+          }))
+        }
+      }
+
+      // Atualizar locks para desbloqueados
+      const updateResult = await this.collection.updateMany(query, {
+        $set: { is_locked: false }
+      })
+
+      const activeLocks = await this.collection.countDocuments({
+        is_locked: true
+      })
+
+      return {
+        expired_locks_removed: updateResult.modifiedCount,
+        active_locks: activeLocks,
+        errors: [],
+        removed_locks: locksToRemove.map((lock) => ({
+          resource_type: lock.resource_type,
+          locked_by: lock.locked_by,
+          expired_duration: Math.floor(
+            (now.getTime() - lock.lock_expires_at.getTime()) / 1000
+          )
+        }))
+      }
+    } catch (error) {
+      return {
+        expired_locks_removed: 0,
+        active_locks: 0,
+        errors: [`Failed to cleanup locks: ${(error as Error).message}`],
+        removed_locks: []
+      }
+    }
   }
 
-  return {
-    adquirir,
-    liberar,
-    renovar,
-    listarAtivos
+  /**
+   * Remove lock forçadamente (para emergências)
+   */
+  async forceRemoveLock(
+    resourceType: ResourceType,
+    options: ForceRemoveOptions
+  ): Promise<{
+    success: boolean
+    removed_lock?: BloqueioProcessamento
+    error?: string
+  }> {
+    try {
+      const lock = await this.collection.findOne({
+        resource_type: resourceType,
+        is_locked: true
+      })
+
+      if (!lock) {
+        return {
+          success: false,
+          error: `No active lock found for resource ${resourceType}`
+        }
+      }
+
+      await this.collection.updateOne(
+        { _id: lock._id },
+        { $set: { is_locked: false } }
+      )
+
+      // Registrar auditoria se solicitado
+      if (options.audit_log) {
+        await this.db.collection('lockAuditLog').insertOne({
+          action: 'force_remove',
+          resource_type: resourceType,
+          original_lock: lock,
+          removed_by: options.removed_by,
+          reason: options.reason,
+          timestamp: new Date()
+        })
+      }
+
+      return {
+        success: true,
+        removed_lock: lock
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to force remove lock: ${(error as Error).message}`
+      }
+    }
+  }
+
+  /**
+   * Cria lock específico para IPT (mais granular)
+   */
+  async createIptLock(
+    iptId: string,
+    resourceType: ResourceType,
+    options: Omit<LockOptions, 'process_info'> & {
+      process_info?: Partial<LockOptions['process_info']>
+    }
+  ): Promise<LockResult> {
+    // Usar resource type específico para IPT
+    const iptResourceType = `${resourceType}_${iptId}` as ResourceType
+
+    return this.createProcessingLock(iptResourceType, {
+      ...options,
+      process_info: {
+        ...options.process_info,
+        iptId
+      }
+    })
+  }
+
+  /**
+   * Lista todos os locks ativos
+   */
+  async listActiveLocks(): Promise<LockStatus[]> {
+    const locks = await this.collection.find({ is_locked: true }).toArray()
+    const now = new Date()
+
+    return locks.map((lock) => {
+      const isExpired = lock.lock_expires_at <= now
+      const timeRemaining = Math.max(
+        0,
+        Math.floor((lock.lock_expires_at.getTime() - now.getTime()) / 1000)
+      )
+
+      return {
+        resource_type: lock.resource_type,
+        is_locked: !isExpired,
+        locked_by: lock.locked_by,
+        locked_at: lock.locked_at,
+        expires_at: lock.lock_expires_at,
+        is_expired: isExpired,
+        time_remaining: timeRemaining
+      }
+    })
   }
 }
 
-export type GerenciadorBloqueios = ReturnType<typeof createGerenciadorBloqueios>
-export type {
-  AcquireOptions,
-  AcquireResult,
-  ReleaseOptions,
-  ReleaseResult,
-  RenewOptions,
-  RenewResult
+// Funções de conveniência para uso nos scripts
+let gerenciadorInstance: GerenciadorBloqueios | null = null
+
+/**
+ * Inicializa o gerenciador de bloqueios
+ */
+export async function initializeLockManager(
+  mongoUri: string
+): Promise<GerenciadorBloqueios> {
+  const client = new MongoClient(mongoUri)
+  await client.connect()
+  const db = client.db('dwc2json')
+
+  gerenciadorInstance = new GerenciadorBloqueios(db)
+  return gerenciadorInstance
+}
+
+/**
+ * Obtém instância do gerenciador (deve ser inicializado primeiro)
+ */
+export function getLockManager(): GerenciadorBloqueios {
+  if (!gerenciadorInstance) {
+    throw new Error(
+      'Lock manager not initialized. Call initializeLockManager first.'
+    )
+  }
+  return gerenciadorInstance
+}
+
+// Exportar funções para uso direto
+export async function createProcessingLock(
+  resourceType: ResourceType,
+  options: LockOptions
+): Promise<LockResult> {
+  return getLockManager().createProcessingLock(resourceType, options)
+}
+
+export async function checkLockStatus(
+  resourceType: ResourceType
+): Promise<LockStatus> {
+  return getLockManager().checkLockStatus(resourceType)
+}
+
+export async function cleanupExpiredLocks(
+  options: CleanupOptions = {}
+): Promise<CleanupResult> {
+  return getLockManager().cleanupExpiredLocks(options)
+}
+
+export async function forceRemoveLock(
+  resourceType: ResourceType,
+  options: ForceRemoveOptions
+): Promise<{
+  success: boolean
+  removed_lock?: BloqueioProcessamento
+  error?: string
+}> {
+  return getLockManager().forceRemoveLock(resourceType, options)
+}
+
+export async function createIptLock(
+  iptId: string,
+  resourceType: ResourceType,
+  options: LockOptions
+): Promise<LockResult> {
+  return getLockManager().createIptLock(iptId, resourceType, options)
 }
