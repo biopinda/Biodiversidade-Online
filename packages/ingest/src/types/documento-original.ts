@@ -1,52 +1,146 @@
+import { ObjectId } from 'mongodb'
+
 /**
- * Tipos para representar documentos originais armazenados nas coleções dedicadas
- * (`taxaOriginal` e `ocorrenciasOriginal`).
- *
- * Estes tipos refletem o modelo descrito em `specs/003-manter-dados-originais/data-model.md`.
+ * Interface para documentos originais preservados sem transformação
+ * Armazena dados IPT exatos conforme recebidos do DwC-A
  */
-import type { ObjectId } from 'mongodb'
+export interface DocumentoOriginal {
+  /** ID único do documento */
+  _id: ObjectId
 
-export type TipoColecaoOriginal = 'fauna' | 'flora' | 'ocorrencias'
+  /** Identificador do IPT (corresponde ao campo iptId atual) */
+  iptId: string
 
-export interface MetadadosIngestao {
-  /** Momento em que o documento original foi persistido */
+  /** Tag do IPT (ex: "inpa", "jabot", "speciesLink") */
+  ipt: string
+
+  /** ID do registro no IPT original */
+  ipt_record_id: string
+
+  /** Hash/versão do IPT no momento da ingestão */
+  ipt_version: string
+
+  /** Tipo de dados */
+  collection_type: 'fauna' | 'flora' | 'ocorrencias'
+
+  /** Dados originais exatos do DwC-A */
+  original_data: DwCRecord
+
+  /** Metadados de ingestão */
+  ingestion_metadata: IngestionMetadata
+
+  /** Status de processamento */
+  processing_status: ProcessingStatus
+}
+
+/**
+ * Estrutura Darwin Core preservada
+ */
+export interface DwCRecord {
+  scientificName?: string
+  kingdom?: string
+  phylum?: string
+  class?: string
+  order?: string
+  family?: string
+  genus?: string
+  specificEpithet?: string
+  taxonRank?: string
+  taxonomicStatus?: string
+  distribution?: any[] | any
+  vernacularname?: any[]
+  higherClassification?: string
+  resourcerelationship?: any[]
+  speciesprofile?: any[]
+
+  // Campos de ocorrências
+  decimalLatitude?: string | number
+  decimalLongitude?: string | number
+  eventDate?: string | Date
+  recordedBy?: string
+  locality?: string
+  country?: string
+  stateProvince?: string
+  county?: string
+  institutionCode?: string
+  collectionCode?: string
+  catalogNumber?: string
+  basisOfRecord?: string
+
+  // Outros campos Darwin Core
+  [key: string]: any
+}
+
+/**
+ * Metadados de ingestão
+ */
+export interface IngestionMetadata {
+  /** Quando foi ingerido */
   timestamp: Date
-  /** URL de origem do IPT (EML/DwC-A) */
+
+  /** URL do IPT fonte */
   source_ipt_url: string
-  /** Versão do script/responsável pela ingestão */
+
+  /** Versão do script de ingestão */
   processing_version: string
-  /** Versão do arquivo DwC-A processado */
+
+  /** Versão do arquivo DwC-A */
   dwca_version: string
 }
 
-export interface StatusProcessamento {
-  /** Indica se o documento já passou por transformação */
+/**
+ * Status de processamento
+ */
+export interface ProcessingStatus {
+  /** Se foi transformado */
   is_processed: boolean
-  /** Data da última tentativa de transformação */
-  last_transform_attempt?: Date
-  /** Mensagem de erro na transformação (se aplicável) */
+
+  /** Última tentativa de transformação */
+  last_transform_attempt: Date | null
+
+  /** Erro na transformação (se houver) */
   transform_error?: string
-  /** Versão do pipeline que gerou o documento transformado */
-  pipeline_version?: string
 }
 
-export interface DocumentoOriginal<TDados = Record<string, unknown>> {
-  /** Identificador único do documento original */
-  _id: ObjectId
-  /** Identificador do IPT (normalmente URL) */
-  iptId: string
-  /** Tag amigável do IPT (ex.: jabot, inpa) */
-  ipt?: string
-  /** Identificador do registro original no IPT */
-  ipt_record_id: string
-  /** Hash ou número de versão do IPT no momento da ingestão */
-  ipt_version: string
-  /** Tipo de coleção ao qual o registro pertence */
-  collection_type: TipoColecaoOriginal
-  /** Conteúdo bruto do registro Darwin Core */
-  original_data: TDados
-  /** Metadados de auditoria da ingestão */
-  ingestion_metadata: MetadadosIngestao
-  /** Status de processamento para pipelines offline */
-  processing_status: StatusProcessamento
+/**
+ * Interface para opções de preservação
+ */
+export interface PreservationOptions {
+  /** Forçar preservação mesmo se versão não mudou */
+  force_preservation?: boolean
+
+  /** Falhar se preservação der erro */
+  fail_on_preservation_error?: boolean
+
+  /** Tamanho do lote para inserção */
+  batch_size?: number
+
+  /** Apenas simular, não persistir */
+  dry_run?: boolean
+}
+
+/**
+ * Resultado da preservação de dados
+ */
+export interface PreservationResult {
+  /** Status da operação */
+  status: 'success' | 'failure' | 'partial'
+
+  /** Número de documentos preservados */
+  documents_preserved: number
+
+  /** Número de documentos que falharam */
+  failed_documents: number
+
+  /** Duração da operação em segundos */
+  duration: number
+
+  /** Erros encontrados */
+  errors: Array<{
+    record_id: string
+    error: string
+  }>
+
+  /** Se preservação falhou mas não quebrou fluxo */
+  preservation_failed?: boolean
 }

@@ -1,0 +1,89 @@
+● Com base no branch 003-data-restructure (último branch criado), as modificações mais importantes foram:
+
+  Reestruturação Arquitetural Completa (6 commits, 19.103 adições)
+
+  1. Mudança Fundamental na Arquitetura
+
+  ANTES:
+  Ingestão → Salva em taxa_ipt/occurrences_ipt → FIM
+  (Workflow separado) → Transformação → Salva em taxa/occurrences
+
+  DEPOIS:
+  Ingestão → Salva em taxa_ipt → Transforma IMEDIATAMENTE → Salva em taxa (tudo no mesmo processo)
+
+  2. Novo Package: packages/shared
+
+  Criado para evitar dependências cíclicas entre ingest ↔ transform:
+
+  packages/shared/
+  ├── utils/deterministic-id.ts    # IDs determinísticos
+  ├── lib/database.ts              # Conexão MongoDB
+  ├── lib/metrics.ts               # Métricas
+  └── config/collections.ts        # Nomes de coleções
+
+  3. Novo Package: packages/transform
+
+  Lógica completa de transformação isolada (26 arquivos novos):
+
+  - Taxa: transformTaxon, enrichTaxon, normalizeTaxon
+  - Occorrências: transformOccurrence, enrichOccurrence, normalizeOccurrence
+  - Orquestrador: Sistema de lock distribuído e processamento concorrente
+  - Métricas: Tracking detalhado de performance
+
+  4. Refatoração dos Scripts de Ingestão
+
+  Arquivos flora.ts, fauna.ts e ocorrencia.ts completamente reescritos para:
+  - Integrar transformação durante ingestão
+  - Usar IDs determinísticos consistentes
+  - Implementar métricas de execução
+
+  5. Novas APIs REST
+
+  Expansão massiva das APIs (packages/web/src/pages/api/):
+
+  - /api/taxa - Busca com filtros avançados
+  - /api/taxa/[taxonID] - Detalhes de táxon
+  - /api/taxa/count - Contagem com filtros
+  - /api/occurrences - Busca com filtros espaciais/temporais
+  - /api/occurrences/[occurrenceID] - Detalhes de ocorrência
+  - /api/occurrences/count - Contagem
+  - /api/occurrences/geojson - Dados geoespaciais
+
+  6. Novos Workflows GitHub
+
+  - transform-taxa.yml - Re-transformação em massa de taxa
+  - transform-occurrences.yml - Re-transformação em massa de ocorrências
+  - Workflows de ingestão atualizados para processo integrado
+
+  7. Documentação Massiva
+
+  Criada pasta specs/003-data-restructure/ com 13 arquivos:
+
+  - spec.md - Especificação completa (441 linhas)
+  - plan.md - Plano de implementação (361 linhas)
+  - tasks-v2.md - 51 tarefas detalhadas
+  - ARCHITECTURE_CHANGE.md - Explicação da mudança
+  - quickstart.md - Guia rápido (973 linhas)
+  - data-model.md - Modelo de dados detalhado
+  - contracts/ - Especificações OpenAPI para APIs
+
+  8. Melhorias no Speckit
+
+  Atualização dos comandos de agentes IA com novos prompts:
+
+  - speckit.analyze - Análise de código
+  - speckit.checklist - Checklists de validação
+  - speckit.tasks - Gestão de tarefas
+  - speckit.implement - Implementação guiada
+
+  ---
+  Resumo dos Benefícios
+
+  ✅ Performance: Transformação acontece durante ingestão (sem reprocessamento)
+  ✅ Consistência: IDs determinísticos garantem integridade referencial
+  ✅ Escalabilidade: Sistema de lock e processamento concorrente
+  ✅ Manutenibilidade: Lógica de transformação isolada em package próprio
+  ✅ Flexibilidade: Re-transformação em massa quando necessário
+  ✅ APIs: Endpoints REST completos com filtros avançados
+
+  O branch representa uma refatoração completa que moderniza a arquitetura do projeto.
