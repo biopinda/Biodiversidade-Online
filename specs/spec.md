@@ -1,6 +1,5 @@
 # Feature Specification: Pipeline Integrado Biodiversidade.Online V5.0
 
-**Feature Branch**: `001-pipeline-integrado`
 **Created**: 2025-12-01
 **Status**: Draft
 
@@ -50,7 +49,7 @@ Developer modifica lógica, sistema re-transforma sem re-ingerir.
 
 **Acceptance Scenarios**:
 
-1. **Given** developer modifica packages/transform/src/taxa/, **When** push, **Then** workflow dispara
+1. **Given** developer modifica `@darwincore/transform/src/taxa/`, **When** push, **Then** workflow dispara
 2. **Given** workflow, **When** re-transforma, **Then** taxa_ipt → taxa sem duplicação
 
 ---
@@ -63,8 +62,10 @@ APIs REST com Swagger retornam dados em JSON.
 
 **Acceptance Scenarios**:
 
-1. **Given** GET /api/taxa?search=Vriesea, **When** processa, **Then** JSON < 1s
-2. **Given** filtra estado, **When** busca, **Then** apenas estado retorna
+1. **Given** GET /api/taxa?search=Vriesea retorna ≤1000 registros, **When** processa, **Then** JSON retornado em < 1 segundo
+2. **Given** filtro por estado, **When** busca registros de São Paulo, **Then** apenas taxa com distribuição em SP retornam
+3. **Given** query para /api/occurrences com bbox, **When** retorna ≤1000 ocorrências, **Then** resposta em < 1 segundo
+4. **Given** endpoint /api/occurrences/geojson, **When** gera FeatureCollection, **Then** JSON válido com até 1000 features em < 2 segundos
 
 ---
 
@@ -77,6 +78,24 @@ Curador compara bruto vs. transformado para auditoria.
 **Acceptance Scenarios**:
 
 1. **Given** curador em página auditoria, **When** busca ID, **Then** vê par lado a lado
+
+---
+
+### User Story 6 - Interface web adaptada (Priority: P3)
+
+Interface web atualizada para consumir novas coleções transformadas.
+
+**Why this priority**: Mantém usabilidade após mudanças arquiteturais.
+
+**Independent Test**: Acessar páginas `/taxa`, `/mapa`, `/dashboard`, `/tree`, `/chat` e confirmar carregamento correto com dados das novas coleções em < 2 segundos.
+
+**Acceptance Scenarios**:
+
+1. **Given** página `/taxa`, **When** busca espécie, **Then** dados vêm de collection `taxa`
+2. **Given** página `/mapa`, **When** carrega, **Then** ocorrências vêm de collection `occurrences` com geoPoint válido
+3. **Given** página `/dashboard`, **When** renderiza, **Then** cache construído a partir de `taxa` e `occurrences`
+4. **Given** página `/tree`, **When** expande nó, **Then** hierarquia segue nova structure de `taxa`
+5. **Given** página `/chat`, **When** consulta assistente, **Then** prompts mencionam collections transformadas
 
 ---
 
@@ -96,6 +115,7 @@ Curador compara bruto vs. transformado para auditoria.
 - **FR-102**: MUST baixar Fauna de ipt.jbrj.gov.br
 - **FR-103**: MUST processar ~490 repositórios de occurrences.csv
 - **FR-104**: MUST armazenar brutos em taxa_ipt e occurrences_ipt
+- **FR-109**: MUST validar estrutura DwC-A e tratar arquivos malformados com mensagens de erro descritivas
 - **FR-105**: MUST transformar taxa inline após insert
 - **FR-106**: MUST transformar occurrences por batch
 - **FR-107**: MUST preservar \_id idêntico entre raw e transformado
@@ -175,7 +195,7 @@ Curador compara bruto vs. transformado para auditoria.
 
 - PRD.md
 - docs/atualizacao.md
-- Código packages/ingest, packages/transform
+- Pacotes `@darwincore/ingest`, `@darwincore/transform` (via Bun workspaces)
 - Repositórios IPT, Flora, Fauna
 
 ## Out of Scope

@@ -1,7 +1,7 @@
 # Implementation Plan: Reestruturação de Dados - Separação de Ingestão e Transformação
 
-**Branch**: `003-data-restructure` | **Date**: 2025-10-29 | **Spec**: [spec.md](./spec.md)
-**Input**: Feature specification from `/specs/003-data-restructure/spec.md`
+**Date**: 2025-12-01 | **Spec**: [spec.md](./spec.md)
+**Input**: Feature specification from `specs/spec.md`
 
 ## Execution Flow (/plan command scope)
 
@@ -26,10 +26,7 @@
 9. STOP - Ready for /tasks command
 ```
 
-**IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed by other commands:
-
-- Phase 2: /tasks command creates tasks.md
-- Phase 3-4: Implementation execution (manual or via tools)
+**IMPORTANT**: Phases 2+ are executed by other commands or manual implementation.
 
 ## Summary
 
@@ -91,13 +88,11 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 ### Documentation (this feature)
 
 ```
-specs/[###-feature]/
-├── plan.md              # This file (/plan command output)
-├── research.md          # Phase 0 output (/plan command)
-├── data-model.md        # Phase 1 output (/plan command)
-├── quickstart.md        # Phase 1 output (/plan command)
-├── contracts/           # Phase 1 output (/plan command)
-└── tasks.md             # Phase 2 output (/tasks command - NOT created by /plan)
+specs/
+├── spec.md              # Feature specification
+├── plan.md              # This file (implementation plan)
+├── tasks.md             # Implementation tasks
+└── README.md            # Structure documentation
 ```
 
 ### Source Code (repository root)
