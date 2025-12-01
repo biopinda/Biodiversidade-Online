@@ -131,7 +131,24 @@
 - [x] T042 [P] Criar `.github/workflows/transform-occurrences.yml` executando `bun run transform:occurrences` com suporte a `workflow_dispatch`
 - [x] T043 Atualizar `.github/workflows/update-mongodb-flora.yml`, `.github/workflows/update-mongodb-fauna.yml` e `.github/workflows/update-mongodb-occurrences.yml` para disparar workflows de transformação após ingestão
 - [x] T044 [P] Atualizar `packages/web/README.md` com orientações de uso das novas APIs e fluxo de dados
-- [x] T045 Registrar checklist de validação final em `specs/003-data-restructure/quickstart.md` (execução real dos cenários de teste)
+- [x] T045 Registrar checklist de validação final em `specs/quickstart.md` (execução real dos cenários de teste)
+
+---
+
+## Phase 10: Success Criteria & NFR Validation
+
+**Purpose**: Validar que todos os critérios de sucesso e requisitos não-funcionais foram atendidos.
+
+- [ ] T046 Validar SC-001 (Busca espécie < 1 segundo): Executar 10 buscas diferentes em `/api/taxa?search=` e medir latência com ferramentas de benchmarking
+- [ ] T047 Validar SC-002 (Mapa 1000+ ocorrências < 3 segundos): Carregar `/api/occurrences/geojson` com 1000+ features e medir tempo de resposta
+- [ ] T048 Validar SC-003 (Ingestão total < 2 horas): Executar completo `bun run ingest:flora`, `bun run ingest:fauna`, `bun run ingest:occurrences` e medir tempo total
+- [ ] T049 Validar SC-004 (Re-transformação taxa < 30 minutos): Modificar lógica de transformação em `packages/transform/src/taxa/` e executar `bun run transform:taxa`, medir tempo
+- [ ] T050 Validar SC-005 (Re-transformação occurrences < 2 horas): Executar `bun run transform:occurrences` e medir tempo total de processamento
+- [ ] T051 Validar NFR-001 (Stack TypeScript/Bun/MongoDB): Confirmar todas as dependências instaladas via `bun install` e verificar versões (`node --version`, `bun --version`, MongoDB connection string configurada)
+- [ ] T052 Validar NFR-002 (Credenciais em env vars): Auditar todos os scripts TypeScript em `packages/ingest/src/` e `packages/transform/src/` para garantir ausência de credenciais hardcoded; confirmar `MONGO_URI` em `.env`
+- [ ] T053 Validar NFR-003 (Latência < 3s para 12M records): Executar teste de carga com 12M registros na collection `occurrences_ipt` e confirmar API responses < 3s para queries retornando ≤1000 registros
+- [ ] T054 Validar NFR-004 (Reexecutável, sem duplicação): Executar ingestão 2x seguidas com mesmos dados e confirmar `_id` idêntico entre runs, sem duplicação em `taxa_ipt` e `occurrences_ipt`
+- [ ] T055 Validar NFR-005 (Logs estruturados): Verificar que todos os logs em `process_metrics` contêm timestamp ISO 8601, tipo de operação, status (success/error) e detalhes
 
 ---
 
@@ -141,6 +158,7 @@
 - **Phase 2 → User Stories**: Todas as histórias (US1–US6) dependem da infraestrutura compartilhada concluída na Phase 2.
 - **User Stories Priority**: Execute em ordem P1 → P2 → P3 (US1 & US2 → US3 & US4 → US5 & US6). US3 depende de US1; US4 depende de US1, US2 e US3; US5 depende de US3 & US4; US6 depende de US5.
 - **Polish**: Phase 9 somente após todas as histórias prioritárias estarem concluídas.
+- **Validation**: Phase 10 (SC & NFR Validation) somente após Phase 9 estar completa (sistemas em produção).
 
 ## Parallel Opportunities per Story
 
@@ -157,4 +175,5 @@
 2. **Transformações**: Entregar Phases 5–6 para restaurar paridade funcional (coleções `taxa` e `occurrences`), validando idempotência e métricas.
 3. **Interfaces**: Atualizar APIs (Phase 7) antes das páginas (Phase 8) para manter consumidores estáveis.
 4. **Automação & Docs**: Concluir Phase 9 reforçando workflows CI e documentação; executar quickstart completo ao final.
-5. **Entrega incremental**: Após cada história, executar verificações descritas em "Independent Test" e registrar progresso em `quickstart.md`.
+5. **Validação**: Executar Phase 10 (SC & NFR validation) em ambiente de produção para confirmar todos os critérios de sucesso e requisitos não-funcionais.
+6. **Entrega incremental**: Após cada história, executar verificações descritas em "Independent Test" e registrar progresso em `quickstart.md`.
