@@ -18,78 +18,88 @@ Na **V2.0**, foi agregado o [Catálogo Taxonômico da Fauna do Brasil](http://fa
 
 A **V4.0** expandiu significativamente o projeto com a integração de dados de ocorrência de aproximadamente 15 diferentes IPTs, disponibilizando 493 conjuntos de dados de ocorrências. Um sistema de curadoria evita duplicação entre diferentes fontes, e atualizações automáticas semanais mantêm a base sempre atualizada.
 
-A versão atual integra uma vasta gama de fontes de dados da biodiversidade brasileira em uma base de dados MongoDB unificada, facilitando consultas e análises para a comunidade científica.
+A **V5.0** introduziu o ChatBB, um assistente virtual que utiliza o protocolo MCP (Model Context Protocol) para conectar a base de dados integrada com modelos de linguagem (LLMs), e consolidou a arquitetura de processamento integrado (ingestão + transformação inline).
 
-## Versão Atual - V5.0
+A versão atual refatora a plataforma com foco em simplicidade e três pontos de acesso complementares, mantendo a robustez do pipeline de dados.
 
-O **Biodiversidade.Online** é um sistema automatizado de integração e processamento de dados de biodiversidade brasileira, desenvolvido em TypeScript executado com Bun. O projeto consolida informações taxonômicas e de ocorrências de múltiplas fontes científicas em uma base de dados MongoDB unificada, facilitando consultas e análises da biodiversidade nacional.
+## Versão Atual - V5.1 (ChatBB - Redefinição de Escopo e Arquitetura)
 
-### Arquitetura de Dados: Pipeline Integrado Raw → Transform
+O **Biodiversidade.Online v5.1** refatora a plataforma para uma arquitetura simplificada e focada com **três interfaces complementares** de acesso aos dados de biodiversidade brasileira:
 
-A versão 5.0 introduz uma arquitetura de processamento de dados **integrada** onde ingestão e transformação ocorrem no mesmo processo:
+### 🎯 Três Pontos de Acesso à Biodiversidade
 
-1. **Ingestão Integrada**: Dados brutos são baixados de fontes DwC-A, armazenados nas coleções `taxa_ipt` e `occurrences_ipt`, e **imediatamente transformados** para as coleções `taxa` e `occurrences` no mesmo pipeline.
+#### 1. **Dashboard Analítico** (Homepage Principal)
+Interface visual interativa para exploração de dados de biodiversidade com:
+- Visualizações em tempo real (gráficos, estatísticas, filtros)
+- Filtros dinâmicos: tipo de espécie (nativa, ameaçada, invasora), localização geográfica, status de conservação
+- Atualização de visualizações em <1 segundo
+- Acesso direto ao ChatBB via menu
+- **URL**: https://biodiversidade.online/
 
-2. **Transformação Inline**: Para cada registro inserido:
-   - **Taxa**: Após inserir em `taxa_ipt`, chama `transformTaxonRecord()` aplicando validações, normalizações e enriquecimentos
-   - **Ocorrências**: Após cada batch (~5000 registros) em `occurrences_ipt`, transforma o batch completo inline
+#### 2. **ChatBB - Interface Conversacional** (via MCP)
+Assistente de IA para perguntas complexas sobre biodiversidade em linguagem natural (português/inglês):
+- Consultas sobre espécies, distribuição geográfica, status de conservação
+- Integração via Model Context Protocol (MCP) com base de dados transformada
+- Contexto de conversação mantido para perguntas de acompanhamento
+- Precisão de 95%+ em perguntas bem-formadas sobre biodiversidade
+- **URL**: https://biodiversidade.online/chat
 
-3. **Re-transformação**: Scripts CLI separados permitem re-processar todos dados quando lógica de transformação muda.
+#### 3. **REST API com Swagger** (Integração Programática)
+API completa para integração externa com documentação interativa:
+- Endpoints para taxa, ocorrências, estatísticas, unidades de conservação
+- Filtros avançados: tipo, região, status de conservação, nível de ameaça
+- Respostas JSON com suporte a GeoJSON para dados geográficos
+- Documentação Swagger/OpenAPI completa com exemplos
+- Tempo de resposta <500ms para consultas de até 10.000 registros
+- **URL**: https://biodiversidade.online/api/docs
 
-#### Benefícios da Arquitetura Integrada
+### 🔄 Pipeline de Dados Robusto
 
-- ✅ **Processamento automático**: Dados transformados ficam disponíveis imediatamente após ingestão
-- ✅ **Rastreabilidade completa**: `_id` preservado entre coleções raw e transformadas
-- ✅ **Auditoria facilitada**: Comparação direta entre dados originais e processados
-- ✅ **Idempotência garantida**: Re-execuções seguras sem duplicação de dados
-- ✅ **Flexibilidade**: Modificar transformações sem re-baixar dados de origem
-- ✅ **Desempenho otimizado**: Índices e agregações pré-computadas nas coleções transformadas
+A v5.1 mantém e aprimora o pipeline integrado de processamento de dados:
 
-## Funcionalidades Principais
+1. **Ingestão Automática Semanal** (Domingos):
+   - 02:00 UTC - Flora do Brasil
+   - 02:30 UTC - Fauna do Brasil
+   - 03:00 UTC - ~490 repositórios IPT de ocorrências
 
-### 🔄 Processamento Automático de Dados
+2. **Transformação com Enriquecimento**:
+   - Dados brutos (`taxa_ipt`, `occurrences_ipt`) → Dados transformados (`taxa`, `occurrences`)
+   - **Novo**: Enriquecimento com espécies ameaçadas (Flora/Funga do Brasil)
+   - **Novo**: Enriquecimento com espécies invasoras (IBAMA)
+   - **Novo**: Associação com unidades de conservação (ICMBio)
+   - Normalização geográfica (coordenadas, estados, municípios)
+   - Validação taxonômica e resolução de sinônimos
+   - Rastreabilidade completa com preservação de `_id`
 
-- **Integração contínua** via GitHub Actions com processamento automático de dados de flora, fauna e ocorrências
-- **Processamento integrado** de arquivos DwC-A (Darwin Core Archive) com transformação inline
-- **Re-transformação automática** quando lógica de processamento é modificada
-- **Normalização e estruturação** de dados taxonômicos seguindo padrões Darwin Core
-- **Atualização semanal** automática do banco MongoDB com novos dados
-
-#### Workflows Automáticos
-
-**Ingestão Semanal (Domingos):**
-
-- 02:00 UTC - Flora do Brasil (ingestão + transformação)
-- 02:30 UTC - Fauna do Brasil (ingestão + transformação)
-- 03:00 UTC - ~490 IPTs de ocorrências (ingestão + transformação)
-
-**Re-transformação Automática por Mudanças de Código:**
-
-- Modificações em `packages/transform/src/taxa/**` → Workflow `transform-taxa.yml`
-- Modificações em `packages/transform/src/occurrences/**` → Workflow `transform-occurrences.yml`
-- Modificações em `packages/shared/src/**` → Ambos workflows de transformação
-- Bump de versão em `packages/transform/package.json` → Ambos workflows
-
-**Execução Manual:**
-
-- Todos workflows disponíveis via GitHub Actions interface
-- Suporte a URLs customizadas para fontes DwC-A
+3. **Consistência de Dados**:
+   - Todas as três interfaces (Dashboard, ChatBB, API) compartilham dados transformados
+   - Atualização sincronizada em até 1 hora após transformação
+   - Cache com TTL de 1 hora para otimização de performance
 
 ### 📊 Fontes de Dados Integradas
 
+**Dados Taxonômicos:**
 - **Flora e Funga do Brasil** - Catálogo oficial de espécies vegetais
 - **Catálogo Taxonômico da Fauna do Brasil** - Base oficial de espécies animais
-- **Instituto Hórus** - Banco de dados de espécies invasoras
-- **CNCFlora** - Avaliações de risco de extinção da flora (até 2022)
-- **MMA** - Lista oficial de espécies ameaçadas de fauna (2021)
-- **CNUC** - Unidades de conservação brasileiras
-- **~12 milhões de registros de ocorrência** de ~490 repositórios IPT
 
-### 🛠️ Ferramentas de Gerenciamento
+**Dados de Ocorrências:**
+- **~12 milhões de registros** de ~490 repositórios IPT
+- Validação geográfica (coordenadas, estados via códigos IBGE)
+- Associação com unidades de conservação
 
-- **Script de verificação IPT** - Monitora recursos disponíveis vs. integrados
-- **Processadores específicos** para flora e fauna com lógicas de transformação otimizadas
-- **Suporte a diferentes formatos** de dados científicos
+**Dados de Enriquecimento (Novo em v5.1):**
+- **Espécies Ameaçadas** - Status de ameaça, nível de proteção, programas de recuperação
+- **Espécies Invasoras** - Origem geográfica, impacto em ecossistemas (Instituto Hórus, IBAMA)
+- **Unidades de Conservação** - Limites geográficos, tipo de designação, status de gestão (CNUC/ICMBio)
+
+### 🎨 Arquitetura Simplificada
+
+A v5.1 **remove componentes legados** para reduzir complexidade:
+- ❌ Calendário fenológico
+- ❌ Interface de busca taxonômica dedicada
+- ❌ Mapa de distribuição standalone
+
+**Foco**: Dashboard como ponto de entrada único, com ChatBB para consultas conversacionais e API REST para integrações programáticas.
 
 ## Arquitetura Técnica
 
@@ -104,19 +114,35 @@ A versão 5.0 introduz uma arquitetura de processamento de dados **integrada** o
 │   │   │   └── lib/            # Utilitários DwC-A e normalização
 │   │   ├── referencias/        # Documentação e listas de referência
 │   │   └── chatbb/             # Conjuntos de dados e prompts do assistente
-│   ├── transform/              # CLI para re-transformação em massa
+│   ├── transform/              # Pipeline de enriquecimento e re-transformação
 │   │   ├── src/
+│   │   │   ├── loaders/        # Carregadores de dados de enriquecimento (ameaçadas, invasoras, UCs)
+│   │   │   ├── enrichment/     # Módulos de enriquecimento (sinônimos, TaxonID)
+│   │   │   ├── validation/     # Validação DwC-A e consistência de dados
 │   │   │   ├── taxa/           # Re-processamento taxa_ipt → taxa
 │   │   │   ├── occurrences/    # Re-processamento occurrences_ipt → occurrences
 │   │   │   ├── lib/            # Infraestrutura (database, locks, métricas)
 │   │   │   └── cli/            # Comandos CLI para orquestração
 │   │   └── test/               # Testes de validação
-│   └── web/                    # Aplicação web Astro.js
+│   └── web/                    # Aplicação web Astro.js (v5.1: Dashboard, ChatBB, API)
 │       ├── src/
-│       │   ├── pages/          # Interfaces web e APIs REST
-│       │   ├── components/     # Componentes React
-│       │   └── prompts/        # Prompts do ChatBB
+│       │   ├── pages/          # Dashboard (homepage), ChatBB, APIs REST
+│       │   │   ├── index.astro              # Dashboard Analítico (homepage)
+│       │   │   ├── chat.astro               # Interface ChatBB
+│       │   │   └── api/                     # Endpoints REST
+│       │   │       ├── taxa/                # API de taxa
+│       │   │       ├── occurrences/         # API de ocorrências
+│       │   │       ├── dashboard/           # API do Dashboard
+│       │   │       ├── chat/                # API ChatBB (MCP adapter)
+│       │   │       └── docs.ts              # Swagger UI
+│       │   ├── components/     # Componentes Astro/React (Dashboard, ChatBB, Charts)
+│       │   ├── lib/            # Utilitários (MongoDB, MCP adapter, Claude client, cache)
+│       │   └── types/          # Definições TypeScript (Taxa, Occurrence, MCP types)
 │       └── public/
+├── specs/                      # Especificações e planejamento (v5.1)
+│   ├── spec.md                 # Especificação de features
+│   ├── plan.md                 # Plano de implementação
+│   └── tasks.md                # Lista de tarefas (85 tarefas)
 ├── docs/                       # Histórico do projeto e documentação
 └── .github/workflows/          # Automação CI/CD integrada
 ```
@@ -125,54 +151,72 @@ A versão 5.0 introduz uma arquitetura de processamento de dados **integrada** o
 
 - **Runtime**: Bun
 - **Linguagem**: TypeScript
-- **Banco de dados**: MongoDB
+- **Framework Web**: Astro.js com Astro Islands (interatividade)
+- **Estilização**: Tailwind CSS
+- **Banco de Dados**: MongoDB 4.4+
+- **IA/LLM**: Claude API (Anthropic) via Model Context Protocol (MCP)
+- **Documentação API**: Swagger/OpenAPI 3.0
 - **Automação**: GitHub Actions
 - **Containerização**: Docker
 
-## ChatBB - Assistente de IA para Biodiversidade
+## Funcionalidades Principais
 
-A versão 5.0 introduz o **ChatBB**, um assistente virtual que utiliza o protocolo MCP (Model Context Protocol) para conectar a base de dados integrada com modelos de linguagem (LLMs) como OpenAI GPT e Google Gemini.
+### 🔄 Processamento Automático de Dados
 
-### Exemplos de Consultas
+- **Integração contínua** via GitHub Actions com processamento automático de dados de flora, fauna e ocorrências
+- **Processamento integrado** de arquivos DwC-A (Darwin Core Archive) com transformação inline
+- **Enriquecimento automático** com dados de espécies ameaçadas, invasoras e unidades de conservação
+- **Re-transformação automática** quando lógica de processamento é modificada
+- **Normalização e estruturação** de dados taxonômicos seguindo padrões Darwin Core
+- **Atualização semanal** automática do banco MongoDB com novos dados
 
+#### Workflows Automáticos
+
+**Ingestão Semanal (Domingos):**
+
+- 02:00 UTC - Flora do Brasil (ingestão + transformação + enriquecimento)
+- 02:30 UTC - Fauna do Brasil (ingestão + transformação + enriquecimento)
+- 03:00 UTC - ~490 IPTs de ocorrências (ingestão + transformação + enriquecimento)
+
+**Re-transformação Automática por Mudanças de Código:**
+
+- Modificações em `packages/transform/src/**` → Workflow de re-transformação com enriquecimento
+- Bump de versão em `packages/transform/package.json` → Re-transformação completa
+- Distributed locks para evitar execuções concorrentes
+
+**Execução Manual:**
+
+- Todos workflows disponíveis via GitHub Actions interface
+- Suporte a URLs customizadas para fontes DwC-A
+- Monitoramento de transformação via endpoints `/api/transform-status`
+
+### 🤖 ChatBB - Assistente Conversacional de Biodiversidade
+
+O **ChatBB** permite consultas em linguagem natural sobre a biodiversidade brasileira:
+
+**Exemplos de Consultas:**
+- "Quais espécies ameaçadas estão em unidades de conservação?"
+- "Quantas espécies invasoras foram registradas no Cerrado?"
+- "Liste as Bromeliaceae endêmicas da Mata Atlântica"
+- "Mostre ocorrências de Vriesea em parques nacionais"
+
+**Características:**
+- Suporte a português e inglês
+- Contexto de conversação mantido para perguntas de acompanhamento
+- Integração via MCP (Model Context Protocol) com dados transformados
+- Respostas com referências às fontes de dados
+- Tratamento gracioso de erros e indisponibilidade
+
+**Exemplos Documentados:**
 - [Informações sobre o gênero Vriesea](https://trilium.dalc.in/share/lFMRnEIBR5Yu)
 - [Espécies invasoras em parques nacionais](https://trilium.dalc.in/share/I7vFC96GRy73)
 - [Bromeliaceae ameaçadas em UCs](https://trilium.dalc.in/share/nfGgiYw3jhX8)
 - [Análise de espécies endêmicas](https://trilium.dalc.in/share/wHVjLmy2GYZH)
 
-## Interfaces e Funcionalidades Disponíveis
-
-O projeto disponibiliza diversas interfaces web para acesso aos dados integrados:
-
-### 🌿 **Calendário Fenológico**
-
-https://biodiversidade.online/calendario-fenologico
-
-### 🔍 **Interfaces de Busca Taxonômica**
-
-- **Interface principal de busca**: https://biodiversidade.online/taxa
-- **Interface com search engine intermediário**: https://web.dalc.in/sandbox/meilisearch/
-
-### 🔗 **APIs de Dados**
-
-https://biodiversidade.online/api
-
-### 🗺️ **Mapa de Distribuição**
-
-Visualização de contagem de nomes aceitos por estado: https://biodiversidade.online/mapa
-
-### 📊 **Dashboard Analítico**
-
-https://biodiversidade.online/dashboard
-
-### 🤖 **Interface de IA (ChatBB)**
-
-Acesso via LLM (OpenAI ou Gemini): https://biodiversidade.online/chat
-_(Requer chave da OpenAI ou Gemini)_
-
 ## Histórico de Versões
 
-- **V5.0** (atual): Integração com ChatBB e protocolo MCP
+- **V5.1** (atual - 2025-12-20): Redefinição de arquitetura com 3 interfaces (Dashboard, ChatBB, API), enriquecimento com espécies ameaçadas/invasoras/UCs, remoção de componentes legados
+- **V5.0** (2025-12-01): Integração com ChatBB e protocolo MCP, pipeline integrado ingestão+transformação
 - **V4.0**: [Melhorias na integração de dados](docs/README.v4.md)
 - **V2.x**: [Expansão de fontes de dados](docs/README.v2..md)
 - **V1.0**: [Versão inicial](docs/README.v1.md)
@@ -182,8 +226,10 @@ _(Requer chave da OpenAI ou Gemini)_
 ### Pré-requisitos
 
 - Bun instalado
-- Acesso ao MongoDB
+- MongoDB 4.4+ acessível via `MONGO_URI`
+- Node.js v20.19.4+
 - Docker (opcional)
+- Chave da Claude API para ChatBB (variável `CLAUDE_API_KEY`)
 
 ### Execução Local
 
@@ -191,43 +237,67 @@ _(Requer chave da OpenAI ou Gemini)_
 # Instalar dependências dos workspaces
 bun install
 
-# === Pipeline Integrado (Ingestão + Transformação) ===
-# Processar dados de flora (DwC-A → taxa_ipt + transformação inline → taxa)
+# === Pipeline Integrado (Ingestão + Transformação + Enriquecimento) ===
+# Processar dados de flora
 bun run ingest:flora <dwc-a-url>
 
-# Processar dados de fauna (Dwc-A → taxa_ipt + transformação inline → taxa)
+# Processar dados de fauna
 bun run ingest:fauna <dwc-a-url>
 
-# Processar ocorrências de todos os IPTs (DwC-A → occurrences_ipt + transformação inline → occurrences)
+# Processar ocorrências de todos os IPTs
 bun run ingest:occurrences
 
 # === Re-transformação em Massa (quando lógica muda) ===
-# Re-processar todos dados taxonômicos (taxa_ipt → taxa)
+# Re-processar todos dados taxonômicos com enriquecimento
 bun run transform:taxa
 
-# Re-processar todos dados de ocorrências (occurrences_ipt → occurrences)
+# Re-processar todos dados de ocorrências com enriquecimento e validação geográfica
 bun run transform:occurrences
+
+# Executar transformação completa coordenada (loaders + enrichment)
+bun run transform:execute
 
 # Verificar status de locks de transformação
 bun run transform:check-lock
 
-# === Aplicação Web ===
-# Iniciar a interface web em modo dev
-bun run web:dev
+# === Aplicação Web (Dashboard + ChatBB + API) ===
+# Iniciar a interface web em modo dev (http://localhost:4321)
+cd packages/web
+bun run dev
 
 # Build para produção
-bun run web:build
+bun run build
 
 # Executar servidor de produção
-cd packages/web && node dist/server/entry.mjs
+node dist/server/entry.mjs
+
+# === Validação ===
+# Validar formato DwC-A
+bun run validate:dwca <path-to-archive>
+
+# Verificar consistência de dados transformados
+bun run transform:validate
 ```
 
 ### Via Docker
 
 ```bash
 docker pull ghcr.io/biopinda/darwincorejson:latest
-docker run ghcr.io/biopinda/darwincorejson:latest
+docker run -p 4321:4321 \
+  -e MONGO_URI="mongodb://..." \
+  -e CLAUDE_API_KEY="sk-..." \
+  ghcr.io/biopinda/darwincorejson:latest
 ```
+
+### Acessando as Interfaces
+
+**Após executar localmente ou via Docker:**
+
+- **Dashboard Analítico**: http://localhost:4321/
+- **ChatBB**: http://localhost:4321/chat
+- **Swagger API Documentation**: http://localhost:4321/api/docs
+- **API Taxa**: http://localhost:4321/api/taxa
+- **API Ocorrências**: http://localhost:4321/api/occurrences
 
 ## Projetos Relacionados
 
@@ -239,6 +309,13 @@ O projeto [coletoresDWC2JSON](https://github.com/edalcin/coletoresDWC2JSON) comp
 
 Dúvidas, sugestões e contribuições são bem-vindas através das [issues do projeto](https://github.com/biopinda/Biodiversidade-Online/issues).
 
+## Documentação Técnica
+
+- **Especificação v5.1**: [specs/spec.md](specs/spec.md)
+- **Plano de Implementação**: [specs/plan.md](specs/plan.md)
+- **Lista de Tarefas**: [specs/tasks.md](specs/tasks.md) (85 tarefas)
+- **Constituição do Projeto**: [.specify/memory/constitution.md](.specify/memory/constitution.md)
+
 ## Citação
 
 ```bibtex
@@ -246,7 +323,7 @@ Dúvidas, sugestões e contribuições são bem-vindas através das [issues do p
   title = {Biodiversidade.Online: Uma Base de Dados Integrada da Biodiversidade Brasileira},
   author = {Pinheiro, Henrique and Dalcin, Eduardo},
   year = {2025},
-  version = {5.0},
+  version = {5.1},
   doi = {10.5281/zenodo.15511063},
   url = {https://github.com/biopinda/Biodiversidade-Online}
 }
