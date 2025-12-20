@@ -56,6 +56,9 @@
   "lint-staged": {
     "*": "bunx prettier -w --experimental-cli"
   },
+  "overrides": {
+    "prismjs": "^1.30.0"
+  },
   "patchedDependencies": {
     "mongodb-mcp-server@1.0.1": "patches/mongodb-mcp-server@1.0.1.patch"
   }
