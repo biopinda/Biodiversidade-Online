@@ -1,179 +1,263 @@
-# Tasks: Reestruturação de Dados - Separação de Ingestão e Transformação
+# Tasks: ChatBB v5.1 - Scope Redefinition and Architecture Refactor
 
-**Input**: Design documents from `/specs/003-data-restructure/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: Design documents from `/specs/`
+**Prerequisites**: plan.md (implementation strategy), spec.md (user stories P1-P2)
+**Status**: Ready for implementation
 
-**Tests**: Somente gere tarefas de teste se solicitado explicitamente (não requisitado nesta feature). Validação será manual via quickstart.
-
-**Organization**: Tasks são agrupadas por fase para permitir implementação e validação incremental. Cada história de usuário possui seu próprio conjunto de tarefas independentes.
+**Organization**: Tasks organized by user story (P1 Dashboard, P1 Data Refresh, P1 ChatBB, P2 API, P2 Transform) enabling independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
-- **[P]**: Pode ser executada em paralelo (arquivos distintos, sem dependências bloqueadoras)
-- **[Story]**: História de usuário responsável (US1, US2, ...). Fases de Setup/Foundational/Polish não usam etiqueta de história.
-- Inclua caminhos de arquivos exatos na descrição de cada tarefa
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (US1=Dashboard, US2=API, US3=Data Refresh, US4=ChatBB, US5=Transform)
+- Include exact file paths in descriptions
 
 ---
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Preparar o monorepo para o novo pacote de transformação e scripts compartilhados.
+**Purpose**: Project initialization and Astro/Bun configuration
 
-- [x] T001 Atualizar `package.json` na raiz para registrar o workspace `@darwincore/transform` e adicionar scripts `transform:taxa`, `transform:occurrences` e `transform:check-lock`
-- [x] T002 Atualizar `tsconfig.json` na raiz adicionando referência de projeto para `packages/transform/tsconfig.json`
-- [x] T003 Criar `packages/transform/package.json` com dependências (mongodb, cli-progress, etc.) reutilizando catálogos e referenciando `@darwincore/ingest`
-- [x] T004 Criar `packages/transform/tsconfig.json` estendendo `../../tsconfig.base.json` e expondo `src` como rootDir/outDir
-- [x] T005 [P] Criar `packages/transform/src/index.ts` exportando funções públicas e inicializando registradores de CLI
+- [ ] T001 Update root package.json with new dependencies (Claude SDK, swagger-jsdoc, MCP protocol libs) in `package.json`
+- [ ] T002 Create MongoDB collections schema file at `packages/transform/schema.mongodb.js` defining `threatened_species`, `invasive_species`, `conservation_units`, `transform_status`
+- [ ] T003 [P] Configure TypeScript in `packages/web/tsconfig.json` for Astro Islands components
+- [ ] T004 [P] Setup Claude API environment variable documentation in `.env.example` with CLAUDE_API_KEY
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Infraestrutura essencial compartilhada entre ingestão e transformação; deve estar concluída antes de qualquer história.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [x] T006 Criar `packages/transform/src/lib/database.ts` com fábrica de conexão MongoDB compartilhada (pool + carregamento de `MONGO_URI`)
-- [x] T007 [P] Criar `packages/transform/src/lib/concurrency.ts` implementando controle de locks na coleção `transform_status`
-- [x] T008 [P] Criar `packages/transform/src/lib/metrics.ts` registrando métricas na coleção `process_metrics`
-- [x] T009 Configurar `packages/transform/src/cli/runTransform.ts` para orquestrar locks, métricas e execução de pipelines
-- [x] T010 [P] Criar `packages/transform/src/cli/checkLock.ts` expondo utilitário CLI para validar/forçar liberação de locks
-- [x] T011 Criar `packages/ingest/src/config/collections.ts` centralizando nomes de coleções raw (`taxa_ipt`, `occurrences_ipt`) e transformadas
-- [x] T012 [P] Criar `packages/ingest/src/utils/deterministic-id.ts` com helpers para gerar `_id` determinístico de taxa e ocorrência
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
----
+- [ ] T005 Create API routing structure in `packages/web/src/pages/api/` directory with base request/response handlers
+- [ ] T006 [P] Implement MongoDB connection utility in `packages/web/src/lib/mongodb.ts` (reuse V5.0 connection, add new collections)
+- [ ] T007 [P] Create data transformation middleware in `packages/transform/src/lib/enrich.ts` for threatened species, invasive species, UC associations
+- [ ] T008 Implement error handling and logging utilities in `packages/web/src/lib/logger.ts` with structured logging (timestamps, error codes, data source tracking)
+- [ ] T009 [P] Create type definitions file `packages/web/src/types/biodiversity.ts` defining Taxa, Occurrence, ThreatStatus, InvasiveStatus, ConservationUnit, MCP query types
+- [ ] T010 Setup GitHub Actions workflow structure in `.github/workflows/` directory template for data pipeline orchestration
+- [ ] T011 Create Swagger/OpenAPI generator configuration in `packages/web/src/lib/swagger-config.ts` using swagger-jsdoc
 
-## Phase 3: User Story 1 - Ingestão Automática de Dados Brutos de Taxa (Priority: P1) 🎯 MVP
-
-**Goal**: Baixar e armazenar dados taxonômicos brutos (Flora e Fauna) em `taxa_ipt`, preservando campos DwC e `_id` baseado em `taxonID`.
-
-**Independent Test**: Executar `bun run ingest:flora` e `bun run ingest:fauna`, confirmar inserções em `taxa_ipt`, verificar `_id` = `taxonID` e upsert sem duplicidade.
-
-- [x] T013 [US1] Refatorar `packages/ingest/src/flora.ts` para gravar documentos brutos em `taxa_ipt` usando `_id` determinístico e registrar métricas via helper
-- [x] T014 [P] [US1] Refatorar `packages/ingest/src/fauna.ts` espelhando fluxo raw-only (`taxa_ipt`, `_id` determinístico, métricas e upsert)
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 4: User Story 2 - Ingestão Automática de Dados Brutos de Ocorrências (Priority: P1)
+## Phase 3: User Story 1 - Dashboard Homepage (Priority: P1) 🎯 MVP
 
-**Goal**: Processar 507 recursos DwC-A e armazenar registros brutos em `occurrences_ipt` com `_id` determinístico baseado em `occurrenceID` + `iptId`.
+**Goal**: Deliver Analytic Dashboard as application homepage with real-time filter visualization
 
-**Independent Test**: Executar `bun run ingest:occurrences`, confirmar todos os IPTs processados, `_id` preservado, upsert funcionando e métricas registradas.
+**Independent Test**: Launch http://localhost:3000/, verify Dashboard displays with biodiversity statistics (threatened count, invasive count, total species), apply filters (species type, region, conservation status), verify visualizations update within 1 second, verify ChatBB menu option visible
 
-- [x] T015 [US2] Refatorar `packages/ingest/src/ocorrencia.ts` para pipeline raw (`occurrences_ipt`), incluindo geração de `_id` composta, fallback para ausência de `occurrenceID` e métricas
+### Implementation for User Story 1
 
----
+- [ ] T012 [P] [US1] Create Dashboard component file `packages/web/src/components/Dashboard.astro` as Astro island with basic layout
+- [ ] T013 [P] [US1] Create API endpoint `packages/web/src/pages/api/dashboard/summary.ts` returning total species counts by type (native, threatened, invasive)
+- [ ] T014 [P] [US1] Create Dashboard filter component `packages/web/src/components/DashboardFilters.astro` (Astro Island) with species type, region, conservation_status select/checkbox inputs
+- [ ] T015 [US1] Implement taxa filtering API endpoint `packages/web/src/pages/api/taxa.ts` accepting query params: type, region, conservation_status; returns JSON array with pagination (limit=100, offset)
+- [ ] T016 [P] [US1] Create chart visualization components in `packages/web/src/components/Charts.astro` (using Chart.js or similar) for species type distribution bar chart and status pie chart
+- [ ] T017 [P] [US1] Create statistics card components `packages/web/src/components/StatCards.astro` displaying threatened count, invasive count, total species, last updated timestamp
+- [ ] T018 [US1] Connect filters to API: Implement SWR/Fetch logic in Dashboard island to call `/api/taxa` when filters change, update visualizations (target: <1 second response)
+- [ ] T019 [P] [US1] Add Tailwind CSS styling to Dashboard components in `packages/web/src/styles/dashboard.css` ensuring responsive design (mobile-first) and accessibility (WCAG 2.1)
+- [ ] T020 [US1] Refactor home page `packages/web/src/pages/index.astro` to use Dashboard component as primary content (rename current /taxa, /mapa, /tree to archived versions)
+- [ ] T021 [P] [US1] Add ChatBB menu button to Dashboard header in `packages/web/src/components/DashboardHeader.astro` with link/modal to `/chat` route
+- [ ] T022 [US1] Implement data caching layer in `packages/web/src/lib/cache.ts` with TTL=1 hour for dashboard summary and taxa queries to reduce MongoDB load
+- [ ] T023 [US1] Add error handling and loading states to Dashboard filters (show spinner on filter change, display error toast if API fails)
+- [ ] T024 [US1] Create integration test for Dashboard UI in `tests/integration/test-dashboard.md` - launch browser, verify elements present, test filter interactions, validate data updates
 
-## Phase 5: User Story 3 - Transformação de Dados Taxonômicos (Priority: P2)
-
-**Goal**: Transformar registros de `taxa_ipt` em `taxa`, aplicando filtros de `taxonRank`, normalizações e agregações (ameaça, invasoras, UCs) preservando `_id`.
-
-**Independent Test**: Executar `bun run transform:taxa`, verificar `_id` idêntico entre `taxa` e `taxa_ipt`, campos normalizados (`canonicalName`, `distribution`, etc.) e métricas registradas.
-
-- [x] T016 [US3] Migrar normalizações de táxons para `packages/transform/src/taxa/normalizeTaxon.ts` (canonicalName, flatScientificName, vernacularname, distribution)
-- [x] T017 [P] [US3] Implementar enriquecimentos em `packages/transform/src/taxa/enrichTaxon.ts` (ameaça, invasoras, unidades de conservação, kingdom fauna)
-- [x] T018 [US3] Construir pipeline principal em `packages/transform/src/taxa/transformTaxa.ts` (lock, batch read, normalização, agregação, upsert em `taxa`, validação de rastreabilidade, métricas)
-- [x] T019 [P] [US3] Criar `packages/transform/src/cli/transformTaxa.ts` conectando pipeline ao runner e exportando via `packages/transform/src/index.ts`
-
----
-
-## Phase 6: User Story 4 - Transformação de Dados de Ocorrências (Priority: P2)
-
-**Goal**: Transformar `occurrences_ipt` em `occurrences` aplicando validações geográficas, temporais, taxonômicas e enriquecimentos (collector parsing, filtro Brasil) preservando `_id`.
-
-**Independent Test**: Executar `bun run transform:occurrences`, confirmar `geoPoint` válido, normalização de datas e estados, vinculação com `taxa`, filtro de país e métricas.
-
-- [x] T020 [US4] Implementar normalizações em `packages/transform/src/occurrences/normalizeOccurrence.ts` (geoPoint, datas, país/estado, iptKingdoms, canonicalName)
-- [x] T021 [P] [US4] Implementar enriquecimentos em `packages/transform/src/occurrences/enrichOccurrence.ts` (taxon lookup, collector parsing com fallback, filtro Brasil, reproductiveCondition)
-- [x] T022 [US4] Construir pipeline em `packages/transform/src/occurrences/transformOccurrences.ts` (leitura por lotes, validações, upsert em `occurrences`, verificação `_id`, métricas)
-- [x] T023 [P] [US4] Criar `packages/transform/src/cli/transformOccurrences.ts` integrando pipeline ao runner e exportando via `packages/transform/src/index.ts`
+**Checkpoint**: Dashboard homepage fully functional, independently testable, ready to deploy as MVP
 
 ---
 
-## Phase 7: User Story 5 - Exposição de APIs RESTful (Priority: P3)
+## Phase 4: User Story 3 - Data Refresh Pipeline (Priority: P1)
 
-**Goal**: Expor endpoints REST documentados (Swagger) para consultar `taxa` e `occurrences`, incluindo listagem, busca por ID, contagem e GeoJSON.
+**Goal**: Maintain automated weekly data refresh cycle with enrichment
 
-**Independent Test**: Acessar `/api/docs`, executar chamadas para `/api/taxa`, `/api/taxa/{id}`, `/api/occurrences`, `/api/occurrences/count`, `/api/occurrences/geojson` e validar respostas contra contratos.
+**Independent Test**: Run manual transformation on existing raw data, verify transformed data appears in taxa/occurrences collections, verify Dashboard/API show refreshed data within 1 hour, verify threatened species/invasive species/UC enrichment fields populated
 
-- [x] T024 [US5] Atualizar `packages/web/src/pages/api/taxa.ts` para novos filtros, paginação e consulta à coleção `taxa`
-- [x] T025 [P] [US5] Criar `packages/web/src/pages/api/taxa/[taxonID].ts` retornando táxon por `_id`
-- [x] T026 [P] [US5] Criar `packages/web/src/pages/api/taxa/count.ts` fornecendo contagem filtrada
-- [x] T027 [US5] Atualizar `packages/web/src/pages/api/occurrences.ts` para filtros combinados, bbox e consulta à coleção `occurrences`
-- [x] T028 [P] [US5] Criar `packages/web/src/pages/api/occurrences/[occurrenceID].ts` retornando ocorrência por `_id`
-- [x] T029 [P] [US5] Criar `packages/web/src/pages/api/occurrences/count.ts` alinhado ao contrato de contagem
-- [x] T030 [P] [US5] Criar `packages/web/src/pages/api/occurrences/geojson.ts` gerando FeatureCollection limitada
-- [x] T031 [US5] Atualizar `packages/web/public/api-spec.json` refletindo novos endpoints, parâmetros e esquemas
+### Implementation for User Story 3
 
----
+- [ ] T025 [P] [US3] Create threatened species loader `packages/transform/src/loaders/threatened.ts` fetching from authoritative Brazilian sources (Flora/Funga), creating `threatened_species` collection with taxonID, threat_level, protection_status
+- [ ] T026 [P] [US3] Create invasive species loader `packages/transform/src/loaders/invasive.ts` fetching IBAMA invasive registry, creating `invasive_species` collection with taxonID, geographic_origin, ecosystem_impact
+- [ ] T027 [P] [US3] Create conservation units loader `packages/transform/src/loaders/conservation_units.ts` loading ICMBio UC data with geographic boundaries, designation_type, management_status
+- [ ] T028 [US3] Implement taxa enrichment pipeline `packages/transform/src/taxa-enrich.ts` that reads raw taxa from `taxa_ipt`, joins with enrichment collections, writes to `taxa` preserving _id, logs metrics
+- [ ] T029 [US3] Implement occurrences enrichment pipeline `packages/transform/src/occurrences-enrich.ts` that validates coordinates, associates with UCs, links to taxa, writes to `occurrences` with error handling
+- [ ] T030 [US3] Create transformation coordinator script `packages/transform/src/transform.ts` that orchestrates loaders → enrichment, implements distributed lock, tracks history in `process_metrics`
+- [ ] T031 [P] [US3] Create CLI command `bun run transform:execute` in `packages/transform/package.json` that runs transformation coordinator
+- [ ] T032 [US3] Update GitHub Actions workflow `.github/workflows/transform-weekly.yml` to trigger post-ingest at 04:00 UTC with distributed lock and error notifications
+- [ ] T033 [US3] Implement data consistency check `packages/transform/src/validate-consistency.ts` comparing data versions across Dashboard cache, collections, and process_metrics
+- [ ] T034 [US3] Create fallback mechanism in `packages/web/src/lib/data-fallback.ts` where Dashboard/API/ChatBB use previous good snapshot if transformation in progress
+- [ ] T035 [US3] Add transformation status endpoint `packages/web/src/pages/api/transform-status.ts` returning current state, last run time, next scheduled, error messages
+- [ ] T036 [US3] Create validation test `tests/integration/test-data-refresh.md` documenting manual trigger, verification, monitoring procedures
 
-## Phase 8: User Story 6 - Adaptação da Interface Web (Priority: P3)
-
-**Goal**: Atualizar páginas web (taxa, mapa, dashboard, tree, chat) para consumir APIs novas mantendo UX e performance atuais.
-
-**Independent Test**: Navegar em `/taxa`, `/mapa`, `/dashboard`, `/tree`, `/chat`, validar carregamento correto dos dados e respostas em tempo aceitável.
-
-- [x] T032 [US6] Ajustar `packages/web/src/pages/taxa.astro` para consumir `/api/taxa` com filtros e paginação renovados
-- [x] T033 [P] [US6] Ajustar `packages/web/src/pages/mapa.astro` para usar `/api/occurrences/geojson` e filtros atualizados
-- [x] T034 [P] [US6] Atualizar `packages/web/cron-dashboard.js` para construir cache a partir de `taxa` e `occurrences`
-- [x] T035 [P] [US6] Adaptar `packages/web/src/pages/tree.astro` para hierarquia baseada na nova coleção `taxa`
-- [x] T036 [US6] Atualizar `packages/web/src/pages/chat.astro` para chamar APIs transformadas e ajustar respostas do assistente
-- [x] T037 [P] [US6] Revisar `packages/web/src/prompts/prompt.md` alinhando descrições às coleções `taxa`/`occurrences` e novo fluxo de dados
-- [x] T038 [P] [US6] Atualizar `packages/web/src/pages/dashboard.astro` para consumir cache/API dos datasets transformados
+**Checkpoint**: Data refresh pipeline operational, enrichment working, all three interfaces receive updated data
 
 ---
 
-## Phase 9: Polish & Cross-Cutting Concerns
+## Phase 5: User Story 4 - ChatBB Conversational Interface (Priority: P1)
 
-**Purpose**: Documentação, automação e validações finais após concluir as histórias principais.
+**Goal**: Deliver natural language interface for biodiversity questions via Claude API with MCP adapter
 
-- [x] T039 Atualizar `README.md` com visão geral do pipeline raw → transform e novos comandos CLI
-- [x] T040 [P] Atualizar `docs/atualizacao.md` descrevendo execução automatizada (ingestão → transformação) e métricas
-- [x] T041 [P] Criar `.github/workflows/transform-taxa.yml` executando `bun run transform:taxa` com suporte a `workflow_dispatch`
-- [x] T042 [P] Criar `.github/workflows/transform-occurrences.yml` executando `bun run transform:occurrences` com suporte a `workflow_dispatch`
-- [x] T043 Atualizar `.github/workflows/update-mongodb-flora.yml`, `.github/workflows/update-mongodb-fauna.yml` e `.github/workflows/update-mongodb-occurrences.yml` para disparar workflows de transformação após ingestão
-- [x] T044 [P] Atualizar `packages/web/README.md` com orientações de uso das novas APIs e fluxo de dados
-- [x] T045 Registrar checklist de validação final em `specs/quickstart.md` (execução real dos cenários de teste)
+**Independent Test**: Open http://localhost:3000/chat, send sample questions, verify ChatBB responds with accurate data, test follow-up questions with context, verify error handling
+
+### Implementation for User Story 4
+
+- [ ] T037 [P] [US4] Create ChatBB page component `packages/web/src/pages/chat.astro` with message display, input field, send button, loading indicator, error display
+- [ ] T038 [P] [US4] Create MCP adapter `packages/web/src/lib/mcp-adapter.ts` that maps natural language to API calls, caches common queries, handles MCP errors gracefully
+- [ ] T039 [P] [US4] Create Claude API integration `packages/web/src/lib/claude-client.ts` initializing Anthropic SDK, maintaining conversation context, handling streaming responses
+- [ ] T040 [US4] Create API endpoint `packages/web/src/pages/api/chat/send.ts` (POST) accepting query/conversationId, calling Claude with system prompt, using MCP adapter for data, returning response and dataSources
+- [ ] T041 [P] [US4] Create chat context management `packages/web/src/lib/chat-context.ts` storing history in localStorage/MongoDB, limiting to 10 messages, providing export
+- [ ] T042 [P] [US4] Create system prompts for Claude in `packages/web/src/lib/system-prompts.ts` with Portuguese and English prompts including examples and data source descriptions
+- [ ] T043 [US4] Implement streaming response UI in ChatBB page displaying Claude response as it streams, showing source citations, handling stream errors
+- [ ] T044 [P] [US4] Create error handling component `packages/web/src/components/ChatError.astro` displaying MCP failures, Claude errors, rate limits with retry button
+- [ ] T045 [US4] Create conversation context storage in MongoDB `chat_sessions` collection with schema and TTL 7 days
+- [ ] T046 [US4] Implement conversation export feature (JSON/markdown) in `packages/web/src/lib/chat-export.ts`
+- [ ] T047 [US4] Create integration test `tests/integration/test-chatbb.md` documenting test questions, expected patterns, context testing, error scenarios, performance targets
+
+**Checkpoint**: ChatBB fully functional with Claude API and MCP adapter, conversation context maintained, error handling complete
 
 ---
 
-## Phase 10: Success Criteria & NFR Validation
+## Phase 6: User Story 2 - REST API with Swagger (Priority: P2)
 
-**Purpose**: Validar que todos os critérios de sucesso e requisitos não-funcionais foram atendidos.
+**Goal**: Deliver complete REST API with Swagger/OpenAPI documentation
 
-- [ ] T046 Validar SC-001 (Busca espécie < 1 segundo): Executar 10 buscas diferentes em `/api/taxa?search=` e medir latência com ferramentas de benchmarking
-- [ ] T047 Validar SC-002 (Mapa 1000+ ocorrências < 3 segundos): Carregar `/api/occurrences/geojson` com 1000+ features e medir tempo de resposta
-- [ ] T048 Validar SC-003 (Ingestão total < 2 horas): Executar completo `bun run ingest:flora`, `bun run ingest:fauna`, `bun run ingest:occurrences` e medir tempo total
-- [ ] T049 Validar SC-004 (Re-transformação taxa < 30 minutos): Modificar lógica de transformação em `packages/transform/src/taxa/` e executar `bun run transform:taxa`, medir tempo
-- [ ] T050 Validar SC-005 (Re-transformação occurrences < 2 horas): Executar `bun run transform:occurrences` e medir tempo total de processamento
-- [ ] T051 Validar NFR-001 (Stack TypeScript/Bun/MongoDB): Confirmar todas as dependências instaladas via `bun install` e verificar versões (`node --version`, `bun --version`, MongoDB connection string configurada)
-- [ ] T052 Validar NFR-002 (Credenciais em env vars): Auditar todos os scripts TypeScript em `packages/ingest/src/` e `packages/transform/src/` para garantir ausência de credenciais hardcoded; confirmar `MONGO_URI` em `.env`
-- [ ] T053 Validar NFR-003 (Latência < 3s para 12M records): Executar teste de carga com 12M registros na collection `occurrences_ipt` e confirmar API responses < 3s para queries retornando ≤1000 registros
-- [ ] T054 Validar NFR-004 (Reexecutável, sem duplicação): Executar ingestão 2x seguidas com mesmos dados e confirmar `_id` idêntico entre runs, sem duplicação em `taxa_ipt` e `occurrences_ipt`
-- [ ] T055 Validar NFR-005 (Logs estruturados): Verificar que todos os logs em `process_metrics` contêm timestamp ISO 8601, tipo de operação, status (success/error) e detalhes
+**Independent Test**: Access http://localhost:3000/api/docs, verify Swagger UI displays all endpoints with schemas, test API calls via curl, verify response times <500ms
+
+### Implementation for User Story 2
+
+- [ ] T048 [P] [US2] Create taxa API endpoint `packages/web/src/pages/api/taxa/index.ts` (GET) supporting type, region, conservation_status filters, pagination, returning count header
+- [ ] T049 [P] [US2] Create taxa by ID endpoint `packages/web/src/pages/api/taxa/[taxonId].ts` (GET) returning single taxa with full details
+- [ ] T050 [P] [US2] Create occurrences API endpoint `packages/web/src/pages/api/occurrences/index.ts` (GET) with taxonID, region, geobox, threat_status filters, pagination, <500ms target
+- [ ] T051 [P] [US2] Create occurrences GeoJSON endpoint `packages/web/src/pages/api/occurrences/geojson.ts` (GET) returning FeatureCollection with geometry.Point and properties
+- [ ] T052 [P] [US2] Create statistics endpoints for species-count, occurrences-by-region, conservation-units in `packages/web/src/pages/api/stats/`
+- [ ] T053 [US2] Create Swagger/OpenAPI spec file `packages/web/src/lib/swagger-spec.ts` defining all endpoints with schemas, examples, error codes
+- [ ] T054 [US2] Create Swagger UI endpoint `packages/web/src/pages/api/docs.ts` (GET) serving Swagger UI HTML
+- [ ] T055 [P] [US2] Add request validation middleware in `packages/web/src/lib/api-validation.ts` validating query params and returning 400 if invalid
+- [ ] T056 [P] [US2] Implement pagination validation in `packages/web/src/lib/pagination.ts` ensuring efficient MongoDB skip/limit
+- [ ] T057 [US2] Create API performance optimization in `packages/web/src/lib/api-cache.ts` with 1 hour TTL and invalidation trigger
+- [ ] T058 [P] [US2] Add CORS configuration in astro.config.mjs for external domain access
+- [ ] T059 [US2] Create API integration test `tests/integration/test-api.md` with curl examples, status codes, filtering, pagination, performance validation
+- [ ] T060 [US2] Create API error handling response spec `packages/web/src/lib/api-errors.ts` with standard format and HTTP codes
+
+**Checkpoint**: REST API fully functional, Swagger documentation complete, performance targets met
+
+---
+
+## Phase 7: User Story 5 - Data Transformation Automation (Priority: P2)
+
+**Goal**: Implement automated transformation triggers and monitoring
+
+**Independent Test**: Modify transformation code, push to main, verify GitHub Actions triggers automatically, verify Dashboard/API/ChatBB reflect new logic
+
+### Implementation for User Story 5
+
+- [ ] T061 [P] [US5] Create GitHub Actions workflow `.github/workflows/transform-on-code-change.yml` triggering on packages/transform/* changes with distributed lock
+- [ ] T062 [P] [US5] Create manual transform trigger endpoint `packages/web/src/pages/api/admin/transform-trigger.ts` (POST) with admin auth, returning status and estimatedDuration
+- [ ] T063 [US5] Create transformation monitoring dashboard `packages/web/src/pages/admin/transforms.astro` showing history, current progress, next scheduled, manual trigger button
+- [ ] T064 [P] [US5] Implement transformation rollback mechanism `packages/transform/src/rollback.ts` restoring previous snapshot on >10% error rate
+- [ ] T065 [US5] Create transformation monitoring alerts `packages/transform/src/alerts.ts` for timeout (>2h), error rate (>5%), enrichment coverage drops
+- [ ] T066 [P] [US5] Add data version tracking `packages/web/src/lib/data-version.ts` storing version in metrics and API headers
+- [ ] T067 [US5] Create transformation validation suite `packages/transform/src/validate.ts` verifying _id consistency, enrichment fields, coordinates, geographic bounds
+- [ ] T068 [US5] Implement incremental transformation capability `packages/transform/src/incremental-transform.ts` tracking transformed records by timestamp
+
+**Checkpoint**: Transformation fully automated, monitoring and alerts in place
+
+---
+
+## Phase 8: Polish & Component Removal
+
+**Purpose**: Code cleanup and legacy component removal
+
+- [ ] T069 [P] Remove phenological calendar components: Delete fenologia.astro, Fenologia* files, remove from navigation, clean references
+- [ ] T070 [P] Remove taxonomic search interface: Delete taxa.astro, tree.astro, TaxonomicTree* files, remove from navigation
+- [ ] T071 [P] Remove distribution map components: Delete mapa.astro, DistributionMap* files, remove map library dependencies
+- [ ] T072 Audit dependencies in package.json files: Verify no unused libraries from removed components, commit cleanup
+- [ ] T073 [P] Update documentation: Update README.md with three access points, create ARCHITECTURE.md, add CHANGELOG.md for v5.1
+- [ ] T074 [P] Code cleanup: Run prettier, tsc --noEmit, remove dead code, update imports
+- [ ] T075 [P] Add missing error handling: Audit all API endpoints, verify graceful degradation if MongoDB/Claude unavailable
+- [ ] T076 [P] Performance validation: Benchmark Dashboard (<1s), API (<500ms), ChatBB (<2s), document baselines
+- [ ] T077 Run quickstart.md validation: Follow setup instructions, test each user story per acceptance scenarios, document issues
+
+**Checkpoint**: Codebase clean, legacy components removed, all code tested, performance validated
 
 ---
 
 ## Dependencies & Execution Order
 
-- **Phase 1 → Phase 2**: Setup prepara o monorepo; Foundational depende da conclusão do Setup.
-- **Phase 2 → User Stories**: Todas as histórias (US1–US6) dependem da infraestrutura compartilhada concluída na Phase 2.
-- **User Stories Priority**: Execute em ordem P1 → P2 → P3 (US1 & US2 → US3 & US4 → US5 & US6). US3 depende de US1; US4 depende de US1, US2 e US3; US5 depende de US3 & US4; US6 depende de US5.
-- **Polish**: Phase 9 somente após todas as histórias prioritárias estarem concluídas.
-- **Validation**: Phase 10 (SC & NFR Validation) somente após Phase 9 estar completa (sistemas em produção).
+### Phase Dependencies
 
-## Parallel Opportunities per Story
+- **Setup (Phase 1)**: No dependencies - start immediately
+- **Foundational (Phase 2)**: Depends on Setup - BLOCKS all user stories
+- **User Stories (Phase 3-7)**: All depend on Foundational
+  - P1 stories (1, 3, 4) can proceed in parallel
+  - P2 stories (2, 5) can proceed after Foundational
+- **Polish (Phase 8)**: Can begin after US1 complete, other phases continue in parallel
 
-- **US1**: T013 e T014 podem acontecer em paralelo (flora vs fauna) após helpers prontos.
-- **US2**: T015 não paraleliza, mas pode rodar simultaneamente a validações de US1 após Phase 2.
-- **US3**: T016 e T017 podem ser desenvolvidos em paralelo, convergindo em T018; T019 pode iniciar após T018 esboçar a API do pipeline.
-- **US4**: T020 e T021 podem avançar em paralelo, permitindo iniciar T022 assim que ambos disponibilizem utilitários; T023 pode acompanhar ajustes finais do pipeline.
-- **US5**: T024/T027 (listas) e tasks de rotas individuais (T025–T030) podem ser distribuídas entre devs; T031 aguarda os demais.
-- **US6**: T032–T038 podem ser divididas por página, garantindo apenas que T034 finalize após APIs estáveis.
+### User Story Dependencies
+
+- **US1 (Dashboard)**: No dependencies on other stories
+- **US3 (Data Refresh)**: Depends on T006 (MongoDB) but independent of other stories
+- **US4 (ChatBB)**: Depends on T006 and T009 but independent of other stories
+- **US2 (API)**: Can start immediately after Foundational
+- **US5 (Automation)**: Depends on T006, T008 but can be implemented independently
+
+### Parallel Opportunities
+
+**Phase 1**: T003, T004 can run in parallel
+**Phase 2**: T006, T007, T009 can run in parallel (5, 8, 10 sequential/blocking)
+**US1**: T012-T024 marked [P] can parallelize (components/API before integration)
+**US3**: T025-T027 loaders can parallelize, then sequential enrichment
+**US4**: T037-T047 marked [P] can parallelize (components/context before integration)
+**US2**: T048-T052, T055, T056, T058 marked [P] can parallelize
+**US5**: T061, T062, T064, T066 marked [P] can parallelize
+**Phase 8**: T069-T071, T073-T076 marked [P] can parallelize
+
+---
 
 ## Implementation Strategy
 
-1. **MVP**: Completar Phases 1–4 para garantir dados brutos persistidos com rastreabilidade (`taxa_ipt`, `occurrences_ipt`).
-2. **Transformações**: Entregar Phases 5–6 para restaurar paridade funcional (coleções `taxa` e `occurrences`), validando idempotência e métricas.
-3. **Interfaces**: Atualizar APIs (Phase 7) antes das páginas (Phase 8) para manter consumidores estáveis.
-4. **Automação & Docs**: Concluir Phase 9 reforçando workflows CI e documentação; executar quickstart completo ao final.
-5. **Validação**: Executar Phase 10 (SC & NFR validation) em ambiente de produção para confirmar todos os critérios de sucesso e requisitos não-funcionais.
-6. **Entrega incremental**: Após cada história, executar verificações descritas em "Independent Test" e registrar progresso em `quickstart.md`.
+### MVP First (Dashboard Only)
+
+1. Phases 1-2 (Setup + Foundational)
+2. Phase 3 (US1 Dashboard)
+3. **STOP** - Test Dashboard independently
+4. Deploy/demo MVP
+
+### Incremental Delivery
+
+1. MVP (Phases 1-2-3)
+2. Add US3 (Data Refresh)
+3. Add US4 (ChatBB)
+4. Add US2 (API)
+5. Add US5 (Automation)
+6. Phase 8 (Polish) throughout
+
+### Parallel Team (5 developers)
+
+1. All complete Phases 1-2
+2. Fan out:
+   - Dev 1: US1 (Dashboard)
+   - Dev 2: US3 (Data Refresh)
+   - Dev 3: US4 (ChatBB)
+   - Dev 4: US2 (API)
+   - Dev 5: US5 (Automation)
+3. Dev 1 leads Phase 8 cleanup after US1 complete
+
+---
+
+## Summary
+
+- **Total Tasks**: 77 across 8 phases
+- **US1 (Dashboard)**: 13 tasks
+- **US3 (Data Refresh)**: 12 tasks
+- **US4 (ChatBB)**: 11 tasks
+- **US2 (API)**: 13 tasks
+- **US5 (Automation)**: 8 tasks
+- **Setup**: 4 tasks
+- **Foundational**: 7 tasks
+- **Polish**: 9 tasks
+
+**Status**: Ready for implementation
+**MVP Scope**: Phases 1-2 + Phase 3 (US1), validate independently
+**Full Scope**: All Phases 1-8, all User Stories
