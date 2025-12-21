@@ -57,13 +57,7 @@ jobs:
           NODE_ENV: production
         run: |
           echo "Processing Occurrences from IPT..."
-          bun run ingest:occurrences
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "ERROR: Occurrences ingestion failed with exit code $EXIT_CODE"
-            exit $EXIT_CODE
-          fi
-          echo "✓ Occurrences ingestion completed successfully"
+          bun run --filter @darwincore/ingest occurrences
 
       - name: Clear and regenerate occurrence cache
         env:
@@ -89,4 +83,3 @@ jobs:
           echo "2. Check MongoDB connectivity from runner"
           echo "3. Verify IPT URL is accessible"
           echo "4. Check runner logs for detailed error messages"
-          exit 1
