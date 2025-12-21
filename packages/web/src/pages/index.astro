@@ -1,14 +1,9 @@
 ---
 // export const prerender = true
 import Layout from '@/layouts/base.astro'
+import Dashboard from '@/components/Dashboard.astro'
 ---
 
-<Layout title="Flora e Funga do Brasil">
-  <div class="v-screen flex h-screen flex-col items-center justify-center">
-    <div>
-      Acesse a <a class="font-bold text-green-800" href="/taxa"
-        >página de pesquisa de taxa</a
-      > para buscas
-    </div>
-  </div>
+<Layout title="Biodiversidade do Brasil - Dashboard">
+  <Dashboard />
 </Layout>
