@@ -64,13 +64,7 @@ jobs:
           NODE_ENV: production
         run: |
           echo "Processing Flora from custom URL: ${{ github.event.inputs.DWCA_URL }}"
-          bun run ingest:flora "${{ github.event.inputs.DWCA_URL }}"
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "ERROR: Flora ingestion failed with exit code $EXIT_CODE"
-            exit $EXIT_CODE
-          fi
-          echo "✓ Flora ingestion completed successfully"
+          bun run --filter @darwincore/ingest flora -- "${{ github.event.inputs.DWCA_URL }}"
 
       - name: Ingest and Transform Flora from default URL
         if: ${{ !github.event.inputs.DWCA_URL }}
@@ -79,13 +73,7 @@ jobs:
           NODE_ENV: production
         run: |
           echo "Processing Flora from IPT: ${{ env.DWCA_URL }}"
-          bun run ingest:flora "${{ env.DWCA_URL }}"
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "ERROR: Flora ingestion failed with exit code $EXIT_CODE"
-            exit $EXIT_CODE
-          fi
-          echo "✓ Flora ingestion completed successfully"
+          bun run --filter @darwincore/ingest flora -- "${{ env.DWCA_URL }}"
 
       - name: Handle errors
         if: failure()
@@ -97,4 +85,3 @@ jobs:
           echo "2. Check MongoDB connectivity from runner"
           echo "3. Verify IPT URL is accessible: ${{ env.DWCA_URL }}"
           echo "4. Check runner logs for detailed error messages"
-          exit 1
