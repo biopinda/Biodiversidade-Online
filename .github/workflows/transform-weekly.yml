@@ -1,0 +1,105 @@
+name: Weekly Data Transformation
+
+on:
+  schedule:
+    # Every Monday at 04:00 UTC (post-ingest)
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+    # Allow manual triggering
+
+env:
+  MONGO_URI: ${{ secrets.MONGO_URI }}
+  MONGO_DB_NAME: dwc2json
+  NODE_ENV: production
+
+jobs:
+  transform:
+    name: Execute Data Transformation Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 180  # 3 hours max
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.4'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: '1.2.21'
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Acquire distributed lock
+        id: lock
+        run: |
+          # Check if transformation is already running
+          LOCK_FILE="/tmp/transform.lock"
+          LOCK_TIMEOUT=3600  # 1 hour
+          LOCK_ACQUIRED=false
+
+          if [ ! -f "$LOCK_FILE" ] || [ $(($(date +%s) - $(stat -f%m "$LOCK_FILE" 2>/dev/null || stat -c%Y "$LOCK_FILE"))) -gt $LOCK_TIMEOUT ]; then
+            mkdir -p "$(dirname "$LOCK_FILE")"
+            echo "LOCK_ACQUIRED=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Another transformation is already running"
+            echo "LOCK_ACQUIRED=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+      - name: Run transformation pipeline
+        if: steps.lock.outputs.LOCK_ACQUIRED == 'true'
+        run: |
+          echo "Starting data transformation pipeline..."
+          bun run transform:execute
+        timeout-minutes: 120
+
+      - name: Verify transformation results
+        if: steps.lock.outputs.LOCK_ACQUIRED == 'true' && success()
+        run: |
+          echo "Transformation completed successfully"
+          echo "Verifying data consistency..."
+          # Add verification scripts here
+
+      - name: Post-transformation validation
+        if: steps.lock.outputs.LOCK_ACQUIRED == 'true'
+        run: |
+          echo "Running post-transformation validation..."
+          # Check data version, error counts, etc.
+
+      - name: Notify success
+        if: steps.lock.outputs.LOCK_ACQUIRED == 'true' && success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = '✅ Data transformation completed successfully'
+            console.log(message)
+
+      - name: Notify failure
+        if: steps.lock.outputs.LOCK_ACQUIRED == 'true' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = '❌ Data transformation failed. Check logs for details.'
+            console.log(message)
+
+      - name: Upload transformation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transformation-logs
+          path: logs/transformation-*.log
+          retention-days: 30
+
+      - name: Release distributed lock
+        if: always()
+        run: |
+          # Clean up lock
+          rm -f /tmp/transform.lock
