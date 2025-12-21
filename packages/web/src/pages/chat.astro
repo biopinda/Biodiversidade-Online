@@ -1,8 +1,24 @@
 ---
-import ChatComponent from '@/components/Chat.tsx'
+/**
+ * ChatBB Page
+ * Conversational interface for biodiversity questions
+ */
+
 import Layout from '@/layouts/base.astro'
+import ChatBB from '@/components/ChatBB'
 ---
 
-<Layout>
-  <ChatComponent client:idle />
+<Layout title="ChatBB - Assistente de Biodiversidade">
+  <ChatBB client:load />
 </Layout>
+
+<style>
+  /* Animation delay utilities for bouncing dots */
+  :global(.animation-delay-100) {
+    animation-delay: 0.1s;
+  }
+
+  :global(.animation-delay-200) {
+    animation-delay: 0.2s;
+  }
+</style>
