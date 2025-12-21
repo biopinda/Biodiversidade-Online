@@ -1,0 +1,75 @@
+---
+/**
+ * Dashboard Component
+ * Main Analytic Dashboard for Biodiversidade.Online
+ * Displays species statistics with interactive filters
+ */
+
+import DashboardFilters from './DashboardFilters'
+import StatCards from './StatCards'
+import Charts from './Charts'
+import DashboardHeader from './DashboardHeader'
+---
+
+<div class="min-h-screen bg-gradient-to-b from-green-50 to-white">
+  <DashboardHeader client:load />
+
+  <main class="container mx-auto px-4 py-8">
+    <!-- Filters Section -->
+    <section class="mb-8">
+      <DashboardFilters client:load />
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="mb-8">
+      <h2 class="mb-6 text-2xl font-bold text-gray-800">
+        Estatísticas Gerais
+      </h2>
+      <StatCards client:load />
+    </section>
+
+    <!-- Charts Section -->
+    <section class="mb-8">
+      <h2 class="mb-6 text-2xl font-bold text-gray-800">Visualizações</h2>
+      <Charts client:load />
+    </section>
+
+    <!-- Footer Info -->
+    <section class="mt-12 border-t border-gray-200 pt-8">
+      <div class="text-center text-sm text-gray-600">
+        <p>
+          Dados atualizados regularmente
+          <span id="lastUpdated" class="font-semibold">–</span>
+        </p>
+        <p class="mt-2">
+          Dados da Flora e Funga do Brasil, GBIF, SiBBr e fontes autorizadas
+        </p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<style>
+  main {
+    max-width: 1400px;
+  }
+</style>
+
+<script>
+  // Update last updated timestamp
+  async function updateLastUpdated() {
+    try {
+      const response = await fetch('/api/dashboard/summary')
+      const data = await response.json()
+      const lastUpdated = document.getElementById('lastUpdated')
+      if (lastUpdated && data.lastUpdated) {
+        const date = new Date(data.lastUpdated)
+        lastUpdated.textContent = `– ${date.toLocaleDateString('pt-BR')}`
+      }
+    } catch (error) {
+      console.error('Erro ao buscar última atualização:', error)
+    }
+  }
+
+  updateLastUpdated()
+</script>
