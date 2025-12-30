@@ -3,8 +3,8 @@
  * Manages data version metadata for consistency across interfaces
  */
 
-import { getMongoDatabase } from './mongo'
 import { logger } from './logger'
+import { getMongoDatabase } from './mongo'
 
 export interface DataVersion {
   _id?: string

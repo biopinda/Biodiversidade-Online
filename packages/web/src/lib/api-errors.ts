@@ -90,12 +90,9 @@ export const StandardErrors = {
     ),
 
   notFound: (resource: string) =>
-    buildErrorResponse(
-      404,
-      ErrorCodes.NOT_FOUND,
-      `${resource} not found`,
-      { resource }
-    ),
+    buildErrorResponse(404, ErrorCodes.NOT_FOUND, `${resource} not found`, {
+      resource
+    }),
 
   databaseError: (details?: Record<string, unknown>) =>
     buildErrorResponse(
@@ -138,9 +135,10 @@ export const StandardErrors = {
 /**
  * Create JSON error response for Astro
  */
-export function createErrorResponse(
-  error: APIError
-): { body: string; status: number } {
+export function createErrorResponse(error: APIError): {
+  body: string
+  status: number
+} {
   return {
     body: JSON.stringify(error),
     status: error.status

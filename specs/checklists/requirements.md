@@ -34,6 +34,7 @@
 **Specification Status**: READY FOR PLANNING
 
 **Strengths**:
+
 - Clear separation of three interfaces (Dashboard, ChatBB, API) with independent user stories
 - Comprehensive data ingestion/transformation requirements building on V5.0
 - Explicit removal scope prevents scope creep
@@ -41,6 +42,7 @@
 - Edge cases cover failure modes and concurrency scenarios
 
 **Key Points for Planning Phase**:
+
 1. Dashboard as homepage requires UI/UX refactoring of existing web interface
 2. ChatBB MCP integration is critical path - may require new database adapter development
 3. Component removal (phenological calendar, taxonomic search, distribution maps) needs dependency analysis
@@ -48,6 +50,7 @@
 5. Performance targets (Dashboard filter <1s, API <500ms) may require caching/indexing strategy
 
 **Potential Implementation Challenges to Address in Planning**:
+
 - Ensuring data consistency across Dashboard/ChatBB/API in face of concurrent updates
 - MCP protocol implementation complexity for ChatBB natural language to database query translation
 - Dependency removal may impact other components (needs code audit before implementation)

@@ -3,7 +3,7 @@
  * Conversational interface for biodiversity questions
  */
 
-import { useState, useRef, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -59,9 +59,7 @@ export default function ChatBB() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(
-          errorData.error || 'Erro ao processar mensagem'
-        )
+        throw new Error(errorData.error || 'Erro ao processar mensagem')
       }
 
       const data = await response.json()
@@ -145,7 +143,8 @@ export default function ChatBB() {
             </svg>
             <p className="mb-2 text-lg font-semibold">Comece uma conversa</p>
             <p className="text-sm">
-              Faça perguntas sobre espécies ameaçadas, invasoras, ou unidades de conservação
+              Faça perguntas sobre espécies ameaçadas, invasoras, ou unidades de
+              conservação
             </p>
           </div>
         ) : (
@@ -180,8 +179,8 @@ export default function ChatBB() {
               <div className="flex justify-start">
                 <div className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
                   <span className="inline-block h-3 w-3 animate-bounce rounded-full bg-gray-400" />
-                  <span className="inline-block h-3 w-3 animate-bounce rounded-full bg-gray-400 animation-delay-100" />
-                  <span className="inline-block h-3 w-3 animate-bounce rounded-full bg-gray-400 animation-delay-200" />
+                  <span className="animation-delay-100 inline-block h-3 w-3 animate-bounce rounded-full bg-gray-400" />
+                  <span className="animation-delay-200 inline-block h-3 w-3 animate-bounce rounded-full bg-gray-400" />
                 </div>
               </div>
             )}
@@ -208,7 +207,7 @@ export default function ChatBB() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Escreva sua pergunta..."
                 disabled={loading}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:bg-gray-100"
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none disabled:bg-gray-100"
               />
               <button
                 type="submit"

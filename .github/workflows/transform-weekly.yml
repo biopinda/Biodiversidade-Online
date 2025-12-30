@@ -16,7 +16,7 @@ jobs:
   transform:
     name: Execute Data Transformation Pipeline
     runs-on: ubuntu-latest
-    timeout-minutes: 180  # 3 hours max
+    timeout-minutes: 180 # 3 hours max
 
     steps:
       - name: Checkout repository

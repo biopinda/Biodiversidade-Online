@@ -11,6 +11,7 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
 ### ✨ New Features
 
 #### Dashboard (User Story 1)
+
 - **Analytic Dashboard Homepage** at `/` with real-time filters
   - Filter by species type (native, threatened, invasive)
   - Filter by region (Brazilian states)
@@ -22,6 +23,7 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
   - Performance: <1 second filter response
 
 #### ChatBB Conversational Interface (User Story 4)
+
 - **ChatBB Page** at `/chat` for natural language queries
   - Claude API integration (claude-3-5-sonnet-20241022)
   - MCP adapter for MongoDB data access
@@ -33,6 +35,7 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
   - Performance: <5 second response time
 
 #### REST API (User Story 2)
+
 - **Comprehensive REST API** with Swagger documentation
   - GET /api/dashboard/summary - Statistics
   - GET /api/taxa - Filtered taxa list with pagination
@@ -53,6 +56,7 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
   - Credentials support
 
 #### Data Enrichment (User Story 3)
+
 - **Enrichment Infrastructure**
   - Loaders for threatened species (Flora/Funga Brasil)
   - Loaders for invasive species (IBAMA)
@@ -61,6 +65,7 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
   - Transformation status endpoint
 
 #### Data Transformation Automation (User Story 5)
+
 - **GitHub Actions Workflow**
   - Weekly scheduled transformation (Monday 04:00 UTC)
   - Manual trigger support (workflow_dispatch)
@@ -81,12 +86,14 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
 ### 🏗️ Infrastructure
 
 #### Core Types
+
 - **biodiversity.ts** - Core entity definitions
   - Taxa, Occurrence, ThreatStatus, InvasiveStatus, ConservationUnit
   - DashboardSummary, ChatSession, MCPQuery
   - PaginatedResponse interface
 
 #### Utilities
+
 - **logger.ts** - Structured logging
   - Timestamps, error codes, data source tracking
   - Log levels: DEBUG, INFO, WARN, ERROR
@@ -109,12 +116,14 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
   - API headers with version info
 
 #### Middleware
+
 - **middleware.ts** - Astro CORS & security
   - CORS preflight handling
   - Security headers
   - Origin whitelisting
 
 #### Configuration
+
 - **swagger-config.ts** - OpenAPI 3.0 specification
   - Full endpoint documentation
   - Schema definitions
@@ -123,6 +132,7 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
 ### 📊 Documentation
 
 #### Architecture
+
 - **ARCHITECTURE.md** - Complete system design
   - Three-interface architecture diagram
   - Data flow documentation
@@ -132,6 +142,7 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
   - Monitoring & maintenance
 
 #### Specifications
+
 - **spec.md** - Feature specification (from v5.1 planning)
 - **plan.md** - Implementation plan (from v5.1 planning)
 - **research.md** - Technical decisions (8 research topics)
@@ -142,18 +153,21 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
 ### 🔄 Migration from v5.0
 
 #### Removed Features
+
 - Phenological calendar components (fenologia.astro)
 - Taxonomic search interface (tree.astro)
 - Distribution map components (mapa.astro)
 - Legacy taxonomic search pages
 
 #### Preserved
+
 - IPT data ingestion pipeline
 - MongoDB core collections (taxa_ipt, occurrences_ipt)
 - Existing API endpoints (with enhancements)
 - Data transformation pipeline
 
 #### Breaking Changes
+
 - Homepage is now Dashboard (previously taxa search)
 - `/taxa` moved to legacy archive
 - `/mapa` moved to legacy archive
@@ -188,6 +202,7 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
 ### 🗄️ Database Schema
 
 #### New Collections
+
 - **threatened_species** - Conservation threat data
 - **invasive_species** - Invasive species information
 - **conservation_units** - Protected areas metadata
@@ -196,10 +211,12 @@ This release completes a fundamental refactor of Biodiversidade.Online to a simp
 - **process_metrics** - Transformation metrics and logs
 
 #### Enhanced Collections
+
 - **taxa** - Added threatStatus, invasiveStatus, conservationUnitAssociations
 - **occurrences** - Added threatStatus, invasiveStatus, conservationUnit
 
 #### Indexes
+
 - Geospatial indexes on occurrences.geometry (2dsphere)
 - Composite indexes on kingdom+phylum+class
 - Indexed regions (stateCode), year, status fields

@@ -29,7 +29,9 @@ O **Biodiversidade.Online v5.1** refatora a plataforma para uma arquitetura simp
 ### 🎯 Três Pontos de Acesso à Biodiversidade
 
 #### 1. **Dashboard Analítico** (Homepage Principal)
+
 Interface visual interativa para exploração de dados de biodiversidade com:
+
 - Visualizações em tempo real (gráficos, estatísticas, filtros)
 - Filtros dinâmicos: tipo de espécie (nativa, ameaçada, invasora), localização geográfica, status de conservação
 - Atualização de visualizações em <1 segundo
@@ -37,7 +39,9 @@ Interface visual interativa para exploração de dados de biodiversidade com:
 - **URL**: https://biodiversidade.online/
 
 #### 2. **ChatBB - Interface Conversacional** (via MCP)
+
 Assistente de IA para perguntas complexas sobre biodiversidade em linguagem natural (português/inglês):
+
 - Consultas sobre espécies, distribuição geográfica, status de conservação
 - Integração via Model Context Protocol (MCP) com base de dados transformada
 - Contexto de conversação mantido para perguntas de acompanhamento
@@ -45,7 +49,9 @@ Assistente de IA para perguntas complexas sobre biodiversidade em linguagem natu
 - **URL**: https://biodiversidade.online/chat
 
 #### 3. **REST API com Swagger** (Integração Programática)
+
 API completa para integração externa com documentação interativa:
+
 - Endpoints para taxa, ocorrências, estatísticas, unidades de conservação
 - Filtros avançados: tipo, região, status de conservação, nível de ameaça
 - Respostas JSON com suporte a GeoJSON para dados geográficos
@@ -79,15 +85,18 @@ A v5.1 mantém e aprimora o pipeline integrado de processamento de dados:
 ### 📊 Fontes de Dados Integradas
 
 **Dados Taxonômicos:**
+
 - **Flora e Funga do Brasil** - Catálogo oficial de espécies vegetais
 - **Catálogo Taxonômico da Fauna do Brasil** - Base oficial de espécies animais
 
 **Dados de Ocorrências:**
+
 - **~12 milhões de registros** de ~490 repositórios IPT
 - Validação geográfica (coordenadas, estados via códigos IBGE)
 - Associação com unidades de conservação
 
 **Dados de Enriquecimento (Novo em v5.1):**
+
 - **Espécies Ameaçadas** - Status de ameaça, nível de proteção, programas de recuperação
 - **Espécies Invasoras** - Origem geográfica, impacto em ecossistemas (Instituto Hórus, IBAMA)
 - **Unidades de Conservação** - Limites geográficos, tipo de designação, status de gestão (CNUC/ICMBio)
@@ -95,6 +104,7 @@ A v5.1 mantém e aprimora o pipeline integrado de processamento de dados:
 ### 🎨 Arquitetura Simplificada
 
 A v5.1 **remove componentes legados** para reduzir complexidade:
+
 - ❌ Calendário fenológico
 - ❌ Interface de busca taxonômica dedicada
 - ❌ Mapa de distribuição standalone
@@ -195,12 +205,14 @@ A v5.1 **remove componentes legados** para reduzir complexidade:
 O **ChatBB** permite consultas em linguagem natural sobre a biodiversidade brasileira:
 
 **Exemplos de Consultas:**
+
 - "Quais espécies ameaçadas estão em unidades de conservação?"
 - "Quantas espécies invasoras foram registradas no Cerrado?"
 - "Liste as Bromeliaceae endêmicas da Mata Atlântica"
 - "Mostre ocorrências de Vriesea em parques nacionais"
 
 **Características:**
+
 - Suporte a português e inglês
 - Contexto de conversação mantido para perguntas de acompanhamento
 - Integração via MCP (Model Context Protocol) com dados transformados
@@ -208,6 +220,7 @@ O **ChatBB** permite consultas em linguagem natural sobre a biodiversidade brasi
 - Tratamento gracioso de erros e indisponibilidade
 
 **Exemplos Documentados:**
+
 - [Informações sobre o gênero Vriesea](https://trilium.dalc.in/share/lFMRnEIBR5Yu)
 - [Espécies invasoras em parques nacionais](https://trilium.dalc.in/share/I7vFC96GRy73)
 - [Bromeliaceae ameaçadas em UCs](https://trilium.dalc.in/share/nfGgiYw3jhX8)

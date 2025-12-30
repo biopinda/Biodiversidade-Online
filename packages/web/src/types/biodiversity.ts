@@ -43,7 +43,13 @@ export interface ThreatStatus {
   _id: string
   taxonID: string
   scientificName: string
-  threatLevel: 'extinct' | 'critically-endangered' | 'endangered' | 'vulnerable' | 'near-threatened' | 'least-concern'
+  threatLevel:
+    | 'extinct'
+    | 'critically-endangered'
+    | 'endangered'
+    | 'vulnerable'
+    | 'near-threatened'
+    | 'least-concern'
   protectionStatus?: string
   recoveryStatus?: string
   assessmentDate?: Date

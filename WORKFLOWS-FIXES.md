@@ -31,6 +31,7 @@ O workflow "Update MongoDB - Flora" (e similares) estava falhando com `exit code
 ## Correções Aplicadas
 
 ### Todas os 3 workflows foram atualizados:
+
 - `update-mongodb-flora.yml`
 - `update-mongodb-fauna.yml`
 - `update-mongodb-occurrences.yml`
@@ -38,6 +39,7 @@ O workflow "Update MongoDB - Flora" (e similares) estava falhando com `exit code
 ### Mudanças Específicas:
 
 #### 1. Removidas etapas desnecessárias
+
 ```yaml
 # ❌ REMOVIDO:
 - name: Setup Node.js
@@ -53,19 +55,21 @@ O workflow "Update MongoDB - Flora" (e similares) estava falhando com `exit code
 ```
 
 #### 2. Adicionada verificação de MongoDB
+
 ```yaml
 ✅ NOVO:
-- name: Verify MongoDB connection
-  run: |
-    echo "Checking MongoDB connection..."
-    if [ -z "$MONGO_URI" ]; then
-      echo "ERROR: MONGO_URI environment variable not set"
-      exit 1
-    fi
-    echo "✓ MONGO_URI is configured"
+  - name: Verify MongoDB connection
+    run: |
+      echo "Checking MongoDB connection..."
+      if [ -z "$MONGO_URI" ]; then
+        echo "ERROR: MONGO_URI environment variable not set"
+        exit 1
+      fi
+      echo "✓ MONGO_URI is configured"
 ```
 
 #### 3. Removida variável TEMPDIR hardcoded
+
 ```yaml
 # ❌ REMOVIDO:
 env:
@@ -79,25 +83,27 @@ env:
 ```
 
 #### 4. Melhorado logging e tratamento de erros
+
 ```yaml
 ✅ NOVO:
-- name: Ingest and Transform Flora from default URL
-  if: ${{ !github.event.inputs.DWCA_URL }}
-  env:
-    MONGO_URI: ${{ secrets.MONGO_URI }}
-    NODE_ENV: production
-  run: |
-    echo "Processing Flora from IPT: ${{ env.DWCA_URL }}"
-    bun run ingest:flora "${{ env.DWCA_URL }}"
-    EXIT_CODE=$?
-    if [ $EXIT_CODE -ne 0 ]; then
-      echo "ERROR: Flora ingestion failed with exit code $EXIT_CODE"
-      exit $EXIT_CODE
-    fi
-    echo "✓ Flora ingestion completed successfully"
+  - name: Ingest and Transform Flora from default URL
+    if: ${{ !github.event.inputs.DWCA_URL }}
+    env:
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+      NODE_ENV: production
+    run: |
+      echo "Processing Flora from IPT: ${{ env.DWCA_URL }}"
+      bun run ingest:flora "${{ env.DWCA_URL }}"
+      EXIT_CODE=$?
+      if [ $EXIT_CODE -ne 0 ]; then
+        echo "ERROR: Flora ingestion failed with exit code $EXIT_CODE"
+        exit $EXIT_CODE
+      fi
+      echo "✓ Flora ingestion completed successfully"
 ```
 
 #### 5. Adicionado timeout e erro handling
+
 ```yaml
 ✅ NOVO:
 runs-on: [self-hosted]
@@ -117,16 +123,16 @@ timeout-minutes: 30  # Previne hang indefinido
 
 ## Resumo das Mudanças
 
-| Aspecto | Antes | Depois |
-|--------|-------|--------|
-| **Setup Node/Bun** | Sim (desnecessário) | Não |
-| **Instalação zip** | Sim (desnecessário) | Não |
-| **Verificação MongoDB** | Não | Sim |
-| **Variável TEMPDIR** | Hardcoded | Removida |
-| **Logging** | Minimal | Detalhado |
-| **Timeout** | Não | 30 minutos |
-| **Tratamento erro** | Genérico | Específico com troubleshooting |
-| **Runner** | self-hosted | self-hosted (confirmado) |
+| Aspecto                 | Antes               | Depois                         |
+| ----------------------- | ------------------- | ------------------------------ |
+| **Setup Node/Bun**      | Sim (desnecessário) | Não                            |
+| **Instalação zip**      | Sim (desnecessário) | Não                            |
+| **Verificação MongoDB** | Não                 | Sim                            |
+| **Variável TEMPDIR**    | Hardcoded           | Removida                       |
+| **Logging**             | Minimal             | Detalhado                      |
+| **Timeout**             | Não                 | 30 minutos                     |
+| **Tratamento erro**     | Genérico            | Específico com troubleshooting |
+| **Runner**              | self-hosted         | self-hosted (confirmado)       |
 
 ## Benefícios
 

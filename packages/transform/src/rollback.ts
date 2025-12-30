@@ -3,8 +3,8 @@
  * Restores previous data snapshot on transformation failure
  */
 
-import { MongoClient } from 'mongodb'
 import { logger } from '@/lib/logger'
+import { MongoClient } from 'mongodb'
 
 export interface RollbackSnapshot {
   _id?: string
@@ -28,7 +28,13 @@ export async function createSnapshot(
     const snapshotDb = client.db(`${dbName}_snapshots`)
 
     // Get list of collections to backup
-    const collections = ['taxa', 'occurrences', 'threatened_species', 'invasive_species', 'conservation_units']
+    const collections = [
+      'taxa',
+      'occurrences',
+      'threatened_species',
+      'invasive_species',
+      'conservation_units'
+    ]
 
     logger.info('Creating transformation snapshot', {
       version,
@@ -132,8 +138,10 @@ export async function getPreviousSnapshot(
     const snapshotDb = client.db(`${dbName}_snapshots`)
     const metadataCollection = snapshotDb.collection('snapshots')
 
-    const snapshot = await metadataCollection
-      .findOne({ status: 'active' }, { sort: { timestamp: -1 } })
+    const snapshot = await metadataCollection.findOne(
+      { status: 'active' },
+      { sort: { timestamp: -1 } }
+    )
 
     if (snapshot) {
       logger.debug('Retrieved previous snapshot', {
@@ -242,7 +250,9 @@ export async function cleanupOldSnapshots(
       // Delete snapshot collections
       for (const collectionName of snapshot.collections || []) {
         try {
-          await snapshotDb.collection(`${collectionName}_${snapshot.version}`).drop()
+          await snapshotDb
+            .collection(`${collectionName}_${snapshot.version}`)
+            .drop()
         } catch (e) {
           // Collection might not exist, that's ok
         }

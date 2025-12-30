@@ -97,7 +97,7 @@
 - [ ] T027A [P] [US3] Implement DwC-A format validation in `packages/transform/src/validation/dwca-validator.ts` checking archive structure, meta.xml schema, core/extension files, logging malformed files with descriptive errors (FR-I04)
 - [ ] T027B [P] [US3] Create taxonomy synonym resolver `packages/transform/src/enrichment/synonym-resolver.ts` using Flora/Funga do Brasil API to update accepted names, track synonym mappings, log resolution history (FR-T14)
 - [ ] T027C [P] [US3] Create TaxonID association module `packages/transform/src/enrichment/taxonid-linker.ts` matching taxa across IPT sources using scientificName+authorship, assigning stable TaxonID, handling conflicts (FR-T15)
-- [ ] T028 [US3] Implement taxa enrichment pipeline `packages/transform/src/taxa-enrich.ts` that reads raw taxa from `taxa_ipt`, joins with enrichment collections, writes to `taxa` preserving _id, logs metrics
+- [ ] T028 [US3] Implement taxa enrichment pipeline `packages/transform/src/taxa-enrich.ts` that reads raw taxa from `taxa_ipt`, joins with enrichment collections, writes to `taxa` preserving \_id, logs metrics
 - [ ] T029 [US3] Implement occurrences enrichment pipeline `packages/transform/src/occurrences-enrich.ts` that: validates coordinates against Brazil bounds (FR-T09), filters non-Brazil records (FR-T12), harmonizes continent/country fields (FR-T11), normalizes stateProvince using IBGE codes (FR-T13), associates with UCs via geographic intersection, links to taxa via TaxonID, writes to `occurrences` with error handling
 - [ ] T030 [US3] Create transformation coordinator script `packages/transform/src/transform.ts` that orchestrates loaders → enrichment, implements distributed lock, tracks history in `process_metrics`
 - [ ] T031 [P] [US3] Create CLI command `bun run transform:execute` in `packages/transform/package.json` that runs transformation coordinator
@@ -169,13 +169,13 @@
 
 ### Implementation for User Story 5
 
-- [ ] T061 [P] [US5] Create GitHub Actions workflow `.github/workflows/transform-on-code-change.yml` triggering on packages/transform/* changes with distributed lock
+- [ ] T061 [P] [US5] Create GitHub Actions workflow `.github/workflows/transform-on-code-change.yml` triggering on packages/transform/\* changes with distributed lock
 - [ ] T062 [P] [US5] Create manual transform trigger endpoint `packages/web/src/pages/api/admin/transform-trigger.ts` (POST) with admin auth, returning status and estimatedDuration
 - [ ] T063 [US5] Create transformation monitoring dashboard `packages/web/src/pages/admin/transforms.astro` showing history, current progress, next scheduled, manual trigger button
 - [ ] T064 [P] [US5] Implement transformation rollback mechanism `packages/transform/src/rollback.ts` restoring previous snapshot on >10% error rate
 - [ ] T065 [US5] Create transformation monitoring alerts `packages/transform/src/alerts.ts` for timeout (>2h), error rate (>5%), enrichment coverage drops
 - [ ] T066 [P] [US5] Add data version tracking `packages/web/src/lib/data-version.ts` storing version in metrics and API headers
-- [ ] T067 [US5] Create transformation validation suite `packages/transform/src/validate.ts` verifying _id consistency, enrichment fields, coordinates, geographic bounds
+- [ ] T067 [US5] Create transformation validation suite `packages/transform/src/validate.ts` verifying \_id consistency, enrichment fields, coordinates, geographic bounds
 - [ ] T068 [US5] Implement incremental transformation capability `packages/transform/src/incremental-transform.ts` tracking transformed records by timestamp
 
 **Checkpoint**: Transformation fully automated, monitoring and alerts in place
@@ -186,9 +186,9 @@
 
 **Purpose**: Code cleanup and legacy component removal
 
-- [ ] T069 [P] Remove phenological calendar components: Delete fenologia.astro, Fenologia* files, remove from navigation, clean references
-- [ ] T070 [P] Remove taxonomic search interface: Delete taxa.astro, tree.astro, TaxonomicTree* files, remove from navigation
-- [ ] T071 [P] Remove distribution map components: Delete mapa.astro, DistributionMap* files, remove map library dependencies
+- [ ] T069 [P] Remove phenological calendar components: Delete fenologia.astro, Fenologia\* files, remove from navigation, clean references
+- [ ] T070 [P] Remove taxonomic search interface: Delete taxa.astro, tree.astro, TaxonomicTree\* files, remove from navigation
+- [ ] T071 [P] Remove distribution map components: Delete mapa.astro, DistributionMap\* files, remove map library dependencies
 - [ ] T072 Audit dependencies in package.json files: Verify no unused libraries from removed components, commit cleanup
 - [ ] T073 [P] Update documentation: Update README.md with three access points, create ARCHITECTURE.md, add CHANGELOG.md for v5.1
 - [ ] T074 [P] Code cleanup: Run prettier, tsc --noEmit, remove dead code, update imports

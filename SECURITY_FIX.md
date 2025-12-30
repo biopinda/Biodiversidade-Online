@@ -5,6 +5,7 @@
 ### Vulnerabilidade Identificada
 
 **CVE-2024-53382**: PrismJS DOM Clobbering vulnerability (XSS)
+
 - **Severidade**: Baixa (CVSS 4.9)
 - **Versões afetadas**: prismjs ≤ 1.29.0
 - **Versão corrigida**: prismjs ≥ 1.30.0
@@ -14,11 +15,13 @@
 ✅ **Commit `00b4185`** incluiu:
 
 1. **Override global de prismjs** no `package.json` raiz:
+
    ```json
    "overrides": {
      "prismjs": "^1.30.0"
    }
    ```
+
    Isso força TODAS as dependências transitivas a usar prismjs 1.30.0+
 
 2. **Atualização preventiva do sharp**: 0.33.5 → 0.34.5
@@ -43,6 +46,7 @@ git push origin main
 ### Verificação
 
 Após executar `bun install` e fazer push, o Dependabot deve:
+
 1. Detectar que prismjs 1.30.0 está no `bun.lock`
 2. Fechar automaticamente o alerta #39
 3. Remover a mensagem de vulnerabilidade do GitHub

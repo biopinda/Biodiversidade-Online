@@ -3,8 +3,8 @@
  * Loads data from ICMBio and state environmental agencies
  */
 
-import { MongoClient } from 'mongodb'
 import { logger } from '@/lib/logger'
+import { MongoClient } from 'mongodb'
 
 export interface ConservationUnit {
   _id?: string
@@ -48,9 +48,9 @@ export async function loadConservationUnits(
     logger.info('Starting conservation units load', {}, 'icmbio')
 
     // Create spatial index for geographic queries
-    await collection.createIndex({ 'geometry': '2dsphere' })
-    await collection.createIndex({ 'jurisdictionCode': 1 })
-    await collection.createIndex({ 'designationType': 1 })
+    await collection.createIndex({ geometry: '2dsphere' })
+    await collection.createIndex({ jurisdictionCode: 1 })
+    await collection.createIndex({ designationType: 1 })
 
     // Load from ICMBio and state agencies
     const ucData = await fetchICMBioConservationUnits()

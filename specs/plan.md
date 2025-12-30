@@ -44,11 +44,13 @@ Core infrastructure builds on V5.0's data pipeline, adding support for threatene
 **Frontend Framework**: Astro (existing web application in `packages/web`)
 **UI/Styling**: Tailwind CSS
 **Primary Dependencies**:
+
 - Backend/Data: MongoDB driver, @darwincore/ingest, @darwincore/transform, papaparse, @zip.js/zip.js, xml2js, cli-progress
 - API/MCP: Express.js or Astro API routes, swagger-jsdoc, MCP SDK/protocol handler
 - Chat: Claude API (via Anthropic SDK)
 
 **Storage**: MongoDB collections:
+
 - Raw: `taxa_ipt`, `occurrences_ipt`
 - Transformed: `taxa`, `occurrences`
 - Metadata: `threatened_species`, `invasive_species`, `conservation_units`, `transform_status`, `process_metrics`
@@ -57,12 +59,14 @@ Core infrastructure builds on V5.0's data pipeline, adding support for threatene
 **Target Platform**: Linux server (GitHub Actions runners), Docker containers
 **Project Type**: Monorepo (Bun workspaces) - data processing (`packages/ingest`, `packages/transform`) + web application (`packages/web`)
 **Performance Goals**:
+
 - Dashboard filter response: <1 second
 - API endpoint response: <500ms for up to 10,000 records
 - Complete data refresh cycle: <24 hours
 - ChatBB natural language accuracy: 95%+ on well-formed questions
 
 **Constraints**:
+
 - BSON 16MB document limit (requires chunking for large records)
 - MongoDB connection required for all interfaces
 - IPT availability/reliability varies (~95% uptime target)
@@ -70,6 +74,7 @@ Core infrastructure builds on V5.0's data pipeline, adding support for threatene
 - Must preserve backward compatibility with V5.0 data schemas
 
 **Scale/Scope**:
+
 - ~12 million occurrence records
 - ~500 IPT repositories
 - 50+ concurrent Dashboard users
@@ -116,16 +121,19 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 ### Adicionais (Constitution v1.1.0)
 
 **Integridade de Dados e Padrões Científicos**:
+
 - [x] Nomenclatura taxonômica segue ICBN/ICZN, referências Flora e Funga do Brasil
 - [x] Qualidade ocorrências: coordenadas validadas contra Brasil, datas consistentes
 - [x] Rastreabilidade: cada registro mantém referência de origem (IPT, herbário, etc.)
 
 **Comunidade e Colaboração**:
+
 - [x] APIs RESTful bem documentadas (Swagger/OpenAPI 3.0)
 - [x] Código aberto, documentação pública, processo transparente
 - [x] Compatibilidade com GBIF/SiBBr/padrões internacionais mantida
 
 **Segurança e Privacidade**:
+
 - [x] Localização de espécies sensíveis pode ser obscurecida (implementação futura)
 - [x] Backups MongoDB, logs de acesso/modificações
 - [x] Validação entrada para prevenir injeção, compliance ICMBio/IBAMA
@@ -263,6 +271,7 @@ _Prerequisites: All research complete, no NEEDS CLARIFICATION markers_
 ### 1.1 Data Model (data-model.md)
 
 Entities derived from spec:
+
 - **Taxa**: scientific name, threat status, invasive status, UC associations
 - **Occurrences**: species reference, location, date, collection method
 - **Threatened Species**: enrichment data with threat level, recovery status
@@ -272,6 +281,7 @@ Entities derived from spec:
 ### 1.2 API Contracts (/contracts/)
 
 Dashboard/Web Routes:
+
 - GET `/` → Analytic Dashboard HTML
 - GET `/api/dashboard/summary` → Dashboard statistics (threatened count, invasive count, total species)
 - GET `/api/taxa` → Filtered taxa list (query: type, region, conservation_status)
@@ -279,6 +289,7 @@ Dashboard/Web Routes:
 - GET `/api/docs` → Swagger UI
 
 ChatBB Interface:
+
 - POST `/api/chat/send` → Natural language query → Claude response via MCP
 - GET `/api/chat/context` → Conversation history
 - WebSocket or Server-Sent Events for streaming responses
@@ -286,6 +297,7 @@ ChatBB Interface:
 ### 1.3 Contract Tests
 
 Test files that will fail (no implementation):
+
 - `/contracts/test-api-taxa.test.ts` - Asserts GET /api/taxa schema
 - `/contracts/test-api-occurrences.test.ts` - Asserts GET /api/occurrences response
 - `/contracts/test-chat.test.ts` - Asserts POST /api/chat/send request/response
@@ -293,6 +305,7 @@ Test files that will fail (no implementation):
 ### 1.4 Quickstart & Validation
 
 quickstart.md will describe:
+
 - Running local MongoDB
 - Building packages/web/ with Dashboard
 - Testing ChatBB with sample queries
@@ -303,11 +316,12 @@ quickstart.md will describe:
 
 Run: `.specify/scripts/powershell/update-agent-context.ps1 -AgentType claude`
 Updates CLAUDE.md with:
+
 - New dependencies: Claude SDK, MCP protocol, swagger-jsdoc
 - Architecture: Three interfaces pattern
 - Key files: packages/web (Astro), packages/transform, API contracts
 
-**Outputs**: data-model.md, /contracts/*, quickstart.md, CLAUDE.md updated
+**Outputs**: data-model.md, /contracts/\*, quickstart.md, CLAUDE.md updated
 
 ## Phase 2: Task Planning Approach
 

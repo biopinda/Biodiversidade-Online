@@ -5,9 +5,9 @@
  */
 
 import { getClaudeClient } from '@/lib/claude-client'
-import { parseAndExecuteQuery, formatResultsForClaude } from '@/lib/mcp-adapter'
-import { getMongoDatabase } from '@/lib/mongo'
 import { logger } from '@/lib/logger'
+import { formatResultsForClaude, parseAndExecuteQuery } from '@/lib/mcp-adapter'
+import { getMongoDatabase } from '@/lib/mongo'
 import type { APIContext } from 'astro'
 
 interface ChatRequest {
@@ -41,11 +41,11 @@ When answering questions:
 - Mention conservation status when relevant
 - Note geographic distribution in Brazilian states
 - Highlight endangered or invasive species concerns
-- Suggest conservation resources when appropriate`;
+- Suggest conservation resources when appropriate`
 
 export async function POST(context: APIContext): Promise<Response> {
   try {
-    const body = await context.request.json() as ChatRequest
+    const body = (await context.request.json()) as ChatRequest
 
     if (!body.query) {
       return new Response(
