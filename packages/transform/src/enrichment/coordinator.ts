@@ -3,11 +3,11 @@
  * Orchestrates loading and enrichment of biodiversity data
  */
 
-import { MongoClient } from 'mongodb'
 import { logger } from '@/lib/logger'
-import { loadThreatenedSpecies } from '../loaders/threatened'
-import { loadInvasiveSpecies } from '../loaders/invasive'
+import { MongoClient } from 'mongodb'
 import { loadConservationUnits } from '../loaders/conservation_units'
+import { loadInvasiveSpecies } from '../loaders/invasive'
+import { loadThreatenedSpecies } from '../loaders/threatened'
 
 export interface EnrichmentResult {
   success: boolean
@@ -39,7 +39,10 @@ export async function runEnrichmentPipeline(
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error)
       errors.push(`Threatened species load failed: ${msg}`)
-      logger.error('Threatened species load failed', error instanceof Error ? error : new Error(String(error)))
+      logger.error(
+        'Threatened species load failed',
+        error instanceof Error ? error : new Error(String(error))
+      )
     }
 
     // Load invasive species
@@ -48,7 +51,10 @@ export async function runEnrichmentPipeline(
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error)
       errors.push(`Invasive species load failed: ${msg}`)
-      logger.error('Invasive species load failed', error instanceof Error ? error : new Error(String(error)))
+      logger.error(
+        'Invasive species load failed',
+        error instanceof Error ? error : new Error(String(error))
+      )
     }
 
     // Load conservation units
@@ -57,7 +63,10 @@ export async function runEnrichmentPipeline(
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error)
       errors.push(`Conservation units load failed: ${msg}`)
-      logger.error('Conservation units load failed', error instanceof Error ? error : new Error(String(error)))
+      logger.error(
+        'Conservation units load failed',
+        error instanceof Error ? error : new Error(String(error))
+      )
     }
 
     const endTime = new Date()

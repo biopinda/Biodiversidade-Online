@@ -54,7 +54,7 @@ System downloads new data weekly and makes it available without manual intervent
 
 **Acceptance Scenarios**:
 
-1. **Given** scheduled time triggers (Flora 02:00 UTC, Fauna 02:30 UTC, Occurrences 03:00 UTC), **When** workflows execute, **Then** raw data inserted into *_ipt collections
+1. **Given** scheduled time triggers (Flora 02:00 UTC, Fauna 02:30 UTC, Occurrences 03:00 UTC), **When** workflows execute, **Then** raw data inserted into \*\_ipt collections
 2. **Given** raw data inserted, **When** transformation completes, **Then** transformed data appears in taxa/occurrences collections
 3. **Given** transformation succeeds, **When** Dashboard/ChatBB/API refresh, **Then** new data visible to users within 1 hour
 4. **Given** data includes threatened species, invasive species, conservation units, **When** transformation enrichment runs, **Then** fields populated with authoritative source data
@@ -109,6 +109,7 @@ Developer modifies transformation code, system re-transforms data without re-ing
 ### Functional Requirements
 
 **Dashboard Interface**
+
 - **FR-D01**: MUST display Analytic Dashboard as application homepage
 - **FR-D02**: MUST render real-time biodiversity visualizations (charts, statistics, filters)
 - **FR-D03**: MUST support filters: species type (native, threatened, invasive), geographic location, conservation status
@@ -117,6 +118,7 @@ Developer modifies transformation code, system re-transforms data without re-ing
 - **FR-D06**: MUST display data from transformed taxa and occurrences collections
 
 **ChatBB Conversational Interface (via MCP)**
+
 - **FR-C01**: MUST accept natural language queries in Portuguese and English
 - **FR-C02**: MUST retrieve data from transformed database via MCP protocol
 - **FR-C03**: MUST provide responses with species information (name, threat status, location, conservation unit)
@@ -125,6 +127,7 @@ Developer modifies transformation code, system re-transforms data without re-ing
 - **FR-C06**: MUST answer 95% of well-formed biodiversity questions accurately
 
 **REST API with Swagger Documentation**
+
 - **FR-A01**: MUST expose complete REST API for taxa data
 - **FR-A02**: MUST expose complete REST API for occurrences data
 - **FR-A03**: MUST provide Swagger/OpenAPI documentation for all endpoints
@@ -134,14 +137,16 @@ Developer modifies transformation code, system re-transforms data without re-ing
 - **FR-A07**: MUST support pagination for large result sets
 
 **Data Ingestion Pipeline**
+
 - **FR-I01**: MUST download Flora from ipt.jbrj.gov.br (Sunday 02:00 UTC)
 - **FR-I02**: MUST download Fauna from ipt.jbrj.gov.br (Sunday 02:30 UTC)
 - **FR-I03**: MUST process ~490 occurrence repositories (Sunday 03:00 UTC)
 - **FR-I04**: MUST validate DwC-A format and handle malformed files with descriptive error messages
 - **FR-I05**: MUST store raw data in taxa_ipt and occurrences_ipt collections
-- **FR-I06**: MUST preserve _id identically between raw and transformed data
+- **FR-I06**: MUST preserve \_id identically between raw and transformed data
 
 **Data Transformation Pipeline**
+
 - **FR-T01**: MUST transform taxa inline after raw data insert
 - **FR-T02**: MUST transform occurrences in batch mode
 - **FR-T03**: MUST extract canonicalName from scientificName
@@ -159,6 +164,7 @@ Developer modifies transformation code, system re-transforms data without re-ing
 - **FR-T15**: MUST associate TaxonID across sources
 
 **System Maintenance**
+
 - **FR-M01**: MUST trigger automated re-transformation when transformation code changes
 - **FR-M02**: MUST allow manual trigger of ingestion/transformation workflows
 - **FR-M03**: MUST prevent duplicate data during re-transformation
@@ -167,6 +173,7 @@ Developer modifies transformation code, system re-transforms data without re-ing
 - **FR-M06**: MUST trace transformation execution history
 
 **Component Removal**
+
 - **FR-R01**: MUST remove phenological calendar code and functionality
 - **FR-R02**: MUST remove taxonomic search interface components
 - **FR-R03**: MUST remove distribution map components
@@ -217,7 +224,7 @@ Developer modifies transformation code, system re-transforms data without re-ing
 4. Existing data ingestion and transformation code in @darwincore packages can be leveraged and enhanced
 5. ChatBB leverages existing Claude API or compatible LLM (specific model selection deferred to implementation)
 6. MCP (Model Context Protocol) integration uses existing or to-be-developed database adapter
-7. Raw data collections (_ipt) are retained for historical audit and recovery purposes
+7. Raw data collections (\_ipt) are retained for historical audit and recovery purposes
 8. Taxonomy enrichment (threatened species, invasive species) uses authoritative Brazilian sources
 9. Conservation unit (UC) data is maintained in accessible geographic database format
 10. Meilisearch or similar search backend is optional enhancement (not required for MVP)

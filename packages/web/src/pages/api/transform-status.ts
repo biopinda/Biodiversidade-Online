@@ -6,8 +6,8 @@
  * Returns: { status, lastRun, nextScheduled, errorCount, message }
  */
 
-import { getMongoDatabase } from '@/lib/mongo'
 import { logger } from '@/lib/logger'
+import { getMongoDatabase } from '@/lib/mongo'
 import type { APIContext } from 'astro'
 
 interface TransformStatus {
@@ -54,7 +54,9 @@ export async function GET(context: APIContext): Promise<Response> {
     // Calculate next scheduled time (weekly, Monday at 04:00 UTC)
     const now = new Date()
     const nextMonday = new Date(now)
-    nextMonday.setDate(nextMonday.getDate() + ((1 + 7 - nextMonday.getDay()) % 7))
+    nextMonday.setDate(
+      nextMonday.getDate() + ((1 + 7 - nextMonday.getDay()) % 7)
+    )
     nextMonday.setHours(4, 0, 0, 0)
 
     const status: TransformStatus = {

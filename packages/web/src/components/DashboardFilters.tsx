@@ -3,7 +3,7 @@
  * Interactive filter controls for species type, region, conservation status
  */
 
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 interface FilterState {
   type: string
@@ -94,14 +94,17 @@ export default function DashboardFilters() {
       <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4">
         {/* Type Filter */}
         <div>
-          <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="type"
+            className="block text-sm font-medium text-gray-700"
+          >
             Tipo de Espécie
           </label>
           <select
             id="type"
             value={filters.type}
             onChange={(e) => handleFilterChange('type', e.target.value)}
-            className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none"
           >
             <option value="">Todas</option>
             {SPECIES_TYPES.map((type) => (
@@ -114,14 +117,17 @@ export default function DashboardFilters() {
 
         {/* Region Filter */}
         <div>
-          <label htmlFor="region" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="region"
+            className="block text-sm font-medium text-gray-700"
+          >
             Estado/Região
           </label>
           <select
             id="region"
             value={filters.region}
             onChange={(e) => handleFilterChange('region', e.target.value)}
-            className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none"
           >
             <option value="">Todos</option>
             {REGIONS.map((region) => (
@@ -134,14 +140,19 @@ export default function DashboardFilters() {
 
         {/* Conservation Status Filter */}
         <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="status"
+            className="block text-sm font-medium text-gray-700"
+          >
             Status de Conservação
           </label>
           <select
             id="status"
             value={filters.conservationStatus}
-            onChange={(e) => handleFilterChange('conservationStatus', e.target.value)}
-            className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            onChange={(e) =>
+              handleFilterChange('conservationStatus', e.target.value)
+            }
+            className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none"
           >
             <option value="">Todos</option>
             {CONSERVATION_STATUSES.map((status) => (
@@ -199,8 +210,11 @@ export default function DashboardFilters() {
           {filters.conservationStatus && (
             <span className="inline-flex items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-sm text-orange-800">
               Status:{' '}
-              {CONSERVATION_STATUSES.find((s) => s.value === filters.conservationStatus)
-                ?.label}
+              {
+                CONSERVATION_STATUSES.find(
+                  (s) => s.value === filters.conservationStatus
+                )?.label
+              }
               <button
                 onClick={() => handleFilterChange('conservationStatus', '')}
                 className="hover:font-bold"

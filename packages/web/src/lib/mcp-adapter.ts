@@ -3,8 +3,8 @@
  * Maps Claude natural language to MongoDB queries via Model Context Protocol
  */
 
-import { getMongoDatabase } from './mongo'
 import { logger } from './logger'
+import { getMongoDatabase } from './mongo'
 
 export interface MCPQuery {
   type: 'taxa' | 'occurrences' | 'statistics' | 'spatial'
@@ -90,10 +90,7 @@ async function executeTaxaQuery(userMessage: string): Promise<MCPResult> {
     const collection = db.collection('taxa')
 
     // Simple implementation - in production would parse more complex queries
-    const results = await collection
-      .find({})
-      .limit(50)
-      .toArray()
+    const results = await collection.find({}).limit(50).toArray()
 
     logger.info('Taxa query executed', {
       count: results.length,
@@ -107,7 +104,10 @@ async function executeTaxaQuery(userMessage: string): Promise<MCPResult> {
       source: 'mongodb-taxa'
     }
   } catch (error) {
-    logger.error('Taxa query failed', error instanceof Error ? error : undefined)
+    logger.error(
+      'Taxa query failed',
+      error instanceof Error ? error : undefined
+    )
     return {
       success: false,
       data: [],
@@ -120,9 +120,7 @@ async function executeTaxaQuery(userMessage: string): Promise<MCPResult> {
 /**
  * Execute occurrence query with spatial support
  */
-async function executeOccurrenceQuery(
-  userMessage: string
-): Promise<MCPResult> {
+async function executeOccurrenceQuery(userMessage: string): Promise<MCPResult> {
   try {
     const db = await getMongoDatabase()
     const collection = db.collection('occurrences')
@@ -133,14 +131,9 @@ async function executeOccurrenceQuery(
     )
     const region = regionMatch ? regionMatch[1].trim() : null
 
-    const filter = region
-      ? { stateProvince: new RegExp(region, 'i') }
-      : {}
+    const filter = region ? { stateProvince: new RegExp(region, 'i') } : {}
 
-    const results = await collection
-      .find(filter)
-      .limit(100)
-      .toArray()
+    const results = await collection.find(filter).limit(100).toArray()
 
     logger.info('Occurrence query executed', {
       count: results.length,
@@ -238,7 +231,9 @@ function formatTaxaResults(taxa: any[]): string {
 
   const summary = taxa
     .slice(0, 10)
-    .map((t) => `• ${t.scientificName}${t.commonName ? ` (${t.commonName})` : ''}`)
+    .map(
+      (t) => `• ${t.scientificName}${t.commonName ? ` (${t.commonName})` : ''}`
+    )
     .join('\n')
 
   return `Found ${taxa.length} species:\n${summary}${

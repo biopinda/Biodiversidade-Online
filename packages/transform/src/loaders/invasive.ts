@@ -3,8 +3,8 @@
  * Loads data from IBAMA and other authoritative sources
  */
 
-import { MongoClient } from 'mongodb'
 import { logger } from '@/lib/logger'
+import { MongoClient } from 'mongodb'
 
 export interface InvasiveSpecies {
   _id?: string
@@ -117,7 +117,8 @@ async function fetchIBAMAInvasiveData(): Promise<IBAMAInvasiveResponse[]> {
         name: 'Tiririca-africana',
         scientificName: 'Cenchrus echinatus',
         origin: 'Africa',
-        impact: 'Competition with native plants, difficulty for livestock grazing',
+        impact:
+          'Competition with native plants, difficulty for livestock grazing',
         riskLevel: 'medium',
         affectedBiomes: ['Cerrado', 'Caatinga']
       }
@@ -133,9 +134,7 @@ async function fetchIBAMAInvasiveData(): Promise<IBAMAInvasiveResponse[]> {
 /**
  * Map IBAMA risk levels to standardized format
  */
-function mapRiskLevel(
-  level: string
-): InvasiveSpecies['invasivenessLevel'] {
+function mapRiskLevel(level: string): InvasiveSpecies['invasivenessLevel'] {
   const mapping: Record<string, InvasiveSpecies['invasivenessLevel']> = {
     alta: 'high',
     high: 'high',

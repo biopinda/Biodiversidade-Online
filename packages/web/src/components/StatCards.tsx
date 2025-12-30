@@ -30,9 +30,7 @@ export default function StatCards() {
         setStats(data)
         setError(null)
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : 'Erro ao carregar dados'
-        )
+        setError(err instanceof Error ? err.message : 'Erro ao carregar dados')
         console.error('Erro:', err)
       } finally {
         setLoading(false)
@@ -97,9 +95,7 @@ export default function StatCards() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">
-                {card.title}
-              </p>
+              <p className="text-sm font-medium text-gray-600">{card.title}</p>
               <p className={`mt-2 text-3xl font-bold ${card.textColor}`}>
                 {loading ? (
                   <span className="inline-block h-8 w-24 animate-pulse rounded bg-gray-300" />

@@ -3,8 +3,8 @@
  * Loads data from Flora/Funga do Brasil and other authoritative sources
  */
 
-import { MongoClient } from 'mongodb'
 import { logger } from '@/lib/logger'
+import { MongoClient } from 'mongodb'
 
 export interface ThreatenedSpecies {
   _id?: string
@@ -51,7 +51,11 @@ export async function loadThreatenedSpecies(
     const threatData = await fetchFloraFungaThreatenedData()
 
     if (threatData.length === 0) {
-      logger.warn('No threatened species data from Flora/Funga', {}, 'flora-funga-api')
+      logger.warn(
+        'No threatened species data from Flora/Funga',
+        {},
+        'flora-funga-api'
+      )
       return
     }
 
@@ -133,9 +137,7 @@ async function fetchFloraFungaThreatenedData(): Promise<FloraFungaResponse[]> {
 /**
  * Map IUCN threat level codes to standardized format
  */
-function mapThreatLevel(
-  code: string
-): ThreatenedSpecies['threatLevel'] {
+function mapThreatLevel(code: string): ThreatenedSpecies['threatLevel'] {
   const mapping: Record<string, ThreatenedSpecies['threatLevel']> = {
     EX: 'extinct',
     CR: 'critically-endangered',

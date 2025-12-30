@@ -6,8 +6,8 @@
  * Returns: { totalSpecies, threatenedCount, invasiveCount, totalOccurrences, lastUpdated }
  */
 
-import { getMongoDatabase } from '@/lib/mongo'
 import { logger } from '@/lib/logger'
+import { getMongoDatabase } from '@/lib/mongo'
 import type { APIContext } from 'astro'
 
 interface DashboardSummary {

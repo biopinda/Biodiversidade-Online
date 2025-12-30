@@ -113,6 +113,7 @@ bun run web:dev
 ```
 
 **Expected Output**:
+
 ```
 astro dev
   ➜  Local:    http://localhost:4321/
@@ -138,6 +139,7 @@ Access application at: **http://localhost:4321/**
 4. Verify charts render (bar chart for species by type, pie chart for status)
 
 **Pass Criteria**:
+
 - Page loads without errors
 - All statistics have numeric values > 0
 - Charts display with data
@@ -157,6 +159,7 @@ Access application at: **http://localhost:4321/**
 7. Verify "Clear Filters" resets all selections
 
 **Pass Criteria**:
+
 - Filter UI responds immediately
 - Charts update within < 1 second
 - Data correctly reflects filter selection
@@ -183,6 +186,7 @@ curl "http://localhost:4321/api/dashboard/summary" | jq .
 ```
 
 **Pass Criteria**:
+
 - All responses are valid JSON
 - HTTP status codes are 200
 - Data structures match swagger-config schemas
@@ -195,16 +199,17 @@ curl "http://localhost:4321/api/dashboard/summary" | jq .
 **Test Natural Language Queries**:
 
 1. Navigate to http://localhost:4321/chat
-2. Send first query: *"Quantas espécies ameaçadas de extinção existem no Brasil?"*
+2. Send first query: _"Quantas espécies ameaçadas de extinção existem no Brasil?"_
 3. Verify response:
    - ✓ Claude responds with species count
    - ✓ Response appears to stream in
    - ✓ Response shows data sources cited
-4. Send follow-up: *"E quantas são da Mata Atlântica?"*
+4. Send follow-up: _"E quantas são da Mata Atlântica?"_
 5. Verify Claude understands context (previous conversation)
 6. Export conversation as JSON/Markdown
 
 **Pass Criteria**:
+
 - Query returns answer within 5 seconds
 - Claude correctly interprets domain questions
 - Follow-up shows context awareness
@@ -228,6 +233,7 @@ curl "http://localhost:4321/api/dashboard/summary" | jq .
 5. Verify request/response display
 
 **Pass Criteria**:
+
 - Swagger UI loads without errors
 - All endpoints visible
 - Example requests work
@@ -269,18 +275,23 @@ A well-formed question must have:
 ### Example Well-Formed Questions
 
 ✓ **Perfect**: "Quantas espécies de aves ameaçadas existem na Mata Atlântica?"
+
 - Has: species (aves), attribute (ameaçadas), location (Mata Atlântica)
 
 ✓ **Good**: "Qual é o status de conservação da jaguatirica?"
+
 - Has: species (jaguatirica), attribute (status)
 
 ✓ **Acceptable**: "Invasive fish species"
+
 - Has: attribute (invasive), species type (fish)
 
 ✗ **Poor**: "Birds"
+
 - Missing: specific species, attribute, scope
 
 ✗ **Out of scope**: "How many birds exist globally?"
+
 - Outside Brazil/biodiversity domain
 
 ---
@@ -293,16 +304,17 @@ A well-formed question must have:
 
 ```javascript
 // Open browser console and run:
-const start = performance.now();
+const start = performance.now()
 // Click filter dropdown
 // Wait for data update
-const end = performance.now();
-console.log(`Response time: ${end - start}ms`);
+const end = performance.now()
+console.log(`Response time: ${end - start}ms`)
 ```
 
 **Target**: < 1000ms
 
 **Benchmark Baseline** (v5.1):
+
 - No filters: 200-300ms
 - Single filter: 300-500ms
 - Multiple filters: 500-800ms
@@ -322,6 +334,7 @@ curl -w "Total: %{time_total}s\n" \
 ```
 
 **Targets**:
+
 - No filters: < 200ms
 - With filters: < 500ms
 
@@ -331,14 +344,15 @@ curl -w "Total: %{time_total}s\n" \
 
 ```javascript
 // In ChatBB page console:
-const start = performance.now();
+const start = performance.now()
 // Send message
 // Wait for complete response
-const end = performance.now();
-console.log(`ChatBB response: ${end - start}ms`);
+const end = performance.now()
+console.log(`ChatBB response: ${end - start}ms`)
 ```
 
 **Targets**:
+
 - First response token: < 1000ms
 - Complete response: < 5000ms
 
@@ -377,11 +391,13 @@ After loading data, verify:
 **Solutions**:
 
 1. Check MongoDB is running:
+
    ```bash
    mongosh "mongodb://localhost:27017"
    ```
 
 2. Verify MONGO_URI in .env.local
+
    ```env
    MONGO_URI=mongodb://localhost:27017/biodiversidade
    ```
@@ -398,6 +414,7 @@ After loading data, verify:
 **Solutions**:
 
 1. Verify key in .env.local:
+
    ```bash
    grep CLAUDE_API_KEY .env.local
    ```
@@ -411,12 +428,14 @@ After loading data, verify:
 **Steps**:
 
 1. Check if data ingested into MongoDB:
+
    ```javascript
-   db.taxa.countDocuments()  // Should be > 0
-   db.occurrences.countDocuments()  // Should be > 0
+   db.taxa.countDocuments() // Should be > 0
+   db.occurrences.countDocuments() // Should be > 0
    ```
 
 2. Verify collections exist:
+
    ```bash
    mongosh
    > use dwc2json
@@ -444,6 +463,7 @@ After loading data, verify:
 **Steps**:
 
 1. Run type check:
+
    ```bash
    bun run typecheck
    ```
@@ -473,4 +493,3 @@ After validating setup:
 - **Documentation**: https://github.com/biodiversidade-online/platform/docs
 - **Issues**: https://github.com/biodiversidade-online/platform/issues
 - **Discussions**: https://github.com/biodiversidade-online/platform/discussions
-
