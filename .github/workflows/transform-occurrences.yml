@@ -32,10 +32,12 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Re-transform Occurrence Data
+        timeout-minutes: 25
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: bun run transform:occurrences
       - name: Clear and regenerate occurrence cache
+        timeout-minutes: 5
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: bun run --filter @biodiversidade/web clear-occurrence-cache

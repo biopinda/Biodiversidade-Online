@@ -52,6 +52,7 @@ jobs:
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
       - name: Ingest and Transform Occurrences
+        timeout-minutes: 25
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           NODE_ENV: production
@@ -60,6 +61,7 @@ jobs:
           bun run --filter @darwincore/ingest occurrences
 
       - name: Clear and regenerate occurrence cache
+        timeout-minutes: 5
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           NODE_ENV: production
