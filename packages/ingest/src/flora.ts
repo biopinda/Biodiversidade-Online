@@ -135,10 +135,13 @@ async function main() {
   }
 
   const client = new MongoClient(mongoUri)
-  await client.connect()
-  const db = client.db('dwc2json')
 
   try {
+    console.log('Connecting to MongoDB...')
+    await client.connect()
+    console.log('MongoDB connection established')
+    const db = client.db('dwc2json')
+
     // Initialize preservation system (optional for now)
     let preservador: any = null
     try {

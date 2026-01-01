@@ -135,26 +135,29 @@ if (!mongoUri) {
   console.error('MONGO_URI environment variable is required')
   process.exit(1)
 }
+
 const client = new MongoClient(mongoUri)
-await client.connect()
-const iptsCol = client.db('dwc2json').collection<DbIpt>('ipts')
-const ocorrenciasCol = client.db('dwc2json').collection('ocorrencias')
-
-// Initialize preservation system (optional for now)
-let preservador: any = null
-try {
-  preservador = await initializeDataPreserver(mongoUri)
-  console.debug('Data preservation system initialized')
-} catch (error) {
-  console.warn(
-    'Failed to initialize preservation system:',
-    (error as Error).message
-  )
-}
-
-console.log('Connecting to MongoDB...')
 let exitCode = 0
+
 try {
+  console.log('Connecting to MongoDB...')
+  await client.connect()
+  console.log('MongoDB connection established')
+
+  const iptsCol = client.db('dwc2json').collection<DbIpt>('ipts')
+  const ocorrenciasCol = client.db('dwc2json').collection('ocorrencias')
+
+  // Initialize preservation system (optional for now)
+  let preservador: any = null
+  try {
+    preservador = await initializeDataPreserver(mongoUri)
+    console.debug('Data preservation system initialized')
+  } catch (error) {
+    console.warn(
+      'Failed to initialize preservation system:',
+      (error as Error).message
+    )
+  }
   console.log('Creating indexes')
 
   const createIndexSafely = async (collection: any, indexes: any[]) => {
