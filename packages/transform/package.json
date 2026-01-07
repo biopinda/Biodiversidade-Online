@@ -10,6 +10,7 @@
   "scripts": {
     "taxa": "bun src/cli/runTransform.ts taxa",
     "occurrences": "bun src/cli/runTransform.ts occurrences",
+    "execute": "bun src/cli/execute.ts",
     "check-lock": "bun src/cli/checkLock.ts"
   },
   "dependencies": {
