@@ -25,6 +25,7 @@
     "ingest:test": "bun run --filter @darwincore/ingest test",
     "transform:taxa": "bun run --filter @darwincore/transform taxa",
     "transform:occurrences": "bun run --filter @darwincore/transform occurrences",
+    "transform:execute": "bun run --filter @darwincore/transform execute",
     "transform:check-lock": "bun run --filter @darwincore/transform check-lock",
     "web:dev": "bun run --filter @biodiversidade/web dev",
     "web:build": "bun run --filter @biodiversidade/web build",

@@ -27,7 +27,7 @@ jobs:
     permissions:
       contents: 'read'
     runs-on: [self-hosted]
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
 
       - name: Ingest and Transform Fauna from custom URL
         if: ${{ github.event.inputs.DWCA_URL }}
-        timeout-minutes: 25
+        timeout-minutes: 50
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           NODE_ENV: production
@@ -69,7 +69,7 @@ jobs:
 
       - name: Ingest and Transform Fauna from default URL
         if: ${{ !github.event.inputs.DWCA_URL }}
-        timeout-minutes: 25
+        timeout-minutes: 50
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           NODE_ENV: production

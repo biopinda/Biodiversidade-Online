@@ -136,12 +136,24 @@ if (!mongoUri) {
   process.exit(1)
 }
 
-const client = new MongoClient(mongoUri)
+const client = new MongoClient(mongoUri, {
+  serverSelectionTimeoutMS: 10000,
+  connectTimeoutMS: 10000,
+  socketTimeoutMS: 45000
+})
 let exitCode = 0
 
 try {
   console.log('Connecting to MongoDB...')
-  await client.connect()
+  await Promise.race([
+    client.connect(),
+    new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error('MongoDB connection timeout after 10s')),
+        10000
+      )
+    )
+  ])
   console.log('MongoDB connection established')
 
   const iptsCol = client.db('dwc2json').collection<DbIpt>('ipts')
@@ -618,8 +630,17 @@ try {
   exitCode = 1
 } finally {
   console.log('Closing MongoDB connection')
-  await client.close(true)
-  console.log('MongoDB connection closed')
+  try {
+    await Promise.race([
+      client.close(true),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('MongoDB close timeout')), 5000)
+      )
+    ])
+    console.log('MongoDB connection closed')
+  } catch (closeError) {
+    console.warn('Warning: MongoDB close timeout, forcing exit')
+  }
   if (typeof process !== 'undefined') {
     process.exit(exitCode)
   }

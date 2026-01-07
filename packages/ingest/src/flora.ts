@@ -134,11 +134,23 @@ async function main() {
     process.exit(1)
   }
 
-  const client = new MongoClient(mongoUri)
+  const client = new MongoClient(mongoUri, {
+    serverSelectionTimeoutMS: 10000,
+    connectTimeoutMS: 10000,
+    socketTimeoutMS: 45000
+  })
 
   try {
     console.log('Connecting to MongoDB...')
-    await client.connect()
+    await Promise.race([
+      client.connect(),
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error('MongoDB connection timeout after 10s')),
+          10000
+        )
+      )
+    ])
     console.log('MongoDB connection established')
     const db = client.db('dwc2json')
 
@@ -316,7 +328,16 @@ async function main() {
     console.error('Error during flora processing:', error)
     throw error
   } finally {
-    await client.close()
+    try {
+      await Promise.race([
+        client.close(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('MongoDB close timeout')), 5000)
+        )
+      ])
+    } catch (closeError) {
+      console.warn('Warning: MongoDB close timeout, forcing exit')
+    }
   }
 }
 
