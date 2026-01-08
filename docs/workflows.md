@@ -7,8 +7,7 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 - [Workflows de CI/CD](#workflows-de-cicd)
 - [Workflows de Ingestão de Dados](#workflows-de-ingestão-de-dados)
 - [Workflows de Transformação de Dados](#workflows-de-transformação-de-dados)
-- [Workflows de IA](#workflows-de-ia)
-- [Cronograma de Execução](#cronograma-de-execução)
+- [Execução Manual](#execução-manual)
 
 ---
 
@@ -223,76 +222,6 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 ---
 
-## Workflows de IA
-
-### claude.yml - Claude Code
-
-**Localização**: `.github/workflows/claude.yml`
-
-**Descrição**: Executa o assistente Claude Code (deve ser acionado manualmente).
-
-**Triggers**:
-
-- **Manual apenas**: Via `workflow_dispatch`
-
-**Processo**:
-
-1. Faz checkout do repositório
-2. Executa Claude Code Action
-
-**Permissões**:
-
-- Leitura de conteúdo, PRs, issues
-- Leitura de resultados de CI em PRs
-- Escrita de tokens de identidade
-
-**Segredo necessário**: `CLAUDE_CODE_OAUTH_TOKEN`
-
-**Runner**: `ubuntu-latest`
-
----
-
-### claude-code-review.yml - Revisão de Código
-
-**Localização**: `.github/workflows/claude-code-review.yml`
-
-**Descrição**: Revisão de código usando Claude (deve ser acionado manualmente).
-
-**Triggers**:
-
-- **Manual apenas**: Via `workflow_dispatch`
-
-**Aspectos analisados**:
-
-- Qualidade do código e boas práticas
-- Bugs potenciais e issues
-- Considerações de performance
-- Problemas de segurança
-- Cobertura de testes
-
-**Processo**:
-
-1. Faz checkout do repositório
-2. Executa Claude Code Review
-3. Claude analisa as mudanças do PR
-4. Posta feedback construtivo como comentário no PR usando `gh pr comment`
-
-**Configuração**:
-
-- Usa `CLAUDE.md` como guia para estilo e convenções
-- Ferramentas permitidas: `gh issue`, `gh search`, `gh pr` (view, diff, comment, list)
-
-**Permissões**:
-
-- Leitura de conteúdo, PRs, issues
-- Escrita de tokens de identidade
-
-**Segredo necessário**: `CLAUDE_CODE_OAUTH_TOKEN`
-
-**Runner**: `ubuntu-latest`
-
----
-
 ## Execução Manual
 
 **Todos os workflows devem ser executados manualmente através da interface do GitHub Actions.**
@@ -319,10 +248,9 @@ Quando realizar atualização manual dos dados, siga esta sequência:
 
 Os seguintes segredos devem estar configurados em **Settings > Secrets and variables > Actions**:
 
-| Segredo                   | Usado por                              | Descrição                    |
-| ------------------------- | -------------------------------------- | ---------------------------- |
-| `MONGO_URI`               | Workflows de ingestão e transformação  | URI de conexão com MongoDB   |
-| `CLAUDE_CODE_OAUTH_TOKEN` | `claude.yml`, `claude-code-review.yml` | Token OAuth para Claude Code |
+| Segredo     | Usado por                             | Descrição                  |
+| ----------- | ------------------------------------- | -------------------------- |
+| `MONGO_URI` | Workflows de ingestão e transformação | URI de conexão com MongoDB |
 
 ---
 
@@ -348,14 +276,12 @@ Usados para workflows de ingestão e transformação que requerem:
 
 ### GitHub-hosted Runners (ubuntu-latest)
 
-Usados para workflows de CI/CD e IA:
+Usados para workflows de CI/CD:
 
 **Workflows**:
 
 - `docker.yml`
 - `transform-weekly.yml`
-- `claude.yml`
-- `claude-code-review.yml`
 
 ---
 
@@ -415,4 +341,3 @@ env:
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [Darwin Core Archive Format](https://dwc.tdwg.org/text/)
-- [Claude Code Action](https://github.com/anthropics/claude-code-action)
