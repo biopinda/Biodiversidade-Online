@@ -1,15 +1,6 @@
 name: Re-transform Taxa
 
 on:
-  push:
-    branches: ['main']
-    paths:
-      [
-        'packages/transform/src/taxa/**',
-        'packages/transform/package.json',
-        'packages/shared/src/**',
-        '.github/workflows/transform-taxa.yml'
-      ]
   workflow_dispatch:
 
 jobs:

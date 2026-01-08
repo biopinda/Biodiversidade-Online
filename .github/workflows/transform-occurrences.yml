@@ -1,15 +1,6 @@
 name: Re-transform Occurrences
 
 on:
-  push:
-    branches: ['main']
-    paths:
-      [
-        'packages/transform/src/occurrences/**',
-        'packages/transform/package.json',
-        'packages/shared/src/**',
-        '.github/workflows/transform-occurrences.yml'
-      ]
   workflow_dispatch:
 
 jobs:

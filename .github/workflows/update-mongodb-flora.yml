@@ -1,23 +1,12 @@
 name: Update MongoDB - Flora
 
 on:
-  push:
-    branches: ['main']
-    paths:
-      [
-        'packages/ingest/src/lib/**',
-        'packages/ingest/src/flora.ts',
-        'packages/transform/src/**',
-        '.github/workflows/update-mongodb-flora.yml'
-      ]
   workflow_dispatch:
     inputs:
       DWCA_URL:
         description: 'Custom DWCA URL (optional)'
         required: false
         type: string
-  schedule:
-    - cron: '0 2 * * 0'
 
 env:
   DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=lista_especies_flora_brasil

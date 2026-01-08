@@ -1,23 +1,12 @@
 name: Update MongoDB - Fauna
 
 on:
-  push:
-    branches: ['main']
-    paths:
-      [
-        'packages/ingest/src/lib/**',
-        'packages/ingest/src/fauna.ts',
-        'packages/transform/src/**',
-        '.github/workflows/update-mongodb-fauna.yml'
-      ]
   workflow_dispatch:
     inputs:
       DWCA_URL:
         description: 'Custom DWCA URL (optional)'
         required: false
         type: string
-  schedule:
-    - cron: '30 2 * * 0'
 
 env:
   DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=catalogo_taxonomico_da_fauna_do_brasil

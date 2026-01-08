@@ -1,20 +1,7 @@
 name: Update MongoDB - Ocorrências
 
 on:
-  push:
-    branches: ['main']
-    paths:
-      [
-        'packages/ingest/src/lib/**',
-        'packages/ingest/src/ocorrencia.ts',
-        'packages/transform/src/**',
-        'packages/ingest/referencias/occurrences.csv',
-        'packages/web/src/scripts/clear-occurrence-cache.ts',
-        '.github/workflows/update-mongodb-occurrences.yml'
-      ]
   workflow_dispatch:
-  schedule:
-    - cron: '0 3 * * 0'
 
 jobs:
   ingest-and-transform:
