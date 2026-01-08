@@ -1,7 +1,6 @@
 {
   "name": "@biopinda/biodiversidade-online",
   "devDependencies": {
-    "@intellectronica/ruler": "^0.3.8",
     "@types/cli-progress": "^3.11.6",
     "@types/papaparse": "^5.3.16",
     "@types/semver": "^7.7.1",
@@ -31,13 +30,9 @@
     "web:build": "bun run --filter @biodiversidade/web build",
     "web:preview": "bun run --filter @biodiversidade/web preview",
     "web:start": "bun run --filter @biodiversidade/web start",
-    "ruler:apply": "ruler apply",
-    "ruler:revert": "ruler revert",
-    "ruler:init": "ruler init",
     "format": "prettier --write . --experimental-cli",
     "typecheck": "bun tsc --build && cd packages/web && bunx astro check --minimumSeverity error",
     "typecheck:fast": "bunx tsc --build --pretty false",
-    "postinstall": "node -e \"if(!process.env.CI)require('child_process').execSync('ruler apply',{stdio:'inherit'})\"",
     "prepare": "husky"
   },
   "workspaces": {

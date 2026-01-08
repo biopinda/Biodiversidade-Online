@@ -1,11 +1,7 @@
 name: Weekly Data Transformation
 
 on:
-  schedule:
-    # Every Monday at 04:00 UTC (post-ingest)
-    - cron: '0 4 * * 1'
   workflow_dispatch:
-    # Allow manual triggering
 
 env:
   MONGO_URI: ${{ secrets.MONGO_URI }}

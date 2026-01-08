@@ -22,9 +22,7 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 **Triggers**:
 
-- Push de alterações em `packages/web/**`
-- Push de alterações em `.github/workflows/docker.yml`
-- Execução manual (`workflow_dispatch`)
+- Execução manual apenas (`workflow_dispatch`)
 
 **Processo**:
 
@@ -33,7 +31,6 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 3. Extrai metadados (tags, labels) para Docker
 4. Constrói e publica a imagem Docker
 5. Gera atestado de proveniência do artefato
-6. Dispara automaticamente o workflow de deploy se estiver no branch `main`
 
 **Registry**: `ghcr.io`
 
@@ -45,32 +42,7 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 - Versão semântica
 - SHA do commit
 
----
-
-### ssh-deploy.yml - Deploy via SSH
-
-**Localização**: `.github/workflows/ssh-deploy.yml`
-
-**Descrição**: Deploy da nova versão da aplicação em servidor remoto usando Watchtower.
-
-**Triggers**:
-
-- Execução manual (`workflow_dispatch`)
-- Disparado automaticamente pelo workflow `docker.yml`
-
-**Processo**:
-
-1. Conecta ao servidor via SSH
-2. Executa Watchtower para atualizar o container `DwC2JSON`
-3. Remove containers antigos e reinicia o container atualizado
-
-**Runner**: `self-hosted`
-
-**Segredos necessários**:
-
-- `SSH_HOST`: Endereço do servidor
-- `SSH_USERNAME`: Usuário SSH
-- `SSH_DEPLOY_KEY`: Chave SSH privada
+**Nota**: O deployment para UNRAID deve ser feito manualmente através da interface do UNRAID.
 
 ---
 
@@ -84,13 +56,7 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 **Triggers**:
 
-- **Agendado**: Domingos às 02:00 UTC (cron: `0 2 * * 0`)
-- **Manual**: Com opção de URL customizada de DWCA
-- **Automático**: Pushes que modificam:
-  - `packages/ingest/src/lib/**`
-  - `packages/ingest/src/flora.ts`
-  - `packages/transform/src/**`
-  - `.github/workflows/update-mongodb-flora.yml`
+- **Manual apenas**: Com opção de URL customizada de DWCA (`workflow_dispatch`)
 
 **Fonte de dados padrão**:
 
@@ -119,13 +85,7 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 **Triggers**:
 
-- **Agendado**: Domingos às 02:30 UTC (cron: `30 2 * * 0`)
-- **Manual**: Com opção de URL customizada de DWCA
-- **Automático**: Pushes que modificam:
-  - `packages/ingest/src/lib/**`
-  - `packages/ingest/src/fauna.ts`
-  - `packages/transform/src/**`
-  - `.github/workflows/update-mongodb-fauna.yml`
+- **Manual apenas**: Com opção de URL customizada de DWCA (`workflow_dispatch`)
 
 **Fonte de dados padrão**:
 
@@ -154,15 +114,7 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 **Triggers**:
 
-- **Agendado**: Domingos às 03:00 UTC (cron: `0 3 * * 0`)
-- **Manual**: Via `workflow_dispatch`
-- **Automático**: Pushes que modificam:
-  - `packages/ingest/src/lib/**`
-  - `packages/ingest/src/ocorrencia.ts`
-  - `packages/transform/src/**`
-  - `packages/ingest/referencias/occurrences.csv`
-  - `packages/web/src/scripts/clear-occurrence-cache.ts`
-  - `.github/workflows/update-mongodb-occurrences.yml`
+- **Manual apenas**: Via `workflow_dispatch`
 
 **Processo**:
 
@@ -187,16 +139,11 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 **Localização**: `.github/workflows/transform-taxa.yml`
 
-**Descrição**: Re-transforma dados de taxa (espécies) quando o código de transformação é alterado.
+**Descrição**: Re-transforma dados de taxa (espécies) manualmente.
 
 **Triggers**:
 
-- **Automático**: Pushes que modificam:
-  - `packages/transform/src/taxa/**`
-  - `packages/transform/package.json`
-  - `packages/shared/src/**`
-  - `.github/workflows/transform-taxa.yml`
-- **Manual**: Via `workflow_dispatch`
+- **Manual apenas**: Via `workflow_dispatch`
 
 **Processo**:
 
@@ -214,16 +161,11 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 **Localização**: `.github/workflows/transform-occurrences.yml`
 
-**Descrição**: Re-transforma dados de ocorrências quando o código de transformação é alterado.
+**Descrição**: Re-transforma dados de ocorrências manualmente.
 
 **Triggers**:
 
-- **Automático**: Pushes que modificam:
-  - `packages/transform/src/occurrences/**`
-  - `packages/transform/package.json`
-  - `packages/shared/src/**`
-  - `.github/workflows/transform-occurrences.yml`
-- **Manual**: Via `workflow_dispatch`
+- **Manual apenas**: Via `workflow_dispatch`
 
 **Processo**:
 
@@ -249,8 +191,7 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 **Triggers**:
 
-- **Agendado**: Segundas-feiras às 04:00 UTC (cron: `0 4 * * 1`)
-- **Manual**: Via `workflow_dispatch`
+- **Manual apenas**: Via `workflow_dispatch`
 
 **Processo**:
 
@@ -284,25 +225,20 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 ## Workflows de IA
 
-### claude.yml - Claude Code Interativo
+### claude.yml - Claude Code
 
 **Localização**: `.github/workflows/claude.yml`
 
-**Descrição**: Permite invocar o assistente Claude diretamente em issues e pull requests através da menção `@claude`.
+**Descrição**: Executa o assistente Claude Code (deve ser acionado manualmente).
 
 **Triggers**:
 
-- Comentários em issues contendo `@claude`
-- Comentários em PRs contendo `@claude`
-- Reviews de PRs contendo `@claude`
-- Issues abertas/atribuídas com `@claude` no título ou corpo
+- **Manual apenas**: Via `workflow_dispatch`
 
 **Processo**:
 
-1. Verifica se `@claude` foi mencionado
-2. Faz checkout do repositório
-3. Executa Claude Code Action
-4. Claude executa as instruções especificadas no comentário
+1. Faz checkout do repositório
+2. Executa Claude Code Action
 
 **Permissões**:
 
@@ -316,16 +252,15 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 ---
 
-### claude-code-review.yml - Revisão Automática de Código
+### claude-code-review.yml - Revisão de Código
 
 **Localização**: `.github/workflows/claude-code-review.yml`
 
-**Descrição**: Revisão automática de código usando Claude quando um Pull Request é aberto ou atualizado.
+**Descrição**: Revisão de código usando Claude (deve ser acionado manualmente).
 
 **Triggers**:
 
-- Pull requests abertos (`opened`)
-- Pull requests atualizados (`synchronize`)
+- **Manual apenas**: Via `workflow_dispatch`
 
 **Aspectos analisados**:
 
@@ -358,27 +293,24 @@ Este documento descreve todos os workflows configurados no diretório `.github/w
 
 ---
 
-## Cronograma de Execução
+## Execução Manual
 
-### Horários Agendados (UTC)
+**Todos os workflows devem ser executados manualmente através da interface do GitHub Actions.**
 
-| Dia/Hora  | Workflow                         | Descrição                                  |
-| --------- | -------------------------------- | ------------------------------------------ |
-| Dom 02:00 | `update-mongodb-flora.yml`       | Atualização de dados de Flora do Brasil    |
-| Dom 02:30 | `update-mongodb-fauna.yml`       | Atualização de dados de Fauna do Brasil    |
-| Dom 03:00 | `update-mongodb-occurrences.yml` | Atualização de dados de Ocorrências        |
-| Seg 04:00 | `transform-weekly.yml`           | Pipeline completo de transformação semanal |
+Não há mais execuções agendadas (schedule/cron) ou automáticas (push triggers). Todos os workflows foram configurados para usar apenas `workflow_dispatch`.
 
-### Fluxo de Dados Semanal
+### Ordem Recomendada para Atualização de Dados
+
+Quando realizar atualização manual dos dados, siga esta sequência:
 
 ```
-Domingo 02:00 UTC → Flora Ingest
+1. update-mongodb-flora.yml
      ↓
-Domingo 02:30 UTC → Fauna Ingest
+2. update-mongodb-fauna.yml
      ↓
-Domingo 03:00 UTC → Occurrences Ingest
+3. update-mongodb-occurrences.yml
      ↓
-Segunda 04:00 UTC → Weekly Transform Pipeline
+4. transform-weekly.yml (se necessário)
 ```
 
 ---
@@ -387,13 +319,10 @@ Segunda 04:00 UTC → Weekly Transform Pipeline
 
 Os seguintes segredos devem estar configurados em **Settings > Secrets and variables > Actions**:
 
-| Segredo                   | Usado por                              | Descrição                           |
-| ------------------------- | -------------------------------------- | ----------------------------------- |
-| `MONGO_URI`               | Workflows de ingestão e transformação  | URI de conexão com MongoDB          |
-| `SSH_HOST`                | `ssh-deploy.yml`                       | Endereço do servidor de produção    |
-| `SSH_USERNAME`            | `ssh-deploy.yml`                       | Usuário SSH para deploy             |
-| `SSH_DEPLOY_KEY`          | `ssh-deploy.yml`                       | Chave SSH privada para autenticação |
-| `CLAUDE_CODE_OAUTH_TOKEN` | `claude.yml`, `claude-code-review.yml` | Token OAuth para Claude Code        |
+| Segredo                   | Usado por                              | Descrição                    |
+| ------------------------- | -------------------------------------- | ---------------------------- |
+| `MONGO_URI`               | Workflows de ingestão e transformação  | URI de conexão com MongoDB   |
+| `CLAUDE_CODE_OAUTH_TOKEN` | `claude.yml`, `claude-code-review.yml` | Token OAuth para Claude Code |
 
 ---
 
@@ -416,7 +345,6 @@ Usados para workflows de ingestão e transformação que requerem:
 - `update-mongodb-occurrences.yml`
 - `transform-taxa.yml`
 - `transform-occurrences.yml`
-- `ssh-deploy.yml`
 
 ### GitHub-hosted Runners (ubuntu-latest)
 
@@ -481,23 +409,10 @@ env:
   DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=catalogo_taxonomico_da_fauna_do_brasil
 ```
 
-### Ajustando Horários de Execução
-
-Os horários são definidos em formato cron nos workflows:
-
-```yaml
-schedule:
-  - cron: '0 2 * * 0' # Minuto Hora Dia Mês DiaDaSemana
-```
-
-Converter UTC para seu fuso horário local ao ajustar horários.
-
 ---
 
 ## Referências
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Cron Schedule Syntax](https://crontab.guru/)
 - [Darwin Core Archive Format](https://dwc.tdwg.org/text/)
 - [Claude Code Action](https://github.com/anthropics/claude-code-action)
-- [Watchtower Documentation](https://containrrr.dev/watchtower/)
