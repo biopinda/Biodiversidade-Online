@@ -37,7 +37,7 @@
     "format": "prettier --write . --experimental-cli",
     "typecheck": "bun tsc --build && cd packages/web && bunx astro check --minimumSeverity error",
     "typecheck:fast": "bunx tsc --build --pretty false",
-    "postinstall": "ruler apply",
+    "postinstall": "node -e \"if(!process.env.CI)require('child_process').execSync('ruler apply',{stdio:'inherit'})\"",
     "prepare": "husky"
   },
   "workspaces": {
