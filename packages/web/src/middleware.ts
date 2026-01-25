@@ -4,8 +4,8 @@
 
 import { defineMiddleware } from 'astro:middleware'
 
-export const onRequest = defineMiddleware((context, next) => {
-  const response = next()
+export const onRequest = defineMiddleware(async (context, next) => {
+  const response = await next()
 
   // Add CORS headers for API endpoints
   if (context.request.url.includes('/api/')) {
@@ -55,6 +55,21 @@ export const onRequest = defineMiddleware((context, next) => {
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-XSS-Protection', '1; mode=block')
+
+  // Content Security Policy para proteger contra XSS e injeção de scripts maliciosos
+  const cspDirectives = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.partytown.io https://www.googletagmanager.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://api.openai.com https://generativelanguage.googleapis.com",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    'upgrade-insecure-requests'
+  ]
+  response.headers.set('Content-Security-Policy', cspDirectives.join('; '))
 
   return response
 })
