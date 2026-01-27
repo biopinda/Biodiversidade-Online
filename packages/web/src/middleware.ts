@@ -1,10 +1,27 @@
 /**
- * Astro Middleware for CORS and API Headers
+ * Astro Middleware for CORS, API Headers, and Admin Authentication
  */
 
+import { getSessionIdFromCookies, validateSession } from '@/lib/auth'
 import { defineMiddleware } from 'astro:middleware'
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  const url = new URL(context.request.url)
+
+  // Protect /admin routes (except /admin/login)
+  if (
+    url.pathname.startsWith('/admin') &&
+    !url.pathname.startsWith('/admin/login')
+  ) {
+    const sessionId = getSessionIdFromCookies(
+      context.request.headers.get('cookie')
+    )
+
+    if (!validateSession(sessionId)) {
+      return context.redirect('/admin/login')
+    }
+  }
+
   const response = await next()
 
   // Add CORS headers for API endpoints
