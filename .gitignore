@@ -34,3 +34,14 @@ tmp/
 
 # Bun lockfile
 bun.lock
+
+# Cache files
+packages/web/.cache_served.json
+packages/web/.tmp_*.js
+
+# Misplaced Claude config in source
+packages/web/src/pages/.claude/
+packages/web/src/pages/CLAUDE.md
+
+# Old Bun module cache
+node_modules/.old_modules-*/
