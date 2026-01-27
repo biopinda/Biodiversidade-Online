@@ -31,6 +31,13 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=4321
 
+# Admin authentication (set these in UNRAID Docker config)
+ENV ADMIN_USERNAME=""
+ENV ADMIN_PASSWORD=""
+
+# MongoDB connection (set in UNRAID Docker config)
+ENV MONGO_URI=""
+
 # Copy runtime artifacts
 COPY --from=builder /app/packages/web/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
