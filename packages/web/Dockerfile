@@ -18,6 +18,8 @@ COPY packages/web/package.json packages/web/tsconfig.json packages/web/astro.con
 COPY patches ./patches
 COPY packages/web/public ./packages/web/public
 COPY packages/web/src ./packages/web/src
+COPY packages/web/cache ./packages/web/cache
+COPY docs ./docs
 
 # Install only the web workspace deps and build
 RUN bun install --frozen-lockfile --filter @biodiversidade/web
