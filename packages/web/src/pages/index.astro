@@ -1,14 +1,977 @@
 ---
-// export const prerender = true
 import Layout from '@/layouts/base.astro'
+import { loadDashboardCache } from '@/scripts/dashboard-cache-job'
+import fs from 'fs'
+import path from 'path'
+
+// Lê o conteúdo do arquivo dashReadme.md da raiz do repositório
+let readmeContent = ''
+try {
+  // Múltiplas tentativas de localizar o arquivo dashReadme.md
+  const repoRootGuess = process.cwd().includes('packages')
+    ? path.resolve(process.cwd().split('packages')[0] || '.', '.')
+    : process.cwd()
+
+  const possiblePaths = [
+    path.resolve(process.cwd(), '../../../docs/dashReadme.md'),
+    path.resolve(process.cwd(), '../../docs/dashReadme.md'),
+    path.resolve(process.cwd(), '../docs/dashReadme.md'),
+    path.resolve(process.cwd(), './docs/dashReadme.md'),
+    path.resolve(__dirname, '../../../docs/dashReadme.md'),
+    path.resolve(__dirname, '../../../../docs/dashReadme.md'),
+    path.resolve(repoRootGuess, 'docs/dashReadme.md'),
+    path.resolve(process.cwd(), '../../../dashReadme.md'),
+    path.resolve(process.cwd(), '../../dashReadme.md'),
+    path.resolve(process.cwd(), '../dashReadme.md'),
+    path.resolve(__dirname, '../../../dashReadme.md'),
+    path.resolve(__dirname, '../../../../dashReadme.md'),
+    // Caminho direto baseado na estrutura conhecida
+    'F:\\git\\DarwinCoreJSON\\docs\\dashReadme.md'
+  ]
+
+  let fileFound = false
+  for (const filePath of possiblePaths) {
+    try {
+      if (fs.existsSync(filePath)) {
+        readmeContent = fs.readFileSync(filePath, 'utf-8')
+        console.log(`README carregado com sucesso de: ${filePath}`)
+        fileFound = true
+        break
+      }
+    } catch (pathError) {
+      continue
+    }
+  }
+
+  if (!fileFound) {
+    throw new Error(
+      'Arquivo dashReadme.md não encontrado em nenhum dos caminhos'
+    )
+  }
+} catch (error) {
+  console.error('Erro ao carregar dashReadme.md:', error)
+  // Fallback com conteúdo conhecido do arquivo
+  readmeContent = `### Biodiversidade Online - Dashboard
+Eduardo Dalcin e Henrique Pinheiro
+
+#### Fontes de dados
+* [Flora e Funga do Brasil](https://floradobrasil.jbrj.gov.br/consulta/).
+* [Catálogo Taxonômico da Fauna do Brasil](http://fauna.jbrj.gov.br/)
+* Banco de dados de espécies invasoras do [Instituto Hórus](https://institutohorus.org.br/).
+* Espécies da flora avaliadas quanto ao risco de extinção pelo [CNCFlora](https://cncflora.jbrj.gov.br/), até 2022.
+* [FAUNA - Lista de Espécies Ameaçadas - 2021](https://dados.mma.gov.br/dataset/especies-ameacadas/resource/544f9312-d4c6-4d12-b6ac-51bf3039bbb7)
+* [Lista das UCs ativas no CNUC com respectivas categorias de manejo, área, esfera de governo, ano de criação e outras informações. Dados atualizados até março/2025](https://dados.mma.gov.br/dataset/unidadesdeconservacao/resource/f6bf9940-cf30-4ef2-927d-2bd278e4c8af).
+* Registros de ocorrência da fauna e flora, provenientes de cerca de 490 repositórios (IPTs) - [lista](https://github.com/biopinda/Biodiversidade-Online/blob/main/packages/ingest/referencias/occurrences.csv).`
+}
+
+// Mapeamento das categorias de ameaça
+const categoryMapping: Record<string, string> = {
+  EX: 'Extinta (EX)',
+  EW: 'Extinta na Natureza (EW)',
+  CR: 'Criticamente em Perigo (CR)',
+  EN: 'Em Perigo (EN)',
+  VU: 'Vulnerável (VU)',
+  NT: 'Quase Ameaçada (NT)',
+  LC: 'Pouco Preocupante (LC)',
+  DD: 'Dados Insuficientes (DD)',
+  NE: 'Não Avaliada (NE)'
+}
+
+// Categorias válidas para totalização
+const validCategories = ['EX', 'EW', 'CR', 'EN', 'VU', 'NT', 'LC', 'DD', 'NE']
+
+// Mapeamento reverso para fauna (formato "Vulnerável (VU)" -> "VU")
+const faunaReverseMapping: Record<string, string> = {
+  'Extinta (EX)': 'EX',
+  'Extinta na Natureza (EW)': 'EW',
+  'Criticamente em Perigo (CR)': 'CR',
+  'Em Perigo (EN)': 'EN',
+  'Vulnerável (VU)': 'VU',
+  'Quase Ameaçada (NT)': 'NT',
+  'Pouco Preocupante (LC)': 'LC',
+  'Dados Insuficientes (DD)': 'DD',
+  'Não Avaliada (NE)': 'NE'
+}
+
+type CategoryRecord = {
+  _id: string
+  count?: number
+  [key: string]: unknown
+}
+
+const isCategoryRecord = (value: unknown): value is CategoryRecord =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as { _id?: unknown })._id === 'string'
+
+// Função para filtrar e mapear categorias (flora/fungi - códigos)
+function filterAndMapCategories(categories: unknown): CategoryRecord[] {
+  if (!Array.isArray(categories)) return []
+
+  return categories
+    .filter(isCategoryRecord)
+    .filter((category) => validCategories.includes(category._id))
+    .map((category) => ({
+      ...category,
+      displayName: categoryMapping[category._id] || category._id
+    }))
+}
+
+// Função para filtrar e mapear categorias da fauna (formato completo)
+function filterAndMapFaunaCategories(categories: unknown): CategoryRecord[] {
+  if (!Array.isArray(categories)) return []
+
+  return categories
+    .filter(isCategoryRecord)
+    .filter((category) => {
+      const code = faunaReverseMapping[category._id]
+      return Boolean(code && validCategories.includes(code))
+    })
+    .map((category) => ({
+      ...category,
+      displayName: category._id // Já está no formato completo
+    }))
+}
+
+// Função para processar markdown completo
+function processMarkdown(content: string): string {
+  return (
+    content
+      .replace(
+        /^### (.*)$/gm,
+        '<h3 class="text-lg font-medium text-gray-800 mb-3 mt-4 pb-1 border-b border-gray-200">$1</h3>'
+      )
+      .replace(
+        /^#### (.*)$/gm,
+        '<h4 class="text-base font-medium text-blue-700 mb-2 mt-3">$1</h4>'
+      )
+      .replace(
+        /^##### (.*)$/gm,
+        '<h5 class="text-sm font-medium text-gray-600 mb-2 mt-3">$1</h5>'
+      )
+      .replace(
+        /^## (.*)$/gm,
+        '<h2 class="text-xl font-semibold text-gray-800 mb-3 mt-6 pb-1 border-b border-gray-200">$1</h2>'
+      )
+      .replace(
+        /^# (.*)$/gm,
+        '<h1 class="text-2xl font-bold text-gray-800 mb-4">$1</h1>'
+      )
+      // Links
+      .replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" class="text-blue-600 hover:text-blue-800 underline text-sm" target="_blank" rel="noopener noreferrer">$1</a>'
+      )
+      // Listas com bullets
+      .replace(
+        /^\* (.*)$/gm,
+        '<li class="text-gray-600 text-sm leading-relaxed">$1</li>'
+      )
+      // Envolver listas em ul
+      .replace(
+        /(<li[^>]*>.*<\/li>\s*)+/gs,
+        '<ul class="mb-3 ml-4 list-disc space-y-1">$&</ul>'
+      )
+      // Quebras de linha
+      .replace(
+        /\n\n/g,
+        '</p><p class="mb-3 text-gray-600 text-sm leading-relaxed">'
+      )
+      .replace(/\n/g, '<br>')
+      // Envolver em parágrafos
+      .replace(
+        /^(?!<[hul])/gm,
+        '<p class="mb-3 text-gray-600 text-sm leading-relaxed">'
+      )
+      .replace(/(?<!>)$/gm, '</p>')
+      // Limpar tags vazias
+      .replace(
+        /<p class="mb-3 text-gray-600 text-sm leading-relaxed"><\/p>/g,
+        ''
+      )
+  )
+}
+
+// Carregar dados do cache
+const cacheFilePath = path.join(process.cwd(), 'cache', 'dashboard-data.json')
+const dashboardData = await loadDashboardCache(cacheFilePath)
+
+if (!dashboardData) {
+  return new Response(null, { status: 503 })
+}
+
+// Extrair dados do cache
+const occurrencesPlantae = dashboardData.occurrences.plantae
+const occurrencesFungi = dashboardData.occurrences.fungi
+const occurrencesAnimalia = dashboardData.occurrences.animalia
+
+const taxaPlantae = dashboardData.taxa.plantae
+const taxaFungi = dashboardData.taxa.fungi
+const taxaAnimalia = dashboardData.taxa.animalia
+
+const threatenedPlantae = dashboardData.threatened.counts.plantae
+const threatenedFungi = dashboardData.threatened.counts.fungi
+const threatenedAnimalia = dashboardData.threatened.counts.animalia
+
+const threatenedCategoriesPlantae = dashboardData.threatened.categories.plantae
+const threatenedCategoriesFungi = dashboardData.threatened.categories.fungi
+const threatenedCategoriesAnimalia =
+  dashboardData.threatened.categories.animalia
+
+const invasivePlantae = dashboardData.invasive.counts.plantae
+const invasiveFungi = dashboardData.invasive.counts.fungi
+const invasiveAnimalia = dashboardData.invasive.counts.animalia
+
+const invasiveTopOrdersAnimalia = dashboardData.invasive.topOrders
+const invasiveTopFamiliesPlantae = dashboardData.invasive.topFamilies
+
+const taxaOrdersAnimalia = dashboardData.taxa_breakdown.ordersAnimalia
+const taxaFamiliesPlantae = dashboardData.taxa_breakdown.familiesPlantae
+const taxaOrdersFungi = dashboardData.taxa_breakdown.ordersFungi
+
+const topCollectionsAnimalia = dashboardData.top_collections.animalia
+const topCollectionsPlantae = dashboardData.top_collections.plantae
+const topCollectionsFungi = dashboardData.top_collections.fungi
 ---
 
-<Layout title="Flora e Funga do Brasil">
-  <div class="v-screen flex h-screen flex-col items-center justify-center">
-    <div>
-      Acesse a <a class="font-bold text-green-800" href="/taxa"
-        >página de pesquisa de taxa</a
-      > para buscas
+<Layout title="Dashboard">
+  <div class="h-screen w-screen p-2">
+    <h1 class="mb-4 text-center text-3xl font-bold">Biodiversidade On-line</h1>
+
+    <!-- Tabs Navigation -->
+    <div class="mb-4 flex border-b border-gray-200">
+      <button
+        class="tab-button border-b-2 border-blue-500 bg-white px-6 py-3 text-sm font-medium text-blue-600"
+        data-tab="taxa"
+      >
+        Taxa
+      </button>
+      <button
+        class="tab-button border-b-2 border-transparent bg-white px-6 py-3 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+        data-tab="ocorrencias"
+      >
+        Ocorrências
+      </button>
+      <button
+        class="tab-button border-b-2 border-transparent bg-white px-6 py-3 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+        data-tab="ameacadas"
+      >
+        Espécies Ameaçadas
+      </button>
+      <button
+        class="tab-button border-b-2 border-transparent bg-white px-6 py-3 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+        data-tab="invasoras"
+      >
+        Espécies Invasoras
+      </button>
+      <button
+        class="tab-button border-b-2 border-transparent bg-white px-6 py-3 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+        data-tab="sobre"
+      >
+        Sobre
+      </button>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="tab-content h-full">
+      <!-- Taxa Tab -->
+      <div id="taxa-content" class="tab-panel">
+        <div class="grid h-full grid-cols-1 gap-6 md:grid-cols-3">
+          <!-- Card Animalia -->
+          <div
+            class="min-h-[500px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100"
+              >
+                <img
+                  src="/animalia.svg"
+                  alt="Animalia"
+                  class="h-12 w-12 text-blue-600"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Animalia
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-blue-600">
+              {taxaAnimalia?.toLocaleString()}
+            </p>
+            <p class="mb-3 text-center text-gray-500">nomes aceitos</p>
+
+            {
+              taxaOrdersAnimalia && taxaOrdersAnimalia.length > 0 ? (
+                <div class="max-h-80 space-y-2 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">
+                    Top 10 Ordens:
+                  </p>
+                  {taxaOrdersAnimalia.map((order: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span class="truncate pr-2 text-gray-600">
+                        {order._id}
+                      </span>
+                      <span class="font-medium text-blue-600">
+                        {order.count.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="text-center text-sm text-gray-400">
+                  dados não disponíveis
+                </p>
+              )
+            }
+          </div>
+
+          <!-- Card Plantae -->
+          <div
+            class="min-h-[500px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-green-100"
+              >
+                <img
+                  src="/plantae.svg"
+                  alt="Plantae"
+                  class="h-12 w-12 text-green-600"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Plantae
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-green-600">
+              {taxaPlantae?.toLocaleString()}
+            </p>
+            <p class="mb-3 text-center text-gray-500">nomes aceitos</p>
+
+            {
+              taxaFamiliesPlantae && taxaFamiliesPlantae.length > 0 ? (
+                <div class="max-h-80 space-y-2 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">
+                    Top 10 Famílias:
+                  </p>
+                  {taxaFamiliesPlantae.map((family: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span class="truncate pr-2 text-gray-600">
+                        {family._id}
+                      </span>
+                      <span class="font-medium text-green-600">
+                        {family.count.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="text-center text-sm text-gray-400">
+                  dados não disponíveis
+                </p>
+              )
+            }
+          </div>
+
+          <!-- Card Fungi -->
+          <div
+            class="min-h-[500px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-orange-100"
+              >
+                <img
+                  src="/fungi.svg"
+                  alt="Fungi"
+                  class="h-12 w-12 text-orange-600"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Fungi
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-orange-600">
+              {taxaFungi?.toLocaleString()}
+            </p>
+            <p class="mb-3 text-center text-gray-500">nomes aceitos</p>
+
+            {
+              taxaOrdersFungi && taxaOrdersFungi.length > 0 ? (
+                <div class="max-h-80 space-y-2 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">
+                    Top 10 Ordens:
+                  </p>
+                  {taxaOrdersFungi.map((order: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span class="truncate pr-2 text-gray-600">
+                        {order._id}
+                      </span>
+                      <span class="font-medium text-orange-600">
+                        {order.count.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="text-center text-sm text-gray-400">
+                  dados não disponíveis
+                </p>
+              )
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Ocorrências Tab -->
+      <div id="ocorrencias-content" class="tab-panel hidden">
+        <div class="grid h-full grid-cols-1 gap-6 md:grid-cols-3">
+          <!-- Card Animalia -->
+          <div
+            class="min-h-[500px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100"
+              >
+                <img
+                  src="/animalia.svg"
+                  alt="Animalia"
+                  class="h-12 w-12 text-blue-600"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Animalia
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-blue-600">
+              {occurrencesAnimalia?.toLocaleString()}
+            </p>
+            <p class="mb-3 text-center text-gray-500">
+              ocorrências registradas
+            </p>
+
+            {
+              topCollectionsAnimalia && topCollectionsAnimalia.length > 0 ? (
+                <div class="max-h-80 space-y-2 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">
+                    Top 10 Coleções:
+                  </p>
+                  {topCollectionsAnimalia.map((collection: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span
+                        class="truncate pr-2 text-xs text-gray-600"
+                        title={collection._id}
+                      >
+                        {collection._id}
+                      </span>
+                      <span class="font-medium text-blue-600">
+                        {collection.count.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="text-center text-sm text-gray-400">
+                  dados não disponíveis
+                </p>
+              )
+            }
+          </div>
+
+          <!-- Card Plantae -->
+          <div
+            class="min-h-[500px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-green-100"
+              >
+                <img
+                  src="/plantae.svg"
+                  alt="Plantae"
+                  class="h-12 w-12 text-green-600"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Plantae
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-green-600">
+              {occurrencesPlantae?.toLocaleString()}
+            </p>
+            <p class="mb-3 text-center text-gray-500">
+              ocorrências registradas
+            </p>
+
+            {
+              topCollectionsPlantae && topCollectionsPlantae.length > 0 ? (
+                <div class="max-h-80 space-y-2 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">
+                    Top 10 Coleções:
+                  </p>
+                  {topCollectionsPlantae.map((collection: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span
+                        class="truncate pr-2 text-xs text-gray-600"
+                        title={collection._id}
+                      >
+                        {collection._id}
+                      </span>
+                      <span class="font-medium text-green-600">
+                        {collection.count.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="text-center text-sm text-gray-400">
+                  dados não disponíveis
+                </p>
+              )
+            }
+          </div>
+
+          <!-- Card Fungi -->
+          <div
+            class="min-h-[500px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-orange-100"
+              >
+                <img
+                  src="/fungi.svg"
+                  alt="Fungi"
+                  class="h-12 w-12 text-orange-600"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Fungi
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-orange-600">
+              {occurrencesFungi?.toLocaleString()}
+            </p>
+            <p class="mb-3 text-center text-gray-500">
+              ocorrências registradas
+            </p>
+
+            {
+              topCollectionsFungi && topCollectionsFungi.length > 0 ? (
+                <div class="max-h-80 space-y-2 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">
+                    Top 10 Coleções:
+                  </p>
+                  {topCollectionsFungi.map((collection: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span
+                        class="truncate pr-2 text-xs text-gray-600"
+                        title={collection._id}
+                      >
+                        {collection._id}
+                      </span>
+                      <span class="font-medium text-orange-600">
+                        {collection.count.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="text-center text-sm text-gray-400">
+                  dados não disponíveis
+                </p>
+              )
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Espécies Ameaçadas Tab -->
+      <div id="ameacadas-content" class="tab-panel hidden">
+        <div class="grid h-full grid-cols-1 gap-6 md:grid-cols-3">
+          <!-- Card Animalia Ameaçada -->
+          <div
+            class="min-h-[500px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-red-100"
+              >
+                <img
+                  src="/animalia.svg"
+                  alt="Animalia"
+                  class="h-12 w-12 text-red-600"
+                  style="filter: hue-rotate(240deg) saturate(2);"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Animalia
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-red-600">
+              {threatenedAnimalia?.toLocaleString()}
+            </p>
+            <p class="mb-1 text-center text-gray-500">espécies ameaçadas</p>
+            {
+              threatenedAnimalia && taxaAnimalia ? (
+                <p class="mb-3 text-center text-sm text-gray-400">
+                  ({((threatenedAnimalia / taxaAnimalia) * 100).toFixed(1)}% do
+                  total)
+                </p>
+              ) : (
+                <div class="mb-3" />
+              )
+            }
+
+            {
+              (() => {
+                const filteredCategories = filterAndMapFaunaCategories(
+                  threatenedCategoriesAnimalia
+                )
+                return filteredCategories && filteredCategories.length > 0 ? (
+                  <div class="max-h-80 space-y-2 overflow-y-auto">
+                    <p class="text-sm font-semibold text-gray-700">
+                      Por categoria:
+                    </p>
+                    {filteredCategories.map((category: any) => (
+                      <div class="flex justify-between text-sm">
+                        <span class="truncate pr-2 text-gray-600">
+                          {category.displayName}
+                        </span>
+                        <span class="font-medium text-red-600">
+                          {category.count}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p class="text-center text-sm text-gray-400">
+                    dados não disponíveis
+                  </p>
+                )
+              })()
+            }
+          </div>
+
+          <!-- Card Plantae Ameaçada -->
+          <div
+            class="min-h-[500px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-red-100"
+              >
+                <img
+                  src="/plantae.svg"
+                  alt="Plantae"
+                  class="h-12 w-12 text-red-600"
+                  style="filter: hue-rotate(240deg) saturate(2);"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Plantae
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-red-600">
+              {threatenedPlantae?.toLocaleString()}
+            </p>
+            <p class="mb-1 text-center text-gray-500">espécies ameaçadas</p>
+            {
+              threatenedPlantae && taxaPlantae ? (
+                <p class="mb-3 text-center text-sm text-gray-400">
+                  ({((threatenedPlantae / taxaPlantae) * 100).toFixed(1)}% do
+                  total)
+                </p>
+              ) : (
+                <div class="mb-3" />
+              )
+            }
+
+            {
+              (() => {
+                const filteredCategories = filterAndMapCategories(
+                  threatenedCategoriesPlantae
+                )
+                return filteredCategories && filteredCategories.length > 0 ? (
+                  <div class="max-h-80 space-y-2 overflow-y-auto">
+                    <p class="text-sm font-semibold text-gray-700">
+                      Por categoria:
+                    </p>
+                    {filteredCategories.map((category: any) => (
+                      <div class="flex justify-between text-sm">
+                        <span class="truncate pr-2 text-gray-600">
+                          {category.displayName}
+                        </span>
+                        <span class="font-medium text-red-600">
+                          {category.count}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p class="text-center text-sm text-gray-400">
+                    dados não disponíveis
+                  </p>
+                )
+              })()
+            }
+          </div>
+
+          <!-- Card Fungi Ameaçada -->
+          <div
+            class="min-h-[500px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100"
+              >
+                <img
+                  src="/fungi.svg"
+                  alt="Fungi"
+                  class="h-12 w-12 text-gray-500"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Fungi
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-gray-500">
+              {threatenedFungi?.toLocaleString()}
+            </p>
+            <p class="mb-1 text-center text-gray-500">espécies ameaçadas</p>
+            {
+              threatenedFungi && taxaFungi ? (
+                <p class="mb-3 text-center text-sm text-gray-400">
+                  ({((threatenedFungi / taxaFungi) * 100).toFixed(1)}% do total)
+                </p>
+              ) : (
+                <div class="mb-3" />
+              )
+            }
+
+            {
+              (() => {
+                const filteredCategories = filterAndMapCategories(
+                  threatenedCategoriesFungi
+                )
+                return filteredCategories && filteredCategories.length > 0 ? (
+                  <div class="max-h-80 space-y-2 overflow-y-auto">
+                    <p class="text-sm font-semibold text-gray-700">
+                      Por categoria:
+                    </p>
+                    {filteredCategories.map((category: any) => (
+                      <div class="flex justify-between text-sm">
+                        <span class="truncate pr-2 text-gray-600">
+                          {category.displayName}
+                        </span>
+                        <span class="font-medium text-gray-500">
+                          {category.count}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p class="text-center text-sm text-gray-400">
+                    dados não disponíveis
+                  </p>
+                )
+              })()
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Espécies Invasoras Tab -->
+      <div id="invasoras-content" class="tab-panel hidden">
+        <div class="grid h-full grid-cols-1 gap-6 md:grid-cols-3">
+          <!-- Card Animalia Invasora -->
+          <div
+            class="min-h-[600px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-purple-100"
+              >
+                <img
+                  src="/animalia.svg"
+                  alt="Animalia"
+                  class="h-12 w-12 text-purple-600"
+                  style="filter: hue-rotate(180deg) saturate(1.5);"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Animalia
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-purple-600">
+              {invasiveAnimalia?.toLocaleString()}
+            </p>
+            <p class="mb-3 text-center text-gray-500">espécies invasoras</p>
+
+            {
+              invasiveTopOrdersAnimalia &&
+              invasiveTopOrdersAnimalia.length > 0 ? (
+                <div class="max-h-96 space-y-2 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">
+                    Top 10 Ordens:
+                  </p>
+                  {invasiveTopOrdersAnimalia.map((order: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span class="truncate pr-2 text-gray-600">
+                        {order._id}
+                      </span>
+                      <span class="font-medium text-purple-600">
+                        {order.count}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="text-center text-sm text-gray-400">
+                  dados não disponíveis
+                </p>
+              )
+            }
+          </div>
+
+          <!-- Card Plantae Invasora -->
+          <div
+            class="min-h-[600px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-purple-100"
+              >
+                <img
+                  src="/plantae.svg"
+                  alt="Plantae"
+                  class="h-12 w-12 text-purple-600"
+                  style="filter: hue-rotate(180deg) saturate(1.5);"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Plantae
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-purple-600">
+              {invasivePlantae?.toLocaleString()}
+            </p>
+            <p class="mb-3 text-center text-gray-500">espécies invasoras</p>
+
+            {
+              invasiveTopFamiliesPlantae &&
+              invasiveTopFamiliesPlantae.length > 0 ? (
+                <div class="max-h-96 space-y-2 overflow-y-auto">
+                  <p class="text-sm font-semibold text-gray-700">
+                    Top 10 Famílias:
+                  </p>
+                  {invasiveTopFamiliesPlantae.map((family: any) => (
+                    <div class="flex justify-between text-sm">
+                      <span class="truncate pr-2 text-gray-600">
+                        {family._id}
+                      </span>
+                      <span class="font-medium text-purple-600">
+                        {family.count}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="text-center text-sm text-gray-400">
+                  dados não disponíveis
+                </p>
+              )
+            }
+          </div>
+
+          <!-- Card Fungi Invasora -->
+          <div
+            class="min-h-[600px] rounded-lg border border-slate-300 bg-white p-6 shadow-lg"
+          >
+            <div class="mb-4 flex items-center justify-center">
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-purple-100"
+              >
+                <img
+                  src="/fungi.svg"
+                  alt="Fungi"
+                  class="h-12 w-12 text-purple-600"
+                  style="filter: hue-rotate(180deg) saturate(1.5);"
+                />
+              </div>
+            </div>
+            <h3 class="mb-2 text-center text-2xl font-bold text-gray-800">
+              Fungi
+            </h3>
+            <p class="mb-2 text-center text-4xl font-bold text-purple-600">
+              {invasiveFungi?.toLocaleString()}
+            </p>
+            <p class="mb-3 text-center text-gray-500">espécies invasoras</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sobre Tab -->
+      <div id="sobre-content" class="tab-panel hidden">
+        <div
+          class="h-full overflow-auto rounded-lg border border-slate-300 bg-white shadow-lg"
+        >
+          <div class="mx-auto max-w-3xl p-6">
+            <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div class="markdown-content text-sm">
+                <div set:html={processMarkdown(readmeContent)} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <script>
+    // @ts-nocheck
+    const isHTMLButtonElement = (element) =>
+      element instanceof HTMLButtonElement
+
+    const isHTMLElement = (element) => element instanceof HTMLElement
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabButtons = Array.from(
+        document.querySelectorAll('.tab-button')
+      ).filter(isHTMLButtonElement)
+
+      const tabPanels = Array.from(
+        document.querySelectorAll('.tab-panel')
+      ).filter(isHTMLElement)
+
+      tabButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const targetTab = button.getAttribute('data-tab')
+          if (!targetTab) return
+
+          // Remove active classes from all buttons
+          tabButtons.forEach((btn) => {
+            btn.classList.remove('border-blue-500', 'text-blue-600')
+            btn.classList.add('border-transparent', 'text-gray-500')
+          })
+
+          // Add active classes to clicked button
+          button.classList.remove('border-transparent', 'text-gray-500')
+          button.classList.add('border-blue-500', 'text-blue-600')
+
+          // Hide all tab panels
+          tabPanels.forEach((panel) => {
+            panel.classList.add('hidden')
+          })
+
+          // Show target tab panel
+          const targetPanel = document.getElementById(`${targetTab}-content`)
+          if (targetPanel instanceof HTMLElement) {
+            targetPanel.classList.remove('hidden')
+          }
+        })
+      })
+    })
+  </script>
 </Layout>

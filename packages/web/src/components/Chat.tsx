@@ -19,7 +19,6 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet'
-import { decrypt, encrypt } from '@/lib/crypto'
 import { cn } from '@/lib/utils'
 import { useChat, type Message } from '@ai-sdk/react'
 import {
@@ -42,7 +41,6 @@ import {
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ChatHistoryList, { type ChatHistoryEntry } from './ChatHistoryList'
-import EncryptionPasswordDialog from './EncryptionPasswordDialog'
 import ModelSelector, { type Provider } from './ModelSelector'
 import PasswordInput from './PasswordInput'
 import { Badge } from './ui/badge'
@@ -59,33 +57,6 @@ type StoredChatSession = {
 
 const CHAT_HISTORY_STORAGE_KEY = 'chatHistory'
 const CURRENT_CHAT_ID_STORAGE_KEY = 'chatHistoryCurrentId'
-
-const RATE_LIMIT_WINDOW = 60000
-const MAX_STORAGE_OPERATIONS_PER_WINDOW = 100
-
-class SessionRateLimiter {
-  private operations: number[] = []
-
-  check(): boolean {
-    const now = Date.now()
-    this.operations = this.operations.filter(
-      (time) => now - time < RATE_LIMIT_WINDOW
-    )
-
-    if (this.operations.length >= MAX_STORAGE_OPERATIONS_PER_WINDOW) {
-      return false
-    }
-
-    this.operations.push(now)
-    return true
-  }
-
-  reset(): void {
-    this.operations = []
-  }
-}
-
-const rateLimiter = new SessionRateLimiter()
 
 const timeValue = (isoDate: string | undefined) => {
   if (!isoDate) {
@@ -371,12 +342,6 @@ export default function Chat() {
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false)
   const [isHistorySheetOpen, setIsHistorySheetOpen] = useState(false)
   const [persistentError, setPersistentError] = useState<string | null>(null)
-  const [encryptionPassword, setEncryptionPassword] = useState<string | null>(
-    null
-  )
-  const [needsPassword, setNeedsPassword] = useState(false)
-  const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false)
-  const [rateLimitWarning, setRateLimitWarning] = useState<string | null>(null)
 
   const persistErrorForCurrentChat = useCallback(
     (
@@ -454,80 +419,22 @@ export default function Chat() {
 
   useEffect(() => {
     if (!localConfigLoaded) {
-      const loadStoredData = async () => {
-        const hasStoredKeys = sessionStorage.getItem('apiKeys') !== null
-        const hasStoredModel = sessionStorage.getItem('model') !== null
-
-        if (hasStoredKeys && !encryptionPassword) {
-          setNeedsPassword(true)
-          setIsFirstTimeSetup(false)
-          return
-        }
-
-        if (hasStoredKeys && encryptionPassword) {
-          if (!rateLimiter.check()) {
-            setRateLimitWarning(
-              'Rate limit excedido. Tente novamente em alguns instantes.'
-            )
-            return
-          }
-
-          try {
-            const _encryptedKeys = sessionStorage.getItem('apiKeys')
-            if (_encryptedKeys) {
-              const decryptedKeys = await decrypt(
-                _encryptedKeys,
-                encryptionPassword
-              )
-              setApiKeys(JSON.parse(decryptedKeys))
-            }
-          } catch (error) {
-            console.error('Erro ao descriptografar API keys:', error)
-            setNeedsPassword(true)
-            setIsFirstTimeSetup(false)
-            return
-          }
-        }
-
-        if (hasStoredModel) {
-          const _selectedModel = sessionStorage.getItem('model')
-          if (_selectedModel) {
-            setSelectedModel(JSON.parse(_selectedModel))
-          }
-        } else {
-          setSelectedModel({ provider: 'openai', model: 'gpt-4o-mini' })
-        }
-
-        setLocalConfigLoaded(true)
+      const _apiKeys = localStorage.getItem('apiKeys')
+      if (_apiKeys) {
+        setApiKeys(JSON.parse(_apiKeys))
       }
-
-      loadStoredData()
-    } else if (encryptionPassword) {
-      const saveStoredData = async () => {
-        if (!rateLimiter.check()) {
-          setRateLimitWarning(
-            'Rate limit excedido. Tente novamente em alguns instantes.'
-          )
-          return
-        }
-
-        try {
-          if (apiKeys.openAIKey || apiKeys.geminiKey) {
-            const encryptedKeys = await encrypt(
-              JSON.stringify(apiKeys),
-              encryptionPassword
-            )
-            sessionStorage.setItem('apiKeys', encryptedKeys)
-          }
-          sessionStorage.setItem('model', JSON.stringify(selectedModel))
-        } catch (error) {
-          console.error('Erro ao criptografar API keys:', error)
-        }
+      const _selectedModel = localStorage.getItem('model')
+      if (_selectedModel) {
+        setSelectedModel(JSON.parse(_selectedModel))
+      } else {
+        setSelectedModel({ provider: 'openai', model: 'gpt-4o-mini' })
       }
-
-      saveStoredData()
+      setLocalConfigLoaded(true)
+    } else {
+      localStorage.setItem('apiKeys', JSON.stringify(apiKeys))
+      localStorage.setItem('model', JSON.stringify(selectedModel))
     }
-  }, [apiKeys, selectedModel, localConfigLoaded, encryptionPassword])
+  }, [apiKeys, selectedModel, localConfigLoaded])
 
   const hasApiKey = apiKeys.openAIKey !== '' || apiKeys.geminiKey !== ''
   const apiKey =
@@ -559,8 +466,8 @@ export default function Chat() {
       return
     }
 
-    const storedHistory = sessionStorage.getItem(CHAT_HISTORY_STORAGE_KEY)
-    const storedCurrentId = sessionStorage.getItem(CURRENT_CHAT_ID_STORAGE_KEY)
+    const storedHistory = localStorage.getItem(CHAT_HISTORY_STORAGE_KEY)
+    const storedCurrentId = localStorage.getItem(CURRENT_CHAT_ID_STORAGE_KEY)
 
     let parsedHistory: StoredChatSession[] = []
 
@@ -626,10 +533,7 @@ export default function Chat() {
       return
     }
 
-    sessionStorage.setItem(
-      CHAT_HISTORY_STORAGE_KEY,
-      JSON.stringify(chatHistory)
-    )
+    localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory))
   }, [chatHistory, chatHistoryLoaded])
 
   useEffect(() => {
@@ -638,9 +542,9 @@ export default function Chat() {
     }
 
     if (currentChatId) {
-      sessionStorage.setItem(CURRENT_CHAT_ID_STORAGE_KEY, currentChatId)
+      localStorage.setItem(CURRENT_CHAT_ID_STORAGE_KEY, currentChatId)
     } else {
-      sessionStorage.removeItem(CURRENT_CHAT_ID_STORAGE_KEY)
+      localStorage.removeItem(CURRENT_CHAT_ID_STORAGE_KEY)
     }
   }, [currentChatId, chatHistoryLoaded])
 
@@ -842,53 +746,8 @@ export default function Chat() {
     (window.navigator?.userAgent?.includes('Mac') ||
       window.navigator?.userAgent?.includes('iPad'))
 
-  const handlePasswordSet = useCallback((password: string) => {
-    setEncryptionPassword(password)
-    setNeedsPassword(false)
-    setLocalConfigLoaded(false)
-    rateLimiter.reset()
-  }, [])
-
-  const handleConfigureKeys = useCallback(() => {
-    if (!encryptionPassword) {
-      setIsFirstTimeSetup(true)
-      setNeedsPassword(true)
-    } else {
-      setIsConfiguring(true)
-    }
-  }, [encryptionPassword])
-
-  useEffect(() => {
-    if (apiKeys.openAIKey || apiKeys.geminiKey) {
-      if (!encryptionPassword) {
-        setIsFirstTimeSetup(true)
-        setNeedsPassword(true)
-      }
-    }
-  }, [apiKeys, encryptionPassword])
-
-  useEffect(() => {
-    if (rateLimitWarning) {
-      const timer = setTimeout(() => {
-        setRateLimitWarning(null)
-      }, 5000)
-      return () => clearTimeout(timer)
-    }
-    return undefined
-  }, [rateLimitWarning])
-
   return (
     <div className="mx-auto flex h-screen w-full max-w-screen-lg flex-col gap-4 px-4 py-4 sm:px-6">
-      <EncryptionPasswordDialog
-        open={needsPassword}
-        onPasswordSet={handlePasswordSet}
-        isFirstTime={isFirstTimeSetup}
-      />
-      {rateLimitWarning && (
-        <div className="fixed top-4 right-4 z-50 rounded-md bg-red-100 p-4 text-sm text-red-800">
-          {rateLimitWarning}
-        </div>
-      )}
       <div className="flex h-full flex-1 gap-4">
         <aside className="hidden shrink-0 md:flex">
           <ChatHistoryList
@@ -979,7 +838,7 @@ export default function Chat() {
                 disabled={!localConfigLoaded || !hasApiKey}
                 onClick={() => {
                   if (hasApiKey) {
-                    handleConfigureKeys()
+                    setIsConfiguring((prev) => !prev)
                   }
                 }}
                 aria-label="Configurações do chat"
