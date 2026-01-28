@@ -21,8 +21,8 @@ COPY packages/web/src ./packages/web/src
 COPY packages/web/cache ./packages/web/cache
 COPY docs ./docs
 
-# Install only the web workspace deps and build
-RUN bun install --frozen-lockfile --filter @biodiversidade/web
+# Install all workspace dependencies (needed for catalog: resolution)
+RUN bun install --frozen-lockfile
 
 WORKDIR /app/packages/web
 RUN bun run build
