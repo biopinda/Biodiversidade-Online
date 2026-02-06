@@ -13,6 +13,9 @@ export default defineConfig({
     host: true
   },
   output: 'server',
+  image: {
+    service: { entrypoint: 'astro/assets/services/noop' }
+  },
   vite: {
     plugins: [tailwindcss()],
     server: {
