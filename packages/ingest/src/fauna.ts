@@ -154,7 +154,7 @@ async function main() {
     // Initialize preservation system (optional for now)
     let preservador: any = null
     try {
-      preservador = await initializeDataPreserver(mongoUri)
+      preservador = initializeDataPreserver(db)
       console.debug('Data preservation system initialized')
     } catch (error) {
       console.warn(
