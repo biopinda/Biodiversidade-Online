@@ -128,11 +128,8 @@ export class PreservadorDadosOriginais {
           ? this.ocorrenciasOriginalCol
           : this.taxaOriginalCol
 
-      // Remover documentos existentes deste IPT
-      await collection.deleteMany({
-        iptId: ipt.id,
-        ipt_version: ipt.version
-      })
+      // Remover todos os documentos existentes deste IPT (qualquer versão)
+      await collection.deleteMany({ iptId: ipt.id })
 
       // Inserir em lotes
       let totalInserted = 0
