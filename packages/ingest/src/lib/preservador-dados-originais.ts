@@ -1,4 +1,4 @@
-import { Collection, Db, MongoClient, ObjectId } from 'mongodb'
+import { Collection, Db, ObjectId } from 'mongodb'
 import {
   DocumentoOriginal,
   DwCRecord,
@@ -407,15 +407,9 @@ export class PreservadorDadosOriginais {
 let preservadorInstance: PreservadorDadosOriginais | null = null
 
 /**
- * Inicializa o preservador de dados
+ * Inicializa o preservador de dados reutilizando uma conexão existente
  */
-export async function initializeDataPreserver(
-  mongoUri: string
-): Promise<PreservadorDadosOriginais> {
-  const client = new MongoClient(mongoUri)
-  await client.connect()
-  const db = client.db('dwc2json')
-
+export function initializeDataPreserver(db: Db): PreservadorDadosOriginais {
   preservadorInstance = new PreservadorDadosOriginais(db)
   return preservadorInstance
 }

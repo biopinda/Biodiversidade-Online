@@ -162,7 +162,7 @@ try {
   // Initialize preservation system (optional for now)
   let preservador: any = null
   try {
-    preservador = await initializeDataPreserver(mongoUri)
+    preservador = initializeDataPreserver(client.db('dwc2json'))
     console.debug('Data preservation system initialized')
   } catch (error) {
     console.warn(
