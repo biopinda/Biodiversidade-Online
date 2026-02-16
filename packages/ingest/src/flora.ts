@@ -2,8 +2,7 @@ import { MongoClient } from 'mongodb'
 import { type DbIpt, processaZip } from './lib/dwca.ts'
 import {
   initializeDataPreserver,
-  preserveOriginalData,
-  saveTransformedWithReference
+  preserveOriginalData
 } from './lib/preservador-dados-originais.ts'
 
 export const findTaxonByName = (
@@ -256,40 +255,6 @@ async function main() {
         { $set: { _id, ...iptDb, ipt: 'flora', set: 'flora' } },
         { upsert: true }
       )
-
-      // Step 4: Save transformed data with references (if preservation system is available)
-      if (preservador) {
-        try {
-          console.debug('Saving transformed data with references...')
-          const transformFunctions = [
-            'processaFlora',
-            'applyFloraTransformations'
-          ]
-          const saveResult = await saveTransformedWithReference(
-            taxa,
-            ipt,
-            'flora',
-            transformFunctions
-          )
-
-          if (saveResult.inserted > 0) {
-            console.log(
-              `Linked ${saveResult.inserted} transformed documents to originals`
-            )
-          }
-          if (saveResult.failed > 0) {
-            console.warn(
-              `Failed to link ${saveResult.failed} documents:`,
-              saveResult.errors
-            )
-          }
-        } catch (error) {
-          console.warn(
-            'Failed to save transformation references:',
-            (error as Error).message
-          )
-        }
-      }
     }
 
     // Step 5: Create indexes

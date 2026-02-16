@@ -21,8 +21,7 @@ import {
 // Import data preservation system
 import {
   initializeDataPreserver,
-  preserveOriginalData,
-  saveTransformedWithReference
+  preserveOriginalData
 } from './lib/preservador-dados-originais.ts'
 
 /**
@@ -567,51 +566,6 @@ try {
       { $set: { _id, ...iptDb, tag, ipt: repositorio, kingdom } },
       { upsert: true }
     )
-
-    // Step 3: Save transformed data with references (if preservation system is available)
-    if (preservador) {
-      try {
-        console.debug(
-          `Saving transformation references for ${repositorio}:${tag}`
-        )
-
-        // Get all transformed documents for this IPT
-        const transformedDocs = await ocorrenciasCol
-          .find({ iptId: ipt.id })
-          .toArray()
-
-        if (transformedDocs.length > 0) {
-          const transformFunctions = [
-            'processaOcorrencias',
-            'normalizeFields',
-            'addGeoPoint'
-          ]
-          const saveResult = await saveTransformedWithReference(
-            transformedDocs,
-            ipt,
-            'ocorrencias',
-            transformFunctions
-          )
-
-          if (saveResult.inserted > 0) {
-            console.log(
-              `Linked ${saveResult.inserted} transformed documents to originals for ${repositorio}:${tag}`
-            )
-          }
-          if (saveResult.failed > 0) {
-            console.warn(
-              `Failed to link ${saveResult.failed} documents for ${repositorio}:${tag}:`,
-              saveResult.errors
-            )
-          }
-        }
-      } catch (error) {
-        console.warn(
-          `Failed to save transformation references for ${repositorio}:${tag}:`,
-          (error as Error).message
-        )
-      }
-    }
   }
 
   // Report failed IPTs
