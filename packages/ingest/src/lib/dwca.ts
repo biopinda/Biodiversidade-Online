@@ -406,6 +406,7 @@ async function downloadWithTimeout(
 
   try {
     const response = await fetch(url, { signal: controller.signal })
+    clearTimeout(requestTimeout)
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
