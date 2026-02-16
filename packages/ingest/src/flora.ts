@@ -292,34 +292,16 @@ async function main() {
       }
     }
 
-    // Step 5: Create indexes (unchanged)
+    // Step 5: Create indexes
     console.log('Creating indexes')
     await collection.createIndexes([
-      {
-        key: { scientificName: 1 },
-        name: 'scientificName'
-      },
-      {
-        key: { kingdom: 1 },
-        name: 'kingdom'
-      },
-      {
-        key: { family: 1 },
-        name: 'family'
-      },
-      {
-        key: { genus: 1 },
-        name: 'genus'
-      },
-      {
-        key: { taxonID: 1, kingdom: 1 },
-        name: 'taxonKingdom'
-      },
-      {
-        key: { canonicalName: 1 },
-        name: 'canonicalName'
-      },
-      { key: { flatScientificName: 1 }, name: 'flatScientificName' }
+      { key: { scientificName: 1 } },
+      { key: { kingdom: 1 } },
+      { key: { family: 1 } },
+      { key: { genus: 1 } },
+      { key: { taxonID: 1, kingdom: 1 } },
+      { key: { canonicalName: 1 } },
+      { key: { flatScientificName: 1 } }
     ])
 
     console.debug('Flora processing completed successfully')
