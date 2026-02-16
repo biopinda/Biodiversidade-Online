@@ -232,9 +232,8 @@ async function main() {
         }
       }
 
-      // Step 2: Transform data (existing logic)
-      console.debug('Transforming flora data...')
-      const floraJson = processaFlora(json)
+      // Step 2: Use already-transformed data from processaFloraZip
+      console.debug('Flora data already transformed, preparing for storage...')
 
       // Step 3: Legacy storage approach (maintain compatibility)
       console.debug('Cleaning collection')
@@ -244,7 +243,7 @@ async function main() {
       console.log(`Deleted ${deletedCount ?? 0} existing flora/fungi records`)
 
       console.debug('Inserting taxa')
-      const taxa = Object.values(floraJson)
+      const taxa = Object.values(json)
       for (let i = 0, n = taxa.length; i < n; i += 5000) {
         console.log(`Inserting ${i} to ${Math.min(i + 5000, n)}`)
         await collection.insertMany(taxa.slice(i, i + 5000), { ordered: false })
