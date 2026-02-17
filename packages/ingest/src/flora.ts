@@ -188,9 +188,20 @@ async function main() {
       (await iptsCol.findOne({ _id: ipt.id })) as DbIpt | undefined
     )?.version
 
-    if (dbVersion === ipt.version) {
+    const taxaCount = await collection.countDocuments(
+      { $or: [{ kingdom: 'Plantae' }, { kingdom: 'Fungi' }] },
+      { limit: 1 }
+    )
+    const dataExists = taxaCount > 0
+
+    if (dbVersion === ipt.version && dataExists) {
       console.debug(`Flora already on version ${ipt.version}`)
     } else {
+      if (dbVersion === ipt.version && !dataExists) {
+        console.warn(
+          `IPT version ${ipt.version} matches but taxa collection is empty, re-ingesting...`
+        )
+      }
       console.debug(`Processing flora data from ${ipt.id} v${ipt.version}`)
 
       // Step 1: Preserve original data (if preservation system is available)
