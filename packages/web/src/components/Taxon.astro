@@ -32,7 +32,7 @@ const hasReferences = (json.reference?.length ?? 0) > 0
     class="sticky top-0 z-10 mb-4 flex items-center gap-4 rounded-t bg-green-800 p-4 text-white"
   >
     <a
-      href="/taxa"
+      href="/tree"
       class="rounded-lg bg-white p-1 px-2 whitespace-nowrap text-black hover:text-green-800"
       ><i class="las la-search"></i> Busca</a
     >
@@ -62,17 +62,11 @@ const hasReferences = (json.reference?.length ?? 0) > 0
         'Nome aceito ID': json.acceptedNameUsageID,
         'Nome original ID': json.originalNameUsageID,
         'Nome publicado em': json.namePublishedIn,
-        'Nome publicado em ano': {
-          link: `/taxa?namePublishedInYear=${json.namePublishedInYear}`,
-          text: json.namePublishedInYear
-        },
-        Reino: { link: `/taxa?kingdom=${json.kingdom}`, text: json.kingdom },
-        Grupo: {
-          link: `/taxa?higherClassification=${json.higherClassification}`,
-          text: json.higherClassification
-        },
-        Família: { link: `/taxa?family=${json.family}`, text: json.family },
-        Gênero: { link: `/taxa?genus=${json.genus}`, text: json.genus },
+        'Nome publicado em ano': json.namePublishedInYear,
+        Reino: json.kingdom,
+        Grupo: json.higherClassification,
+        Família: json.family,
+        Gênero: json.genus,
         'Epíteto específico': json.specificEpithet,
         Rank: json.taxonRank,
         'Status taxonômico': json.taxonomicStatus,

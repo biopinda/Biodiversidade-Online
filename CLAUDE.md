@@ -1,6 +1,6 @@
-# ChatBB - Brazilian Biodiversity Chat Assistant (DwC2JSON V5.0)
+# Biodiversidade.Online V6.0 - Brazilian Biodiversity Platform
 
-ChatBB is a Brazilian biodiversity AI assistant that combines Astro.js web application with TypeScript data processing scripts for MongoDB integration. The system processes biodiversity data from multiple sources and provides an AI chat interface for querying Brazilian flora, fauna, and occurrence data.
+Biodiversidade.Online is a Brazilian biodiversity platform that integrates taxonomic data (flora, fauna), occurrence records, and enrichment data into a unified MongoDB database. The system provides access via an analytical Dashboard, a conversational AI assistant (ChatBB), and a REST API.
 
 Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
@@ -28,6 +28,10 @@ Always reference these instructions first and fallback to search or bash command
 - Run flora data update: `bun run ingest:flora [DWCA_URL]`
 - Run fauna data update: `bun run ingest:fauna [DWCA_URL]`
 - Run occurrence data update: `bun run ingest:occurrences`
+- Run taxa transformation: `bun run transform:taxa`
+- Run occurrences transformation: `bun run transform:occurrences`
+- Run full transformation: `bun run transform:execute`
+- Check transformation locks: `bun run transform:check-lock`
 - These scripts require MongoDB connection via MONGO_URI environment variable
 
 ### Web Application Commands
@@ -51,8 +55,10 @@ Always reference these instructions first and fallback to search or bash command
 This project uses a monorepo structure with multiple packages managed by Bun workspaces:
 
 - **Root**: Contains shared configuration (tsconfig.json, package.json for workspace management) and catalog dependencies
-- **packages/ingest**: Data processing package with Bun scripts
-- **packages/web**: Astro.js web application
+- **packages/ingest**: Data acquisition - ingestion scripts for DwC-A data
+- **packages/transform**: Data transformation - enrichment and re-processing pipelines
+- **packages/shared**: Shared utilities (database, IDs, metrics)
+- **packages/web**: Data presentation - Astro.js web application (Dashboard, ChatBB, API)
 
 ### Package Management
 
@@ -66,7 +72,8 @@ This project uses a monorepo structure with multiple packages managed by Bun wor
 ### Working with Multiple Packages
 
 - For web development: `cd packages/web/` then run commands
-- For data processing: Use root commands like `bun run --filter @darwincore/ingest flora`
+- For data processing: Use root commands like `bun run ingest:flora [URL]`
+- For transformation: Use root commands like `bun run transform:taxa`
 - Shared TypeScript config in root `tsconfig.base.json`
 - Use catalog references in package.json for shared dependencies
 
@@ -77,43 +84,47 @@ This project uses a monorepo structure with multiple packages managed by Bun wor
 - Check TypeScript compilation: `bunx tsc --noEmit` (may show warnings, but should not error) or `npx tsc --noEmit`
 - Verify formatting: `bunx prettier --check src/` or `npx prettier --check src/`
 - **MANUAL VALIDATION SCENARIOS**:
-  1. **Homepage**: http://localhost:4321/ should load with link to taxa search
+  1. **Homepage/Dashboard**: http://localhost:4321/ should load the analytical dashboard
   2. **Chat Interface**: http://localhost:4321/chat should load ChatBB AI interface
-  3. **Taxa Search**: http://localhost:4321/taxa should load species search interface
-  4. **Dashboard**: http://localhost:4321/dashboard should load data visualization dashboard
-  5. **API Health**: http://localhost:4321/api/health should return JSON status
-  6. **Tree View**: http://localhost:4321/tree should load taxonomic tree browser
-  7. **Map**: http://localhost:4321/mapa should load species occurrence map
-- **Database-dependent features**: Chat, taxa search, and dashboard require MongoDB connection
+  3. **Dashboard**: http://localhost:4321/dashboard should load data visualization dashboard
+  4. **API Health**: http://localhost:4321/api/health should return JSON status
+  5. **Tree View**: http://localhost:4321/tree should load taxonomic tree browser
+  6. **Swagger API Docs**: http://localhost:4321/api/docs should load API documentation
+- **Database-dependent features**: Chat, dashboard, and API require MongoDB connection
 - Build succeeds and production server starts on port 4321
 
 ## Project Structure
 
-This is a monorepo project with the following structure:
+This is a monorepo project organized by C4 architecture contexts:
 
 ```
 /
-├── .github/                 # GitHub workflows
-├── docs/                    # Documentation files
+├── .github/                 # GitHub workflows (all manual)
+├── docs/                    # Historical documentation
 ├── packages/
-│   ├── ingest/              # Data ingestion package
+│   ├── ingest/              # Acquisition: DwC-A ingestion scripts
 │   │   ├── package.json     # Package dependencies (references catalog)
 │   │   ├── tsconfig.json    # TypeScript config
 │   │   ├── chatbb/          # ChatBB specific data
 │   │   │   └── fontes/      # Source data files
 │   │   ├── referencias/     # Reference data and documentation
-│   │   │   ├── agregacoes/  # Aggregation views
-│   │   │   ├── api/         # API examples
-│   │   │   ├── dataHandling/# Data processing utilities
-│   │   │   ├── filtros/     # Filter utilities
-│   │   │   └── sourcesRepositorios/ # Repository source configs
 │   │   └── src/             # Bun TypeScript scripts for data processing
-│   │       ├── fauna.ts     # Fauna data processing
-│   │       ├── flora.ts     # Flora data processing
-│   │       ├── ocorrencia.ts# Occurrence data processing
+│   │       ├── fauna.ts     # Fauna data ingestion
+│   │       ├── flora.ts     # Flora data ingestion
+│   │       ├── ocorrencia.ts# Occurrence data ingestion
 │   │       └── lib/
 │   │           └── dwca.ts  # Darwin Core Archive utilities
-│   └── web/                 # Main Astro.js web application
+│   ├── transform/           # Transformation: enrichment and re-processing
+│   │   └── src/
+│   │       ├── cli/         # CLI commands for orchestration
+│   │       ├── enrichment/  # Enrichment modules
+│   │       ├── loaders/     # Data loaders (threatened, invasive, UCs)
+│   │       ├── taxa/        # Taxa re-processing
+│   │       ├── occurrences/ # Occurrence re-processing
+│   │       ├── lib/         # Infrastructure (database, locks, metrics)
+│   │       └── utils/       # Utility functions
+│   ├── shared/              # Shared utilities (database, IDs, metrics)
+│   └── web/                 # Presentation: Astro.js web application
 │       ├── astro.config.mjs # Astro configuration
 │       ├── components.json  # ShadCN Component configuration
 │       ├── cron-dashboard.js# Dashboard cron job
@@ -125,7 +136,7 @@ This is a monorepo project with the following structure:
 │           ├── data/        # Data utilities
 │           ├── layouts/     # Astro layouts
 │           ├── lib/         # Library utilities
-│           ├── pages/       # Astro pages
+│           ├── pages/       # Astro pages (Dashboard, ChatBB, APIs)
 │           ├── prompts/     # AI prompt configurations
 │           ├── scripts/     # TypeScript utilities
 │           └── styles/      # Tailwind Stylesheets
@@ -139,7 +150,6 @@ This is a monorepo project with the following structure:
 ## Common Issues and Solutions
 
 - **MongoDB connection errors**: Ensure .env file exists with valid MONGO_URI
-- **TypeScript warnings**: `MapPage.tsx(15,6): 'Kingdom' is declared but never used` - harmless warning
 - **Build warnings**: Large chunk size warnings are expected for Swagger UI components
 - **Port conflicts**: Default port 4321 - change in astro.config.mjs if needed
 
@@ -154,11 +164,10 @@ This is a monorepo project with the following structure:
 
 ## Key Application Features
 
-- AI chat interface for biodiversity queries
+- AI chat interface for biodiversity queries (ChatBB)
 - Interactive dashboard with data visualizations
 - Taxonomic tree browser
-- Species occurrence mapping
-- API endpoints for programmatic access
+- REST API with Swagger documentation
 - Integration with Flora do Brasil, Fauna do Brasil, and occurrence databases
 
 ## Development Workflow
@@ -166,14 +175,17 @@ This is a monorepo project with the following structure:
 1. Always work in the appropriate directory for changes:
    - For web application changes: `cd packages/web/`
    - For data processing changes: `cd packages/ingest/`
+   - For transformation changes: `cd packages/transform/`
+   - For shared utilities: `cd packages/shared/`
 2. Run `bun install` from root after pulling changes (manages all workspace dependencies)
 3. Use `bun run web:dev` for web development with hot reload
 4. Use `bun run ingest:<script>` for data processing scripts (e.g., `bun run ingest:flora [URL]`)
-5. Check formatting with `bunx prettier --check src/` (in respective directory)
-6. Build and test production: `bun run web:build && node packages/web/dist/server/entry.mjs`
-7. Ensure MongoDB connection configured for full functionality testing
-8. Always validate TypeScript compilation: `bunx tsc --noEmit` (from root)
-9. When writing pull requests, make sure to write those in Brazilian Portuguese, as it's the repo's official language
+5. Use `bun run transform:<script>` for transformation scripts (e.g., `bun run transform:taxa`)
+6. Check formatting with `bunx prettier --check src/` (in respective directory)
+7. Build and test production: `bun run web:build && node packages/web/dist/server/entry.mjs`
+8. Ensure MongoDB connection configured for full functionality testing
+9. Always validate TypeScript compilation: `bunx tsc --noEmit` (from root)
+10. When writing pull requests, make sure to write those in Brazilian Portuguese, as it's the repo's official language
 
 ## Performance Notes
 
