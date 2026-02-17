@@ -1,7 +1,7 @@
 {
   "name": "@biodiversidade/web",
   "type": "module",
-  "version": "0.0.1",
+  "version": "6.0.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -10,7 +10,6 @@
     "preview": "node ./dist/server/entry.mjs",
     "astro": "astro",
     "cache-dashboard": "bun src/scripts/dashboard-cache-job.ts",
-    "cache-pheno": "bun src/scripts/update-cache.ts",
     "clear-occurrence-cache": "bun src/scripts/clear-occurrence-cache.ts",
     "start-cache-cron": "node cron-dashboard.js"
   },

@@ -64,13 +64,6 @@ export interface OccurrenceRecord {
   [key: string]: any // Allow other Darwin Core fields
 }
 
-export interface PhenologicalHeatmapCell {
-  month: number
-  monthName: string
-  count: number
-  intensity: number
-}
-
 // Connection utilities
 export {
   connectClientWithTimeout,
@@ -115,19 +108,6 @@ export {
   getInvasiveTopFamilies,
   getInvasiveTopOrders
 } from './invasive'
-
-// Phenological operations
-export {
-  generatePhenologicalHeatmap,
-  getCalFenoData,
-  getCalFenoFamilies,
-  getCalFenoGenera,
-  getCalFenoSpecies,
-  type PhenologicalOccurrence
-} from './phenological'
-
-// Cache management
-export { clearCache, ensureCacheCollection, getCacheStats } from './cache'
 
 // Shared utilities
 export {
