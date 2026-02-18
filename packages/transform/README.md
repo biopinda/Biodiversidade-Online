@@ -1,15 +1,23 @@
-# @darwincore/transform - Pipeline de Enriquecimento
+# @darwincore/transform - Enriquecimento Temático
 
-Pacote responsável pelo carregamento de dados de referência e enriquecimento in-place das coleções principais do MongoDB.
+Pacote responsável pelo enriquecimento temático das coleções principais do MongoDB (`taxa` e `occurrences`).
 
 ## Visão Geral
+
+O enriquecimento é organizado por **temas**. Cada tema representa uma fonte externa de dados que agrega informação às coleções principais. A arquitetura é extensível — novos temas seguem o mesmo padrão.
+
+**Padrão de cada tema:**
+
+```
+Fonte CSV → Loader (CSV → coleção de referência) → Enricher (referência → $set in-place na coleção alvo)
+```
 
 Este pacote implementa dois tipos de operações:
 
 1. **Loaders CSV** — Carregam arquivos CSV para coleções de referência no MongoDB (`faunaAmeacada`, `plantaeAmeacada`, `fungiAmeacada`, `invasoras`, `catalogoucs`)
 2. **Enrichers** — Iteram sobre `taxa` e `occurrences` e atualizam os documentos in-place com dados das coleções de referência
 
-Não há mais pipeline de 2 estágios (taxa_ipt → taxa). Os scripts de ingestão gravam diretamente em `taxa` e `occurrences`, e os enrichers complementam esses dados.
+Os scripts de ingestão (`packages/ingest`) gravam diretamente em `taxa` e `occurrences`, e os enrichers deste pacote complementam esses dados com informações temáticas.
 
 ## Scripts Disponíveis
 
@@ -194,3 +202,27 @@ Os enrichers são idempotentes. Execute quantas vezes necessário:
 ```bash
 bun run enrich:ameacadas && bun run enrich:invasoras && bun run enrich:ucs
 ```
+
+## Como Adicionar um Novo Tema de Enriquecimento
+
+Para adicionar um novo tema (ex: DNA/barcoding, princípios ativos, uso por comunidades tradicionais):
+
+1. **Criar o loader** em `src/loaders/loadNovoTema.ts`:
+   - Ler o CSV do caminho fornecido como argumento CLI
+   - Fazer `drop + insert` na coleção de referência no MongoDB
+   - Criar índices relevantes na coleção
+
+2. **Criar o enricher** em `src/enrichment/enrichNovoTema.ts`:
+   - Carregar a coleção de referência em memória via `materializeCollection()`
+   - Construir um `IndexedLookup` usando `createLookup()` + `addToLookup()`
+   - Iterar sobre a coleção alvo (`taxa` ou `occurrences`) via cursor
+   - Para cada documento, usar `gatherLookupMatches()` para encontrar matches
+   - Aplicar `$set` (com match) ou `$unset` (sem match) em batches via `bulkWrite`
+
+3. **Registrar os scripts** em `packages/transform/package.json` e no `package.json` raiz:
+   - `load:novo-tema` — script do loader
+   - `enrich:novo-tema` — script do enricher
+
+4. **Documentar** o novo tema na tabela de Coleções de Referência acima
+
+O motor de matching (`src/utils/lookup.ts`) é reutilizável e suporta matching por ID e por nome normalizado.
