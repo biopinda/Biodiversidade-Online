@@ -2,22 +2,26 @@
 
 ## Arquitetura do Sistema de Atualização
 
-O sistema opera com **duas etapas independentes**: Aquisição (ingestão de dados DwC-A) e Enriquecimento (adição de dados de contexto in-place).
+O sistema opera com **duas etapas independentes**: Aquisição + Transformação (ingestão e normalização de dados DwC-A) e Enriquecimento (associação de dados de contexto às coleções principais).
 
-### 1. Aquisição (Ingestão DwC-A)
+Todas as coleções residem em um **único banco de dados MongoDB** (`dwc2json`).
 
-Dados taxonômicos e de ocorrências são baixados e inseridos diretamente nas coleções principais:
+### 1. Aquisição + Transformação (Ingestão DwC-A)
 
-- **Flora/Fauna**: DwC-A → `taxa` (direto, sem intermediário)
-- **Ocorrências**: DwC-A → `occurrences` (direto, sem intermediário)
+Dados taxonômicos e de ocorrências são baixados, transformados (normalizados) e inseridos nas coleções principais:
+
+- **Flora/Fauna**: DwC-A → transformação (normalização de nomes, classificação, distribuição) → `taxa`
+- **Ocorrências**: DwC-A → transformação (GeoJSON, datas, estados, validação geográfica) → `occurrences`
+
+A transformação ocorre durante a ingestão — não há etapa intermediária.
 
 ### 2. Enriquecimento (In-place)
 
-Scripts independentes atualizam as coleções principais com dados de contexto sem re-processar toda a coleção:
+Scripts independentes associam dados de referência às coleções principais:
 
-- **Ameaçadas**: CSVs → `faunaAmeacada`/`plantaeAmeacada`/`fungiAmeacada` → `taxa.$set{threatStatus}`
-- **Invasoras**: CSV → `invasoras` → `taxa.$set{invasiveStatus}`
-- **UCs**: CSV → `catalogoucs` → `occurrences.$set{conservationUnits}`
+- **Ameaçadas**: dados de `faunaAmeacada`/`plantaeAmeacada`/`fungiAmeacada` → associados a `taxa` via `$set{threatStatus}`
+- **Invasoras**: dados de `invasoras` → associados a `taxa` via `$set{invasiveStatus}`
+- **UCs**: dados de `catalogoucs` → associados a `occurrences` via `$set{conservationUnits}`
 
 ## Comandos Disponíveis
 
@@ -87,7 +91,7 @@ bun run enrich:ucs
 
 ## Workflows GitHub Actions
 
-### Workflows de Aquisição (Manuais)
+### Workflows de Aquisição + Transformação (Manuais)
 
 | Workflow                     | Arquivo                          | Descrição                      |
 | ---------------------------- | -------------------------------- | ------------------------------ |
@@ -119,51 +123,36 @@ graph LR
         JBRJ_Flora["IPT Flora/Funga\n(JBRJ)"]
         JBRJ_Fauna["IPT Fauna\n(JBRJ)"]
         IPTs490["~490 IPTs\n(herbários/museus)"]
-        CSV_Ameacadas["CSVs Ameaçadas\n(Fauna/Plantae/Fungi)"]
-        CSV_Invasoras["CSV Invasoras"]
-        CSV_UCs["CSV Catálogo UCs"]
+        CSV_Ref["CSVs de Referência\n(Ameaçadas, Invasoras, UCs)"]
     end
 
-    subgraph Aquisição["Aquisição (packages/ingest)"]
-        IngestFlora["ingest:flora"]
-        IngestFauna["ingest:fauna"]
-        IngestOcc["ingest:occurrences"]
-        LoadAmeacadas["load:*-ameacada"]
-        LoadInvasoras["load:invasoras"]
-        LoadUCs["load:catalogo-ucs"]
+    subgraph Aquisição["Aquisição + Transformação"]
+        IngestFlora["ingest:flora\n(DwC-A → normalização)"]
+        IngestFauna["ingest:fauna\n(DwC-A → normalização)"]
+        IngestOcc["ingest:occurrences\n(DwC-A → normalização)"]
+        Loaders["load:*-ameacada\nload:invasoras\nload:catalogo-ucs"]
     end
 
     subgraph MongoDB["MongoDB (dwc2json)"]
         taxa[("taxa")]
         occurrences[("occurrences")]
-        faunaAmeacada[("faunaAmeacada")]
-        plantaeAmeacada[("plantaeAmeacada")]
-        fungiAmeacada[("fungiAmeacada")]
-        invasoras[("invasoras")]
-        catalogoucs[("catalogoucs")]
+        refCols[("coleções de\nreferência")]
     end
 
-    subgraph Enriquecimento["Enriquecimento in-place (packages/transform)"]
-        EnrichAm["enrich:ameacadas"]
-        EnrichInv["enrich:invasoras"]
-        EnrichUCs["enrich:ucs"]
+    subgraph Enriquecimento["Enriquecimento"]
+        EnrichAm["enrich:ameacadas\n→ taxa.threatStatus"]
+        EnrichInv["enrich:invasoras\n→ taxa.invasiveStatus"]
+        EnrichUCs["enrich:ucs\n→ occurrences.conservationUnits"]
     end
 
     JBRJ_Flora --> IngestFlora --> taxa
     JBRJ_Fauna --> IngestFauna --> taxa
     IPTs490 --> IngestOcc --> occurrences
-    CSV_Ameacadas --> LoadAmeacadas --> faunaAmeacada & plantaeAmeacada & fungiAmeacada
-    CSV_Invasoras --> LoadInvasoras --> invasoras
-    CSV_UCs --> LoadUCs --> catalogoucs
+    CSV_Ref --> Loaders --> refCols
 
-    faunaAmeacada & plantaeAmeacada & fungiAmeacada --> EnrichAm
-    taxa --> EnrichAm --> taxa
-
-    invasoras --> EnrichInv
-    taxa --> EnrichInv --> taxa
-
-    catalogoucs --> EnrichUCs
-    occurrences --> EnrichUCs --> occurrences
+    refCols --> EnrichAm & EnrichInv & EnrichUCs
+    EnrichAm & EnrichInv -.->|"$set in-place"| taxa
+    EnrichUCs -.->|"$set in-place"| occurrences
 ```
 
 ## Estrutura de Dados Resultante

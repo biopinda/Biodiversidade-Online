@@ -5,7 +5,7 @@
 1. [Visao Geral](#1-visao-geral)
 2. [Arquitetura do Monorepo](#2-arquitetura-do-monorepo)
 3. [Fontes de Dados e IPTs](#3-fontes-de-dados-e-ipts)
-4. [Pipeline de Ingestao (packages/ingest)](#4-pipeline-de-ingestao)
+4. [Pipeline de Aquisicao + Transformacao (packages/ingest)](#4-pipeline-de-aquisicao--transformacao)
 5. [Pipeline de Enriquecimento (packages/transform)](#5-pipeline-de-enriquecimento)
 6. [Armazenamento MongoDB](#6-armazenamento-mongodb)
 7. [Aplicacao Web (packages/web)](#7-aplicacao-web)
@@ -20,13 +20,13 @@
 
 O Biodiversidade Online e uma plataforma para consulta de dados da biodiversidade brasileira. O sistema:
 
-- Ingere dados taxonomicos da **Flora e Funga do Brasil** e do **Catalogo Taxonomico da Fauna do Brasil**
-- Ingere registros de **ocorrencias** de ~505 colecoes de herbarios e museus brasileiros
-- Transforma dados brutos do formato **Darwin Core Archive (DwC-A)** para documentos JSON otimizados
-- Enriquece os dados com informacoes de **especies ameacadas**, **especies invasoras** e **unidades de conservacao**
+- **Adquire e transforma** dados taxonomicos da **Flora e Funga do Brasil** e do **Catalogo Taxonomico da Fauna do Brasil** (DwC-A → normalização → JSON)
+- **Adquire e transforma** registros de **ocorrencias** de ~505 colecoes de herbarios e museus brasileiros (DwC-A → normalização → JSON)
+- **Enriquece** taxa com dados de **especies ameacadas** e **especies invasoras**
+- **Enriquece** ocorrencias com dados de **unidades de conservacao**
 - Oferece uma interface web com busca de especies, mapa de ocorrencias, arvore taxonomica, dashboard analitico e chat com IA
 
-O nome interno do banco de dados e **dwc2json** — uma referencia direta ao processo central: converter Darwin Core Archive em documentos JSON no MongoDB.
+Todas as colecoes residem em um **unico banco de dados MongoDB** (`dwc2json`). O nome interno e uma referencia direta ao processo central: converter Darwin Core Archive em documentos JSON.
 
 ---
 
@@ -37,8 +37,8 @@ O projeto utiliza **Bun workspaces** para gerenciar quatro pacotes:
 ```
 Biodiversidade-Online/
 ├── packages/
-│   ├── ingest/        # Aquisicao de dados dos IPTs e carga no MongoDB
-│   ├── transform/     # Carga de dados de referencia e enriquecimento in-place
+│   ├── ingest/        # Aquisicao + transformacao (DwC-A → normalizacao → MongoDB)
+│   ├── transform/     # Enriquecimento (loaders CSV + enrichers in-place)
 │   ├── shared/        # Utilitarios compartilhados (database, IDs, metricas)
 │   └── web/           # Aplicacao Astro.js (frontend + API)
 ├── package.json       # Workspace root com scripts orquestradores
@@ -103,9 +103,9 @@ Herpetology Collection - MPEG,mpeg,Animalia,mpeg_herpetologia,https://ipt.sibbr.
 
 ---
 
-## 4. Pipeline de Ingestao
+## 4. Pipeline de Aquisicao + Transformacao
 
-O pacote `packages/ingest` e responsavel por baixar os DwC-A, parsea-los e inseri-los diretamente no MongoDB nas colecoes `taxa` e `occurrences`.
+O pacote `packages/ingest` e responsavel por baixar os DwC-A, transforma-los (normalização de nomes, classificação, coordenadas, datas) e inseri-los diretamente no MongoDB nas colecoes `taxa` e `occurrences`. A transformação ocorre durante a ingestão — não há etapa intermediaria.
 
 ### 4.1 Verificacao de Versao
 
@@ -709,34 +709,53 @@ Estagio 3 (runner): node:20-alpine
 │  CSVs de Referencia (Fauna/Plantae/Fungi Ameacadas, Invasoras, UCs)│
 │          ↓                                                          │
 │     Arquivos CSV (carregados manualmente ou via GitHub Actions)    │
-└─────────────┬───────────────────────────────┬───────────────────────┘
-              │                               │
-              ▼                               ▼
-┌─────────────────────────┐    ┌────────────────────────────────────┐
-│   packages/ingest       │    │   packages/transform (loaders)     │
-│                         │    │                                    │
-│ 1. Verifica versao IPT  │    │ load:fauna-ameacada → faunaAmeacada│
-│ 2. Baixa DwC-A          │    │ load:plantae-ameacada → plantaeAm  │
-│ 3. Parseia (JSON/SQLite)│    │ load:fungi-ameacada → fungiAm      │
-│ 4. Transforma inline    │    │ load:invasoras → invasoras         │
-│ 5. Insere no MongoDB    │    │ load:catalogo-ucs → catalogoucs    │
-└────────────┬────────────┘    └──────────────┬─────────────────────┘
-             │                                │
-             ▼                                │
+└──────────┬────────────────────────────────────┬─────────────────────┘
+           │                                    │
+           ▼                                    ▼
+┌──────────────────────────────┐  ┌──────────────────────────────────┐
+│  AQUISICAO + TRANSFORMACAO   │  │  CARGA DE REFERENCIA             │
+│  (packages/ingest)           │  │  (packages/transform - loaders)  │
+│                              │  │                                  │
+│  1. Verifica versao IPT      │  │  CSV → drop + insert na colecao │
+│  2. Baixa DwC-A              │  │                                  │
+│  3. Parseia (JSON/SQLite)    │  │  load:fauna-ameacada             │
+│  4. Transforma (normaliza)   │  │  load:plantae-ameacada           │
+│  5. Insere no MongoDB        │  │  load:fungi-ameacada             │
+│                              │  │  load:invasoras                  │
+│  → taxa, occurrences         │  │  load:catalogo-ucs               │
+└──────────────┬───────────────┘  └───────────────┬──────────────────┘
+               │                                  │
+               ▼                                  ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         MongoDB (dwc2json)                          │
+│                    MongoDB (dwc2json) — banco unico                 │
 │                                                                     │
-│  taxa ←──────────────────── enrich:ameacadas ←── faunaAmeacada    │
-│       ←──────────────────── enrich:ameacadas ←── plantaeAmeacada  │
-│       ←──────────────────── enrich:ameacadas ←── fungiAmeacada    │
-│       ←──────────────────── enrich:invasoras ←── invasoras        │
+│  Colecoes principais:                                               │
+│    taxa              occurrences                                    │
 │                                                                     │
-│  occurrences ←───────────── enrich:ucs ←──────── catalogoucs      │
+│  Colecoes de referencia:                                            │
+│    faunaAmeacada  plantaeAmeacada  fungiAmeacada                   │
+│    invasoras      catalogoucs                                       │
 │                                                                     │
-│  Colecoes operacionais: occurrenceCache, chat_sessions, ipts       │
-└─────────────────────────────────────────────────────────────────────┘
-                                      │
-                                      ▼
+│  Colecoes operacionais:                                             │
+│    ipts  occurrenceCache  chat_sessions  processingLocks           │
+└──────────────┬──────────────────────────────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  ENRIQUECIMENTO (packages/transform - enrichers)                    │
+│                                                                     │
+│  enrich:ameacadas  faunaAmeacada + plantaeAmeacada + fungiAmeacada │
+│                    → associa threatStatus a taxa                    │
+│                                                                     │
+│  enrich:invasoras  invasoras → associa invasiveStatus a taxa        │
+│                                                                     │
+│  enrich:ucs        catalogoucs → associa conservationUnits          │
+│                    a occurrences                                    │
+│                                                                     │
+│  (leitura das colecoes de referencia + $set/$unset in-place)        │
+└──────────────┬──────────────────────────────────────────────────────┘
+               │
+               ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      packages/web (Astro.js)                        │
 │                                                                     │
