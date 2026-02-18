@@ -27,34 +27,18 @@ if (validateSession(sessionId)) {
         <form id="loginForm" class="space-y-6">
           <div>
             <label
-              for="username"
+              for="pin"
               class="mb-2 block text-sm font-medium text-gray-700"
             >
-              Usuário
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              required
-              autocomplete="username"
-              class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-green-500 focus:ring-green-500"
-            />
-          </div>
-
-          <div>
-            <label
-              for="password"
-              class="mb-2 block text-sm font-medium text-gray-700"
-            >
-              Senha
+              PIN de Acesso
             </label>
             <input
               type="password"
-              id="password"
-              name="password"
+              id="pin"
+              name="pin"
               required
               autocomplete="current-password"
+              placeholder="Digite o PIN de acesso"
               class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-green-500 focus:ring-green-500"
             />
           </div>
@@ -90,10 +74,7 @@ if (validateSession(sessionId)) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
 
-    const username = (document.getElementById('username') as HTMLInputElement)
-      .value
-    const password = (document.getElementById('password') as HTMLInputElement)
-      .value
+    const pin = (document.getElementById('pin') as HTMLInputElement).value
 
     errorMessage.classList.add('hidden')
 
@@ -101,7 +82,7 @@ if (validateSession(sessionId)) {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ pin })
       })
 
       const data = await response.json()

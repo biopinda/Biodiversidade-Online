@@ -3,26 +3,21 @@
  * POST /api/auth/login
  */
 
-import {
-  buildCookieHeader,
-  createSession,
-  validateCredentials
-} from '@/lib/auth'
+import { buildCookieHeader, createSession, validatePin } from '@/lib/auth'
 import type { APIContext } from 'astro'
 
 interface LoginRequest {
-  username: string
-  password: string
+  pin: string
 }
 
 export async function POST(context: APIContext): Promise<Response> {
   try {
     const body = (await context.request.json()) as LoginRequest
 
-    if (!body.username || !body.password) {
+    if (!body.pin) {
       return new Response(
         JSON.stringify({
-          error: 'Usuário e senha são obrigatórios',
+          error: 'PIN é obrigatório',
           code: 'INVALID_REQUEST'
         }),
         {
@@ -32,13 +27,13 @@ export async function POST(context: APIContext): Promise<Response> {
       )
     }
 
-    if (!validateCredentials(body.username, body.password)) {
+    if (!validatePin(body.pin)) {
       // Add delay to prevent brute force timing attacks
       await new Promise((resolve) => setTimeout(resolve, 500))
 
       return new Response(
         JSON.stringify({
-          error: 'Credenciais inválidas',
+          error: 'PIN inválido',
           code: 'INVALID_CREDENTIALS'
         }),
         {
@@ -48,7 +43,7 @@ export async function POST(context: APIContext): Promise<Response> {
       )
     }
 
-    const sessionId = createSession(body.username)
+    const sessionId = createSession('admin')
 
     return new Response(
       JSON.stringify({

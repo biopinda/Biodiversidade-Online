@@ -21,23 +21,15 @@ export function generateSessionId(): string {
 }
 
 /**
- * Validate credentials against environment variables
+ * Validate PIN against environment variable
  */
-export function validateCredentials(
-  username: string,
-  password: string
-): boolean {
-  const adminUsername =
-    import.meta.env.ADMIN_USERNAME || process.env.ADMIN_USERNAME
-  const adminPassword =
-    import.meta.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD
-
-  if (!adminUsername || !adminPassword) {
-    console.error('Admin credentials not configured in environment variables')
+export function validatePin(pin: string): boolean {
+  const adminPin = import.meta.env.ADMIN_PIN || process.env.ADMIN_PIN
+  if (!adminPin) {
+    console.error('ADMIN_PIN not configured')
     return false
   }
-
-  return username === adminUsername && password === adminPassword
+  return pin === adminPin
 }
 
 /**
