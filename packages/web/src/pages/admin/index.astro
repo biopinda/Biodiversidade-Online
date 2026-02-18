@@ -12,6 +12,75 @@ const sessionId = getSessionIdFromCookies(Astro.request.headers.get('cookie'))
 if (!validateSession(sessionId)) {
   return Astro.redirect('/admin/login')
 }
+
+const csvCollections = [
+  {
+    id: 'faunaAmeacada',
+    label: 'Fauna Ameaçada',
+    description: 'Lista de fauna ameaçada — MMA/ICMBio',
+    enrichWorkflow: 'enrich:ameacadas'
+  },
+  {
+    id: 'plantaeAmeacada',
+    label: 'Plantae Ameaçada',
+    description: 'Lista de flora ameaçada — Flora e Funga do Brasil',
+    enrichWorkflow: 'enrich:ameacadas'
+  },
+  {
+    id: 'fungiAmeacada',
+    label: 'Fungi Ameaçada',
+    description: 'Lista de fungi ameaçados — Flora e Funga do Brasil',
+    enrichWorkflow: 'enrich:ameacadas'
+  },
+  {
+    id: 'invasoras',
+    label: 'Espécies Invasoras',
+    description: 'Lista de espécies exóticas invasoras — IBAMA/ICMBio',
+    enrichWorkflow: 'enrich:invasoras'
+  },
+  {
+    id: 'catalogoucs',
+    label: 'Catálogo de UCs',
+    description: 'Unidades de Conservação do Brasil — MMA/CNUC',
+    enrichWorkflow: 'enrich:ucs'
+  }
+]
+
+const ingestWorkflows = [
+  {
+    id: 'ingest:flora',
+    label: 'Ingestão Flora',
+    description: 'Flora do Brasil — DwC-A'
+  },
+  {
+    id: 'ingest:fauna',
+    label: 'Ingestão Fauna',
+    description: 'Fauna do Brasil — DwC-A'
+  },
+  {
+    id: 'ingest:occurrences',
+    label: 'Ingestão Ocorrências',
+    description: 'Registros de ocorrência — GBIF/speciesLink'
+  }
+]
+
+const enrichWorkflows = [
+  {
+    id: 'enrich:ameacadas',
+    label: 'Enriquecimento Ameaçadas',
+    description: 'Adiciona threatStatus às taxa'
+  },
+  {
+    id: 'enrich:invasoras',
+    label: 'Enriquecimento Invasoras',
+    description: 'Adiciona invasiveStatus às taxa'
+  },
+  {
+    id: 'enrich:ucs',
+    label: 'Enriquecimento UCs',
+    description: 'Adiciona conservationUnits às ocorrências'
+  }
+]
 ---
 
 <Layout title="Admin - Biodiversidade.Online">
@@ -34,12 +103,6 @@ if (!validateSession(sessionId)) {
           >
             Dashboard
           </a>
-          <a
-            href="/chat"
-            class="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-all hover:bg-green-700"
-          >
-            ChatBB
-          </a>
           <button
             id="logoutBtn"
             class="rounded-lg border border-red-300 px-4 py-2 text-red-600 transition-all hover:bg-red-50"
@@ -50,37 +113,147 @@ if (!validateSession(sessionId)) {
       </div>
     </header>
 
-    <main class="container mx-auto px-4 py-16">
-      <div class="flex flex-col items-center justify-center text-center">
-        <div class="mb-6 text-6xl">🚧</div>
-        <h2 class="mb-4 text-3xl font-bold text-gray-800">Em Construção</h2>
-        <p class="max-w-md text-gray-600">
-          O painel administrativo está em desenvolvimento. Em breve você terá
-          acesso a funcionalidades de gerenciamento de dados e configurações do
-          sistema.
+    <main class="container mx-auto px-4 py-8">
+      <!-- Tab navigation -->
+      <div class="mb-6 flex gap-2 border-b border-gray-200">
+        <button
+          class="tab-btn border-b-2 border-green-600 px-4 py-2 text-sm font-medium text-green-700"
+          data-tab="enrichment"
+        >
+          Dados de Enriquecimento
+        </button>
+        <button
+          class="tab-btn border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700"
+          data-tab="workflows"
+        >
+          Workflows
+        </button>
+      </div>
+
+      <!-- Panel A: Enrichment data upload -->
+      <div id="panel-enrichment" class="tab-panel">
+        <p class="mb-6 text-sm text-gray-600">
+          Carregue arquivos CSV de dados de referência diretamente no MongoDB. O
+          upload substitui completamente a coleção existente.
         </p>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {
+            csvCollections.map((col) => (
+              <div
+                class="rounded-xl border bg-white p-6 shadow-sm"
+                data-card={col.id}
+              >
+                <h3 class="font-semibold text-gray-800">{col.label}</h3>
+                <p class="mt-1 mb-4 text-sm text-gray-500">{col.description}</p>
 
-        <div class="mt-12 grid grid-cols-1 gap-6 text-left md:grid-cols-3">
-          <div class="rounded-xl border bg-white p-6 shadow-sm">
-            <div class="mb-2 text-2xl">📊</div>
-            <h3 class="font-semibold text-gray-800">Estatísticas</h3>
-            <p class="mt-1 text-sm text-gray-600">
-              Métricas de uso e performance
-            </p>
+                <label class="block">
+                  <span class="sr-only">Selecionar CSV</span>
+                  <input
+                    type="file"
+                    accept=".csv"
+                    class="csv-input block w-full text-sm text-gray-500 file:mr-3 file:rounded file:border-0 file:bg-green-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-green-700 hover:file:bg-green-100"
+                    data-collection={col.id}
+                  />
+                </label>
+
+                <button
+                  class="upload-btn mt-3 w-full rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  data-collection={col.id}
+                >
+                  Carregar no MongoDB
+                </button>
+
+                <div
+                  class="upload-feedback mt-2 hidden rounded px-3 py-2 text-sm"
+                  data-collection={col.id}
+                />
+
+                <button
+                  class="enrich-btn mt-2 hidden w-full rounded-md border border-green-600 px-4 py-2 text-sm font-medium text-green-700 transition-colors hover:bg-green-50"
+                  data-workflow={col.enrichWorkflow}
+                >
+                  Disparar Enriquecimento
+                </button>
+
+                <div
+                  class="enrich-feedback mt-2 hidden rounded px-3 py-2 text-sm"
+                  data-collection={col.id}
+                />
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Panel B: Workflows -->
+      <div id="panel-workflows" class="tab-panel hidden">
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <!-- Ingestão -->
+          <div>
+            <h2 class="mb-4 text-lg font-semibold text-gray-700">
+              Ingestão de Dados
+            </h2>
+            <div class="space-y-4">
+              {
+                ingestWorkflows.map((wf) => (
+                  <div
+                    class="rounded-xl border bg-white p-5 shadow-sm"
+                    data-card={wf.id}
+                  >
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <h3 class="font-medium text-gray-800">{wf.label}</h3>
+                        <p class="text-sm text-gray-500">{wf.description}</p>
+                      </div>
+                      <button
+                        class="workflow-btn ml-4 shrink-0 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        data-workflow={wf.id}
+                      >
+                        Disparar
+                      </button>
+                    </div>
+                    <div
+                      class="workflow-feedback mt-2 hidden rounded px-3 py-2 text-sm"
+                      data-workflow={wf.id}
+                    />
+                  </div>
+                ))
+              }
+            </div>
           </div>
 
-          <div class="rounded-xl border bg-white p-6 shadow-sm">
-            <div class="mb-2 text-2xl">🔄</div>
-            <h3 class="font-semibold text-gray-800">Sincronização</h3>
-            <p class="mt-1 text-sm text-gray-600">
-              Gerenciamento de dados e cache
-            </p>
-          </div>
-
-          <div class="rounded-xl border bg-white p-6 shadow-sm">
-            <div class="mb-2 text-2xl">⚙️</div>
-            <h3 class="font-semibold text-gray-800">Configurações</h3>
-            <p class="mt-1 text-sm text-gray-600">Parâmetros do sistema</p>
+          <!-- Enriquecimento direto -->
+          <div>
+            <h2 class="mb-4 text-lg font-semibold text-gray-700">
+              Enriquecimento Direto
+            </h2>
+            <div class="space-y-4">
+              {
+                enrichWorkflows.map((wf) => (
+                  <div
+                    class="rounded-xl border bg-white p-5 shadow-sm"
+                    data-card={wf.id}
+                  >
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <h3 class="font-medium text-gray-800">{wf.label}</h3>
+                        <p class="text-sm text-gray-500">{wf.description}</p>
+                      </div>
+                      <button
+                        class="workflow-btn ml-4 shrink-0 rounded-md border border-green-600 px-4 py-2 text-sm font-medium text-green-700 transition-colors hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        data-workflow={wf.id}
+                      >
+                        Disparar
+                      </button>
+                    </div>
+                    <div
+                      class="workflow-feedback mt-2 hidden rounded px-3 py-2 text-sm"
+                      data-workflow={wf.id}
+                    />
+                  </div>
+                ))
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -89,12 +262,176 @@ if (!validateSession(sessionId)) {
 </Layout>
 
 <script>
+  // ── Logout ──────────────────────────────────────────────────────────────────
   document.getElementById('logoutBtn')?.addEventListener('click', async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
       window.location.href = '/admin/login'
-    } catch (error) {
-      console.error('Logout error:', error)
+    } catch {
+      window.location.href = '/admin/login'
     }
   })
+
+  // ── Tabs ─────────────────────────────────────────────────────────────────────
+  const tabBtns = document.querySelectorAll<HTMLButtonElement>('.tab-btn')
+  const tabPanels = document.querySelectorAll<HTMLDivElement>('.tab-panel')
+
+  tabBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab!
+
+      tabBtns.forEach((b) => {
+        b.classList.remove('border-green-600', 'text-green-700')
+        b.classList.add('border-transparent', 'text-gray-500')
+      })
+      btn.classList.remove('border-transparent', 'text-gray-500')
+      btn.classList.add('border-green-600', 'text-green-700')
+
+      tabPanels.forEach((p) => {
+        if (p.id === `panel-${target}`) {
+          p.classList.remove('hidden')
+        } else {
+          p.classList.add('hidden')
+        }
+      })
+    })
+  })
+
+  // ── Helpers ───────────────────────────────────────────────────────────────────
+  function showFeedback(
+    el: HTMLElement,
+    message: string,
+    type: 'success' | 'error' | 'info'
+  ) {
+    el.textContent = message
+    el.className = `feedback mt-2 rounded px-3 py-2 text-sm ${
+      type === 'success'
+        ? 'bg-green-50 text-green-700'
+        : type === 'error'
+          ? 'bg-red-50 text-red-700'
+          : 'bg-blue-50 text-blue-700'
+    }`
+    el.classList.remove('hidden')
+  }
+
+  // ── CSV Upload ────────────────────────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.upload-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const collection = btn.dataset.collection!
+      const card = document.querySelector(`[data-card="${collection}"]`)!
+      const fileInput = card.querySelector<HTMLInputElement>('.csv-input')!
+      const feedbackEl = card.querySelector<HTMLDivElement>(`.upload-feedback`)!
+      const enrichBtn = card.querySelector<HTMLButtonElement>('.enrich-btn')!
+
+      const file = fileInput.files?.[0]
+      if (!file) {
+        showFeedback(feedbackEl, 'Selecione um arquivo CSV primeiro.', 'error')
+        return
+      }
+
+      btn.disabled = true
+      btn.textContent = 'Carregando...'
+      feedbackEl.classList.add('hidden')
+      enrichBtn.classList.add('hidden')
+
+      try {
+        const formData = new FormData()
+        formData.append('collection', collection)
+        formData.append('file', file)
+
+        const response = await fetch('/api/admin/upload-csv', {
+          method: 'POST',
+          body: formData
+        })
+
+        const data = await response.json()
+
+        if (response.ok) {
+          showFeedback(
+            feedbackEl,
+            `Sucesso! ${data.count} registros carregados.`,
+            'success'
+          )
+          enrichBtn.classList.remove('hidden')
+        } else {
+          showFeedback(
+            feedbackEl,
+            data.error || 'Erro ao carregar CSV.',
+            'error'
+          )
+        }
+      } catch {
+        showFeedback(feedbackEl, 'Erro de conexão ao carregar CSV.', 'error')
+      } finally {
+        btn.disabled = false
+        btn.textContent = 'Carregar no MongoDB'
+      }
+    })
+  })
+
+  // ── Enrich buttons (inside CSV cards) ────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.enrich-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const workflow = btn.dataset.workflow!
+      const card = btn.closest('[data-card]')!
+      const feedbackEl = card.querySelector<HTMLDivElement>('.enrich-feedback')!
+
+      await triggerWorkflow(workflow, btn, feedbackEl)
+    })
+  })
+
+  // ── Workflow buttons ──────────────────────────────────────────────────────────
+  document
+    .querySelectorAll<HTMLButtonElement>('.workflow-btn')
+    .forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const workflow = btn.dataset.workflow!
+        const card = btn.closest('[data-card]')!
+        const feedbackEl = card.querySelector<HTMLDivElement>(
+          `.workflow-feedback[data-workflow="${workflow}"]`
+        )!
+
+        await triggerWorkflow(workflow, btn, feedbackEl)
+      })
+    })
+
+  async function triggerWorkflow(
+    workflow: string,
+    btn: HTMLButtonElement,
+    feedbackEl: HTMLElement
+  ) {
+    const originalText = btn.textContent!
+    btn.disabled = true
+    btn.textContent = 'Disparando...'
+    feedbackEl.classList.add('hidden')
+
+    try {
+      const response = await fetch('/api/admin/trigger-workflow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workflow })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        showFeedback(
+          feedbackEl,
+          'Workflow disparado com sucesso! Verifique o GitHub Actions.',
+          'success'
+        )
+      } else {
+        showFeedback(
+          feedbackEl,
+          data.error || 'Erro ao disparar workflow.',
+          'error'
+        )
+      }
+    } catch {
+      showFeedback(feedbackEl, 'Erro de conexão ao disparar workflow.', 'error')
+    } finally {
+      btn.disabled = false
+      btn.textContent = originalText
+    }
+  }
 </script>
