@@ -6,13 +6,13 @@ import type {
 import { normalizeTaxon } from './normalizeTaxon.js'
 
 /**
- * Transforma um registro de táxon bruto (taxa_ipt) em formato transformado (taxa)
+ * Transforma um registro de táxon bruto em formato normalizado
  *
  * Esta função é usada durante ingestão inline para transformação básica.
- * Enriquecimentos complexos (ameaça, invasoras, UCs) são aplicados apenas
- * durante re-transformação em massa via transformTaxa.ts
+ * Enriquecimentos complexos (ameaça, invasoras, UCs) são aplicados via
+ * scripts de enriquecimento standalone (enrich:ameacadas, enrich:invasoras, enrich:ucs)
  *
- * @param rawDoc - Documento bruto da coleção taxa_ipt
+ * @param rawDoc - Documento bruto de táxon
  * @param db - Instância do banco de dados MongoDB (não usado na versão simplificada)
  * @returns Documento transformado para inserção em taxa (ou null se filtrado/inválido)
  */

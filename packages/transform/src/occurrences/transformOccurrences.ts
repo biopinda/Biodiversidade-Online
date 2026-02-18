@@ -14,7 +14,7 @@ import type {
 } from './normalizeOccurrence'
 import { occurrenceNormalizationPipeline } from './transforms/pipeline'
 
-const RAW_COLLECTION = 'occurrences_ipt'
+const RAW_COLLECTION = 'occurrences'
 const TARGET_COLLECTION = 'occurrences'
 const MAX_BULK_OPERATIONS = 5000 // Increased from 2000
 const MAX_BULK_BYTES = 12 * 1024 * 1024

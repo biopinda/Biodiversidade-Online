@@ -12,7 +12,7 @@ import type {
 } from './normalizeTaxon'
 import { taxaNormalizationPipeline } from './transforms/pipeline'
 
-const RAW_COLLECTION = 'taxa_ipt'
+const RAW_COLLECTION = 'taxa'
 const TARGET_COLLECTION = 'taxa'
 const MAX_BULK_OPERATIONS = 5000 // Increased from 2000
 const MAX_BULK_BYTES = 12 * 1024 * 1024

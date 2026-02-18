@@ -3,7 +3,7 @@
   "info": {
     "title": "Biodiversidade.Online API",
     "version": "2.0.0",
-    "description": "API para consulta de dados taxonômicos e de ocorrências da biodiversidade brasileira.\n\nEsta API serve dados das collections MongoDB `taxa` e `occurrences` (transformadas), que contêm registros validados e enriquecidos dos catálogos oficiais (Flora e Funga do Brasil, Catálogo Taxonômico da Fauna do Brasil) e 507 repositórios IPT de ocorrências.\n\n**Rastreabilidade**: Cada registro pode ser rastreado à sua fonte original via `_id` nas collections `taxa_ipt` e `occurrences_ipt` (dados brutos sem transformações).",
+    "description": "API para consulta de dados taxonômicos e de ocorrências da biodiversidade brasileira.\n\nEsta API serve dados das collections MongoDB `taxa` e `occurrences` (transformadas), que contêm registros validados e enriquecidos dos catálogos oficiais (Flora e Funga do Brasil, Catálogo Taxonômico da Fauna do Brasil) e 507 repositórios IPT de ocorrências.\n\n**Rastreabilidade**: Cada registro pode ser rastreado à sua fonte original via `_id` baseado nos identificadores do DwC-A.",
     "contact": {
       "name": "Biodiversidade.Online",
       "url": "https://biodiversidade.online"
@@ -208,7 +208,7 @@
     "/api/taxa/{taxonID}": {
       "get": {
         "summary": "Obtém táxon por ID",
-        "description": "Retorna detalhes completos de um táxon específico pelo seu `taxonID`.\n\n**Rastreabilidade**: O `_id` retornado é idêntico ao da collection `taxa_ipt`, permitindo auditoria do dado original.",
+        "description": "Retorna detalhes completos de um táxon específico pelo seu `taxonID`.\n\n**Rastreabilidade**: O `_id` retornado é baseado no `taxonID` original do DwC-A.",
         "tags": ["Taxa"],
         "operationId": "getTaxonById",
         "parameters": [
@@ -944,7 +944,7 @@
             "properties": {
               "source": {
                 "type": "string",
-                "enum": ["cncfloraFungi", "cncfloraPlantae", "faunaAmeacada"]
+                "enum": ["fungiAmeacada", "plantaeAmeacada", "faunaAmeacada"]
               },
               "category": {
                 "type": "string"

@@ -1,5 +1,14 @@
 import type { Collection, Db } from 'mongodb'
-import { normalizeNameKey } from '../utils/name'
+import {
+  addToLookup,
+  collectDocumentIds,
+  collectDocumentNames,
+  createLookup,
+  gatherLookupMatches,
+  type IndexedLookup,
+  materializeCollection,
+  normalizeName
+} from '../utils/lookup'
 import type {
   NormalizedTaxonDocument,
   RawTaxonDocument
@@ -7,7 +16,7 @@ import type {
 
 type MongoDoc = Record<string, unknown>
 
-type ThreatSource = 'cncfloraFungi' | 'cncfloraPlantae' | 'faunaAmeacada'
+type ThreatSource = 'fungiAmeacada' | 'plantaeAmeacada' | 'faunaAmeacada'
 type InvasiveSource = 'invasoras'
 
 export interface ThreatStatusEntry {
@@ -23,11 +32,6 @@ export interface InvasiveStatusEntry {
 
 export interface ConservationUnitEntry {
   ucName: string
-}
-
-interface IndexedLookup<T> {
-  byId: Map<string, T[]>
-  byFlatName: Map<string, T[]>
 }
 
 interface TaxonEnrichmentIndexes {
@@ -48,8 +52,8 @@ const DEFAULT_THREAT_SOURCES: Array<{
   collection: string
   source: ThreatSource
 }> = [
-  { collection: 'cncfloraFungi', source: 'cncfloraFungi' },
-  { collection: 'cncfloraPlantae', source: 'cncfloraPlantae' },
+  { collection: 'fungiAmeacada', source: 'fungiAmeacada' },
+  { collection: 'plantaeAmeacada', source: 'plantaeAmeacada' },
   { collection: 'faunaAmeacada', source: 'faunaAmeacada' }
 ]
 
@@ -60,104 +64,6 @@ const DEFAULT_INVASIVE_SOURCES: Array<{
 
 const DEFAULT_CONSERVATION_COLLECTION = 'catalogoucs'
 
-const ID_FIELDS = ['_id', 'taxonID', 'taxonId', 'taxon_id', 'identifier', 'id']
-const NAME_FIELDS = [
-  'canonicalName',
-  'scientificName',
-  'scientificname',
-  'nome',
-  'nomeCientifico',
-  'nome_cientifico',
-  'nomeCientífico',
-  'species',
-  'especie',
-  'speciesScientificName'
-]
-
-function normalizeId(value: unknown): string | null {
-  if (typeof value !== 'string') return null
-  const trimmed = value.trim()
-  return trimmed.length ? trimmed : null
-}
-
-function normalizeName(value: unknown): string | null {
-  return normalizeNameKey(value)
-}
-
-function createLookup<T>(): IndexedLookup<T> {
-  return {
-    byId: new Map(),
-    byFlatName: new Map()
-  }
-}
-
-function collectDocumentIds(doc: MongoDoc): string[] {
-  const values = new Set<string>()
-  for (const field of ID_FIELDS) {
-    if (Object.prototype.hasOwnProperty.call(doc, field)) {
-      const normalized = normalizeId((doc as Record<string, unknown>)[field])
-      if (normalized) values.add(normalized)
-    }
-  }
-  return Array.from(values)
-}
-
-function collectDocumentNames(doc: MongoDoc): string[] {
-  const values = new Set<string>()
-  for (const field of NAME_FIELDS) {
-    if (Object.prototype.hasOwnProperty.call(doc, field)) {
-      const normalized = normalizeName((doc as Record<string, unknown>)[field])
-      if (normalized) values.add(normalized)
-    }
-  }
-  if (
-    typeof doc.flatScientificName === 'string' &&
-    doc.flatScientificName.trim()
-  ) {
-    values.add(doc.flatScientificName.trim().toLocaleLowerCase())
-  }
-  if (
-    typeof doc.flatScientificname === 'string' &&
-    doc.flatScientificname.trim()
-  ) {
-    values.add(doc.flatScientificname.trim().toLocaleLowerCase())
-  }
-  return Array.from(values)
-}
-
-function addToLookup<T>(
-  lookup: IndexedLookup<T>,
-  ids: string[],
-  names: string[],
-  value: T
-): void {
-  for (const id of ids) {
-    if (!id) continue
-    const existing = lookup.byId.get(id)
-    if (existing) {
-      existing.push(value)
-    } else {
-      lookup.byId.set(id, [value])
-    }
-  }
-
-  for (const name of names) {
-    if (!name) continue
-    const existing = lookup.byFlatName.get(name)
-    if (existing) {
-      existing.push(value)
-    } else {
-      lookup.byFlatName.set(name, [value])
-    }
-  }
-}
-
-async function materializeCollection(
-  collection: Collection<MongoDoc>
-): Promise<MongoDoc[]> {
-  return collection.find({}).toArray()
-}
-
 function extractCategory(doc: MongoDoc): string | undefined {
   return (
     (typeof doc.category === 'string' && doc.category.trim()) ||
@@ -167,6 +73,10 @@ function extractCategory(doc: MongoDoc): string | undefined {
       (doc as Record<string, unknown>).categoryNational?.toString().trim()) ||
     (typeof (doc as Record<string, unknown>).categoria_nacional === 'string' &&
       (doc as Record<string, unknown>).categoria_nacional?.toString().trim()) ||
+    (typeof doc['Categoria de Risco'] === 'string' &&
+      (doc['Categoria de Risco'] as string).trim()) ||
+    (typeof doc.threatStatus === 'string' &&
+      (doc.threatStatus as string).trim()) ||
     (typeof doc.status === 'string' && doc.status.trim()) ||
     undefined
   )
@@ -283,37 +193,6 @@ function uniqueArray<T>(values: T[]): T[] {
   return result
 }
 
-function gatherLookupMatches<T>(
-  lookup: IndexedLookup<T>,
-  ids: string[],
-  flatNames: string[]
-): T[] {
-  const results: T[] = []
-  const seen = new Set<T>()
-
-  for (const id of ids) {
-    const entries = lookup.byId.get(id)
-    if (!entries) continue
-    for (const entry of entries) {
-      if (seen.has(entry)) continue
-      seen.add(entry)
-      results.push(entry)
-    }
-  }
-
-  for (const name of flatNames) {
-    const entries = lookup.byFlatName.get(name)
-    if (!entries) continue
-    for (const entry of entries) {
-      if (seen.has(entry)) continue
-      seen.add(entry)
-      results.push(entry)
-    }
-  }
-
-  return results
-}
-
 async function resolveScientificName(
   id: string,
   context: TaxonEnrichmentContext
@@ -345,7 +224,7 @@ export async function createTaxonEnrichmentContext(
   ])
 
   return {
-    rawCollection: db.collection<RawTaxonDocument>('taxa_ipt'),
+    rawCollection: db.collection<RawTaxonDocument>('taxa'),
     indexes: { threats, invasives, conservationUnits },
     cache: {
       relatedNames: new Map()

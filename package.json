@@ -27,6 +27,14 @@
     "transform:occurrences": "bun run --filter @darwincore/transform occurrences",
     "transform:execute": "bun run --filter @darwincore/transform execute",
     "transform:check-lock": "bun run --filter @darwincore/transform check-lock",
+    "load:fauna-ameacada": "bun run --filter @darwincore/transform load:fauna-ameacada",
+    "load:plantae-ameacada": "bun run --filter @darwincore/transform load:plantae-ameacada",
+    "load:fungi-ameacada": "bun run --filter @darwincore/transform load:fungi-ameacada",
+    "load:invasoras": "bun run --filter @darwincore/transform load:invasoras",
+    "load:catalogo-ucs": "bun run --filter @darwincore/transform load:catalogo-ucs",
+    "enrich:ameacadas": "bun run --filter @darwincore/transform enrich:ameacadas",
+    "enrich:invasoras": "bun run --filter @darwincore/transform enrich:invasoras",
+    "enrich:ucs": "bun run --filter @darwincore/transform enrich:ucs",
     "web:dev": "bun run --filter @biodiversidade/web dev",
     "web:build": "bun run --filter @biodiversidade/web build",
     "web:preview": "bun run --filter @biodiversidade/web preview",
@@ -49,6 +57,7 @@
       "fast-xml-parser": "^4.4.1",
       "mongodb": "^7.0.0",
       "papaparse": "^5.4.1",
+      "@types/papaparse": "^5.5.2",
       "@types/bun": "^1.1.8",
       "typescript": "^5.7.3"
     }

@@ -1,0 +1,61 @@
+name: Enrich Taxa - Espécies Ameaçadas
+
+on:
+  workflow_dispatch:
+    inputs:
+      csv_fauna:
+        description: 'Caminho do CSV de fauna ameaçada (opcional)'
+        required: false
+        type: string
+      csv_plantae:
+        description: 'Caminho do CSV de plantae ameaçada (opcional)'
+        required: false
+        type: string
+      csv_fungi:
+        description: 'Caminho do CSV de fungi ameaçada (opcional)'
+        required: false
+        type: string
+
+jobs:
+  enrich:
+    permissions:
+      contents: 'read'
+    runs-on: [self-hosted]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.2.21
+          no-cache: true
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Load Fauna Ameaçada CSV
+        if: inputs.csv_fauna != ''
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: bun run load:fauna-ameacada -- "${{ inputs.csv_fauna }}"
+
+      - name: Load Plantae Ameaçada CSV
+        if: inputs.csv_plantae != ''
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: bun run load:plantae-ameacada -- "${{ inputs.csv_plantae }}"
+
+      - name: Load Fungi Ameaçada CSV
+        if: inputs.csv_fungi != ''
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: bun run load:fungi-ameacada -- "${{ inputs.csv_fungi }}"
+
+      - name: Enrich Taxa com Espécies Ameaçadas
+        timeout-minutes: 30
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: bun run enrich:ameacadas

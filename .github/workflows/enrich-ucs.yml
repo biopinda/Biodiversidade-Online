@@ -1,10 +1,15 @@
-name: Re-transform Occurrences
+name: Enrich Ocorrências - Unidades de Conservação
 
 on:
   workflow_dispatch:
+    inputs:
+      csv_ucs:
+        description: 'Caminho do CSV do catálogo de UCs (opcional)'
+        required: false
+        type: string
 
 jobs:
-  transform:
+  enrich:
     permissions:
       contents: 'read'
     runs-on: [self-hosted]
@@ -22,13 +27,15 @@ jobs:
           no-cache: true
       - name: Install dependencies
         run: bun install --frozen-lockfile
-      - name: Re-transform Occurrence Data
-        timeout-minutes: 25
+
+      - name: Load Catálogo UCs CSV
+        if: inputs.csv_ucs != ''
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: bun run transform:occurrences
-      - name: Clear and regenerate occurrence cache
-        timeout-minutes: 5
+        run: bun run load:catalogo-ucs -- "${{ inputs.csv_ucs }}"
+
+      - name: Enrich Ocorrências com UCs
+        timeout-minutes: 60
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: bun run --filter @biodiversidade/web clear-occurrence-cache
+        run: bun run enrich:ucs

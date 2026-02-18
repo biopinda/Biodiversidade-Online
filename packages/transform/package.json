@@ -11,17 +11,27 @@
     "taxa": "bun src/cli/runTransform.ts taxa",
     "occurrences": "bun src/cli/runTransform.ts occurrences",
     "execute": "bun src/cli/execute.ts",
-    "check-lock": "bun src/cli/checkLock.ts"
+    "check-lock": "bun src/cli/checkLock.ts",
+    "load:fauna-ameacada": "bun src/loaders/loadFaunaAmeacada.ts",
+    "load:plantae-ameacada": "bun src/loaders/loadPlantaeAmeacada.ts",
+    "load:fungi-ameacada": "bun src/loaders/loadFungiAmeacada.ts",
+    "load:invasoras": "bun src/loaders/loadInvasoras.ts",
+    "load:catalogo-ucs": "bun src/loaders/loadCatalogoUCs.ts",
+    "enrich:ameacadas": "bun src/enrichment/enrichAmeacadas.ts",
+    "enrich:invasoras": "bun src/enrichment/enrichInvasoras.ts",
+    "enrich:ucs": "bun src/enrichment/enrichUCs.ts"
   },
   "dependencies": {
     "@darwincore/shared": "workspace:*",
     "mongodb": "catalog:",
     "bson": "catalog:",
-    "cli-progress": "catalog:"
+    "cli-progress": "catalog:",
+    "papaparse": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/bun": "catalog:",
-    "@types/cli-progress": "catalog:"
+    "@types/cli-progress": "catalog:",
+    "@types/papaparse": "catalog:"
   }
 }

@@ -58,16 +58,18 @@
         "bson": "catalog:",
         "cli-progress": "catalog:",
         "mongodb": "catalog:",
+        "papaparse": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/cli-progress": "catalog:",
         "@types/node": "catalog:",
+        "@types/papaparse": "catalog:",
       },
     },
     "packages/web": {
       "name": "@biodiversidade/web",
-      "version": "0.0.1",
+      "version": "6.0.0",
       "dependencies": {
         "@ai-sdk/google": "^1.2.18",
         "@ai-sdk/openai": "^1.3.22",
@@ -136,6 +138,7 @@
     "@types/bun": "^1.1.8",
     "@types/cli-progress": "^3.11.6",
     "@types/node": "^22.8.4",
+    "@types/papaparse": "^5.5.2",
     "bson": "^6.7.0",
     "cli-progress": "^3.12.0",
     "extract-zip": "^2.0.1",
