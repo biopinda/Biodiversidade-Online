@@ -2,7 +2,7 @@
 
 [Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15261018.svg)](https://doi.org/10.5281/zenodo.15261018)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18668804.svg)](https://doi.org/10.5281/zenodo.18668804)
 [![Update MongoDB - Flora](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-flora.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-flora.yml)
 [![Update MongoDB - Fauna](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-fauna.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-fauna.yml)
 [![Update MongoDB - Ocorrências](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-occurrences.yml/badge.svg)](https://github.com/biopinda/Biodiversidade-Online/actions/workflows/update-mongodb-occurrences.yml)
@@ -166,7 +166,7 @@ docker run -p 4321:4321 \
 
 ## Histórico de Versões
 
-- **V6.0** (atual - 2026): Reestruturação com arquitetura C4 (Aquisição, Transformação, Apresentação), remoção de componentes legados, foco em API e MCP
+- **V6.1** (atual - 2026): Reestruturação com arquitetura C4 (Aquisição, Transformação, Apresentação), remoção de componentes legados, foco em API e MCP
 - **V5.0** (2025): Integração com ChatBB e protocolo MCP, pipeline integrado ingestão+transformação
 - **V4.0** (2024): Integração de dados de ocorrência de ~490 IPTs
 - **V2.0** (2024): Agregação do Catálogo Taxonômico da Fauna do Brasil
@@ -187,8 +187,8 @@ Dúvidas, sugestões e contribuições são bem-vindas através das [issues do p
   title = {Biodiversidade.Online: Uma Base de Dados Integrada da Biodiversidade Brasileira},
   author = {Pinheiro, Henrique and Dalcin, Eduardo},
   year = {2026},
-  version = {6.0},
-  doi = {10.5281/zenodo.15261018},
+  version = {6.1},
+  doi = {10.5281/zenodo.18668804},
   url = {https://github.com/biopinda/Biodiversidade-Online}
 }
 ```
