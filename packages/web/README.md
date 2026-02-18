@@ -6,20 +6,15 @@ Aplicação web Astro.js para visualização e consulta de dados da biodiversida
 
 A aplicação consome dados de coleções MongoDB processadas em **pipeline integrado** (ingestão + transformação):
 
-### Coleções Raw (Rastreabilidade - Não Consultar nas APIs)
+### Coleções Principais
 
-- `taxa_ipt` - Dados taxonômicos brutos preservados (Flora/Fauna do Brasil)
-- `occurrences_ipt` - Registros de ocorrências brutos preservados (~490 IPTs)
-
-### Coleções Transformadas (Uso em APIs e Interfaces)
-
-- `taxa` - Dados taxonômicos normalizados e enriquecidos
-  - Normalizações: ranks, nomes científicos, localidades
-  - Enriquecimentos: status de ameaça (CNCFlora/MMA), espécies invasoras (GISD)
+- `taxa` - Dados taxonômicos normalizados e enriquecidos tematicamente
+  - Normalizações (durante ingestão): ranks, nomes científicos, localidades
+  - Enriquecimento temático: status de ameaça (`threatStatus`), espécies invasoras (`invasiveStatus`)
 - `occurrences` - Registros de ocorrências validados e geolocalizados
-  - Validações: coordenadas, datas, países (somente Brasil)
+  - Validações (durante ingestão): coordenadas, datas, países (somente Brasil)
   - Geolocalização: índice 2dsphere para queries espaciais
-  - Vinculação: referências cruzadas com táxons via `taxonID`
+  - Enriquecimento temático: unidades de conservação (`conservationUnits`)
 
 ### Coleções de Controle
 
@@ -156,33 +151,33 @@ O dashboard utiliza dados pré-computados armazenados em `cache/dashboard-data.j
 
 ```mermaid
 graph LR
-    A[Ingestão DwC-A] --> B[taxa_ipt/occurrences_ipt]
-    A --> |"Transform Inline"| D
-    B --> |"Re-transform"| C[Transform Package]
-    C --> D[taxa/occurrences]
-    D --> E[APIs REST]
-    D --> F[Cache Dashboard]
+    A[Fontes DwC-A] --> |"Aquisição +\nTransformação"| B[taxa / occurrences]
+    C[CSVs de Referência] --> |"Loaders"| D[Coleções de Referência]
+    D --> |"Enriquecimento\ntemático"| B
+    B --> E[APIs REST]
+    B --> F[Cache Dashboard]
     E --> G[Interfaces Web]
     F --> G
 ```
 
-**Ingestão Integrada**: Durante `ingest:flora`, `ingest:fauna`, `ingest:occurrences`, os dados são salvos em coleções raw **e** transformados inline para coleções processadas.
+**Aquisição + Transformação**: Os scripts `ingest:flora`, `ingest:fauna` e `ingest:occurrences` baixam DwC-A, normalizam e inserem diretamente em `taxa` e `occurrences`.
 
-**Re-transformação**: Quando a lógica muda (novos enriquecimentos), `transform:taxa` e `transform:occurrences` reprocessam todo o histórico raw.
+**Enriquecimento Temático**: Scripts independentes (`enrich:ameacadas`, `enrich:invasoras`, `enrich:ucs`) associam dados de fontes externas às coleções principais, cada um representando um **tema** de enriquecimento. Novos temas podem ser adicionados seguindo o mesmo padrão (loader CSV + enricher in-place).
 
 ## Desenvolvimento
 
 1. **Configurar MongoDB**:
 
    ```bash
-   # Ingestão integrada (raw + transform inline - rotina semanal)
+   # Aquisição + Transformação (rotina semanal)
    bun run ingest:flora <URL_DWCA>
    bun run ingest:fauna <URL_DWCA>
    bun run ingest:occurrences
 
-   # Re-transformação (quando modificar lógica em packages/transform/)
-   bun run transform:taxa
-   bun run transform:occurrences
+   # Enriquecimento temático (após ingestão ou atualização de CSVs)
+   bun run enrich:ameacadas
+   bun run enrich:invasoras
+   bun run enrich:ucs
    ```
 
 2. **Iniciar servidor de desenvolvimento**:

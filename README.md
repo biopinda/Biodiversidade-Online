@@ -99,11 +99,17 @@ Todos os workflows são **manuais** (acionados via GitHub Actions):
 - **Ingestão Fauna** — DwC-A → normalização → `taxa`
 - **Ingestão Ocorrências** — DwC-A → normalização → `occurrences`
 
-**Enriquecimento:**
+**Enriquecimento Temático:**
 
-- **Enrich Ameaçadas** — Associa dados de ameaçadas a `taxa` (`threatStatus`)
-- **Enrich Invasoras** — Associa dados de invasoras a `taxa` (`invasiveStatus`)
-- **Enrich UCs** — Associa dados de UCs a `occurrences` (`conservationUnits`)
+O enriquecimento é organizado por **temas**, cada um representando uma fonte externa de dados que agrega informação às coleções principais. A arquitetura é extensível — novos temas seguem o mesmo padrão (loader CSV → coleção de referência → enricher in-place).
+
+Temas atuais:
+
+- **Ameaçadas** — Associa dados de espécies ameaçadas a `taxa` (`threatStatus`)
+- **Invasoras** — Associa dados de espécies invasoras a `taxa` (`invasiveStatus`)
+- **UCs** — Associa dados de unidades de conservação a `occurrences` (`conservationUnits`)
+
+Temas futuros possíveis: dados de DNA/barcoding, princípios ativos, uso por comunidades tradicionais.
 
 ## Tecnologias
 

@@ -15,9 +15,11 @@ Dados taxonômicos e de ocorrências são baixados, transformados (normalizados)
 
 A transformação ocorre durante a ingestão — não há etapa intermediária.
 
-### 2. Enriquecimento (In-place)
+### 2. Enriquecimento Temático (In-place)
 
-Scripts independentes associam dados de referência às coleções principais:
+O enriquecimento é organizado por **temas**. Cada tema representa uma fonte externa de dados que agrega informação às coleções principais (`taxa` ou `occurrences`). A arquitetura é extensível: para adicionar um novo tema, basta criar um loader CSV e um enricher seguindo o mesmo padrão.
+
+Temas atuais:
 
 - **Ameaçadas**: dados de `faunaAmeacada`/`plantaeAmeacada`/`fungiAmeacada` → associados a `taxa` via `$set{threatStatus}`
 - **Invasoras**: dados de `invasoras` → associados a `taxa` via `$set{invasiveStatus}`
@@ -54,6 +56,8 @@ bun run enrich:ucs         # Atualiza occurrences com conservationUnits (catalog
 ```
 
 Os enriquecedores iteram sobre a coleção alvo e fazem `$set` nos documentos com match, `$unset` nos que perderam o match.
+
+Temas futuros possíveis: dados de DNA/barcoding, princípios ativos, uso por comunidades tradicionais — cada um seguiria o mesmo padrão de loader + enricher.
 
 ## Quando Usar Cada Comando
 

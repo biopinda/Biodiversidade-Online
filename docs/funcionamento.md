@@ -220,9 +220,23 @@ Fluxo:
 
 ---
 
-## 5. Pipeline de Enriquecimento
+## 5. Pipeline de Enriquecimento Tematico
 
-O pacote `packages/transform` e responsavel por duas operacoes: carregar dados de referencia (loaders) e enriquecer as colecoes principais in-place (enrichers).
+O pacote `packages/transform` implementa um modelo de **enriquecimento tematico extensivel**. Cada tema representa uma fonte externa de dados que agrega informacao as colecoes principais (`taxa` ou `occurrences`).
+
+**Padrao de cada tema:**
+
+| Componente      | Descricao                                         | Exemplo (Ameacadas)       |
+| --------------- | ------------------------------------------------- | ------------------------- |
+| Fonte CSV       | Arquivo de dados de referencia                    | `fauna-ameacada-2021.csv` |
+| Loader          | Script que carrega CSV → colecao de referencia    | `load:fauna-ameacada`     |
+| Colecao de ref. | Colecao MongoDB com dados de referencia           | `faunaAmeacada`           |
+| Enricher        | Script que associa dados ao campo alvo (in-place) | `enrich:ameacadas`        |
+| Campo alvo      | Campo adicionado em `taxa` ou `occurrences`       | `taxa.threatStatus`       |
+
+**Extensibilidade:** Para adicionar um novo tema (ex: DNA/barcoding, principios ativos, uso por comunidades tradicionais), basta criar um loader e um enricher seguindo o mesmo padrao. O motor de matching (`lookup.ts`) e reutilizavel por todos os temas.
+
+O pacote e responsavel por duas operacoes: carregar dados de referencia (loaders) e enriquecer as colecoes principais in-place (enrichers).
 
 ### 5.1 Loaders CSV
 

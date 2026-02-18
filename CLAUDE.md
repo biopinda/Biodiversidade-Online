@@ -28,10 +28,16 @@ Always reference these instructions first and fallback to search or bash command
 - Run flora data update: `bun run ingest:flora [DWCA_URL]`
 - Run fauna data update: `bun run ingest:fauna [DWCA_URL]`
 - Run occurrence data update: `bun run ingest:occurrences`
-- Run taxa transformation: `bun run transform:taxa`
-- Run occurrences transformation: `bun run transform:occurrences`
-- Run full transformation: `bun run transform:execute`
-- Check transformation locks: `bun run transform:check-lock`
+- Load reference data (CSV → MongoDB):
+  - `bun run load:fauna-ameacada -- <csv>` / `load:plantae-ameacada` / `load:fungi-ameacada`
+  - `bun run load:invasoras -- <csv>`
+  - `bun run load:catalogo-ucs -- <csv>`
+- Run thematic enrichment (in-place):
+  - `bun run enrich:ameacadas` — adds `threatStatus` to `taxa`
+  - `bun run enrich:invasoras` — adds `invasiveStatus` to `taxa`
+  - `bun run enrich:ucs` — adds `conservationUnits` to `occurrences`
+- Re-normalization (legacy, rarely needed): `bun run transform:taxa`, `bun run transform:occurrences`
+- Check locks: `bun run transform:check-lock`
 - These scripts require MongoDB connection via MONGO_URI environment variable
 
 ### Web Application Commands
@@ -56,7 +62,7 @@ This project uses a monorepo structure with multiple packages managed by Bun wor
 
 - **Root**: Contains shared configuration (tsconfig.json, package.json for workspace management) and catalog dependencies
 - **packages/ingest**: Data acquisition - ingestion scripts for DwC-A data
-- **packages/transform**: Data transformation - enrichment and re-processing pipelines
+- **packages/transform**: Data enrichment - reference data loaders and thematic enrichment scripts
 - **packages/shared**: Shared utilities (database, IDs, metrics)
 - **packages/web**: Data presentation - Astro.js web application (Dashboard, ChatBB, API)
 
@@ -73,7 +79,7 @@ This project uses a monorepo structure with multiple packages managed by Bun wor
 
 - For web development: `cd packages/web/` then run commands
 - For data processing: Use root commands like `bun run ingest:flora [URL]`
-- For transformation: Use root commands like `bun run transform:taxa`
+- For enrichment: Use root commands like `bun run enrich:ameacadas`, `bun run load:fauna-ameacada -- <csv>`
 - Shared TypeScript config in root `tsconfig.base.json`
 - Use catalog references in package.json for shared dependencies
 
@@ -95,7 +101,7 @@ This project uses a monorepo structure with multiple packages managed by Bun wor
 
 ## Project Structure
 
-This is a monorepo project organized by C4 architecture contexts:
+This is a monorepo project organized by C4 architecture contexts (Acquisition + Transformation, Enrichment, Presentation):
 
 ```
 /
@@ -114,15 +120,15 @@ This is a monorepo project organized by C4 architecture contexts:
 │   │       ├── ocorrencia.ts# Occurrence data ingestion
 │   │       └── lib/
 │   │           └── dwca.ts  # Darwin Core Archive utilities
-│   ├── transform/           # Transformation: enrichment and re-processing
+│   ├── transform/           # Enrichment: thematic enrichment of main collections
 │   │   └── src/
 │   │       ├── cli/         # CLI commands for orchestration
-│   │       ├── enrichment/  # Enrichment modules
-│   │       ├── loaders/     # Data loaders (threatened, invasive, UCs)
-│   │       ├── taxa/        # Taxa re-processing
-│   │       ├── occurrences/ # Occurrence re-processing
+│   │       ├── enrichment/  # Thematic enrichers (ameaçadas, invasoras, UCs)
+│   │       ├── loaders/     # Reference data loaders (CSV → MongoDB)
+│   │       ├── taxa/        # Taxa normalization pipeline (used by ingest)
+│   │       ├── occurrences/ # Occurrences normalization pipeline (used by ingest)
 │   │       ├── lib/         # Infrastructure (database, locks, metrics)
-│   │       └── utils/       # Utility functions
+│   │       └── utils/       # Utility functions (lookup engine, name normalization)
 │   ├── shared/              # Shared utilities (database, IDs, metrics)
 │   └── web/                 # Presentation: Astro.js web application
 │       ├── astro.config.mjs # Astro configuration
@@ -175,12 +181,12 @@ This is a monorepo project organized by C4 architecture contexts:
 1. Always work in the appropriate directory for changes:
    - For web application changes: `cd packages/web/`
    - For data processing changes: `cd packages/ingest/`
-   - For transformation changes: `cd packages/transform/`
+   - For enrichment changes: `cd packages/transform/`
    - For shared utilities: `cd packages/shared/`
 2. Run `bun install` from root after pulling changes (manages all workspace dependencies)
 3. Use `bun run web:dev` for web development with hot reload
 4. Use `bun run ingest:<script>` for data processing scripts (e.g., `bun run ingest:flora [URL]`)
-5. Use `bun run transform:<script>` for transformation scripts (e.g., `bun run transform:taxa`)
+5. Use `bun run enrich:<script>` for enrichment and `bun run load:<script>` for reference data loading
 6. Check formatting with `bunx prettier --check src/` (in respective directory)
 7. Build and test production: `bun run web:build && node packages/web/dist/server/entry.mjs`
 8. Ensure MongoDB connection configured for full functionality testing
