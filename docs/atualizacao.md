@@ -2,188 +2,212 @@
 
 ## Arquitetura do Sistema de Atualização
 
-O sistema de atualização opera com **pipeline integrado** onde ingestão e transformação ocorrem no mesmo processo:
+O sistema opera com **duas etapas independentes**: Aquisição (ingestão de dados DwC-A) e Enriquecimento (adição de dados de contexto in-place).
 
-### 1. Ingestão Integrada (Raw + Transform)
+### 1. Aquisição (Ingestão DwC-A)
 
-Dados são baixados, armazenados raw E transformados automaticamente:
+Dados taxonômicos e de ocorrências são baixados e inseridos diretamente nas coleções principais:
 
-- **Flora/Fauna**: `taxa_ipt` (raw) + `taxa` (transformado) no mesmo pipeline
-- **Ocorrências**: `occurrences_ipt` (raw) + `occurrences` (transformado) no mesmo pipeline
+- **Flora/Fauna**: DwC-A → `taxa` (direto, sem intermediário)
+- **Ocorrências**: DwC-A → `occurrences` (direto, sem intermediário)
 
-### 2. Re-transformação (Quando Lógica Muda)
+### 2. Enriquecimento (In-place)
 
-Scripts CLI separados permitem re-processar todos dados quando transformação muda:
+Scripts independentes atualizam as coleções principais com dados de contexto sem re-processar toda a coleção:
 
-- **Taxa**: `bun run transform:taxa` (re-processa `taxa_ipt` → `taxa`)
-- **Ocorrências**: `bun run transform:occurrences` (re-processa `occurrences_ipt` → `occurrences`)
+- **Ameaçadas**: CSVs → `faunaAmeacada`/`plantaeAmeacada`/`fungiAmeacada` → `taxa.$set{threatStatus}`
+- **Invasoras**: CSV → `invasoras` → `taxa.$set{invasiveStatus}`
+- **UCs**: CSV → `catalogoucs` → `occurrences.$set{conservationUnits}`
+
+## Comandos Disponíveis
+
+### Aquisição (Rotina)
+
+```bash
+bun run ingest:flora <url-dwca>    # Flora e Funga do Brasil → taxa
+bun run ingest:fauna <url-dwca>    # Catálogo Fauna → taxa
+bun run ingest:occurrences         # ~490 IPTs → occurrences
+```
+
+### Carga de Dados de Referência (CSV → MongoDB)
+
+```bash
+bun run load:fauna-ameacada -- <fauna-ameacada.csv>
+bun run load:plantae-ameacada -- <plantae-ameacada.csv>
+bun run load:fungi-ameacada -- <fungi-ameacada.csv>
+bun run load:invasoras -- <invasoras.csv>
+bun run load:catalogo-ucs -- <cnuc.csv>
+```
+
+Os loaders fazem **drop + insert** na coleção de destino e recriam os índices.
+
+### Enriquecimento In-place
+
+```bash
+bun run enrich:ameacadas   # Atualiza taxa com threatStatus (faunaAmeacada + plantaeAmeacada + fungiAmeacada)
+bun run enrich:invasoras   # Atualiza taxa com invasiveStatus (invasoras)
+bun run enrich:ucs         # Atualiza occurrences com conservationUnits (catalogoucs)
+```
+
+Os enriquecedores iteram sobre a coleção alvo e fazem `$set` nos documentos com match, `$unset` nos que perderam o match.
 
 ## Quando Usar Cada Comando
 
-### Pipeline Integrado (Rotina)
+### Atualização de dados taxonômicos (nova versão do IPT)
 
 ```bash
-# Atualização semanal automática (GitHub Actions)
-bun run ingest:flora     # Flora: DwC-A → taxa_ipt + taxa
-bun run ingest:fauna     # Fauna: DwC-A → taxa_ipt + taxa
-bun run ingest:occurrences # Ocorrências: DwC-A → occurrences_ipt + occurrences
+bun run ingest:flora <nova-url>
+# ou
+bun run ingest:fauna <nova-url>
 ```
 
-### Re-transformação (Mudanças na Lógica)
+Após ingestão, rodar enriquecimento para aplicar threatStatus/invasiveStatus nos novos registros:
 
 ```bash
-# Quando modificar arquivos em packages/transform/src/
-bun run transform:taxa          # Re-processa todos dados taxonômicos
-bun run transform:occurrences   # Re-processa todos dados de ocorrências
+bun run enrich:ameacadas
+bun run enrich:invasoras
 ```
 
-**Quando usar re-transformação:**
+### Atualização das listas de referência (novo CSV)
 
-- Modificou validações geográficas ou taxonômicas
-- Adicionou novos enriquecimentos (ameaça, invasoras, UCs)
-- Corrigiu bugs na normalização de campos
-- Atualizou listas de referência (espécies ameaçadas, etc.)
+```bash
+# Carregar novo CSV e re-enriquecer
+bun run load:fauna-ameacada -- <novo-fauna-ameacada.csv>
+bun run enrich:ameacadas
+```
+
+### Re-enriquecimento completo (sem novo CSV)
+
+```bash
+# Útil após ingestão de novos taxa ou correção de bugs
+bun run enrich:ameacadas
+bun run enrich:invasoras
+bun run enrich:ucs
+```
 
 ## Workflows GitHub Actions
 
-### Execução Automática Semanal
+### Workflows de Aquisição (Manuais)
 
-- **Domingos às 02:00 (UTC)**: Ingestão integrada de Flora (DwC-A → taxa_ipt + taxa)
-- **Domingos às 02:30 (UTC)**: Ingestão integrada de Fauna (DwC-A → taxa_ipt + taxa)
-- **Domingos às 03:00 (UTC)**: Ingestão integrada de Ocorrências (DwC-A → occurrences_ipt + occurrences)
+| Workflow                     | Arquivo                          | Descrição                      |
+| ---------------------------- | -------------------------------- | ------------------------------ |
+| Update MongoDB - Flora       | `update-mongodb-flora.yml`       | Ingere Flora e Funga do Brasil |
+| Update MongoDB - Fauna       | `update-mongodb-fauna.yml`       | Ingere Catálogo da Fauna       |
+| Update MongoDB - Ocorrências | `update-mongodb-occurrences.yml` | Ingere ~490 IPTs               |
 
-### Execução Automática por Mudanças
+### Workflows de Enriquecimento (Manuais)
 
-#### Re-transformação Automática
+| Workflow                 | Arquivo                | Inputs opcionais                        | Descrição                                            |
+| ------------------------ | ---------------------- | --------------------------------------- | ---------------------------------------------------- |
+| Enrich Taxa - Ameaçadas  | `enrich-ameacadas.yml` | `csv_fauna`, `csv_plantae`, `csv_fungi` | Carrega CSVs (se fornecidos) e enriquece `taxa`      |
+| Enrich Taxa - Invasoras  | `enrich-invasoras.yml` | `csv_invasoras`                         | Carrega CSV (se fornecido) e enriquece `taxa`        |
+| Enrich Ocorrências - UCs | `enrich-ucs.yml`       | `csv_ucs`                               | Carrega CSV (se fornecido) e enriquece `occurrences` |
 
-- **`transform-taxa.yml`**: Dispara automaticamente quando modificar:
-  - `packages/transform/src/taxa/**` (lógica de transformação de taxa)
-  - `packages/transform/package.json` (bump de versão)
-  - `packages/shared/src/**` (utilitários compartilhados)
+Os workflows de enriquecimento são flexíveis: se um CSV for fornecido como input, ele é carregado antes do enriquecimento; caso contrário, apenas o enriquecimento é executado (com os dados já carregados no banco).
 
-- **`transform-occurrences.yml`**: Dispara automaticamente quando modificar:
-  - `packages/transform/src/occurrences/**` (lógica de transformação de ocorrências)
-  - `packages/transform/package.json` (bump de versão)
-  - `packages/shared/src/**` (utilitários compartilhados)
+### Outros Workflows
 
-### Execução Manual (workflow_dispatch)
-
-Todos os workflows podem ser executados manualmente via interface do GitHub Actions:
-
-- `update-mongodb-flora.yml` - Aceita URL customizada para DwC-A
-- `update-mongodb-fauna.yml` - Aceita URL customizada para DwC-A
-- `update-mongodb-occurrences.yml` - Processa lista de IPTs
-- `transform-taxa.yml` - Re-processa todos dados taxonômicos
-- `transform-occurrences.yml` - Re-processa todos dados de ocorrências
+| Workflow     | Arquivo      | Descrição                        |
+| ------------ | ------------ | -------------------------------- |
+| Docker Build | `docker.yml` | Constrói e publica imagem Docker |
 
 ## Fluxo de Dados Detalhado
 
 ```mermaid
-stateDiagram-v2
-    [*] --> IngestaoIntegradaFlora
-    [*] --> IngestaoIntegradaFauna
-    [*] --> IngestaoIntegradaOcorrencias
+graph LR
+    subgraph Fontes["Fontes Externas"]
+        JBRJ_Flora["IPT Flora/Funga\n(JBRJ)"]
+        JBRJ_Fauna["IPT Fauna\n(JBRJ)"]
+        IPTs490["~490 IPTs\n(herbários/museus)"]
+        CSV_Ameacadas["CSVs Ameaçadas\n(Fauna/Plantae/Fungi)"]
+        CSV_Invasoras["CSV Invasoras"]
+        CSV_UCs["CSV Catálogo UCs"]
+    end
 
-    state IngestaoIntegradaFlora {
-        [*] --> acessaIPTFlora
-        acessaIPTFlora --> downloadDwCFlora
-        downloadDwCFlora --> processaFlora
-        processaFlora --> gravaTaxaIPT_Flora
-        gravaTaxaIPT_Flora --> transformaTaxonRecord
-        transformaTaxonRecord --> gravaTaxa_Flora
-    }
+    subgraph Aquisição["Aquisição (packages/ingest)"]
+        IngestFlora["ingest:flora"]
+        IngestFauna["ingest:fauna"]
+        IngestOcc["ingest:occurrences"]
+        LoadAmeacadas["load:*-ameacada"]
+        LoadInvasoras["load:invasoras"]
+        LoadUCs["load:catalogo-ucs"]
+    end
 
-    state IngestaoIntegradaFauna {
-        [*] --> acessaIPTFauna
-        acessaIPTFauna --> downloadDwCFauna
-        downloadDwCFauna --> processaFauna
-        processaFauna --> gravaTaxaIPT_Fauna
-        gravaTaxaIPT_Fauna --> transformaTaxonRecord
-        transformaTaxonRecord --> gravaTaxa_Fauna
-    }
+    subgraph MongoDB["MongoDB (dwc2json)"]
+        taxa[("taxa")]
+        occurrences[("occurrences")]
+        faunaAmeacada[("faunaAmeacada")]
+        plantaeAmeacada[("plantaeAmeacada")]
+        fungiAmeacada[("fungiAmeacada")]
+        invasoras[("invasoras")]
+        catalogoucs[("catalogoucs")]
+    end
 
-    state IngestaoIntegradaOcorrencias {
-        [*] --> carregaListaIPTs
-        carregaListaIPTs --> downloadDwCIPT1
-        carregaListaIPTs --> downloadDwCIPT2
-        carregaListaIPTs --> downloadDwCIPTN
-        downloadDwCIPT1 --> processaOcorrencia1
-        downloadDwCIPT2 --> processaOcorrencia2
-        downloadDwCIPTN --> processaOcorrenciaN
-        processaOcorrencia1 --> gravaOccurrencesIPT_Batch1
-        processaOcorrencia2 --> gravaOccurrencesIPT_Batch2
-        processaOcorrenciaN --> gravaOccurrencesIPT_BatchN
-        gravaOccurrencesIPT_Batch1 --> transformaBatch1
-        gravaOccurrencesIPT_Batch2 --> transformaBatch2
-        gravaOccurrencesIPT_BatchN --> transformaBatchN
-        transformaBatch1 --> gravaOccurrences_Batch1
-        transformaBatch2 --> gravaOccurrences_Batch2
-        transformaBatchN --> gravaOccurrences_BatchN
-    }
+    subgraph Enriquecimento["Enriquecimento in-place (packages/transform)"]
+        EnrichAm["enrich:ameacadas"]
+        EnrichInv["enrich:invasoras"]
+        EnrichUCs["enrich:ucs"]
+    end
 
-    state transformaTaxonRecord {
-        [*] --> validaTaxonRank
-        validaTaxonRank --> normalizaCampos
-        normalizaCampos --> enriqueceAmeaca
-        enriqueceAmeaca --> enriqueceInvasoras
-        enriqueceInvasoras --> [*]
-    }
+    JBRJ_Flora --> IngestFlora --> taxa
+    JBRJ_Fauna --> IngestFauna --> taxa
+    IPTs490 --> IngestOcc --> occurrences
+    CSV_Ameacadas --> LoadAmeacadas --> faunaAmeacada & plantaeAmeacada & fungiAmeacada
+    CSV_Invasoras --> LoadInvasoras --> invasoras
+    CSV_UCs --> LoadUCs --> catalogoucs
 
-    state transformaBatch1 {
-        [*] --> validaGeoPoint
-        validaGeoPoint --> normalizaDatas
-        normalizaDatas --> normalizaLocalidades
-        normalizaLocalidades --> vinculaTaxon
-        vinculaTaxon --> filtraBrasil
-        filtraBrasil --> [*]
-    }
+    faunaAmeacada & plantaeAmeacada & fungiAmeacada --> EnrichAm
+    taxa --> EnrichAm --> taxa
 
-    gravaTaxa_Flora --> AtualizaAPIs
-    gravaTaxa_Fauna --> AtualizaAPIs
-    gravaOccurrences_Batch1 --> AtualizaAPIs
-    gravaOccurrences_Batch2 --> AtualizaAPIs
-    gravaOccurrences_BatchN --> AtualizaAPIs
-    AtualizaAPIs --> [*]
+    invasoras --> EnrichInv
+    taxa --> EnrichInv --> taxa
 
-    state ReTransformacao {
-        [*] --> ModificacaoLogica
-        ModificacaoLogica --> ExecutaTransformTaxa
-        ModificacaoLogica --> ExecutaTransformOccurrences
-        ExecutaTransformTaxa --> ReprocessaTaxaIPT
-        ExecutaTransformOccurrences --> ReprocessaOccurrencesIPT
-        ReprocessaTaxaIPT --> AtualizaTaxa
-        ReprocessaOccurrencesIPT --> AtualizaOccurrences
-        AtualizaTaxa --> AtualizaAPIs
-        AtualizaOccurrences --> AtualizaAPIs
-    }
+    catalogoucs --> EnrichUCs
+    occurrences --> EnrichUCs --> occurrences
+```
+
+## Estrutura de Dados Resultante
+
+Após enriquecimento, os documentos de `taxa` contêm:
+
+```javascript
+{
+  _id: "P12345",
+  canonicalName: "Bertholletia excelsa",
+  kingdom: "Plantae",
+  // ... campos taxonômicos normalizados ...
+
+  // Campos adicionados pelo enriquecimento:
+  threatStatus: [
+    { source: "plantaeAmeacada", category: "VU" }
+  ],
+  invasiveStatus: null,  // ou { source: "invasoras", isInvasive: true }
+  conservationUnits: [
+    { ucName: "Floresta Nacional do Tapajós" }
+  ]
+}
+```
+
+## Operações Manuais no MongoDB
+
+### Renomear coleções legadas (migração única)
+
+Se o banco ainda contém as coleções com nomenclatura antiga, execute:
+
+```javascript
+db.cncfloraFungi.renameCollection('fungiAmeacada')
+db.cncfloraPlantae.renameCollection('plantaeAmeacada')
 ```
 
 ## Métricas e Monitoramento
 
-Cada execução registra métricas na coleção `process_metrics`:
+Cada execução de enriquecimento reporta no console:
 
-- **Duração**: Tempo total de processamento
-- **Registros processados**: Contagem de documentos inseridos/atualizados
-- **Taxa de sucesso**: Percentual de registros válidos
-- **Erros**: Log de falhas para auditoria
+- Registros processados
+- Registros enriquecidos (campo adicionado/atualizado)
+- Registros limpos (campo removido por perda de match)
+- Registros sem alteração
 
 ## Controle de Concorrência
 
-Sistema de locks na coleção `transform_status` previne execuções simultâneas:
-
-- Lock automático ao iniciar transformação
-- Liberação automática ao finalizar com sucesso
-- Comando manual para forçar liberação: `bun run transform:check-lock`
-
-## Rastreabilidade de Dados
-
-O campo `_id` é preservado entre coleções raw e transformadas:
-
-- `taxa_ipt._id` = `taxa._id` (baseado em `taxonID`)
-- `occurrences_ipt._id` = `occurrences._id` (baseado em `occurrenceID` + `iptId`)
-
-Isso permite auditoria completa: qualquer documento transformado pode ser rastreado até sua origem.
-
-```
-
-```
+Os scripts de enriquecimento **não usam o sistema de locks** (diferente dos pipelines de transformação). São projetados para serem idempotentes — podem ser executados múltiplas vezes com segurança.

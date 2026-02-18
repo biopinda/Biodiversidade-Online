@@ -1,8 +1,8 @@
 export type CollectionDomain = 'taxa' | 'occurrences'
 
 export const RAW_COLLECTIONS: Record<CollectionDomain, string> = {
-  taxa: 'taxa_ipt',
-  occurrences: 'occurrences_ipt'
+  taxa: 'taxa',
+  occurrences: 'occurrences'
 }
 
 export const TRANSFORMED_COLLECTIONS: Record<CollectionDomain, string> = {

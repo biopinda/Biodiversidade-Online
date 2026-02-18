@@ -1,268 +1,196 @@
-# @darwincore/transform - Pipeline de Transformação
+# @darwincore/transform - Pipeline de Enriquecimento
 
-Pacote responsável pela transformação de dados brutos DwC-A em dados processados otimizados para consultas e APIs.
+Pacote responsável pelo carregamento de dados de referência e enriquecimento in-place das coleções principais do MongoDB.
 
 ## Visão Geral
 
-Este pacote implementa o **pipeline de transformação** que processa dados brutos das coleções `taxa_ipt` e `occurrences_ipt` aplicando:
+Este pacote implementa dois tipos de operações:
 
-- **Validações**: Geográficas, temporais, taxonômicas
-- **Normalizações**: Padronização de campos e formatos
-- **Enriquecimentos**: Status de ameaça, invasoras, UCs, vinculações taxonômicas
-- **Otimização**: Índices e agregações para performance
+1. **Loaders CSV** — Carregam arquivos CSV para coleções de referência no MongoDB (`faunaAmeacada`, `plantaeAmeacada`, `fungiAmeacada`, `invasoras`, `catalogoucs`)
+2. **Enrichers** — Iteram sobre `taxa` e `occurrences` e atualizam os documentos in-place com dados das coleções de referência
+
+Não há mais pipeline de 2 estágios (taxa_ipt → taxa). Os scripts de ingestão gravam diretamente em `taxa` e `occurrences`, e os enrichers complementam esses dados.
+
+## Scripts Disponíveis
+
+### Loaders (CSV → MongoDB)
+
+```bash
+bun run load:fauna-ameacada -- <caminho.csv>    # → coleção faunaAmeacada
+bun run load:plantae-ameacada -- <caminho.csv>  # → coleção plantaeAmeacada
+bun run load:fungi-ameacada -- <caminho.csv>    # → coleção fungiAmeacada
+bun run load:invasoras -- <caminho.csv>         # → coleção invasoras
+bun run load:catalogo-ucs -- <caminho.csv>      # → coleção catalogoucs
+```
+
+Cada loader: lê o CSV, detecta o delimitador automaticamente, faz drop + insert na coleção, cria índices.
+
+### Enrichers (atualização in-place)
+
+```bash
+bun run enrich:ameacadas    # Atualiza taxa com threatStatus
+bun run enrich:invasoras    # Atualiza taxa com invasiveStatus
+bun run enrich:ucs          # Atualiza occurrences com conservationUnits
+```
+
+Cada enricher: carrega a(s) coleção(ões) de referência em memória, itera sobre a coleção alvo via cursor, aplica `$set` (match) ou `$unset` (sem match) em batches.
+
+### Utilitários
+
+```bash
+bun run check-lock    # Verifica locks de transformação ativos
+```
 
 ## Arquitetura
 
-### Funções Exportadas (Uso Inline)
+### Módulo de Lookup Compartilhado
 
-O pacote exporta funções puras para uso durante ingestão:
+`src/utils/lookup.ts` — Motor de matching reutilizável por todos os enrichers:
 
 ```typescript
 import {
-  transformTaxonRecord,
-  transformOccurrenceRecord
-} from '@darwincore/transform'
-
-// Durante ingestão - transformação inline
-const rawTaxon = {
-  /* dados de taxa_ipt */
-}
-const transformedTaxon = await transformTaxonRecord(rawTaxon, db)
-await taxaCollection.insertOne(transformedTaxon)
+  createLookup, // Cria índice vazio { byId, byFlatName }
+  addToLookup, // Adiciona entrada ao índice
+  gatherLookupMatches, // Busca matches por ID e nome
+  collectDocumentIds, // Extrai todos os IDs de um documento
+  collectDocumentNames // Extrai todos os nomes de um documento
+} from '../utils/lookup'
 ```
 
-### CLI para Re-transformação
+**Estratégia de matching duplo:**
 
-Scripts CLI para re-processamento em massa quando lógica muda:
+- Por ID: campos `_id`, `taxonID`, `taxonId`, `taxon_id`, `identifier`, `id`
+- Por nome normalizado: campos `canonicalName`, `scientificName`, `nome`, `nomeCientifico`, etc.
 
-```bash
-# Re-transformar todos dados taxonômicos
-bun run transform:taxa
+### Fluxo de Enriquecimento
 
-# Re-transformar todos dados de ocorrências
-bun run transform:occurrences
-
-# Verificar status de locks
-bun run transform:check-lock
 ```
-
-## Quando Incrementar Versão
-
-**Incremente a versão** (`packages/transform/package.json`) quando modificar:
-
-- Lógica de validação (geográfica, taxonômica, temporal)
-- Regras de normalização (nomes, datas, localidades)
-- Enriquecimentos (ameaça, invasoras, UCs)
-- Vinculações taxonômicas ou filtros
-- Estrutura de dados de saída
-
-**Isso dispara automaticamente**:
-
-- GitHub Actions workflow `transform-taxa.yml` (se houver mudanças em taxa)
-- GitHub Actions workflow `transform-occurrences.yml` (se houver mudanças em occurrences)
-- Re-transformação completa dos dados afetados
-- Testes de regressão
-- Deploy com dados atualizados
-
-**Triggers Automáticos por Workflow**:
-
-```yaml
-# transform-taxa.yml dispara em:
-- packages/transform/src/taxa/**
-- packages/transform/package.json
-- packages/shared/src/**
-
-# transform-occurrences.yml dispara em:
-- packages/transform/src/occurrences/**
-- packages/transform/package.json
-- packages/shared/src/**
-```
-
-**Exemplo de workflow de desenvolvimento**:
-
-```bash
-# 1. Modificar lógica de transformação
-vim packages/transform/src/taxa/normalizeTaxon.ts
-
-# 2. Incrementar versão (patch/minor/major)
-cd packages/transform
-npm version patch
-
-# 3. Commit e push
-git commit -am "feat: improve taxon normalization"
-git push origin main
-
-# 4. GitHub Actions automaticamente executa transform-taxa.yml
-# Re-transforma todos os dados taxonômicos com a nova lógica
+Coleções de Referência (ex: faunaAmeacada)
+    ↓ materializeCollection()
+Documentos carregados em memória
+    ↓ collectDocumentIds() + collectDocumentNames()
+IndexedLookup { byId: Map, byFlatName: Map }
+    ↓
+Cursor sobre taxa/occurrences
+    ↓ gatherLookupMatches()
+Matches encontrados → $set { threatStatus/invasiveStatus/conservationUnits }
+Sem match → $unset (se campo existia)
+    ↓
+bulkWrite em batches de 2000
 ```
 
 ## Estrutura do Código
 
 ```
 src/
-├── index.ts                    # Exports públicos
+├── index.ts                          # Exports públicos
 ├── cli/
-│   ├── runTransform.ts         # CLI orquestrador
-│   └── checkLock.ts            # Utilitário de locks
+│   ├── runTransform.ts               # Orquestrador CLI (para pipelines com lock)
+│   ├── checkLock.ts                  # Utilitário de locks
+│   ├── register.ts                   # Registro de pipelines CLI
+│   ├── transformTaxa.ts              # Pipeline de re-normalização de taxa
+│   └── transformOccurrences.ts       # Pipeline de re-normalização de ocorrências
+├── enrichment/
+│   ├── enrichAmeacadas.ts            # Enriquece taxa com threatStatus
+│   ├── enrichInvasoras.ts            # Enriquece taxa com invasiveStatus
+│   └── enrichUCs.ts                  # Enriquece occurrences com conservationUnits
+├── loaders/
+│   ├── loadFaunaAmeacada.ts          # CSV → faunaAmeacada
+│   ├── loadPlantaeAmeacada.ts        # CSV → plantaeAmeacada
+│   ├── loadFungiAmeacada.ts          # CSV → fungiAmeacada
+│   ├── loadInvasoras.ts              # CSV → invasoras
+│   └── loadCatalogoUCs.ts            # CSV → catalogoucs
 ├── taxa/
-│   ├── transformTaxa.ts        # Pipeline re-transform taxa_ipt → taxa
-│   ├── transformTaxonRecord.ts # Função inline transformTaxonRecord()
-│   ├── normalizeTaxon.ts       # Normalizações (canonicalName, etc.)
-│   └── enrichTaxon.ts          # Enriquecimentos (ameaça, invasoras)
+│   ├── transformTaxonRecord.ts       # Normalização inline (usada pela ingestão)
+│   ├── normalizeTaxon.ts             # Normalizações (canonicalName, etc.)
+│   ├── enrichTaxon.ts                # Enriquecimento (usado pelo pipeline de re-normalização)
+│   └── transforms/
+│       └── pipeline.ts               # Pipeline de normalização em 11 etapas
 ├── occurrences/
-│   ├── transformOccurrences.ts # Pipeline re-transform occurrences_ipt → occurrences
-│   ├── transformOccurrenceRecord.ts # Função inline transformOccurrenceRecord()
-│   ├── normalizeOccurrence.ts  # Normalizações (geoPoint, datas)
-│   └── enrichOccurrence.ts     # Enriquecimentos (taxon lookup, Brasil)
+│   ├── transformOccurrenceRecord.ts  # Normalização inline (usada pela ingestão)
+│   ├── normalizeOccurrence.ts        # Normalizações (geoPoint, datas, estados)
+│   ├── enrichOccurrence.ts           # Enriquecimento (taxon lookup, Brasil)
+│   └── transforms/
+│       └── pipeline.ts               # Pipeline de normalização em 12 etapas
+├── utils/
+│   ├── lookup.ts                     # Motor de matching compartilhado
+│   └── name.ts                       # Normalização de nomes científicos
 └── lib/
-    ├── concurrency.ts          # Sistema de locks
-    ├── database.ts             # Conexão MongoDB
-    └── metrics.ts              # Registro de métricas
+    ├── concurrency.ts                # Sistema de locks MongoDB
+    ├── database.ts                   # Conexão MongoDB
+    ├── metrics.ts                    # Registro de métricas
+    └── orchestrator.ts               # Orquestrador de pipelines
 ```
 
-## Transformações Implementadas
+## Coleções de Referência
 
-### Taxa (transformTaxonRecord)
+| Coleção           | Loader                  | Enricher           | Campo em taxa/occurrences       |
+| ----------------- | ----------------------- | ------------------ | ------------------------------- |
+| `faunaAmeacada`   | `load:fauna-ameacada`   | `enrich:ameacadas` | `taxa.threatStatus`             |
+| `plantaeAmeacada` | `load:plantae-ameacada` | `enrich:ameacadas` | `taxa.threatStatus`             |
+| `fungiAmeacada`   | `load:fungi-ameacada`   | `enrich:ameacadas` | `taxa.threatStatus`             |
+| `invasoras`       | `load:invasoras`        | `enrich:invasoras` | `taxa.invasiveStatus`           |
+| `catalogoucs`     | `load:catalogo-ucs`     | `enrich:ucs`       | `occurrences.conservationUnits` |
 
-**Validações:**
+## Formato dos Campos de Enriquecimento
 
-- `taxonRank` válido (ESPECIE, GENERO, FAMILIA, etc.)
-- `taxonomicStatus` = 'NOME_ACEITO'
-
-**Normalizações:**
-
-- `canonicalName`: Nome científico padronizado
-- `vernacularName`: Nome vulgar em português
-- `distribution`: Distribuição geográfica normalizada
-
-**Enriquecimentos:**
-
-- `threatStatus`: Status de ameaça (CNCFlora/MMA)
-- `invasive`: Espécie invasora (Instituto Hórus)
-- `protectedArea`: Ocorre em Unidades de Conservação
-
-### Ocorrências (transformOccurrenceRecord)
-
-**Validações:**
-
-- Coordenadas geográficas válidas
-- País = 'Brazil' (filtragem automática)
-- Datas em formato ISO válido
-
-**Normalizações:**
-
-- `geoPoint`: GeoJSON Point com índice 2dsphere
-- `eventDate`: Data padronizada ISO
-- `stateProvince`: Estado brasileiro normalizado
-- `municipality`: Município normalizado
-
-**Enriquecimentos:**
-
-- `taxonID`: Vinculação com táxon via scientificName
-- `collectorName`: Nome do coletor padronizado
-- `reproductiveCondition`: Condição reprodutiva
-
-## Controle de Concorrência
-
-Sistema de locks previne execuções simultâneas:
-
-```typescript
-// Lock automático durante re-transformação
-await acquireLock('taxa-transform')
-
-try {
-  // Processamento...
-} finally {
-  await releaseLock('taxa-transform')
-}
-```
-
-**Comandos de manutenção:**
-
-```bash
-# Verificar locks ativos
-bun run transform:check-lock
-
-# Forçar liberação (emergência)
-bun run transform:check-lock --force
-```
-
-## Métricas e Monitoramento
-
-Cada execução registra métricas em `process_metrics`:
+### `threatStatus` (em taxa)
 
 ```javascript
-{
-  operation: 'transform-taxa',
-  startTime: ISODate(),
-  duration: 125000, // ms
-  recordsProcessed: 150000,
-  recordsInserted: 148000,
-  recordsUpdated: 2000,
-  errors: 0
+threatStatus: [
+  { source: 'faunaAmeacada', category: 'Em Perigo (EN)' }
+  // pode ter múltiplas fontes
+]
+```
+
+### `invasiveStatus` (em taxa)
+
+```javascript
+invasiveStatus: {
+  source: "invasoras",
+  isInvasive: true,
+  notes: "observação opcional"
 }
 ```
 
-## Desenvolvimento
+### `conservationUnits` (em occurrences)
 
-### Adicionando Nova Transformação
-
-1. **Modificar função inline** (`transformTaxonRecord.ts` ou `transformOccurrenceRecord.ts`)
-2. **Testar localmente** com dados de exemplo
-3. **Incrementar versão** em `package.json`
-4. **Commit e push** - GitHub Actions executará re-transformação automaticamente
-
-### Testes
-
-```bash
-# Executar testes (se implementados)
-bun test
-
-# Testar pipeline completo
-bun run transform:taxa --dry-run
+```javascript
+conservationUnits: [{ ucName: 'Parque Nacional da Amazônia' }]
 ```
 
 ## Dependências
 
-- `@darwincore/shared`: Utilitários compartilhados (database, IDs, métricas)
-- `mongodb`: Driver MongoDB
-- `cli-progress`: Barras de progresso CLI
-
-## Integração com Ingestão
-
-O pacote é usado durante ingestão para transformação inline:
-
-```typescript
-// packages/ingest/src/flora.ts
-import { transformTaxonRecord } from '@darwincore/transform'
-
-for (const rawRecord of dwcRecords) {
-  // Inserir raw
-  await taxaIptCollection.insertOne(rawRecord)
-
-  // Transformar inline
-  const transformed = await transformTaxonRecord(rawRecord, db)
-  await taxaCollection.insertOne(transformed)
-}
-```
+- `@darwincore/shared` — Utilitários compartilhados (database, IDs, métricas)
+- `mongodb` — Driver MongoDB
+- `cli-progress` — Barras de progresso CLI
+- `papaparse` — Parser CSV
 
 ## Troubleshooting
 
-### Lock Stuck
+### Coleção de referência vazia
 
-```bash
-bun run transform:check-lock --force
+```
+Coleção 'faunaAmeacada' vazia ou inexistente, pulando.
 ```
 
-### Performance Issues
+Execute o loader correspondente antes de rodar o enricher:
 
-- Verificar índices em coleções transformadas
-- Monitorar métricas em `process_metrics`
-- Considerar processamento em batches menores
+```bash
+bun run load:fauna-ameacada -- packages/ingest/chatbb/fontes/fauna-ameacada-2021.csv
+bun run enrich:ameacadas
+```
 
-### Dados Inconsistentes
+### Lock stuck (pipelines de normalização)
 
-- Comparar `_id` entre coleções raw/transform
-- Verificar logs de erro na transformação
-- Re-executar transformação: `bun run transform:taxa`</content>
-  <parameter name="filePath">e:\Biodiversidade-Online\packages\transform\README.md
+```bash
+bun run check-lock
+```
+
+### Re-enriquecimento completo
+
+Os enrichers são idempotentes. Execute quantas vezes necessário:
+
+```bash
+bun run enrich:ameacadas && bun run enrich:invasoras && bun run enrich:ucs
+```

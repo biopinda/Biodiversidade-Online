@@ -10,16 +10,16 @@ export async function getThreatenedCountPerKingdom(kingdom: string) {
       threatStatus: { $ne: 'Não Avaliada (NE)' }
     })
   } else if (kingdom.toLowerCase() === 'plantae') {
-    // Kingdom Plantae está no documento cncfloraPlantae
-    const flora = await getCollection('dwc2json', 'cncfloraPlantae')
+    // Kingdom Plantae está no documento plantaeAmeacada
+    const flora = await getCollection('dwc2json', 'plantaeAmeacada')
     if (!flora) return null
     // Excluir categoria "NE"
     return await flora.countDocuments({
       'Categoria de Risco': { $ne: 'NE' }
     })
   } else if (kingdom.toLowerCase() === 'fungi') {
-    // Kingdom Fungi está no documento cncfloraFungi
-    const flora = await getCollection('dwc2json', 'cncfloraFungi')
+    // Kingdom Fungi está no documento fungiAmeacada
+    const flora = await getCollection('dwc2json', 'fungiAmeacada')
     if (!flora) return null
     // Excluir categoria "NE"
     return await flora.countDocuments({
@@ -51,7 +51,7 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
       ])
       .toArray()
   } else if (kingdom.toLowerCase() === 'plantae') {
-    const flora = await getCollection('dwc2json', 'cncfloraPlantae')
+    const flora = await getCollection('dwc2json', 'plantaeAmeacada')
     if (!flora) return null
 
     return await flora
@@ -73,7 +73,7 @@ export async function getThreatenedCategoriesPerKingdom(kingdom: string) {
       ])
       .toArray()
   } else if (kingdom.toLowerCase() === 'fungi') {
-    const flora = await getCollection('dwc2json', 'cncfloraFungi')
+    const flora = await getCollection('dwc2json', 'fungiAmeacada')
     if (!flora) return null
 
     return await flora

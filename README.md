@@ -22,15 +22,15 @@ graph TB
         Flora["Ingestão Flora"]
         Fauna["Ingestão Fauna"]
         Ocorrencias["Ingestão Ocorrências"]
-        FuturoAmeacadas["🔜 Ameaçadas"]
-        FuturoInvasoras["🔜 Invasoras"]
-        FuturoUCs["🔜 UCs"]
+        LoadAmeacadas["Carga CSV Ameaçadas"]
+        LoadInvasoras["Carga CSV Invasoras"]
+        LoadUCs["Carga CSV UCs"]
     end
 
-    subgraph Transformação["Contexto: Transformação"]
-        TransformTaxa["Transformação Taxa"]
-        TransformOcc["Transformação Ocorrências"]
-        FuturoEnrich["🔜 Enriquecimento"]
+    subgraph Enriquecimento["Contexto: Enriquecimento (in-place)"]
+        EnrichAmeacadas["enrich:ameacadas\n(threatStatus em taxa)"]
+        EnrichInvasoras["enrich:invasoras\n(invasiveStatus em taxa)"]
+        EnrichUCs["enrich:ucs\n(conservationUnits em occurrences)"]
     end
 
     subgraph Apresentação["Contexto: Apresentação"]
@@ -42,15 +42,26 @@ graph TB
     IPTFlora["IPT Flora do Brasil"] --> Flora
     IPTFauna["IPT Fauna do Brasil"] --> Fauna
     IPTs["~490 IPTs"] --> Ocorrencias
+    CSVAmeacadas["CSVs Ameaçadas\n(Fauna/Plantae/Fungi)"] --> LoadAmeacadas
+    CSVInvasoras["CSV Invasoras"] --> LoadInvasoras
+    CSVUCs["CSV Catálogo UCs"] --> LoadUCs
 
-    Flora --> MongoDB[(MongoDB)]
+    Flora --> MongoDB[(MongoDB\ntaxa / occurrences)]
     Fauna --> MongoDB
     Ocorrencias --> MongoDB
+    LoadAmeacadas --> RefDB[(MongoDB\nfaunaAmeacada\nplantaeAmeacada\nfungiAmeacada)]
+    LoadInvasoras --> RefDB2[(MongoDB\ninvasoras)]
+    LoadUCs --> RefDB3[(MongoDB\ncatalogoucs)]
 
-    MongoDB --> TransformTaxa
-    MongoDB --> TransformOcc
-    TransformTaxa --> MongoDB
-    TransformOcc --> MongoDB
+    MongoDB --> EnrichAmeacadas
+    RefDB --> EnrichAmeacadas
+    MongoDB --> EnrichInvasoras
+    RefDB2 --> EnrichInvasoras
+    MongoDB --> EnrichUCs
+    RefDB3 --> EnrichUCs
+    EnrichAmeacadas --> MongoDB
+    EnrichInvasoras --> MongoDB
+    EnrichUCs --> MongoDB
 
     MongoDB --> Dashboard
     MongoDB --> ChatBB
@@ -70,21 +81,29 @@ graph TB
 - ~490 repositórios IPT com milhões de registros de ocorrência
 - Validação geográfica (coordenadas, estados via códigos IBGE)
 
-**Dados de Enriquecimento (em desenvolvimento):**
+**Dados de Enriquecimento (CSVs carregados manualmente):**
 
-- Espécies ameaçadas - Status de ameaça e programas de recuperação
-- Espécies invasoras - Origem geográfica e impacto em ecossistemas
-- Unidades de conservação - Limites geográficos e status de gestão
+- `faunaAmeacada` — Status de ameaça de extinção da fauna (MMA/ICMBio)
+- `plantaeAmeacada` — Status de ameaça da flora (CNCFlora/Plantae)
+- `fungiAmeacada` — Status de ameaça de fungos (CNCFlora/Fungi)
+- `invasoras` — Espécies invasoras e impactos ecossistêmicos
+- `catalogoucs` — Catálogo de Unidades de Conservação (CNUC/ICMBio)
 
 ## Pipeline de Dados
 
 Todos os workflows são **manuais** (acionados via GitHub Actions):
 
-- **Ingestão Flora** - Processa dados DwC-A da Flora e Funga do Brasil
-- **Ingestão Fauna** - Processa dados DwC-A do Catálogo da Fauna
-- **Ingestão Ocorrências** - Processa dados de ~490 IPTs
-- **Transformação Taxa** - Re-processa taxa_ipt → taxa com enriquecimento
-- **Transformação Ocorrências** - Re-processa occurrences_ipt → occurrences
+**Aquisição:**
+
+- **Ingestão Flora** — Processa DwC-A da Flora e Funga do Brasil → `taxa`
+- **Ingestão Fauna** — Processa DwC-A do Catálogo da Fauna → `taxa`
+- **Ingestão Ocorrências** — Processa ~490 IPTs → `occurrences`
+
+**Enriquecimento (in-place):**
+
+- **Load + Enrich Ameaçadas** — Carrega CSVs e atualiza `taxa` com `threatStatus`
+- **Load + Enrich Invasoras** — Carrega CSV e atualiza `taxa` com `invasiveStatus`
+- **Load + Enrich UCs** — Carrega CSV e atualiza `occurrences` com `conservationUnits`
 
 ## Tecnologias
 
@@ -114,16 +133,22 @@ Todos os workflows são **manuais** (acionados via GitHub Actions):
 # Instalar dependências dos workspaces
 bun install
 
-# === Ingestão (Aquisição) ===
+# === Aquisição ===
 bun run ingest:flora <dwc-a-url>
 bun run ingest:fauna <dwc-a-url>
 bun run ingest:occurrences
 
-# === Transformação ===
-bun run transform:taxa
-bun run transform:occurrences
-bun run transform:execute
-bun run transform:check-lock
+# === Carga de dados de referência (CSV → MongoDB) ===
+bun run load:fauna-ameacada -- <caminho/fauna-ameacada.csv>
+bun run load:plantae-ameacada -- <caminho/plantae-ameacada.csv>
+bun run load:fungi-ameacada -- <caminho/fungi-ameacada.csv>
+bun run load:invasoras -- <caminho/invasoras.csv>
+bun run load:catalogo-ucs -- <caminho/cnuc.csv>
+
+# === Enriquecimento in-place ===
+bun run enrich:ameacadas      # Adiciona threatStatus em taxa
+bun run enrich:invasoras      # Adiciona invasiveStatus em taxa
+bun run enrich:ucs            # Adiciona conservationUnits em occurrences
 
 # === Aplicação Web (Apresentação) ===
 cd packages/web
@@ -155,18 +180,19 @@ docker run -p 4321:4321 \
 ```
 ├── packages/
 │   ├── ingest/          # Aquisição: scripts de ingestão DwC-A
-│   ├── transform/       # Transformação: enriquecimento e re-processamento
+│   ├── transform/       # Enriquecimento: loaders CSV e scripts de enriquecimento in-place
 │   ├── shared/          # Utilitários compartilhados (database, IDs, métricas)
 │   └── web/             # Apresentação: Dashboard, ChatBB, REST API
 ├── .github/workflows/   # Workflows manuais (GitHub Actions)
-├── docs/                # Documentação histórica
+├── docs/                # Documentação
 ├── patches/             # Patches de dependências
 └── scripts/             # Scripts utilitários
 ```
 
 ## Histórico de Versões
 
-- **V6.1** (atual - 2026): Reestruturação com arquitetura C4 (Aquisição, Transformação, Apresentação), remoção de componentes legados, foco em API e MCP
+- **V6.1** (atual - 2026): Pipeline de enriquecimento in-place (CSV → loaders → enrich), renomeação de coleções de referência, arquitetura C4 consolidada
+- **V6.0** (2026): Reestruturação com arquitetura C4 (Aquisição, Transformação, Apresentação), remoção de componentes legados, foco em API e MCP
 - **V5.0** (2025): Integração com ChatBB e protocolo MCP, pipeline integrado ingestão+transformação
 - **V4.0** (2024): Integração de dados de ocorrência de ~490 IPTs
 - **V2.0** (2024): Agregação do Catálogo Taxonômico da Fauna do Brasil

@@ -1,4 +1,4 @@
-# Funcionamento do Sistema Biodiversidade Online (DwC2JSON v5.0)
+# Funcionamento do Sistema Biodiversidade Online (V6.1)
 
 ## Sumario
 
@@ -6,7 +6,7 @@
 2. [Arquitetura do Monorepo](#2-arquitetura-do-monorepo)
 3. [Fontes de Dados e IPTs](#3-fontes-de-dados-e-ipts)
 4. [Pipeline de Ingestao (packages/ingest)](#4-pipeline-de-ingestao)
-5. [Pipeline de Transformacao (packages/transform)](#5-pipeline-de-transformacao)
+5. [Pipeline de Enriquecimento (packages/transform)](#5-pipeline-de-enriquecimento)
 6. [Armazenamento MongoDB](#6-armazenamento-mongodb)
 7. [Aplicacao Web (packages/web)](#7-aplicacao-web)
 8. [Interface de Chat com IA](#8-interface-de-chat-com-ia)
@@ -32,13 +32,14 @@ O nome interno do banco de dados e **dwc2json** — uma referencia direta ao pro
 
 ## 2. Arquitetura do Monorepo
 
-O projeto utiliza **Bun workspaces** para gerenciar tres pacotes:
+O projeto utiliza **Bun workspaces** para gerenciar quatro pacotes:
 
 ```
 Biodiversidade-Online/
 ├── packages/
 │   ├── ingest/        # Aquisicao de dados dos IPTs e carga no MongoDB
-│   ├── transform/     # Normalizacao, validacao e enriquecimento dos dados brutos
+│   ├── transform/     # Carga de dados de referencia e enriquecimento in-place
+│   ├── shared/        # Utilitarios compartilhados (database, IDs, metricas)
 │   └── web/           # Aplicacao Astro.js (frontend + API)
 ├── package.json       # Workspace root com scripts orquestradores
 ├── tsconfig.base.json # Configuracao TypeScript compartilhada
@@ -47,15 +48,21 @@ Biodiversidade-Online/
 
 **Scripts orquestradores** (raiz do projeto):
 
-| Comando                         | Descricao                                 |
-| ------------------------------- | ----------------------------------------- |
-| `bun run ingest:flora`          | Ingere dados da Flora e Funga do Brasil   |
-| `bun run ingest:fauna`          | Ingere dados da Fauna do Brasil           |
-| `bun run ingest:occurrences`    | Ingere todas as colecoes de ocorrencias   |
-| `bun run transform:taxa`        | Re-transforma taxa brutos em taxa curados |
-| `bun run transform:occurrences` | Re-transforma ocorrencias brutas          |
-| `bun run web:dev`               | Inicia o servidor de desenvolvimento      |
-| `bun run web:build`             | Compila a aplicacao para producao         |
+| Comando                                  | Descricao                                   |
+| ---------------------------------------- | ------------------------------------------- |
+| `bun run ingest:flora`                   | Ingere dados da Flora e Funga do Brasil     |
+| `bun run ingest:fauna`                   | Ingere dados da Fauna do Brasil             |
+| `bun run ingest:occurrences`             | Ingere todas as colecoes de ocorrencias     |
+| `bun run load:fauna-ameacada -- <csv>`   | Carrega CSV de fauna ameacada               |
+| `bun run load:plantae-ameacada -- <csv>` | Carrega CSV de plantae ameacada             |
+| `bun run load:fungi-ameacada -- <csv>`   | Carrega CSV de fungi ameacada               |
+| `bun run load:invasoras -- <csv>`        | Carrega CSV de especies invasoras           |
+| `bun run load:catalogo-ucs -- <csv>`     | Carrega CSV do catalogo de UCs              |
+| `bun run enrich:ameacadas`               | Enriquece taxa com threatStatus             |
+| `bun run enrich:invasoras`               | Enriquece taxa com invasiveStatus           |
+| `bun run enrich:ucs`                     | Enriquece ocorrencias com conservationUnits |
+| `bun run web:dev`                        | Inicia o servidor de desenvolvimento        |
+| `bun run web:build`                      | Compila a aplicacao para producao           |
 
 ---
 
@@ -84,44 +91,21 @@ Herbarium - INPA,inpa,Plantae,inpa_herbario,https://ipt.sibbr.gov.br/inpa/
 Herpetology Collection - MPEG,mpeg,Animalia,mpeg_herpetologia,https://ipt.sibbr.gov.br/mpeg/
 ```
 
-**Principais instituicoes provedoras:**
+### Fontes de Dados de Referencia (Enriquecimento)
 
-- **INPA** — Instituto Nacional de Pesquisas da Amazonia
-- **MPEG** — Museu Paraense Emilio Goeldi
-- **JBRJ** — Jardim Botanico do Rio de Janeiro
-- **SiBBr** — Sistema de Informacao sobre a Biodiversidade Brasileira
-- **UFMG**, **USP**, **UNICAMP**, e dezenas de outras universidades e museus
-
-### Formato Darwin Core Archive
-
-Um DwC-A e um arquivo ZIP contendo:
-
-```
-arquivo.zip/
-├── meta.xml           # Schema: define campos do core e extensoes
-├── eml.xml            # Metadados ecologicos (titulo, versao, autores)
-├── taxon.txt          # Core: dados taxonomicos (tab-delimited)
-├── distribution.txt   # Extensao: distribuicao geografica
-├── vernacularname.txt # Extensao: nomes populares
-├── speciesprofile.txt # Extensao: perfil da especie
-└── resourcerelationship.txt # Extensao: sinonimias
-```
-
-O arquivo `meta.xml` mapeia cada coluna (por indice) a um termo Darwin Core padronizado:
-
-```xml
-<core>
-  <field index="0" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
-  <field index="1" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
-  <field index="2" term="http://rs.tdwg.org/dwc/terms/kingdom"/>
-</core>
-```
+| Dado                             | Colecao MongoDB   | Formato   | Campos-chave                            |
+| -------------------------------- | ----------------- | --------- | --------------------------------------- |
+| Fauna ameacada (MMA/ICMBio)      | `faunaAmeacada`   | CSV (`;`) | `canonicalName`, `threatStatus`         |
+| Plantae ameacada (CNCFlora)      | `plantaeAmeacada` | CSV (`;`) | `Nome Cientifico`, `Categoria de Risco` |
+| Fungi ameacada (CNCFlora)        | `fungiAmeacada`   | CSV (`;`) | `Nome Cientifico`, `Categoria de Risco` |
+| Especies invasoras (Horus/IBAMA) | `invasoras`       | CSV       | `scientific_name`                       |
+| Catalogo de UCs (CNUC/ICMBio)    | `catalogoucs`     | CSV (`;`) | `Nome da UC`, `UF`                      |
 
 ---
 
 ## 4. Pipeline de Ingestao
 
-O pacote `packages/ingest` e responsavel por baixar os DwC-A, parsea-los e inseri-los no MongoDB. O pipeline possui etapas distintas para taxa (flora/fauna) e ocorrencias.
+O pacote `packages/ingest` e responsavel por baixar os DwC-A, parsea-los e inseri-los diretamente no MongoDB nas colecoes `taxa` e `occurrences`.
 
 ### 4.1 Verificacao de Versao
 
@@ -131,7 +115,6 @@ Antes de baixar qualquer arquivo, o sistema verifica se o IPT publicou uma versa
 2. Extrai a versao do atributo `@packageId`
 3. Compara com a versao armazenada na colecao `ipts` do MongoDB
 4. **Se a versao e identica, pula o download** (economiza banda e tempo)
-5. Versoes verificadas sao cacheadas por 5 minutos para evitar requests repetidos
 
 **Classe:** `VerificadorVersao` (`src/lib/verificador-versao.ts`)
 
@@ -142,12 +125,9 @@ Antes de baixar qualquer arquivo, o sistema verifica se o IPT publicou uma versa
 1. Faz HTTP fetch da URL `${url}archive.do?r=${tag}`
 2. Streaming do conteudo para arquivo temporario `.temp/temp.zip`
 3. Possui timeout por inatividade (resets a cada chunk recebido)
-4. Trata erros 404 graciosamente (recurso pode ter sido removido)
-5. Extrai o ZIP para diretorio temporario
+4. Trata erros 404 graciosamente
 
 ### 4.3 Parsing do DwC-A — Dois Modos
-
-O sistema utiliza dois modos de parsing, escolhidos conforme o tipo de dado:
 
 #### Modo 1: JSON em Memoria (Taxa)
 
@@ -158,17 +138,10 @@ meta.xml → Identifica core + extensoes
     ↓
 taxon.txt → Leitura linha a linha → Objeto JSON com taxonID como chave
     ↓
-distribution.txt → Adicionado como array aninhado em cada taxon
-vernacularname.txt → Idem
-speciesprofile.txt → Idem
-resourcerelationship.txt → Idem
-    ↓
-eml.xml → Metadados do IPT extraidos
+distribution.txt + vernacularname.txt + speciesprofile.txt → adicionados como arrays aninhados
     ↓
 Resultado: { "12345": { taxonID, scientificName, distribution: [...], ... } }
 ```
-
-**Funcao:** `buildJson()` (`src/lib/dwca.ts`)
 
 #### Modo 2: SQLite Streaming (Ocorrencias)
 
@@ -181,45 +154,10 @@ occurrence.txt → Inserido em tabela SQLite in-memory
     ↓
 extensoes → Tabelas SQLite separadas com indices
     ↓
-Iterator → Retorna batches de N registros (default: 5000)
-           com extensoes juntas via SQL JOIN
+Iterator → Retorna batches de N registros com extensoes juntas via SQL JOIN
 ```
 
-**Funcao:** `buildSqlite()` (`src/lib/dwca.ts`)
-
-### 4.4 Preservacao de Dados Originais
-
-Antes de qualquer transformacao, os dados brutos sao preservados nas colecoes `taxa_ipt` e `occurrences_ipt`:
-
-```javascript
-{
-  _id: ObjectId,
-  iptId: "flora-do-brasil",
-  ipt_record_id: "12345",
-  ipt_version: "393.366",
-  collection_type: "flora",
-  original_data: { /* campos DwC-A exatamente como recebidos */ },
-  ingestion_metadata: {
-    timestamp: Date,
-    source_ipt_url: "https://ipt.jbrj.gov.br/jbrj/",
-    processing_version: "1.0.0"
-  }
-}
-```
-
-**Beneficios:**
-
-- Auditoria: possibilidade de rastrear dados ate a fonte original
-- Reprocessamento: permite aplicar novas transformacoes sem re-download
-- Rollback: recuperacao de dados em caso de transformacao incorreta
-
-**Classe:** `PreservadorDadosOriginais` (`src/lib/preservador-dados-originais.ts`)
-
-### 4.5 Transformacao Inline (durante ingestao)
-
-Apos a preservacao, uma **transformacao inline** e aplicada antes da insercao nas colecoes curadas. Os detalhes de cada transformacao estao na Secao 5.
-
-### 4.6 Ingestao de Flora
+### 4.4 Ingestao de Flora
 
 **Script:** `packages/ingest/src/flora.ts`
 **Comando:** `bun run ingest:flora [URL_DWCA]`
@@ -228,30 +166,28 @@ Fluxo:
 
 1. Verifica versao do IPT
 2. Baixa e extrai DwC-A (modo JSON em memoria)
-3. Preserva dados originais em `taxa_ipt`
-4. Para cada taxon no JSON:
+3. Para cada taxon no JSON:
    - Filtra por rank (mantem apenas `ESPECIE`, `VARIEDADE`, `FORMA`, `SUB_ESPECIE`)
    - Reestrutura distribuicao (array → objeto estruturado)
    - Extrai sinonimias de `resourcerelationship`
    - Normaliza nomes vernaculares
    - Gera `canonicalName` e `flatScientificName`
    - Extrai classificacao superior
-5. Remove registros antigos de Plantae/Fungi da colecao `taxa`
-6. Insere registros transformados em lotes de 5000
-7. Cria indices
+4. Remove registros antigos de Plantae/Fungi da colecao `taxa`
+5. Insere registros transformados em lotes de 5000
+6. Cria indices
 
-### 4.7 Ingestao de Fauna
+### 4.5 Ingestao de Fauna
 
 **Script:** `packages/ingest/src/fauna.ts`
 **Comando:** `bun run ingest:fauna [URL_DWCA]`
 
 Processo similar a flora, com diferencas:
 
-- Distribuicao estruturada de forma diferente (usa `locality` e `countryCode`)
 - Define `kingdom: "Animalia"` explicitamente
 - Remove registros antigos de Animalia antes da insercao
 
-### 4.8 Ingestao de Ocorrencias
+### 4.6 Ingestao de Ocorrencias
 
 **Script:** `packages/ingest/src/ocorrencia.ts`
 **Comando:** `bun run ingest:occurrences`
@@ -260,24 +196,16 @@ Fluxo:
 
 1. Le catalogo de ~505 IPTs do arquivo `occurrences.csv`
 2. Verifica versoes de **todos os IPTs em paralelo** (10 concorrentes)
-3. Identifica quais IPTs possuem atualizacoes pendentes
-4. Para cada IPT com atualizacao:
+3. Para cada IPT com atualizacao:
    - Baixa DwC-A (modo SQLite streaming)
-   - Preserva dados originais em `occurrences_ipt`
-   - Processa em batches de 5000:
-     - Cria GeoJSON Point com coordenadas validadas
-     - Converte campos temporais (year, month, day) para numeros
-     - Extrai componentes de data do `eventDate`
-     - Normaliza nomes de paises e estados brasileiros
-     - Gera `canonicalName` e `flatScientificName`
-     - Adiciona metadados do IPT (`iptId`, `ipt`, `iptKingdoms`)
+   - Processa em batches de 5000
+   - Cria GeoJSON Point com coordenadas validadas
+   - Normaliza campos temporais e geograficos
    - Remove registros antigos daquele `iptId`
    - Insere registros transformados
-5. Cria 45+ indices incluindo geoespacial (`geoPoint_2dsphere`)
+4. Cria 45+ indices incluindo geoespacial (`geoPoint_2dsphere`)
 
-### 4.9 IDs Deterministicos
-
-Para garantir consistencia entre ingestoes, o sistema gera IDs deterministicos:
+### 4.7 IDs Deterministicos
 
 **Taxa:**
 
@@ -290,47 +218,115 @@ Para garantir consistencia entre ingestoes, o sistema gera IDs deterministicos:
 - Primario: `{occurrenceID}::{iptId}`
 - Fallback: hash SHA1 de `iptId|catalogNumber|recordNumber|eventDate|locality|recordedBy`
 
-### 4.10 Tratamento de Erros
-
-- **Timeout de rede:** abort controller com reset por chunk de dados
-- **404 (recurso removido):** saida graciosa, o IPT pode ter removido o recurso
-- **Limite de 16MB BSON:** `safeInsertMany` reduz tamanho do batch pela metade ate caber
-- **Bloqueio concorrente:** sistema de locks em colecao `processingLocks` impede processamento simultaneo do mesmo recurso
-
 ---
 
-## 5. Pipeline de Transformacao
+## 5. Pipeline de Enriquecimento
 
-O pacote `packages/transform` permite **re-transformar** dados ja ingeridos nas colecoes `_ipt` (brutas) para as colecoes curadas, aplicando normalizacoes e enriquecimentos.
+O pacote `packages/transform` e responsavel por duas operacoes: carregar dados de referencia (loaders) e enriquecer as colecoes principais in-place (enrichers).
 
-### 5.1 Quando Usar
+### 5.1 Loaders CSV
 
-A transformacao separada e util quando:
+Os loaders carregam arquivos CSV para as colecoes de referencia no MongoDB. Cada loader:
 
-- Uma nova regra de normalizacao e adicionada
-- Novas fontes de enriquecimento sao importadas (ex: nova lista de especies ameacadas)
-- Um bug na transformacao e corrigido e os dados precisam ser reprocessados
-- Nao e necessario re-baixar os dados dos IPTs — as colecoes `_ipt` ja contem os dados brutos
+1. Le o CSV do caminho fornecido como argumento CLI
+2. Detecta o delimitador automaticamente (papaparse)
+3. Faz **drop + insert** na colecao de destino
+4. Cria indices especificos para a colecao
 
-### 5.2 Arquitetura de Pipelines
-
-O sistema utiliza **pipelines composiveis** de funcoes puras. Cada etapa recebe um documento e retorna o documento transformado ou `null` (indicando que o registro deve ser descartado):
-
-```
-Documento bruto
-    ↓
-Etapa 1: validate-and-clone
-    ↓
-Etapa 2: filter-by-taxon-rank
-    ↓
-...
-    ↓
-Etapa N: ultima transformacao
-    ↓
-Documento normalizado (ou null = descartado)
+```bash
+bun run load:fauna-ameacada -- packages/ingest/chatbb/fontes/fauna-ameacada-2021.csv
+bun run load:plantae-ameacada -- <caminho.csv>
+bun run load:fungi-ameacada -- <caminho.csv>
+bun run load:invasoras -- <caminho.csv>
+bun run load:catalogo-ucs -- packages/ingest/chatbb/fontes/cnuc_2025_03.csv
 ```
 
-### 5.3 Pipeline de Normalizacao de Taxa (11 etapas)
+### 5.2 Motor de Matching (lookup.ts)
+
+O modulo `src/utils/lookup.ts` implementa o motor de matching utilizado por todos os enrichers:
+
+```
+Documentos da colecao de referencia
+    ↓ collectDocumentIds() + collectDocumentNames()
+IndexedLookup {
+  byId: Map<id → [entry, ...]>
+  byFlatName: Map<nomePlano → [entry, ...]>
+}
+    ↓ gatherLookupMatches(lookup, ids, names)
+Matches encontrados (por ID prioritario, depois por nome)
+```
+
+**Campos de ID verificados:** `_id`, `taxonID`, `taxonId`, `taxon_id`, `identifier`, `id`
+
+**Campos de nome verificados:** `canonicalName`, `scientificName`, `scientificname`, `nome`, `nomeCientifico`, `nome_cientifico`, `species`, etc.
+
+**Normalizacao de nomes:** Remove caracteres nao-alfanumericos e converte para minusculas (ex: `"Bertholletia excelsa"` → `"bertholletiaexcelsa"`)
+
+### 5.3 Enricher de Especies Ameacadas (enrich:ameacadas)
+
+**Script:** `src/enrichment/enrichAmeacadas.ts`
+
+```
+1. Carrega faunaAmeacada + plantaeAmeacada + fungiAmeacada em IndexedLookup
+2. Cursor sobre colecao taxa
+3. Para cada taxon:
+   - Extrai IDs candidatos (_id, taxonID)
+   - Extrai nomes candidatos (canonicalName, scientificName, flatScientificName)
+   - gatherLookupMatches() → lista de ThreatStatusEntry
+   - Se matches: $set { threatStatus: [...] }
+   - Se sem match mas tinha campo: $unset { threatStatus: "" }
+4. bulkWrite em batches de 2000
+```
+
+**Formato do campo gerado:**
+
+```javascript
+threatStatus: [{ source: 'faunaAmeacada', category: 'Em Perigo (EN)' }]
+```
+
+### 5.4 Enricher de Invasoras (enrich:invasoras)
+
+**Script:** `src/enrichment/enrichInvasoras.ts`
+
+```
+1. Carrega invasoras em IndexedLookup
+2. Cursor sobre colecao taxa
+3. Para cada taxon: matching + $set { invasiveStatus } ou $unset
+4. bulkWrite em batches de 2000
+```
+
+**Formato do campo gerado:**
+
+```javascript
+invasiveStatus: {
+  source: "invasoras",
+  isInvasive: true,
+  notes: "observacao opcional"
+}
+```
+
+### 5.5 Enricher de UCs (enrich:ucs)
+
+**Script:** `src/enrichment/enrichUCs.ts`
+
+```
+1. Carrega catalogoucs em IndexedLookup (por nome da UC)
+2. Cursor sobre colecao occurrences
+3. Para cada ocorrencia: matching + $set { conservationUnits } ou $unset
+4. bulkWrite em batches de 2000
+```
+
+**Formato do campo gerado:**
+
+```javascript
+conservationUnits: [{ ucName: 'Parque Nacional da Amazonia' }]
+```
+
+**Nota:** O matching atual e por nome/ID. Matching geoespacial (ponto dentro do poligono da UC) e um TODO para versoes futuras.
+
+### 5.6 Pipeline de Normalizacao de Taxa (11 etapas)
+
+Usado durante re-normalizacao (`transform:taxa`), que processa taxa dentro da propria colecao `taxa`:
 
 | #   | Etapa                             | Descricao                                                     |
 | --- | --------------------------------- | ------------------------------------------------------------- |
@@ -340,127 +336,28 @@ Documento normalizado (ou null = descartado)
 | 4   | `build-flat-scientific-name`      | Remove caracteres especiais, lowercase (para busca)           |
 | 5   | `normalize-higher-classification` | Extrai segundo componente apos `;`                            |
 | 6   | `normalize-kingdom`               | Mapeia variacoes para valores canonicos                       |
-| 7   | `normalize-vernacular-names`      | Lowercase, substitui espacos por hifens, default "Portugues"  |
+| 7   | `normalize-vernacular-names`      | Lowercase, substitui espacos por hifens                       |
 | 8   | `extract-distribution`            | Reestrutura array de distribuicao em objeto                   |
 | 9   | `normalize-species-profile`       | Extrai primeiro perfil, remove `vegetationType` de `lifeForm` |
 | 10  | `convert-resource-relationship`   | Mapeia sinonimias para array `othernames`                     |
 | 11  | `force-animalia-kingdom`          | Garante `kingdom: "Animalia"` para fauna                      |
 
-**Exemplo de transformacao de distribuicao (Flora):**
+### 5.7 Pipeline de Normalizacao de Ocorrencias (12 etapas)
 
-Entrada (DwC-A bruto):
-
-```json
-"distribution": [
-  { "locationID": "AC", "establishmentMeans": "Native",
-    "occurrenceRemarks": { "endemism": "Endemic", "phytogeographicDomain": "Amazonia" } },
-  { "locationID": "AM", "establishmentMeans": "Native",
-    "occurrenceRemarks": { "endemism": "Endemic", "phytogeographicDomain": "Amazonia" } }
-]
-```
-
-Saida (normalizada):
-
-```json
-"distribution": {
-  "origin": "Native",
-  "Endemism": "Endemic",
-  "phytogeographicDomains": "Amazonia",
-  "occurrence": ["AC", "AM"],
-  "vegetationType": "Forest"
-}
-```
-
-### 5.4 Pipeline de Normalizacao de Ocorrencias (12 etapas)
-
-| #   | Etapa                                  | Descricao                                                       |
-| --- | -------------------------------------- | --------------------------------------------------------------- |
-| 1   | `validate-and-clone`                   | Valida existencia de `_id`, clona o documento                   |
-| 2   | `normalize-occurrence-id`              | Trima espacos em branco                                         |
-| 3   | `build-geo-point`                      | Cria GeoJSON Point; valida lat (-90,90) e lon (-180,180)        |
-| 4   | `build-canonical-name`                 | Combina genus + specificEpithet                                 |
-| 5   | `build-flat-scientific-name`           | Remove caracteres especiais, lowercase                          |
-| 6   | `normalize-ipt-kingdoms`               | Separa reinos por virgula/ponto-e-virgula                       |
-| 7   | `normalize-date-fields`                | Converte year/month/day de string para numero                   |
-| 8   | `normalize-event-date`                 | Parseia eventDate para Date; extrai year/month/day se ausentes  |
-| 9   | `normalize-country`                    | Normaliza "brazil", "BRASIL", etc. → "Brasil"                   |
-| 10  | `normalize-state`                      | Normaliza "rj" → "Rio de Janeiro", "sp" → "Sao Paulo", etc.     |
-| 11  | `normalize-county`                     | Capitaliza nomes de municipios                                  |
-| 12  | `check-brazilian-and-set-reproductive` | **Filtra registros nao-brasileiros**; detecta "flor" em remarks |
-
-**Mapeamento de estados brasileiros:**
-
-O sistema mantem 78+ variacoes mapeadas para nomes canonicos dos 27 estados. Exemplos:
-
-- `"ac"`, `"AC"`, `"acre"`, `"Acre"` → `"Acre"`
-- `"sp"`, `"SP"`, `"sao paulo"`, `"São Paulo"` → `"Sao Paulo"`
-- `"rj"`, `"RJ"`, `"rio de janeiro"` → `"Rio de Janeiro"`
-
-### 5.5 Enriquecimento de Taxa
-
-Apos a normalizacao, cada taxon e enriquecido com dados de **fontes externas** ja carregadas no MongoDB:
-
-| Fonte              | Colecao MongoDB   | Dado Adicionado                              |
-| ------------------ | ----------------- | -------------------------------------------- |
-| CNCFlora (Plantae) | `cncfloraPlantae` | Categoria de ameaca (CR, EN, VU, NT, LC, DD) |
-| CNCFlora (Fungi)   | `cncfloraFungi`   | Categoria de ameaca                          |
-| Fauna Ameacada     | `faunaAmeacada`   | Categoria de ameaca                          |
-| Instituto Horus    | `invasoras`       | Status de especie invasora                   |
-| ICMBio             | `catalogoucs`     | Unidades de conservacao associadas           |
-
-**Estrategia de matching:**
-
-- Duplo indice: por ID (`_id`, `taxonID`) e por nome (`flatScientificName`, `canonicalName`)
-- Prioriza match por ID; fallback para nome achatado
-- Retorna primeiro match encontrado
-
-**Campos adicionados ao documento:**
-
-```javascript
-{
-  threatStatus: [{ source: "cncfloraPlantae", category: "VU" }],
-  invasiveStatus: { source: "invasoras", isInvasive: true },
-  conservationUnits: [{ ucName: "Parque Nacional da Amazonia" }],
-  _transformedAt: Date,
-  _transformVersion: "1.0.0"
-}
-```
-
-### 5.6 Enriquecimento de Ocorrencias
-
-Cada ocorrencia e vinculada ao seu taxon correspondente na colecao `taxa`:
-
-1. Pre-carrega **toda** a colecao `taxa` em 4 mapas em memoria:
-   - Por `_id`, por `flatScientificName`, por `canonicalName`, por `scientificName`
-2. Tenta match por ID (`taxonID`, `acceptedNameUsageID`)
-3. Se falhar, tenta match por nome achatado
-4. No match, enriquece com: `taxonID`, `scientificName`, `canonicalName`, `kingdom`
-5. Adicionalmente, parseia `recordedBy` em array de coletores
-
-### 5.7 Processamento Incremental
-
-O sistema evita reprocessar documentos ja transformados:
-
-1. Cada documento recebe campo `_transformVersion` com a versao atual
-2. No inicio do batch, carrega IDs de documentos ja transformados em um `Set`
-3. Pula documentos cujo `_transformVersion` ja corresponde a versao atual
-4. **Para forcar re-transformacao:** incremente a versao em `packages/transform/package.json`
-
-### 5.8 Controle de Concorrencia
-
-- Colecao `transform_status` armazena locks
-- Impede que duas transformacoes do mesmo tipo rodem simultaneamente
-- Lock expira apos timeout configuravel (default: 2 horas)
-- Suporta flag `--force` para sobrescrever lock
-
-### 5.9 Metricas
-
-Cada execucao registra metricas na colecao `process_metrics`:
-
-- Registros processados, inseridos, atualizados, com falha
-- Duracao em segundos
-- Resumo de erros por etapa do pipeline
-- ID do runner (GitHub Actions, local, etc.)
+| #   | Etapa                                  | Descricao                                                |
+| --- | -------------------------------------- | -------------------------------------------------------- |
+| 1   | `validate-and-clone`                   | Valida existencia de `_id`, clona o documento            |
+| 2   | `normalize-occurrence-id`              | Trima espacos em branco                                  |
+| 3   | `build-geo-point`                      | Cria GeoJSON Point; valida lat (-90,90) e lon (-180,180) |
+| 4   | `build-canonical-name`                 | Combina genus + specificEpithet                          |
+| 5   | `build-flat-scientific-name`           | Remove caracteres especiais, lowercase                   |
+| 6   | `normalize-ipt-kingdoms`               | Separa reinos por virgula/ponto-e-virgula                |
+| 7   | `normalize-date-fields`                | Converte year/month/day de string para numero            |
+| 8   | `normalize-event-date`                 | Parseia eventDate para Date                              |
+| 9   | `normalize-country`                    | Normaliza variacoes de "Brasil"                          |
+| 10  | `normalize-state`                      | Normaliza siglas e variacoes de estados brasileiros      |
+| 11  | `normalize-county`                     | Capitaliza nomes de municipios                           |
+| 12  | `check-brazilian-and-set-reproductive` | **Filtra registros nao-brasileiros**; detecta fenologia  |
 
 ---
 
@@ -474,21 +371,17 @@ Cada execucao registra metricas na colecao `process_metrics`:
 
 ```javascript
 {
-  _id: "P12345",                    // ID deterministico (P=Plantae, A=Animalia)
+  _id: "P12345",
   taxonID: "12345",
   scientificName: "Bertholletia excelsa Bonpl.",
   canonicalName: "Bertholletia excelsa",
-  flatScientificName: "bertholletiaexcelsabonpl",
+  flatScientificName: "bertholletiaexcelsa",
   kingdom: "Plantae",
   phylum: "Tracheophyta",
-  class: "Magnoliopsida",
-  order: "Ericales",
   family: "Lecythidaceae",
   genus: "Bertholletia",
-  specificEpithet: "excelsa",
   taxonRank: "ESPECIE",
   taxonomicStatus: "ACEITO",
-  higherClassification: "Angiospermas",
 
   distribution: {
     origin: "Native",
@@ -508,10 +401,9 @@ Cada execucao registra metricas na colecao `process_metrics`:
 
   speciesprofile: { lifeForm: { habit: "Tree", lifeForm: "Phanerophyte" } },
 
-  // Campos de enriquecimento
-  threatStatus: [{ source: "cncfloraPlantae", category: "VU" }],
+  // Campos de enriquecimento (adicionados por enrich:ameacadas, enrich:invasoras)
+  threatStatus: [{ source: "plantaeAmeacada", category: "VU" }],
   invasiveStatus: null,
-  conservationUnits: [{ ucName: "Floresta Nacional do Tapajos" }],
 
   _transformedAt: ISODate("2025-01-15"),
   _transformVersion: "1.0.0"
@@ -527,70 +419,58 @@ Cada execucao registra metricas na colecao `process_metrics`:
   _id: "urn:catalog:INPA:12345::inpa_herbario",
   occurrenceID: "urn:catalog:INPA:12345",
   iptId: "inpa_herbario",
-  ipt: "inpa",
   iptKingdoms: ["Plantae"],
 
   scientificName: "Bertholletia excelsa Bonpl.",
   canonicalName: "Bertholletia excelsa",
-  flatScientificName: "bertholletiaexcelsabonpl",
 
   kingdom: "Plantae",
   family: "Lecythidaceae",
-  genus: "Bertholletia",
-  specificEpithet: "excelsa",
 
   country: "Brasil",
   stateProvince: "Amazonas",
   county: "Manaus",
-  locality: "Reserva Ducke, trilha principal",
+  locality: "Reserva Ducke",
 
-  decimalLatitude: -2.9333,
-  decimalLongitude: -59.9667,
   geoPoint: {
     type: "Point",
-    coordinates: [-59.9667, -2.9333]  // GeoJSON: [longitude, latitude]
+    coordinates: [-59.9667, -2.9333]
   },
 
   eventDate: ISODate("2023-05-15"),
-  year: 2023,
-  month: 5,
-  day: 15,
+  year: 2023, month: 5, day: 15,
 
   recordedBy: "Silva, J.",
-  recordNumber: "1234",
-  catalogNumber: "INPA12345",
   institutionCode: "INPA",
-  basisOfRecord: "PreservedSpecimen"
+  basisOfRecord: "PreservedSpecimen",
+
+  // Campo de enriquecimento (adicionado por enrich:ucs)
+  conservationUnits: [{ ucName: "Floresta Nacional do Tapajos" }]
 }
 ```
 
-**Indices (45+):** campos basicos, compostos (`country+stateProvince`, `genus+specificEpithet`, `kingdom+country`, `kingdom+family`), geoespacial (`geoPoint_2dsphere`), e indice complexo de 8 campos para consultas taxonomicas por estado.
+**Indices (45+):** campos basicos, compostos, geoespacial (`geoPoint_2dsphere`)
 
-#### `taxa_ipt` / `occurrences_ipt` — Dados brutos preservados
+### 6.3 Colecoes de Referencia (carregadas via loaders)
 
-Dados exatamente como recebidos do DwC-A, sem transformacao. Servem como backup e fonte para re-transformacao.
-
-### 6.3 Colecoes de Referencia (pre-carregadas)
-
-| Colecao           | Descricao                                   | Uso                        |
-| ----------------- | ------------------------------------------- | -------------------------- |
-| `cncfloraPlantae` | Avaliacoes de risco CNCFlora (Plantae)      | Enriquecimento de taxa     |
-| `cncfloraFungi`   | Avaliacoes de risco CNCFlora (Fungi)        | Enriquecimento de taxa     |
-| `faunaAmeacada`   | Fauna ameacada de extincao                  | Enriquecimento de taxa     |
-| `invasoras`       | Especies invasoras (Instituto Horus)        | Enriquecimento de taxa     |
-| `ucs`             | Unidades de conservacao e parques nacionais | Consultas e enriquecimento |
-| `ipts`            | Metadados e versoes dos IPTs                | Controle de atualizacao    |
+| Colecao           | Loader                  | Descricao                               | Uso                     |
+| ----------------- | ----------------------- | --------------------------------------- | ----------------------- |
+| `faunaAmeacada`   | `load:fauna-ameacada`   | Fauna ameacada de extincao (MMA/ICMBio) | `enrich:ameacadas`      |
+| `plantaeAmeacada` | `load:plantae-ameacada` | Flora ameacada (CNCFlora/Plantae)       | `enrich:ameacadas`      |
+| `fungiAmeacada`   | `load:fungi-ameacada`   | Fungos ameacados (CNCFlora/Fungi)       | `enrich:ameacadas`      |
+| `invasoras`       | `load:invasoras`        | Especies invasoras (Instituto Horus)    | `enrich:invasoras`      |
+| `catalogoucs`     | `load:catalogo-ucs`     | Catalogo de UCs (CNUC/ICMBio)           | `enrich:ucs`            |
+| `ipts`            | —                       | Metadados e versoes dos IPTs            | Controle de atualizacao |
 
 ### 6.4 Colecoes Operacionais
 
-| Colecao            | Descricao                                     | TTL          |
-| ------------------ | --------------------------------------------- | ------------ |
-| `occurrenceCache`  | Cache de consultas de ocorrencias (hash MD5)  | 1 hora       |
-| `chat_sessions`    | Historico de conversas do chat IA             | 7 dias       |
-| `processingLocks`  | Locks de processamento concorrente            | Configuravel |
-| `transform_status` | Status de transformacoes em andamento         | —            |
-| `process_metrics`  | Metricas de execucao de pipelines             | 30 dias      |
-| `calFeno`          | View de calendario fenologico (florescimento) | —            |
+| Colecao            | Descricao                             | TTL          |
+| ------------------ | ------------------------------------- | ------------ |
+| `occurrenceCache`  | Cache de consultas de ocorrencias     | 1 hora       |
+| `chat_sessions`    | Historico de conversas do chat IA     | 7 dias       |
+| `processingLocks`  | Locks de processamento concorrente    | Configuravel |
+| `transform_status` | Status de transformacoes em andamento | —            |
+| `process_metrics`  | Metricas de execucao de pipelines     | 30 dias      |
 
 ---
 
@@ -618,7 +498,6 @@ Dados exatamente como recebidos do DwC-A, sem transformacao. Servem como backup 
 | `/mapaocorrencia`              | Mapa de ocorrencias com pontos georreferenciados             |
 | `/calendario-fenologico`       | Calendario fenologico (floracao)                             |
 | `/api/docs`                    | Documentacao Swagger da API                                  |
-| `/privacy`                     | Politica de privacidade                                      |
 
 ### 7.3 API REST
 
@@ -627,8 +506,6 @@ Dados exatamente como recebidos do DwC-A, sem transformacao. Servem como backup 
 - `GET /api/taxa` — Lista taxa com filtros (kingdom, family, genus, etc.)
 - `GET /api/taxa/[taxonID]` — Busca taxon por ID
 - `GET /api/taxa/count` — Contagem de taxa com filtros
-- `GET /api/family/[kingdom]` — Contagem de familias por reino
-- `GET /api/taxonomicStatus/[kingdom]` — Status taxonomico por reino
 - `GET /api/tree` — Arvore taxonomica hierarquica completa
 
 **Endpoints de Ocorrencias:**
@@ -641,8 +518,6 @@ Dados exatamente como recebidos do DwC-A, sem transformacao. Servem como backup 
 **Endpoints de Dashboard:**
 
 - `GET /api/dashboard/summary` — Estatisticas gerais (cache 1h)
-- `GET /api/occurrenceCountByState` — Contagem de ocorrencias por estado
-- `GET /api/taxaCountByState` — Contagem de taxa por estado
 
 **Outros:**
 
@@ -656,16 +531,10 @@ A aplicacao web acessa o MongoDB atraves de modulos especializados em `src/lib/m
 - **`connection.ts`** — Pool de conexoes (maxPoolSize: 10, timeout: 10s)
 - **`taxa.ts`** — Consultas taxonomicas, arvore, agregacoes por reino
 - **`occurrences.ts`** — Consultas de ocorrencias com cache, sampling para timeouts
-- **`threatened.ts`** — Contagens e categorias de especies ameacadas
+- **`threatened.ts`** — Contagens e categorias de especies ameacadas (`faunaAmeacada`, `plantaeAmeacada`, `fungiAmeacada`)
 - **`invasive.ts`** — Contagens e top orders/families de invasoras
 - **`phenological.ts`** — Dados do calendario fenologico
 - **`cache.ts`** — Gerenciamento de cache de ocorrencias com TTL
-
-**Otimizacoes de consulta:**
-
-- Cache em MongoDB com chave MD5 e TTL de 1 hora
-- Fallback por amostragem (50K/10K registros × multiplicador 220) para agregacoes que excedem 120s
-- `allowDiskUse: true` para agregacoes grandes
 
 ---
 
@@ -673,62 +542,45 @@ A aplicacao web acessa o MongoDB atraves de modulos especializados em `src/lib/m
 
 ### 8.1 Arquitetura
 
-O chat utiliza o **Vercel AI SDK** com integracao **MCP (Model Context Protocol)** para permitir que modelos de IA consultem o MongoDB diretamente.
+O chat utiliza o **Claude API** com integracao **MCP (Model Context Protocol)** para permitir que a IA consulte o MongoDB diretamente.
 
 ```
 Usuario digita pergunta
     ↓
 React (Chat.tsx) → POST /api/chat
     ↓
-Vercel AI SDK → Modelo de IA (OpenAI/Google)
+Claude API (Anthropic)
     ↓
-IA decide usar ferramenta → MCP Server
+IA decide usar ferramenta → MCP Server (mongodb-mcp-server)
     ↓
-mongodb-mcp-server → find/aggregate no MongoDB
+find/aggregate no MongoDB (readOnly)
     ↓
 Resultado retorna para IA → Resposta em linguagem natural
     ↓
 Streaming para o frontend → Markdown renderizado
 ```
 
-### 8.2 MCP Server
+### 8.2 System Prompt
 
-O sistema inicia um processo `npx mongodb-mcp-server --readOnly` via transporte stdio. O servidor MCP expoe duas ferramentas para a IA:
-
-- **`find`** — Busca documentos em qualquer colecao
-- **`aggregate`** — Executa pipelines de agregacao
-
-A conexao utiliza `MONGODB_URI_READONLY` (string de conexao somente leitura).
-
-### 8.3 System Prompt
-
-O prompt do sistema (`src/prompts/prompt.md`, ~14KB) instrui a IA sobre:
+O prompt do sistema (`src/prompts/prompt.md`) instrui a IA sobre:
 
 - Escopo: apenas biodiversidade brasileira (Animalia, Plantae, Fungi)
-- Estrutura das colecoes e campos disponiveis
+- Estrutura das colecoes: `taxa`, `occurrences`, `faunaAmeacada`, `plantaeAmeacada`, `fungiAmeacada`, `invasoras`, `ucs`
 - Regras de consulta (usar `aggregate` para contagens, nunca `count`)
-- Valores validos para campos (ex: `kingdom` aceita Animalia, Plantae, Fungi)
+- Relacoes entre colecoes: `taxa.taxonID` ↔ `plantaeAmeacada.Flora e Funga do Brasil ID`
 - Matching fuzzy para nomes de especies
-- Formato de resposta: Markdown com code spans para numeros
 
-### 8.4 Modelos Suportados
+### 8.3 Coleções Consultadas pelo ChatBB
 
-| Provedor | Modelos                                            | Recursos Especiais   |
-| -------- | -------------------------------------------------- | -------------------- |
-| OpenAI   | GPT-4o-mini (default), GPT-4o, o1-preview, o1-mini | Streaming, reasoning |
-| Google   | Gemini 2.0 Flash, Gemini 1.5 Pro                   | Thinking config      |
-
-### 8.5 Frontend
-
-O componente `Chat.tsx` (~1000 linhas React) oferece:
-
-- Gerenciamento de multiplas sessoes (criar, trocar, deletar)
-- Historico persistido em localStorage
-- Seletor de modelo e provedor
-- Exibicao de queries MongoDB executadas (badges collapsiveis)
-- Exibicao de raciocinio da IA
-- Renderizacao Markdown com syntax highlighting
-- Armazenamento seguro de API keys (criptografia local)
+| Colecao           | Uso                                |
+| ----------------- | ---------------------------------- |
+| `taxa`            | Dados taxonomicos normalizados     |
+| `occurrences`     | Registros de coletas e ocorrencias |
+| `faunaAmeacada`   | Status de ameaca da fauna          |
+| `plantaeAmeacada` | Status de ameaca da flora          |
+| `fungiAmeacada`   | Status de ameaca dos fungos        |
+| `invasoras`       | Especies invasoras                 |
+| `catalogoucs`     | Unidades de conservacao            |
 
 ---
 
@@ -736,35 +588,18 @@ O componente `Chat.tsx` (~1000 linhas React) oferece:
 
 ### 9.1 Dashboard Cache Job
 
-O dashboard utiliza dados pre-computados para evitar agregacoes lentas em cada requisicao.
+O dashboard utiliza dados pre-computados para evitar agregacoes lentas.
 
-**Script:** `packages/web/src/scripts/dashboard-cache-job.ts`
 **Comando:** `bun run cache-dashboard`
 
-Dados coletados (20+ queries paralelas ao MongoDB):
+Dados coletados:
 
-- Contagem de ocorrencias por reino (Animalia, Plantae, Fungi)
-- Contagem de taxa por reino
-- Especies ameacadas: contagens e categorias (CR, EN, VU, NT, LC, DD) por reino
-- Especies invasoras: contagens, top 10 ordens e familias
-- Top 10 ordens e familias por reino
-- Top 10 colecoes por reino (por `rightsHolder`)
+- Contagem de ocorrencias e taxa por reino
+- Especies ameacadas: contagens e categorias por reino (usando `faunaAmeacada`, `plantaeAmeacada`, `fungiAmeacada`)
+- Especies invasoras: contagens, top ordens e familias
+- Top colecoes por reino
 
 **Saida:** `packages/web/cache/dashboard-data.json`
-
-### 9.2 Cache Fenologico
-
-- Arquivo: `src/data/phenological-cache.json`
-- Renovado semanalmente (apenas segundas-feiras)
-- Contem familias, generos e especies com dados fenologicos
-- Fallback para consulta direta ao MongoDB em caso de cache miss
-
-### 9.3 Cache de Ocorrencias
-
-- Colecao MongoDB `occurrenceCache` com TTL de 1 hora
-- Chave: hash MD5 dos filtros da consulta em JSON
-- Usado em `countOccurrenceRegions()` (agregacao cara)
-- Evita recomputar contagens identicas dentro da janela de 1 hora
 
 ---
 
@@ -774,41 +609,47 @@ Todos os workflows sao **manuais** (`workflow_dispatch`), sem triggers automatic
 
 ### 10.1 Workflows Disponiveis
 
-| Workflow                     | Arquivo                          | Runner        | Timeout | Descricao                               |
-| ---------------------------- | -------------------------------- | ------------- | ------- | --------------------------------------- |
-| Update MongoDB - Flora       | `update-mongodb-flora.yml`       | self-hosted   | 60 min  | Ingere Flora do Brasil                  |
-| Update MongoDB - Fauna       | `update-mongodb-fauna.yml`       | self-hosted   | —       | Ingere Fauna do Brasil                  |
-| Update MongoDB - Ocorrencias | `update-mongodb-occurrences.yml` | self-hosted   | 120 min | Ingere todas as colecoes de ocorrencias |
-| Re-transform Taxa            | `transform-taxa.yml`             | self-hosted   | 25 min  | Re-transforma taxa sem re-download      |
-| Re-transform Occurrences     | `transform-occurrences.yml`      | self-hosted   | —       | Re-transforma ocorrencias               |
-| Weekly Data Transformation   | `transform-weekly.yml`           | ubuntu-latest | 180 min | Pipeline completo de transformacao      |
-| Docker Build                 | `docker.yml`                     | —             | —       | Constroi imagem Docker                  |
+| Workflow                     | Arquivo                          | Runner      | Timeout | Descricao                               |
+| ---------------------------- | -------------------------------- | ----------- | ------- | --------------------------------------- |
+| Update MongoDB - Flora       | `update-mongodb-flora.yml`       | self-hosted | 60 min  | Ingere Flora do Brasil → taxa           |
+| Update MongoDB - Fauna       | `update-mongodb-fauna.yml`       | self-hosted | —       | Ingere Fauna do Brasil → taxa           |
+| Update MongoDB - Ocorrencias | `update-mongodb-occurrences.yml` | self-hosted | 120 min | Ingere ~505 IPTs → occurrences          |
+| Enrich Taxa - Ameacadas      | `enrich-ameacadas.yml`           | self-hosted | 30 min  | Load CSVs (opcional) + enrich:ameacadas |
+| Enrich Taxa - Invasoras      | `enrich-invasoras.yml`           | self-hosted | 30 min  | Load CSV (opcional) + enrich:invasoras  |
+| Enrich Ocorrencias - UCs     | `enrich-ucs.yml`                 | self-hosted | 60 min  | Load CSV (opcional) + enrich:ucs        |
+| Docker Build                 | `docker.yml`                     | —           | —       | Constroi imagem Docker                  |
 
 ### 10.2 Fluxo Tipico de Atualizacao
 
 ```
 1. Disparar "Update MongoDB - Flora" no GitHub Actions
-   → Baixa DwC-A do JBRJ → Preserva em taxa_ipt → Transforma → Insere em taxa
+   → Baixa DwC-A do JBRJ → Transforma → Insere em taxa
 
 2. Disparar "Update MongoDB - Fauna"
    → Mesmo fluxo para fauna
 
 3. Disparar "Update MongoDB - Ocorrencias"
    → Verifica 505 IPTs → Baixa os atualizados → Transforma → Insere em occurrences
-   → Limpa e regenera cache de ocorrencias
 
-4. (Opcional) Disparar "Re-transform Taxa" se novas regras foram adicionadas
-   → Re-processa taxa_ipt → taxa com novas normalizacoes/enriquecimentos
+4. Disparar "Enrich Taxa - Ameacadas"
+   → (Opcional: fornecer CSV atualizado como input)
+   → Enriquece taxa com threatStatus de faunaAmeacada + plantaeAmeacada + fungiAmeacada
 
-5. Disparar "Docker Build" para nova imagem
+5. Disparar "Enrich Taxa - Invasoras"
+   → Enriquece taxa com invasiveStatus de invasoras
+
+6. Disparar "Enrich Ocorrencias - UCs"
+   → Enriquece occurrences com conservationUnits de catalogoucs
+
+7. Disparar "Docker Build" para nova imagem
    → Build multi-stage → Push para registry
 
-6. Atualizar container no UNRAID manualmente
+8. Atualizar container no UNRAID manualmente
 ```
 
 ### 10.3 Requisitos dos Runners
 
-- **self-hosted:** usado para ingestao (acesso ao MongoDB e banda de rede)
+- **self-hosted:** usado para ingestao e enriquecimento (acesso ao MongoDB e banda de rede)
 - **Secrets necessarios:** `MONGO_URI`
 - Bun e Node.js 20 instalados automaticamente nos steps
 
@@ -818,7 +659,7 @@ Todos os workflows sao **manuais** (`workflow_dispatch`), sem triggers automatic
 
 ### 11.1 Build Multi-Stage
 
-O `Dockerfile` utiliza 3 estagios para otimizar o tamanho da imagem (~220MB):
+O `Dockerfile` utiliza 3 estagios:
 
 ```
 Estagio 1 (builder): oven/bun:1.2.21
@@ -827,7 +668,6 @@ Estagio 1 (builder): oven/bun:1.2.21
 
 Estagio 2 (prod-deps): oven/bun:1.2.21-alpine
   → Instala apenas dependencias de producao
-  → Remove sharp e cache desnecessarios
 
 Estagio 3 (runner): node:20-alpine
   → Copia node_modules de producao
@@ -866,39 +706,42 @@ Estagio 3 (runner): node:20-alpine
 │          ↓                                                          │
 │     DwC-A ZIPs (um por colecao)                                    │
 │                                                                     │
-│  CNCFlora, Instituto Horus, ICMBio                                 │
+│  CSVs de Referencia (Fauna/Plantae/Fungi Ameacadas, Invasoras, UCs)│
 │          ↓                                                          │
-│     Dados de referencia (ameaca, invasao, UCs)                     │
+│     Arquivos CSV (carregados manualmente ou via GitHub Actions)    │
 └─────────────┬───────────────────────────────┬───────────────────────┘
               │                               │
               ▼                               ▼
-┌─────────────────────────┐    ┌─────────────────────────────┐
-│   packages/ingest       │    │   Colecoes de Referencia    │
-│                         │    │                             │
-│ 1. Verifica versao IPT  │    │ cncfloraPlantae             │
-│ 2. Baixa DwC-A          │    │ cncfloraFungi               │
-│ 3. Parseia (JSON/SQLite)│    │ faunaAmeacada               │
-│ 4. Preserva dados brutos│    │ invasoras                   │
-│ 5. Transformacao inline  │    │ ucs                         │
-│ 6. Insere no MongoDB    │    └──────────────┬──────────────┘
-└────────────┬────────────┘                   │
+┌─────────────────────────┐    ┌────────────────────────────────────┐
+│   packages/ingest       │    │   packages/transform (loaders)     │
+│                         │    │                                    │
+│ 1. Verifica versao IPT  │    │ load:fauna-ameacada → faunaAmeacada│
+│ 2. Baixa DwC-A          │    │ load:plantae-ameacada → plantaeAm  │
+│ 3. Parseia (JSON/SQLite)│    │ load:fungi-ameacada → fungiAm      │
+│ 4. Transforma inline    │    │ load:invasoras → invasoras         │
+│ 5. Insere no MongoDB    │    │ load:catalogo-ucs → catalogoucs    │
+└────────────┬────────────┘    └──────────────┬─────────────────────┘
              │                                │
-             ▼                                ▼
+             ▼                                │
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         MongoDB (dwc2json)                          │
 │                                                                     │
-│  taxa_ipt ──→ packages/transform ──→ taxa (curado + enriquecido)   │
-│  occurrences_ipt ──→ packages/transform ──→ occurrences (curado)   │
+│  taxa ←──────────────────── enrich:ameacadas ←── faunaAmeacada    │
+│       ←──────────────────── enrich:ameacadas ←── plantaeAmeacada  │
+│       ←──────────────────── enrich:ameacadas ←── fungiAmeacada    │
+│       ←──────────────────── enrich:invasoras ←── invasoras        │
+│                                                                     │
+│  occurrences ←───────────── enrich:ucs ←──────── catalogoucs      │
 │                                                                     │
 │  Colecoes operacionais: occurrenceCache, chat_sessions, ipts       │
-└─────────────────────────────────────┬───────────────────────────────┘
+└─────────────────────────────────────────────────────────────────────┘
                                       │
                                       ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      packages/web (Astro.js)                        │
 │                                                                     │
 │  API REST (/api/taxa, /api/occurrences, /api/dashboard, ...)       │
-│  Chat IA (Vercel AI SDK + MCP → MongoDB)                           │
+│  Chat IA (Claude API + MCP → MongoDB)                              │
 │  Dashboard (cache pre-computado)                                    │
 │  Mapa de Ocorrencias (GeoJSON + Leaflet)                           │
 │  Arvore Taxonomica, Busca de Especies, Calendario Fenologico       │
