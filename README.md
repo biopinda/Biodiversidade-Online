@@ -14,23 +14,35 @@ Construir uma **base de dados unificada da biodiversidade brasileira**, integran
 
 ## Arquitetura C4
 
-O projeto é organizado em três contextos principais:
+O projeto é organizado em três contextos principais. Todas as coleções residem em um **único banco de dados MongoDB** (`dwc2json`):
 
 ```mermaid
 graph TB
-    subgraph Aquisição["Contexto: Aquisição"]
-        Flora["Ingestão Flora"]
-        Fauna["Ingestão Fauna"]
-        Ocorrencias["Ingestão Ocorrências"]
-        LoadAmeacadas["Carga CSV Ameaçadas"]
-        LoadInvasoras["Carga CSV Invasoras"]
-        LoadUCs["Carga CSV UCs"]
+    subgraph Fontes["Fontes Externas"]
+        IPTFlora["IPT Flora do Brasil"]
+        IPTFauna["IPT Fauna do Brasil"]
+        IPTs["~490 IPTs\n(herbários/museus)"]
+        CSVs["CSVs de Referência\n(Ameaçadas, Invasoras, UCs)"]
     end
 
-    subgraph Enriquecimento["Contexto: Enriquecimento (in-place)"]
-        EnrichAmeacadas["enrich:ameacadas\n(threatStatus em taxa)"]
-        EnrichInvasoras["enrich:invasoras\n(invasiveStatus em taxa)"]
-        EnrichUCs["enrich:ucs\n(conservationUnits em occurrences)"]
+    subgraph Aquisição["Contexto: Aquisição + Transformação"]
+        direction TB
+        IngestFlora["Ingestão Flora\n(DwC-A → normalização → JSON)"]
+        IngestFauna["Ingestão Fauna\n(DwC-A → normalização → JSON)"]
+        IngestOcc["Ingestão Ocorrências\n(DwC-A → normalização → JSON)"]
+        Loaders["Loaders CSV\n(drop + insert)"]
+    end
+
+    subgraph MongoDB["MongoDB (dwc2json)"]
+        taxa[("taxa")]
+        occurrences[("occurrences")]
+        refCols[("faunaAmeacada\nplantaeAmeacada\nfungiAmeacada\ninvasoras\ncatalogoucs")]
+    end
+
+    subgraph Enriquecimento["Contexto: Enriquecimento"]
+        EnrichAmeacadas["enrich:ameacadas\nameaçadas → taxa.threatStatus"]
+        EnrichInvasoras["enrich:invasoras\ninvasoras → taxa.invasiveStatus"]
+        EnrichUCs["enrich:ucs\nUCs → occurrences.conservationUnits"]
     end
 
     subgraph Apresentação["Contexto: Apresentação"]
@@ -39,33 +51,21 @@ graph TB
         API["REST API"]
     end
 
-    IPTFlora["IPT Flora do Brasil"] --> Flora
-    IPTFauna["IPT Fauna do Brasil"] --> Fauna
-    IPTs["~490 IPTs"] --> Ocorrencias
-    CSVAmeacadas["CSVs Ameaçadas\n(Fauna/Plantae/Fungi)"] --> LoadAmeacadas
-    CSVInvasoras["CSV Invasoras"] --> LoadInvasoras
-    CSVUCs["CSV Catálogo UCs"] --> LoadUCs
+    IPTFlora --> IngestFlora
+    IPTFauna --> IngestFauna
+    IPTs --> IngestOcc
+    CSVs --> Loaders
 
-    Flora --> MongoDB[(MongoDB\ntaxa / occurrences)]
-    Fauna --> MongoDB
-    Ocorrencias --> MongoDB
-    LoadAmeacadas --> RefDB[(MongoDB\nfaunaAmeacada\nplantaeAmeacada\nfungiAmeacada)]
-    LoadInvasoras --> RefDB2[(MongoDB\ninvasoras)]
-    LoadUCs --> RefDB3[(MongoDB\ncatalogoucs)]
+    IngestFlora --> taxa
+    IngestFauna --> taxa
+    IngestOcc --> occurrences
+    Loaders --> refCols
 
-    MongoDB --> EnrichAmeacadas
-    RefDB --> EnrichAmeacadas
-    MongoDB --> EnrichInvasoras
-    RefDB2 --> EnrichInvasoras
-    MongoDB --> EnrichUCs
-    RefDB3 --> EnrichUCs
-    EnrichAmeacadas --> MongoDB
-    EnrichInvasoras --> MongoDB
-    EnrichUCs --> MongoDB
+    refCols --> EnrichAmeacadas & EnrichInvasoras & EnrichUCs
+    EnrichAmeacadas & EnrichInvasoras --> taxa
+    EnrichUCs --> occurrences
 
-    MongoDB --> Dashboard
-    MongoDB --> ChatBB
-    MongoDB --> API
+    taxa & occurrences --> Dashboard & ChatBB & API
     ClaudeAPI["Claude API"] --> ChatBB
 ```
 
@@ -93,17 +93,17 @@ graph TB
 
 Todos os workflows são **manuais** (acionados via GitHub Actions):
 
-**Aquisição:**
+**Aquisição + Transformação:**
 
-- **Ingestão Flora** — Processa DwC-A da Flora e Funga do Brasil → `taxa`
-- **Ingestão Fauna** — Processa DwC-A do Catálogo da Fauna → `taxa`
-- **Ingestão Ocorrências** — Processa ~490 IPTs → `occurrences`
+- **Ingestão Flora** — DwC-A → normalização → `taxa`
+- **Ingestão Fauna** — DwC-A → normalização → `taxa`
+- **Ingestão Ocorrências** — DwC-A → normalização → `occurrences`
 
-**Enriquecimento (in-place):**
+**Enriquecimento:**
 
-- **Load + Enrich Ameaçadas** — Carrega CSVs e atualiza `taxa` com `threatStatus`
-- **Load + Enrich Invasoras** — Carrega CSV e atualiza `taxa` com `invasiveStatus`
-- **Load + Enrich UCs** — Carrega CSV e atualiza `occurrences` com `conservationUnits`
+- **Enrich Ameaçadas** — Associa dados de ameaçadas a `taxa` (`threatStatus`)
+- **Enrich Invasoras** — Associa dados de invasoras a `taxa` (`invasiveStatus`)
+- **Enrich UCs** — Associa dados de UCs a `occurrences` (`conservationUnits`)
 
 ## Tecnologias
 
@@ -133,7 +133,7 @@ Todos os workflows são **manuais** (acionados via GitHub Actions):
 # Instalar dependências dos workspaces
 bun install
 
-# === Aquisição ===
+# === Aquisição + Transformação ===
 bun run ingest:flora <dwc-a-url>
 bun run ingest:fauna <dwc-a-url>
 bun run ingest:occurrences
@@ -179,8 +179,8 @@ docker run -p 4321:4321 \
 
 ```
 ├── packages/
-│   ├── ingest/          # Aquisição: scripts de ingestão DwC-A
-│   ├── transform/       # Enriquecimento: loaders CSV e scripts de enriquecimento in-place
+│   ├── ingest/          # Aquisição + Transformação: DwC-A → normalização → MongoDB
+│   ├── transform/       # Enriquecimento: loaders CSV + enrichers in-place
 │   ├── shared/          # Utilitários compartilhados (database, IDs, métricas)
 │   └── web/             # Apresentação: Dashboard, ChatBB, REST API
 ├── .github/workflows/   # Workflows manuais (GitHub Actions)
