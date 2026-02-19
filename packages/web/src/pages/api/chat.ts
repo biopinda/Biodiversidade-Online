@@ -1,4 +1,5 @@
 import prompt from '@/prompts/prompt.md?raw'
+import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenAI } from '@ai-sdk/openai'
 import {
@@ -51,7 +52,7 @@ const input = z.object({
   apiKey: z.string(),
   model: z
     .object({
-      provider: z.enum(['openai', 'google']),
+      provider: z.enum(['openai', 'anthropic', 'google']),
       model: z.string()
     })
     .default({
@@ -74,12 +75,9 @@ export async function POST({ request }: APIContext) {
 
   const { messages, apiKey, model: modelSpec, maxSteps } = data
 
-  const openai = createOpenAI({
-    apiKey
-  })
-  const google = createGoogleGenerativeAI({
-    apiKey
-  })
+  const openai = createOpenAI({ apiKey })
+  const anthropic = createAnthropic({ apiKey })
+  const google = createGoogleGenerativeAI({ apiKey })
 
   const mongoDBConnectionString =
     import.meta.env.MONGODB_URI_READONLY ?? process.env.MONGODB_URI_READONLY
@@ -113,7 +111,9 @@ export async function POST({ request }: APIContext) {
   const model =
     modelSpec.provider === 'openai'
       ? openai(modelSpec.model)
-      : google(modelSpec.model)
+      : modelSpec.provider === 'anthropic'
+        ? anthropic(modelSpec.model)
+        : google(modelSpec.model)
   const result = streamText({
     model,
     maxSteps,
@@ -123,10 +123,12 @@ export async function POST({ request }: APIContext) {
     onError: (error: unknown) => {
       if (error instanceof APICallError) {
         console.error('API Call Error', error.url)
-        console.dir(error.requestBodyValues, { depth: null })
         console.dir(error.data, { depth: null })
       } else {
-        console.dir(error, { depth: null })
+        console.error(
+          'Chat error:',
+          error instanceof Error ? error.message : error
+        )
       }
     },
     experimental_activeTools: ['find', 'aggregate'],
