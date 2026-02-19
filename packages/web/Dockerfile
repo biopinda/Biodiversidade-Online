@@ -54,9 +54,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=4321
 
-# Admin authentication (set these in UNRAID Docker config)
-ENV ADMIN_USERNAME=""
-ENV ADMIN_PASSWORD=""
+# Admin authentication (set in UNRAID Docker config)
+ENV ADMIN_PIN=""
 
 # MongoDB connection (set in UNRAID Docker config)
 ENV MONGO_URI=""
