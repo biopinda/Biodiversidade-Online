@@ -517,7 +517,6 @@ Usado durante re-normalizacao (`transform:taxa`), que processa taxa dentro da pr
 - `GET /api/taxa` — Lista taxa com filtros (kingdom, family, genus, etc.)
 - `GET /api/taxa/[taxonID]` — Busca taxon por ID
 - `GET /api/taxa/count` — Contagem de taxa com filtros
-- `GET /api/tree` — Arvore taxonomica hierarquica completa
 
 **Endpoints de Ocorrencias:**
 
