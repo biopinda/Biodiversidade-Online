@@ -22,11 +22,9 @@ import {
 import { cn } from '@/lib/utils'
 import { useChat, type Message } from '@ai-sdk/react'
 import {
-  CogIcon,
   CommandIcon,
   CornerDownRightIcon,
   HistoryIcon,
-  InfoIcon,
   MessageSquarePlusIcon,
   Trash2Icon
 } from 'lucide-react'
@@ -35,14 +33,12 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState
 } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ChatHistoryList, { type ChatHistoryEntry } from './ChatHistoryList'
-import ModelSelector, { type Provider } from './ModelSelector'
-import PasswordInput from './PasswordInput'
+import ModelSelector, { type ChatConfig } from './ModelSelector'
 import { Badge } from './ui/badge'
 import { ScrollArea } from './ui/scroll-area'
 import { Textarea } from './ui/textarea'
@@ -81,90 +77,6 @@ const messagesEqual = (a: Message[], b: Message[]) => {
   }
 
   return true
-}
-
-function ConfigForm({
-  initialKeys,
-  onSetKeys
-}: {
-  initialKeys: { openAIKey: string; geminiKey: string }
-  onSetKeys: (keys: { openAIKey: string; geminiKey: string }) => void
-}) {
-  const [showInfo, setShowInfo] = useState(false)
-  const openAIKeyRef = useRef<HTMLInputElement>(null)
-  const geminiKeyRef = useRef<HTMLInputElement>(null)
-
-  return (
-    <div className="flex items-end gap-2">
-      <div className="flex flex-1 flex-col gap-2">
-        <div className="flex items-center gap-2 text-sm">
-          Defina suas chaves de API aqui.
-          <Button
-            className="h-auto !px-1 py-1"
-            variant={showInfo ? 'default' : 'ghost'}
-            onClick={() => setShowInfo((prev) => !prev)}
-          >
-            <InfoIcon />
-          </Button>
-        </div>
-        {showInfo && (
-          <div className="self-start rounded-md bg-slate-800 p-2 text-sm text-white">
-            Uma chave de API é necessária para usar o chat. Elas são armazenadas
-            apenas no seu navegador.
-          </div>
-        )}
-        <div className="flex items-center gap-2 text-sm">
-          <b>OpenAI</b>{' '}
-          <i>
-            Obtenha uma em{' '}
-            <a
-              className="text-black hover:underline"
-              href="https://platform.openai.com/api-keys"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              https://platform.openai.com/api-keys
-            </a>
-          </i>
-        </div>
-        <PasswordInput
-          ref={openAIKeyRef}
-          initialValue={initialKeys.openAIKey}
-          placeholder="Chave de API OpenAI"
-        />
-        <div className="flex items-center gap-2 text-sm">
-          <b>Google Gemini</b>{' '}
-          <i>
-            Obtenha uma em{' '}
-            <a
-              className="text-black hover:underline"
-              href="https://aistudio.google.com/app/apikey"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              https://aistudio.google.com/app/apikey
-            </a>
-          </i>
-        </div>
-        <PasswordInput
-          ref={geminiKeyRef}
-          initialValue={initialKeys.geminiKey}
-          placeholder="Chave de API Google Gemini"
-        />
-      </div>
-      <Button
-        type="button"
-        onClick={() =>
-          onSetKeys({
-            openAIKey: openAIKeyRef.current?.value ?? '',
-            geminiKey: geminiKeyRef.current?.value ?? ''
-          })
-        }
-      >
-        OK
-      </Button>
-    </div>
-  )
 }
 
 function ChatBubble({
@@ -323,19 +235,7 @@ function ReasoningPart({ part }: { part: any }) {
 }
 
 export default function Chat() {
-  const [isConfiguring, setIsConfiguring] = useState(false)
-  const [localConfigLoaded, setLocalConfigLoaded] = useState(false)
-  const [apiKeys, setApiKeys] = useState<{
-    openAIKey: string
-    geminiKey: string
-  }>({
-    openAIKey: '',
-    geminiKey: ''
-  })
-  const [selectedModel, setSelectedModel] = useState<{
-    provider: 'openai' | 'google'
-    model: string
-  } | null>(null)
+  const [chatConfig, setChatConfig] = useState<ChatConfig | null>(null)
   const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false)
   const [chatHistory, setChatHistory] = useState<StoredChatSession[]>([])
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
@@ -417,29 +317,6 @@ export default function Chat() {
     }
   }, [])
 
-  useEffect(() => {
-    if (!localConfigLoaded) {
-      const _apiKeys = localStorage.getItem('apiKeys')
-      if (_apiKeys) {
-        setApiKeys(JSON.parse(_apiKeys))
-      }
-      const _selectedModel = localStorage.getItem('model')
-      if (_selectedModel) {
-        setSelectedModel(JSON.parse(_selectedModel))
-      } else {
-        setSelectedModel({ provider: 'openai', model: 'gpt-4o-mini' })
-      }
-      setLocalConfigLoaded(true)
-    } else {
-      localStorage.setItem('apiKeys', JSON.stringify(apiKeys))
-      localStorage.setItem('model', JSON.stringify(selectedModel))
-    }
-  }, [apiKeys, selectedModel, localConfigLoaded])
-
-  const hasApiKey = apiKeys.openAIKey !== '' || apiKeys.geminiKey !== ''
-  const apiKey =
-    selectedModel?.provider === 'openai' ? apiKeys.openAIKey : apiKeys.geminiKey
-
   const {
     messages,
     input,
@@ -451,7 +328,12 @@ export default function Chat() {
     setMessages
   } = useChat({
     api: '/api/chat',
-    body: { apiKey, model: selectedModel },
+    body: {
+      apiKey: chatConfig?.apiKey,
+      model: chatConfig
+        ? { provider: chatConfig.provider, model: chatConfig.model }
+        : undefined
+    },
     onError: (err) => {
       const message = err?.message ?? 'Erro desconhecido'
       registerErrorForCurrentChat(message)
@@ -831,21 +713,6 @@ export default function Chat() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-              <Button
-                type="button"
-                size="icon"
-                variant={isConfiguring || !hasApiKey ? 'default' : 'ghost'}
-                disabled={!localConfigLoaded || !hasApiKey}
-                onClick={() => {
-                  if (hasApiKey) {
-                    setIsConfiguring((prev) => !prev)
-                  }
-                }}
-                aria-label="Configurações do chat"
-                title="Configurações do chat"
-              >
-                <CogIcon className="h-4 w-4" aria-hidden />
-              </Button>
             </div>
           </div>
 
@@ -939,27 +806,8 @@ export default function Chat() {
 
             <form onSubmit={handleSubmit} className="flex items-end gap-3">
               <div className="flex w-full flex-col gap-3">
-                {localConfigLoaded && (
-                  <ModelSelector
-                    availableProviders={['openai', 'google']}
-                    onModelChange={(model: {
-                      provider: Provider
-                      model: string
-                    }) => {
-                      setSelectedModel(model)
-                    }}
-                    initialModel={selectedModel ?? undefined}
-                  />
-                )}
-                {localConfigLoaded && (isConfiguring || !hasApiKey) ? (
-                  <ConfigForm
-                    initialKeys={apiKeys}
-                    onSetKeys={(keys) => {
-                      setApiKeys(keys)
-                      setIsConfiguring(false)
-                    }}
-                  />
-                ) : (
+                <ModelSelector onChange={(config) => setChatConfig(config)} />
+                {chatConfig && (
                   <Textarea
                     value={input}
                     onKeyDown={(e) => {
@@ -974,7 +822,7 @@ export default function Chat() {
                   />
                 )}
               </div>
-              {!isConfiguring && apiKey && (
+              {chatConfig && (
                 <div className="flex flex-col justify-end gap-2">
                   {status === 'streaming' && (
                     <Button
