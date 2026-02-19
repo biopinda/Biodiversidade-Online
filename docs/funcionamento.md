@@ -24,7 +24,7 @@ O Biodiversidade Online e uma plataforma para consulta de dados da biodiversidad
 - **Adquire e transforma** registros de **ocorrencias** de ~505 colecoes de herbarios e museus brasileiros (DwC-A → normalização → JSON)
 - **Enriquece** taxa com dados de **especies ameacadas** e **especies invasoras**
 - **Enriquece** ocorrencias com dados de **unidades de conservacao**
-- Oferece uma interface web com ficha de especies, arvore taxonomica, dashboard analitico, mapa de ocorrencias por especie e chat com IA
+- Oferece uma interface web com dashboard analitico, chat com IA e API REST documentada
 
 Todas as colecoes residem em um **unico banco de dados MongoDB** (`dwc2json`). O nome interno e uma referencia direta ao processo central: converter Darwin Core Archive em documentos JSON.
 
@@ -499,19 +499,16 @@ Usado durante re-normalizacao (`transform:taxa`), que processa taxa dentro da pr
 
 ### 7.2 Paginas
 
-| Rota                           | Descricao                                                    |
-| ------------------------------ | ------------------------------------------------------------ |
-| `/`                            | Homepage com links para as funcionalidades                   |
-| `/chat`                        | Interface de chat com IA para consultas em linguagem natural |
-| `/taxon/[taxonId]`             | Ficha detalhada de uma especie                               |
-| `/taxon/[taxonId]/ocorrencias` | Ocorrencias de uma especie                                   |
-| `/tree`                        | Navegador de arvore taxonomica interativa                    |
-| `/dashboard`                   | Dashboard analitico com graficos e estatisticas              |
-| `/api`                         | Documentacao Swagger interativa da API (componente React)    |
-| `/api/docs`                    | Documentacao Swagger da API (HTML estatico via CDN)          |
-| `/privacy`                     | Politica de privacidade                                      |
-| `/admin/login`                 | Login do painel administrativo                               |
-| `/admin`                       | Painel administrativo (acesso protegido por PIN)             |
+| Rota           | Descricao                                                    |
+| -------------- | ------------------------------------------------------------ |
+| `/`            | Homepage com links para as funcionalidades                   |
+| `/chat`        | Interface de chat com IA para consultas em linguagem natural |
+| `/dashboard`   | Dashboard analitico com graficos e estatisticas              |
+| `/api`         | Documentacao Swagger interativa da API (componente React)    |
+| `/api/docs`    | Documentacao Swagger da API (HTML estatico via CDN)          |
+| `/privacy`     | Politica de privacidade                                      |
+| `/admin/login` | Login do painel administrativo                               |
+| `/admin`       | Painel administrativo (acesso protegido por PIN)             |
 
 ### 7.3 API REST
 
@@ -775,8 +772,7 @@ Estagio 3 (runner): node:20-alpine
 │  API REST (/api/taxa, /api/occurrences, /api/dashboard, ...)       │
 │  Chat IA (Claude API + MCP → MongoDB)                              │
 │  Dashboard (cache pre-computado)                                    │
-│  Mapa de Ocorrencias por especie (/taxon/[id]/ocorrencias)         │
-│  Arvore Taxonomica (/tree), Admin Panel (/admin)                   │
+│  Admin Panel (/admin)                                               │
 │                                                                     │
 │                    ↓ Docker (node:20-alpine) ↓                      │
 │                    Porta 4321 → UNRAID                              │

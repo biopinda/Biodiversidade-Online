@@ -94,8 +94,7 @@ This project uses a monorepo structure with multiple packages managed by Bun wor
   2. **Chat Interface**: http://localhost:4321/chat should load ChatBB AI interface
   3. **Dashboard**: http://localhost:4321/dashboard should load data visualization dashboard
   4. **API Health**: http://localhost:4321/api/health should return JSON status
-  5. **Tree View**: http://localhost:4321/tree should load taxonomic tree browser
-  6. **Swagger API Docs**: http://localhost:4321/api/docs should load API documentation
+  5. **Swagger API Docs**: http://localhost:4321/api/docs should load API documentation
 - **Database-dependent features**: Chat, dashboard, and API require MongoDB connection
 - Build succeeds and production server starts on port 4321
 
@@ -172,7 +171,6 @@ This is a monorepo project organized by C4 architecture contexts (Acquisition + 
 
 - AI chat interface for biodiversity queries (ChatBB)
 - Interactive dashboard with data visualizations
-- Taxonomic tree browser
 - REST API with Swagger documentation
 - Integration with Flora do Brasil, Fauna do Brasil, and occurrence databases
 
