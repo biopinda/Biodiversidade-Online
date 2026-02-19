@@ -691,12 +691,11 @@ Estagio 3 (runner): node:20-alpine
 
 ### 11.2 Variaveis de Ambiente (Docker)
 
-| Variavel         | Descricao                         |
-| ---------------- | --------------------------------- |
-| `MONGO_URI`      | String de conexao MongoDB         |
-| `ADMIN_USERNAME` | Usuario admin da interface web    |
-| `ADMIN_PASSWORD` | Senha admin                       |
-| `PORT`           | Porta do servidor (default: 4321) |
+| Variavel    | Descricao                         |
+| ----------- | --------------------------------- |
+| `MONGO_URI` | String de conexao MongoDB         |
+| `ADMIN_PIN` | PIN de acesso ao painel admin     |
+| `PORT`      | Porta do servidor (default: 4321) |
 
 ### 11.3 Deploy
 
