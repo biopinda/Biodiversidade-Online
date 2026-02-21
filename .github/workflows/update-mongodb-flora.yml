@@ -2,11 +2,6 @@ name: Update MongoDB - Flora
 
 on:
   workflow_dispatch:
-    inputs:
-      DWCA_URL:
-        description: 'Custom DWCA URL (optional)'
-        required: false
-        type: string
 
 env:
   DWCA_URL: https://ipt.jbrj.gov.br/jbrj/archive.do?r=lista_especies_flora_brasil
@@ -47,18 +42,7 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
-      - name: Ingest and Transform Flora from custom URL
-        if: ${{ github.event.inputs.DWCA_URL }}
-        timeout-minutes: 50
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          NODE_ENV: production
-        run: |
-          echo "Processing Flora from custom URL: ${{ github.event.inputs.DWCA_URL }}"
-          bun run --filter @darwincore/ingest flora -- "${{ github.event.inputs.DWCA_URL }}"
-
       - name: Ingest and Transform Flora from default URL
-        if: ${{ !github.event.inputs.DWCA_URL }}
         timeout-minutes: 50
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
