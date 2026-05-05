@@ -42,9 +42,9 @@ COPY packages/web/package.json ./packages/web/
 COPY patches ./patches
 
 # Install production-only dependencies (no devDependencies, no sharp)
-# --frozen-lockfile is intentionally omitted: bun resolves a prod-only subset
-# that differs from the full lockfile (validated in Stage 1).
-RUN bun install --production --ignore-scripts \
+# CI= clears the CI env var so Bun doesn't auto-enable frozen-lockfile;
+# prod-only resolution differs from the full lockfile (validated in Stage 1).
+RUN CI= bun install --production --ignore-scripts \
   && rm -rf packages/web/node_modules/sharp \
   && rm -rf node_modules/sharp \
   && rm -rf node_modules/.cache
