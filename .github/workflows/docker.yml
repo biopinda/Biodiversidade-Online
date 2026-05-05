@@ -2,6 +2,19 @@ name: Create and publish Docker image
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/web/**'
+      - 'packages/shared/package.json'
+      - 'packages/ingest/package.json'
+      - 'packages/transform/package.json'
+      - 'package.json'
+      - 'bun.lock'
+      - 'tsconfig.base.json'
+      - 'patches/**'
+      - 'docs/**'
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
