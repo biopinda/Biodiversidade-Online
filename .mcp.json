@@ -1,9 +1,3 @@
 {
-  "mcpServers": {
-    "context7": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@upstash/context7-mcp@latest"],
-      "type": "stdio"
-    }
-  }
+  "mcpServers": {}
 }

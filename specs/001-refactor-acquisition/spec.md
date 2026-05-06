@@ -99,7 +99,7 @@ Após implementar os três scripts, o repositório é limpo: removidos `packages
 
 ### Functional Requirements
 
-- **FR-001**: O sistema DEVE fornecer três executáveis independentes para Windows 11: "Update MongoDB - Fauna", "Update MongoDB - Flora", "Update MongoDB - Ocorrências".
+- **FR-001**: O sistema DEVE fornecer três executáveis independentes para **Windows 11 (amd64)** e **Linux x86 (amd64)**: "Update MongoDB - Fauna", "Update MongoDB - Flora", "Update MongoDB - Ocorrências". Os binários são produzidos por cross-compilation nativa do Go — sem alteração no código-fonte.
 - **FR-002**: Cada executável DEVE baixar o arquivo DwC-A mais recente da URL de IPT configurada para sua fonte.
 - **FR-003**: Cada executável DEVE parsear o DwC-A e gravar **todos** os campos do registro original (passthrough completo), aplicando apenas normalização mínima de tipos (datas ISO 8601, números, coordenadas `double`).
 - **FR-004**: Os scripts de Fauna e Flora DEVEM gravar em uma única coleção unificada `taxa` no banco `dwc2json`, identificando a origem (`source`) em cada documento.
@@ -112,7 +112,7 @@ Após implementar os três scripts, o repositório é limpo: removidos `packages
 - **FR-011**: O repositório DEVE conter apenas o contexto de Aquisição — sem enriquecedores, sem loaders de referência, sem camada de apresentação.
 - **FR-012**: A documentação (README, CLAUDE.md) DEVE refletir o novo escopo simplificado.
 - **FR-013**: Os scripts DEVEM tratar falhas (rede, banco, parsing) com mensagens de erro claras e códigos de saída não-zero.
-- **FR-014**: Os executáveis DEVEM rodar em Windows 11 sem dependências externas instaladas (binário autocontido).
+- **FR-014**: Os executáveis DEVEM rodar em **Windows 11 (amd64)** e **Linux x86 (amd64)** sem dependências externas instaladas (binário autocontido). Gerados via `GOOS=windows GOARCH=amd64` e `GOOS=linux GOARCH=amd64` respectivamente.
 - **FR-015**: Todo trabalho DEVE ser comitado diretamente no branch `main` — nenhum branch novo é criado.
 - **FR-016**: O sistema DEVE evitar vulnerabilidades comuns desde o início (dependências auditadas, parsing seguro de ZIPs/CSVs, validação de URLs, sem credenciais hardcoded).
 - **FR-017**: O `.gitignore` DEVE incluir `.env`, binários compilados (`*.exe`), e qualquer artefato temporário de download.
@@ -132,11 +132,11 @@ Após implementar os três scripts, o repositório é limpo: removidos `packages
 
 ### Measurable Outcomes
 
-- **SC-001**: O operador consegue executar qualquer um dos três scripts em Windows 11 invocando o `.exe` diretamente, sem instalar runtime adicional.
+- **SC-001**: O operador consegue executar qualquer um dos três scripts em **Windows 11** (invocando o `.exe`) ou em **Linux x86** (invocando o binário sem extensão), sem instalar runtime adicional.
 - **SC-002**: Durante a execução, o terminal exibe pelo menos uma mensagem de progresso a cada etapa principal (download, descompactação, parsing, escrita) e atualizações periódicas para o script de ocorrências (a cada N registros).
 - **SC-003**: Após executar os três scripts com sucesso em ambiente limpo, o banco `dwc2json` contém as coleções `taxa` (fauna + flora) e `occurrences` populadas com volumes compatíveis com os IPTs de origem.
 - **SC-004**: Inspeção do repositório após a refatoração mostra ausência total de: pasta `packages/web`, código Astro/React, `.github/workflows`, `Dockerfile`, scripts de enriquecimento, scripts Python.
-- **SC-005**: Um operador novo consegue, a partir de um clone limpo do repositório, configurar `.env`, compilar via `go build ./cmd/...` e executar o primeiro script em menos de 15 minutos seguindo apenas o README (assumindo Go e MongoDB já instalados).
+- **SC-005**: Um operador novo consegue, a partir de um clone limpo do repositório, configurar `.env`, compilar via `go build` e executar o primeiro script em menos de 15 minutos seguindo apenas o README (assumindo Go e MongoDB já instalados) — tanto em Windows 11 quanto em Linux x86.
 - **SC-006**: Re-executar qualquer script duas vezes seguidas, sem alterar o IPT de origem, produz o mesmo estado final na coleção (sem duplicatas).
 - **SC-007**: Varredura de segredos (ex.: `gitleaks` ou `gh secret-scanning`) no histórico do repositório não encontra credenciais MongoDB reais.
 - **SC-008**: Tamanho total do repositório (excluindo `.git`) cai significativamente após a limpeza, refletindo a remoção dos contextos de Enriquecimento e Apresentação.
@@ -149,7 +149,7 @@ Após implementar os três scripts, o repositório é limpo: removidos `packages
 - As URLs dos IPTs (fauna, flora, ocorrências) são públicas, estáveis, e configuráveis via `.env` (ex.: `IPT_FAUNA_URL`, `IPT_FLORA_URL`, `IPT_OCCURRENCES_URL`).
 - A instância MongoDB de destino é acessível via `MONGO_URI` definido em `.env`, e o operador tem permissões de escrita no banco `dwc2json`.
 - O schema das coleções é **passthrough completo** dos termos Darwin Core presentes nos DwC-A das fontes; o pipeline preserva os nomes de campo originais e adiciona apenas `_id`, `source`, e `ingestedAt`. Mapeamento exato de termos por extensão será documentado no plano.
-- A linguagem escolhida na fase de clarificação é **Go**, gerando um `.exe` autocontido por script.
+- A linguagem escolhida na fase de clarificação é **Go**, gerando binários autocontidos por script: `.exe` para Windows 11 (amd64) e binário sem extensão para Linux x86 (amd64), via cross-compilation (`GOOS`/`GOARCH`).
 - Estratégia de atualização decidida: **upsert por chave estável** + remoção de registros não vistos (escopados por `source`). Detalhes operacionais (tamanho de lote, índice, write concern) serão definidos no plano.
 - Não há requisitos de internacionalização, autenticação multiusuário, agendamento automático, ou observabilidade externa (Prometheus/Grafana) — execução é local e manual.
 - Histórico de versões anteriores do projeto (V5, V6) permanece acessível via `git log`; não é necessário preservar arquivos legados após a limpeza.

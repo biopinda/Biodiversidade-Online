@@ -21,7 +21,7 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 
 - Layout Go padrão: `cmd/<binary>/main.go` para entries; `internal/<package>/` para código compartilhado
 - Specs: `specs/001-refactor-acquisition/`
-- Pasta `bin/` (gitignorada) hospeda os `.exe` após `go build`
+- Pasta `bin/` (gitignorada) hospeda os binários após `go build` — `.exe` em Windows, sem extensão em Linux
 
 ---
 
@@ -32,7 +32,7 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 ⚠️ **Atenção**: Este projeto está atualmente repleto de código TS/Astro/Bun do V6. **Não remover nada ainda** — a limpeza completa é US4 (Phase 6). Por enquanto, apenas adicionamos a nova estrutura Go ao lado.
 
 - [ ] T001 Inicializar módulo Go em `D:\git\Biodiversidade-Online\go.mod` com `go mod init biodiversidade-online` e diretiva `go 1.22`
-- [ ] T002 [P] Criar `D:\git\Biodiversidade-Online\.gitignore` (ou anexar) com: `.env`, `*.exe`, `bin/`, `cache/`, `*.test`, `coverage.out`
+- [ ] T002 [P] Criar `D:\git\Biodiversidade-Online\.gitignore` (ou anexar) com: `.env`, `*.exe`, `bin/`, `cache/`, `*.test`, `coverage.out` — `bin/` cobre tanto os `.exe` (Windows) quanto binários sem extensão (Linux)
 - [ ] T003 [P] Criar `D:\git\Biodiversidade-Online\.env.example` com placeholders genéricos para `MONGO_URI`, `MONGO_DATABASE=dwc2json`, `IPT_FAUNA_URL`, `IPT_FLORA_URL`, `IPT_OCCURRENCES_URL`, `OCCURRENCES_SOURCE_ID`, `BULK_BATCH_SIZE=5000`, `LOG_LEVEL=info`, `LOG_FORMAT=text`, `HTTP_TIMEOUT_MIN=30`
 - [ ] T004 [P] Criar estrutura de diretórios vazios: `cmd/update-fauna/`, `cmd/update-flora/`, `cmd/update-occurrences/`, `internal/config/`, `internal/dwca/`, `internal/dwca/testdata/`, `internal/ingest/`, `internal/mongostore/`, `internal/verbose/`, `internal/version/`
 - [ ] T005 Adicionar dependências em `go.mod`: `go get go.mongodb.org/mongo-driver/v2@latest` e `go get github.com/joho/godotenv@latest`; rodar `go mod tidy`
@@ -96,7 +96,7 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 ### Implementation for User Story 1
 
 - [ ] T027 [US1] Implementar `D:\git\Biodiversidade-Online\cmd\update-fauna\main.go`: parse flags (`--dry-run`, `--config`, `--log-level`, `--version`, `--help`); inicializar logger; carregar config para `source="fauna"`; conectar ao Mongo; chamar `ingest.Run(ctx, cfg, "fauna", dryRun, log)`; usar `defer` para gravar `RunRecord` em `ingest_runs` independente do resultado; mapear erros para exit codes do contrato CLI (`contracts/cli.md`)
-- [ ] T028 [US1] Validar manualmente: `go build -trimpath -ldflags="-s -w" -o bin\update-fauna.exe .\cmd\update-fauna` em Windows; rodar com `.env` configurado e MongoDB acessível; checar logs verbosos em cada etapa; validar contagens em `mongosh` (`db.taxa.countDocuments({source: "fauna"})` > 0 e bate com `recordsRead` em `ingest_runs`)
+- [ ] T028 [US1] Validar manualmente em **Windows** (`GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-fauna`) e/ou **Linux** (`GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-fauna`); rodar com `.env` configurado e MongoDB acessível; checar logs verbosos em cada etapa; validar contagens em `mongosh` (`db.taxa.countDocuments({source: "fauna"})` > 0 e bate com `recordsRead` em `ingest_runs`)
 - [ ] T029 [US1] Validar idempotência: rodar `update-fauna.exe` duas vezes seguidas; confirmar mesmo `countDocuments` final, `recordsRemoved=0` na segunda run, e aviso "versão idêntica" no log
 
 **Checkpoint**: US1 funciona ponta-a-ponta. **MVP entregue.** Operador pode usar update-fauna em produção mesmo sem US2/US3.
@@ -179,9 +179,9 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 
 - [ ] T053 [P] Auditoria de segurança: rodar `go vet ./...` e `go run github.com/securego/gosec/v2/cmd/gosec@latest ./...`; resolver achados de severidade ≥ MEDIUM
 - [ ] T054 [P] Auditoria de dependências: `go list -json -m all` revisado manualmente; confirmar que `mongo-driver/v2` e `godotenv` são as únicas deps externas diretas; sem CVEs ativos via `govulncheck ./...`
-- [ ] T055 [P] Verificar SC-009 (alvos de tempo) com mensuração formal: rodar 3× cada binário em hardware típico, registrar tempos, anexar resultados a `specs/001-refactor-acquisition/perf-validation.md`
+- [ ] T055 [P] Verificar SC-009 (alvos de tempo) com mensuração formal: rodar 3× cada binário em hardware típico em ambas as plataformas (Windows 11 e Linux x86), registrar tempos, anexar resultados a `specs/001-refactor-acquisition/perf-validation.md`
 - [ ] T056 [P] Verificar SC-007 (sem credenciais no histórico): rodar `git log -p --all | Select-String -Pattern "mongodb://"` e `gh secret-scanning` se disponível; resultado esperado: zero matches reais (apenas placeholders de `.env.example`)
-- [ ] T057 Executar quickstart.md ponta-a-ponta em ambiente limpo (VM Windows ou outro usuário): clone → `go build` → `.env` → primeira execução; cronometrar para validar SC-005 (≤ 15 min)
+- [ ] T057 Executar quickstart.md ponta-a-ponta em ambiente limpo, idealmente em **ambas as plataformas** (VM Windows 11 e VM/container Linux x86): clone → build com flag de plataforma correta → `.env` → primeira execução; cronometrar para validar SC-005 (≤ 15 min por plataforma)
 - [ ] T058 [P] Adicionar arquivo `D:\git\Biodiversidade-Online\LICENSE` se ainda não existir (manter licença original do projeto se houver)
 - [ ] T059 Commit final em `main` agregando documentação refletindo o release V7; tag opcional `v7.0.0`
 

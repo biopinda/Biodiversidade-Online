@@ -20,9 +20,9 @@ Refatorar o repositório Biodiversidade.Online removendo os contextos de **Enriq
 
 **Storage**: MongoDB (banco `dwc2json`); coleções `taxa`, `occurrences`, `ingest_runs`.
 **Testing**: stdlib `testing` apenas; foco em parser DwC-A e conversores de tipo. Sem teste de integração com Mongo (validação manual pelo operador).
-**Target Platform**: Windows 11 (amd64). `GOOS=windows GOARCH=amd64` é o alvo único.
+**Target Platforms**: Windows 11 (amd64) e Linux x86 (amd64). Binários gerados por cross-compilation nativa do Go — sem alteração de código-fonte. `GOOS=windows GOARCH=amd64` produz `.exe`; `GOOS=linux GOARCH=amd64` produz binário sem extensão. Ambos autocontidos.
 **Project Type**: CLI / Desktop tool (3 executáveis). Layout `cmd/` + `internal/`.
-**Performance Goals**: Fauna ≤ 2 min, Flora ≤ 2 min, Ocorrências ≤ 30 min para 5M registros (SC-009). Streaming + bulk writes de 5–10k documentos por lote (SC-010).
+**Performance Goals**: Fauna ≤ 2 min, Flora ≤ 2 min, Ocorrências ≤ 30 min para 5M registros (SC-009). Streaming + bulk writes de 5–10k documentos por lote (SC-010). Metas válidas em ambas as plataformas (Windows 11 e Linux x86 amd64).
 **Constraints**:
 
 - Sem Docker, sem GitHub Actions, sem UI/HTTP server (FR-010).
@@ -152,7 +152,9 @@ tsconfig*.json            ❌ remover
 - Layout `cmd/` + `internal/` com 6 pacotes internos.
 - Estratégia download (HTTP retry exponencial), bulk batch 5k default, delete-not-seen via `_runId` (UUID v7), exit codes padronizados.
 - Testes mínimos com stdlib `testing` (parser + transformações).
-- Build com `-trimpath -ldflags="-s -w"`.
+- Build com `-trimpath -ldflags="-s -w"` para ambas as plataformas:
+  - Windows: `GOOS=windows GOARCH=amd64 go build ... -o bin\ ./cmd/...`
+  - Linux: `GOOS=linux   GOARCH=amd64 go build ... -o bin/ ./cmd/...`
 
 ## Phase 1: Design & Contracts
 
