@@ -56,20 +56,29 @@ function Get-CurrentBranch {
 
     # Then check git if available at the spec-kit root (not parent)
     $repoRoot = Get-RepoRoot
+    $branch = $null
     if (Test-HasGit) {
         try {
             $result = git -C $repoRoot rev-parse --abbrev-ref HEAD 2>$null
             if ($LASTEXITCODE -eq 0) {
-                return $result
+                $branch = $result
             }
         } catch {
             # Git command failed
         }
     }
 
-    # For non-git repos, try to find the latest feature directory
+    # PROJECT PATCH (main-only workflow): only honor the git branch name when it
+    # already matches a speckit feature pattern (NNN-... or YYYYMMDD-HHMMSS-...).
+    # Otherwise (main, master, ad-hoc names) fall through to spec-dir auto-detect
+    # so commands work without anyone having to set $env:SPECIFY_FEATURE manually.
+    if ($branch -and ($branch -match '^\d{3,}-' -or $branch -match '^\d{8}-\d{6}-')) {
+        return $branch
+    }
+
+    # Auto-detect latest feature directory under specs/
     $specsDir = Join-Path $repoRoot "specs"
-    
+
     if (Test-Path $specsDir) {
         $latestFeature = ""
         $highest = 0
@@ -99,8 +108,9 @@ function Get-CurrentBranch {
             return $latestFeature
         }
     }
-    
-    # Final fallback
+
+    # Final fallback: use the git branch we collected earlier (if any), or "main"
+    if ($branch) { return $branch }
     return "main"
 }
 
