@@ -37,7 +37,8 @@ bun.lock
 
 # Go artifacts
 *.exe
-bin/
+bin/*
+!bin/HELP.md
 cache/
 *.test
 coverage.out
