@@ -21,22 +21,29 @@ import (
 const progressLogThreshold = 50000
 
 type RunConfig struct {
-	Cfg     *config.Config
-	Source  Source
-	DryRun  bool
-	Log     *slog.Logger
-	Store   *mongostore.Store
-	Binary  string
-	Version string
+	Cfg            *config.Config
+	Source         Source
+	SourceID       string // overrides string(Source) as the "source" field value in documents
+	IPTURLOverride string // overrides config URL for this run (used by multi-source occurrences)
+	DryRun         bool
+	Log            *slog.Logger
+	Store          *mongostore.Store
+	Binary         string
+	Version        string
 }
 
 func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 	runID := mongostore.NewRunID()
 	started := time.Now()
 
+	sourceStr := string(rc.Source)
+	if rc.SourceID != "" {
+		sourceStr = rc.SourceID
+	}
+
 	run := mongostore.RunRecord{
 		ID:        runID,
-		Source:    string(rc.Source),
+		Source:    sourceStr,
 		Binary:    rc.Binary,
 		Version:   rc.Version,
 		StartedAt: started,
@@ -44,7 +51,10 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 		DryRun:    rc.DryRun,
 	}
 
-	iptURL := iptURLForSource(rc.Cfg, rc.Source)
+	iptURL := rc.IPTURLOverride
+	if iptURL == "" {
+		iptURL = iptURLForSource(rc.Cfg, rc.Source)
+	}
 	run.DwCA.URL = iptURL
 
 	cacheDir := rc.Cfg.CacheDir
@@ -94,7 +104,7 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 
 	// Check for identical version
 	if !rc.DryRun && rc.Store != nil {
-		if last, err := rc.Store.LastSuccessfulRun(ctx, string(rc.Source)); err == nil {
+		if last, err := rc.Store.LastSuccessfulRun(ctx, sourceStr); err == nil {
 			if last.DwCA.PubDate == archive.Metadata.PubDate && last.DwCA.Version == archive.Metadata.Version {
 				rc.Log.Warn("versao identica a ultima execucao bem-sucedida",
 					"last_run_at", last.FinishedAt,
@@ -106,7 +116,6 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 
 	schema := schemaForSource(rc.Source)
 	idField := rc.Source.IDField()
-	sourceStr := string(rc.Source)
 
 	var coll *mongo.Collection
 	if rc.Store != nil {
@@ -264,7 +273,7 @@ func iptURLForSource(cfg *config.Config, s Source) string {
 	case SourceFlora:
 		return cfg.IPTFloraURL
 	case SourceOccurrences:
-		return cfg.IPTOccurrencesURL
+		return "" // occurrences uses IPTURLOverride from CSV, not a single config URL
 	default:
 		return ""
 	}

@@ -10,17 +10,16 @@ import (
 )
 
 type Config struct {
-	MongoURI            string
-	MongoDatabase       string
-	IPTFaunaURL         string
-	IPTFloraURL         string
-	IPTOccurrencesURL   string
-	OccurrencesSourceID string
-	BulkBatchSize       int
-	LogLevel            string
-	LogFormat           string
-	HTTPTimeoutMin      int
-	CacheDir            string
+	MongoURI         string
+	MongoDatabase    string
+	IPTFaunaURL      string
+	IPTFloraURL      string
+	IPTOccurrencesCSV string
+	BulkBatchSize    int
+	LogLevel         string
+	LogFormat        string
+	HTTPTimeoutMin   int
+	CacheDir         string
 }
 
 // ConfigError signals exit code 2 (configuration error).
@@ -34,14 +33,13 @@ func Load(path, source string) (*Config, error) {
 	_ = godotenv.Load(path)
 
 	cfg := &Config{
-		MongoURI:            os.Getenv("MONGO_URI"),
-		MongoDatabase:       envOr("MONGO_DATABASE", "dwc2json"),
-		IPTFaunaURL:         os.Getenv("IPT_FAUNA_URL"),
-		IPTFloraURL:         os.Getenv("IPT_FLORA_URL"),
-		IPTOccurrencesURL:   os.Getenv("IPT_OCCURRENCES_URL"),
-		OccurrencesSourceID: envOr("OCCURRENCES_SOURCE_ID", "occurrences"),
-		LogLevel:            envOr("LOG_LEVEL", "info"),
-		LogFormat:           envOr("LOG_FORMAT", "text"),
+		MongoURI:          os.Getenv("MONGO_URI"),
+		MongoDatabase:     envOr("MONGO_DATABASE", "dwc2json"),
+		IPTFaunaURL:       os.Getenv("IPT_FAUNA_URL"),
+		IPTFloraURL:       os.Getenv("IPT_FLORA_URL"),
+		IPTOccurrencesCSV: envOr("IPT_OCCURRENCES_CSV", "data/occurrences.csv"),
+		LogLevel:          envOr("LOG_LEVEL", "info"),
+		LogFormat:         envOr("LOG_FORMAT", "text"),
 	}
 
 	if v := os.Getenv("BULK_BATCH_SIZE"); v != "" {
@@ -87,10 +85,7 @@ func validateForSource(cfg *Config, source string) error {
 		if cfg.IPTFloraURL == "" {
 			missing = append(missing, "IPT_FLORA_URL")
 		}
-	case "occurrences":
-		if cfg.IPTOccurrencesURL == "" {
-			missing = append(missing, "IPT_OCCURRENCES_URL")
-		}
+	// occurrences uses IPT_OCCURRENCES_CSV with a default — no validation needed here
 	}
 
 	if len(missing) > 0 {

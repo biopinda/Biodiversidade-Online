@@ -42,10 +42,17 @@ func run() int {
 	}
 
 	log := verbose.New(cfg.LogLevel, cfg.LogFormat)
-	log.Info("iniciando script", "source", cfg.OccurrencesSourceID, "binary", "update-occurrences", "version", version.String())
+	log.Info("iniciando script", "binary", "update-occurrences", "version", version.String())
 
 	ctx, cancel := verbose.WithCancellation(context.Background(), log)
 	defer cancel()
+
+	sources, err := ingest.LoadIPTSources(cfg.IPTOccurrencesCSV)
+	if err != nil {
+		log.Error("falha ao carregar CSV de fontes IPT", "path", cfg.IPTOccurrencesCSV, "err", err)
+		return 2
+	}
+	log.Info("fontes IPT carregadas", "count", len(sources), "csv", cfg.IPTOccurrencesCSV)
 
 	var store *mongostore.Store
 	if !*dryRun {
@@ -59,38 +66,52 @@ func run() int {
 		log.Info("conectado ao MongoDB", "database", cfg.MongoDatabase)
 	}
 
-	rc := ingest.RunConfig{
-		Cfg:     cfg,
-		Source:  ingest.SourceOccurrences,
-		DryRun:  *dryRun,
-		Log:     log,
-		Store:   store,
-		Binary:  "update-occurrences",
-		Version: version.String(),
-	}
+	exitCode := 0
+	for i, src := range sources {
+		if ctx.Err() != nil {
+			log.Warn("interrupcao detectada, parando processamento")
+			exitCode = 130
+			break
+		}
 
-	var runRecord mongostore.RunRecord
-	defer func() {
+		log.Info("processando fonte",
+			"index", i+1,
+			"total", len(sources),
+			"source", src.Tag,
+			"nome", src.Nome,
+		)
+
+		rc := ingest.RunConfig{
+			Cfg:            cfg,
+			Source:         ingest.SourceOccurrences,
+			SourceID:       src.Tag,
+			IPTURLOverride: src.DwCAURL(),
+			DryRun:         *dryRun,
+			Log:            log,
+			Store:          store,
+			Binary:         "update-occurrences",
+			Version:        version.String(),
+		}
+
+		runRecord, err := ingest.Run(ctx, rc)
+
 		if store != nil && runRecord.ID != "" {
-			if err := store.WriteRun(context.Background(), runRecord); err != nil {
-				log.Error("falha ao gravar ingest_runs", "err", err)
-			} else {
-				log.Info("gravando ingest_runs", "status", runRecord.Status)
+			if werr := store.WriteRun(context.Background(), runRecord); werr != nil {
+				log.Error("falha ao gravar ingest_runs", "source", src.Tag, "err", werr)
 			}
 		}
-	}()
 
-	runRecord, err = ingest.Run(ctx, rc)
-	if err != nil {
-		if runRecord.Status == "" {
-			runRecord.Status = "failed"
+		if err != nil {
+			if ctx.Err() != nil {
+				exitCode = 130
+				break
+			}
+			log.Error("fonte falhou, continuando para proxima", "source", src.Tag, "err", err)
+			exitCode = exitCodeFromErr(err)
 		}
-		runRecord.ErrorMessage = err.Error()
-		log.Error("encerrando", "exit_code", exitCodeFromErr(err), "err", err)
-		return exitCodeFromErr(err)
 	}
 
-	return 0
+	return exitCode
 }
 
 func exitCodeFromErr(err error) int {
