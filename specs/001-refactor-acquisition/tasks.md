@@ -31,12 +31,12 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 
 ⚠️ **Atenção**: Este projeto está atualmente repleto de código TS/Astro/Bun do V6. **Não remover nada ainda** — a limpeza completa é US4 (Phase 6). Por enquanto, apenas adicionamos a nova estrutura Go ao lado.
 
-- [ ] T001 Inicializar módulo Go em `D:\git\Biodiversidade-Online\go.mod` com `go mod init biodiversidade-online` e diretiva `go 1.22`
-- [ ] T002 [P] Criar `D:\git\Biodiversidade-Online\.gitignore` (ou anexar) com: `.env`, `*.exe`, `bin/`, `cache/`, `*.test`, `coverage.out` — `bin/` cobre tanto os `.exe` (Windows) quanto binários sem extensão (Linux)
-- [ ] T003 [P] Criar `D:\git\Biodiversidade-Online\.env.example` com placeholders genéricos para `MONGO_URI`, `MONGO_DATABASE=dwc2json`, `IPT_FAUNA_URL`, `IPT_FLORA_URL`, `IPT_OCCURRENCES_URL`, `OCCURRENCES_SOURCE_ID`, `BULK_BATCH_SIZE=5000`, `LOG_LEVEL=info`, `LOG_FORMAT=text`, `HTTP_TIMEOUT_MIN=30`
-- [ ] T004 [P] Criar estrutura de diretórios vazios: `cmd/update-fauna/`, `cmd/update-flora/`, `cmd/update-occurrences/`, `internal/config/`, `internal/dwca/`, `internal/dwca/testdata/`, `internal/ingest/`, `internal/mongostore/`, `internal/verbose/`, `internal/version/`
-- [ ] T005 Adicionar dependências em `go.mod`: `go get go.mongodb.org/mongo-driver/v2@latest` e `go get github.com/joho/godotenv@latest`; rodar `go mod tidy`
-- [ ] T006 [P] Criar `D:\git\Biodiversidade-Online\.editorconfig` com convenções Go (tab indent, LF line endings, UTF-8) — NÃO remover .editorconfig existente; sobrescrever apenas se incompatível
+- [x] T001 Inicializar módulo Go em `D:\git\Biodiversidade-Online\go.mod` com `go mod init biodiversidade-online` e diretiva `go 1.22`
+- [x] T002 [P] Criar `D:\git\Biodiversidade-Online\.gitignore` (ou anexar) com: `.env`, `*.exe`, `bin/`, `cache/`, `*.test`, `coverage.out` — `bin/` cobre tanto os `.exe` (Windows) quanto binários sem extensão (Linux)
+- [x] T003 [P] Criar `D:\git\Biodiversidade-Online\.env.example` com placeholders genéricos para `MONGO_URI`, `MONGO_DATABASE=dwc2json`, `IPT_FAUNA_URL`, `IPT_FLORA_URL`, `IPT_OCCURRENCES_URL`, `OCCURRENCES_SOURCE_ID`, `BULK_BATCH_SIZE=5000`, `LOG_LEVEL=info`, `LOG_FORMAT=text`, `HTTP_TIMEOUT_MIN=30`
+- [x] T004 [P] Criar estrutura de diretórios vazios: `cmd/update-fauna/`, `cmd/update-flora/`, `cmd/update-occurrences/`, `internal/config/`, `internal/dwca/`, `internal/dwca/testdata/`, `internal/ingest/`, `internal/mongostore/`, `internal/verbose/`, `internal/version/`
+- [x] T005 Adicionar dependências em `go.mod`: `go get go.mongodb.org/mongo-driver/v2@latest` e `go get github.com/joho/godotenv@latest`; rodar `go mod tidy`
+- [x] T006 [P] Criar `D:\git\Biodiversidade-Online\.editorconfig` com convenções Go (tab indent, LF line endings, UTF-8) — NÃO remover .editorconfig existente; sobrescrever apenas se incompatível
 
 **Checkpoint**: `go build ./...` deve rodar sem erro (mesmo com pacotes vazios), `.env.example` versionado, `.env` ignorado.
 
@@ -50,38 +50,38 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 
 ### Configuração e logging
 
-- [ ] T007 [P] Implementar `D:\git\Biodiversidade-Online\internal\verbose\logger.go`: wrapper de `log/slog` com `New(level, format)` retornando `*slog.Logger`; suporta `text` (colorido) e `json`; lê `LOG_LEVEL` e `LOG_FORMAT` se não passados
-- [ ] T008 [P] Implementar `D:\git\Biodiversidade-Online\internal\version\version.go`: variáveis exportadas `Commit`, `BuildDate`, `Version` populáveis via `-ldflags="-X 'biodiversidade-online/internal/version.Commit=...'"`; função `String()`
-- [ ] T009 Implementar `D:\git\Biodiversidade-Online\internal\config\config.go`: struct `Config` com campos para todas as env vars do `contracts/cli.md`; função `Load(path string, source string)` que carrega `.env` via `godotenv`, lê env, valida campos obrigatórios por `source`, retorna erro tipado com exit code `2` para vars faltando
+- [x] T007 [P] Implementar `D:\git\Biodiversidade-Online\internal\verbose\logger.go`: wrapper de `log/slog` com `New(level, format)` retornando `*slog.Logger`; suporta `text` (colorido) e `json`; lê `LOG_LEVEL` e `LOG_FORMAT` se não passados
+- [x] T008 [P] Implementar `D:\git\Biodiversidade-Online\internal\version\version.go`: variáveis exportadas `Commit`, `BuildDate`, `Version` populáveis via `-ldflags="-X 'biodiversidade-online/internal/version.Commit=...'"`; função `String()`
+- [x] T009 Implementar `D:\git\Biodiversidade-Online\internal\config\config.go`: struct `Config` com campos para todas as env vars do `contracts/cli.md`; função `Load(path string, source string)` que carrega `.env` via `godotenv`, lê env, valida campos obrigatórios por `source`, retorna erro tipado com exit code `2` para vars faltando
 
 ### Parser DwC-A (núcleo, sem deps externas)
 
-- [ ] T010 [P] Implementar `D:\git\Biodiversidade-Online\internal\dwca\types.go`: structs Go que mapeiam `meta.xml` (`Archive`, `Core`, `Extension`, `Field` com atributos `index`, `term`, `default`); struct `EmlMetadata` com `PubDate`, `Version`, `Title`
-- [ ] T011 Implementar `D:\git\Biodiversidade-Online\internal\dwca\archive.go`: função `Open(zipPath)` retornando `*Archive` que abre o ZIP, parseia `meta.xml` e `eml.xml` via `encoding/xml`; método `CoreReader()`, `ExtensionReader(rowType)` retornam `Reader` (próxima task)
-- [ ] T012 Implementar `D:\git\Biodiversidade-Online\internal\dwca\reader.go`: tipo `Reader` com `Read() (Record, error)` em streaming via `csv.Reader`; respeita `fieldsTerminatedBy`, `linesTerminatedBy`, `encoding` de `meta.xml`; converte índice→termo DwC; retorna `io.EOF` ao final
-- [ ] T013 Implementar `D:\git\Biodiversidade-Online\internal\dwca\download.go`: função `Download(ctx, url, cacheDir)` que faz HTTP GET com timeout configurável, retry exponencial (3 tentativas, 1s/4s/16s) em 5xx/timeout, salva em `<cacheDir>/<sourceFromURL>.zip`, retorna path local; valida `url` via `url.Parse` antes
-- [ ] T014 [P] Criar fixture mínima de DwC-A em `D:\git\Biodiversidade-Online\internal\dwca\testdata\sample.zip` (ZIP com `meta.xml`, `eml.xml`, `taxa.txt` de 5 linhas) e helper `mkfixture.go` (build-tag `ignore`) que regenera o fixture
-- [ ] T015 Escrever `D:\git\Biodiversidade-Online\internal\dwca\archive_test.go`: testa `Open` com fixture, valida campos parseados de `meta.xml` e `eml.xml`
-- [ ] T016 Escrever `D:\git\Biodiversidade-Online\internal\dwca\reader_test.go`: testa `Reader.Read` lê linhas corretamente, mapeia coluna→termo, retorna EOF ao final, lida com encoding alternativo
+- [x] T010 [P] Implementar `D:\git\Biodiversidade-Online\internal\dwca\types.go`: structs Go que mapeiam `meta.xml` (`Archive`, `Core`, `Extension`, `Field` com atributos `index`, `term`, `default`); struct `EmlMetadata` com `PubDate`, `Version`, `Title`
+- [x] T011 Implementar `D:\git\Biodiversidade-Online\internal\dwca\archive.go`: função `Open(zipPath)` retornando `*Archive` que abre o ZIP, parseia `meta.xml` e `eml.xml` via `encoding/xml`; método `CoreReader()`, `ExtensionReader(rowType)` retornam `Reader` (próxima task)
+- [x] T012 Implementar `D:\git\Biodiversidade-Online\internal\dwca\reader.go`: tipo `Reader` com `Read() (Record, error)` em streaming via `csv.Reader`; respeita `fieldsTerminatedBy`, `linesTerminatedBy`, `encoding` de `meta.xml`; converte índice→termo DwC; retorna `io.EOF` ao final
+- [x] T013 Implementar `D:\git\Biodiversidade-Online\internal\dwca\download.go`: função `Download(ctx, url, cacheDir)` que faz HTTP GET com timeout configurável, retry exponencial (3 tentativas, 1s/4s/16s) em 5xx/timeout, salva em `<cacheDir>/<sourceFromURL>.zip`, retorna path local; valida `url` via `url.Parse` antes
+- [x] T014 [P] Criar fixture mínima de DwC-A em `D:\git\Biodiversidade-Online\internal\dwca\testdata\sample.zip` (ZIP com `meta.xml`, `eml.xml`, `taxa.txt` de 5 linhas) e helper `mkfixture.go` (build-tag `ignore`) que regenera o fixture
+- [x] T015 Escrever `D:\git\Biodiversidade-Online\internal\dwca\archive_test.go`: testa `Open` com fixture, valida campos parseados de `meta.xml` e `eml.xml`
+- [x] T016 Escrever `D:\git\Biodiversidade-Online\internal\dwca\reader_test.go`: testa `Reader.Read` lê linhas corretamente, mapeia coluna→termo, retorna EOF ao final, lida com encoding alternativo
 
 ### MongoDB store
 
-- [ ] T017 [P] Implementar `D:\git\Biodiversidade-Online\internal\mongostore\client.go`: função `Connect(ctx, uri, dbName)` que usa `mongo.Connect(options.Client().ApplyURI(uri))` e retorna `*Store` com handles para `taxa`, `occurrences`, `ingest_runs`; método `Close(ctx)`
-- [ ] T018 [P] Implementar `D:\git\Biodiversidade-Online\internal\mongostore\uuidv7.go`: função `NewRunID()` que gera UUID v7 (timestamp-prefixed) usando `crypto/rand`; sem deps externas
-- [ ] T019 Implementar `D:\git\Biodiversidade-Online\internal\mongostore\upsert.go`: função `BulkUpsert(ctx, coll, docs []bson.M, runID, source)` que monta `[]mongo.WriteModel` com `mongo.NewReplaceOneModel().SetFilter(bson.D{{"_id", id}}).SetReplacement(doc).SetUpsert(true)`; cada doc recebe `_runId`, `source`, `ingestedAt` injetados; chama `BulkWrite` com `SetOrdered(false)`; retorna contadores
-- [ ] T020 Implementar `D:\git\Biodiversidade-Online\internal\mongostore\delete_not_seen.go`: função `DeleteNotSeen(ctx, coll, source, runID)` que executa `DeleteMany({source: source, _runId: {$ne: runID}})`; retorna contagem deletada
-- [ ] T021 Implementar `D:\git\Biodiversidade-Online\internal\mongostore\audit.go`: tipo `RunRecord` espelhando schema de `ingest_runs` ([data-model.md §3](./data-model.md#3-coleção-ingest_runs)); função `WriteRun(ctx, run RunRecord)` faz `InsertOne` em `ingest_runs`; função `LastSuccessfulRun(ctx, source)` retorna o último doc com `status:"success"` para o aviso de versão idêntica (FR-019)
+- [x] T017 [P] Implementar `D:\git\Biodiversidade-Online\internal\mongostore\client.go`: função `Connect(ctx, uri, dbName)` que usa `mongo.Connect(options.Client().ApplyURI(uri))` e retorna `*Store` com handles para `taxa`, `occurrences`, `ingest_runs`; método `Close(ctx)`
+- [x] T018 [P] Implementar `D:\git\Biodiversidade-Online\internal\mongostore\uuidv7.go`: função `NewRunID()` que gera UUID v7 (timestamp-prefixed) usando `crypto/rand`; sem deps externas
+- [x] T019 Implementar `D:\git\Biodiversidade-Online\internal\mongostore\upsert.go`: função `BulkUpsert(ctx, coll, docs []bson.M, runID, source)` que monta `[]mongo.WriteModel` com `mongo.NewReplaceOneModel().SetFilter(bson.D{{"_id", id}}).SetReplacement(doc).SetUpsert(true)`; cada doc recebe `_runId`, `source`, `ingestedAt` injetados; chama `BulkWrite` com `SetOrdered(false)`; retorna contadores
+- [x] T020 Implementar `D:\git\Biodiversidade-Online\internal\mongostore\delete_not_seen.go`: função `DeleteNotSeen(ctx, coll, source, runID)` que executa `DeleteMany({source: source, _runId: {$ne: runID}})`; retorna contagem deletada
+- [x] T021 Implementar `D:\git\Biodiversidade-Online\internal\mongostore\audit.go`: tipo `RunRecord` espelhando schema de `ingest_runs` ([data-model.md §3](./data-model.md#3-coleção-ingest_runs)); função `WriteRun(ctx, run RunRecord)` faz `InsertOne` em `ingest_runs`; função `LastSuccessfulRun(ctx, source)` retorna o último doc com `status:"success"` para o aviso de versão idêntica (FR-019)
 
 ### Ingest pipeline (compartilhado)
 
-- [ ] T022 Implementar `D:\git\Biodiversidade-Online\internal\ingest\transform.go`: funções puras de coerção — `parseDate(string) (time.Time, bool)` (aceita `YYYY-MM-DD`, `YYYY-MM`, `YYYY`, e ranges `YYYY-MM-DD/YYYY-MM-DD`); `parseFloat(string) (float64, bool)`; `parseInt(string) (int, bool)`; `coerceRecord(record map[string]string, schema CollectionSchema) bson.M` aplica conversões e omite valores vazios
-- [ ] T023 [P] Escrever `D:\git\Biodiversidade-Online\internal\ingest\transform_test.go`: cobre todos os formatos de data DwC, números válidos/inválidos, range de coordenadas suspeitas, omissão de strings vazias
-- [ ] T024 Implementar `D:\git\Biodiversidade-Online\internal\ingest\pipeline.go`: função `Run(ctx, cfg Config, source string, dryRun bool, log *slog.Logger) (RunRecord, error)` orquestrando: download → open archive → ler eml → checar versão idêntica → iniciar runID → loop de leitura+upsert em lotes de `cfg.BulkBatchSize` → delete-not-seen → preencher RunRecord. Retorna RunRecord mesmo em erro (para auditoria)
-- [ ] T025 Implementar `D:\git\Biodiversidade-Online\internal\ingest\schema.go`: enum `Source` (Fauna, Flora, Occurrences) com método `Collection() string` (`taxa` para fauna/flora; `occurrences` para occurrences) e `IDField() string` (`taxonID` ou `occurrenceID`); função `RowTypeForSource(source)` retorna o `rowType` DwC esperado no `meta.xml` core
+- [x] T022 Implementar `D:\git\Biodiversidade-Online\internal\ingest\transform.go`: funções puras de coerção — `parseDate(string) (time.Time, bool)` (aceita `YYYY-MM-DD`, `YYYY-MM`, `YYYY`, e ranges `YYYY-MM-DD/YYYY-MM-DD`); `parseFloat(string) (float64, bool)`; `parseInt(string) (int, bool)`; `coerceRecord(record map[string]string, schema CollectionSchema) bson.M` aplica conversões e omite valores vazios
+- [x] T023 [P] Escrever `D:\git\Biodiversidade-Online\internal\ingest\transform_test.go`: cobre todos os formatos de data DwC, números válidos/inválidos, range de coordenadas suspeitas, omissão de strings vazias
+- [x] T024 Implementar `D:\git\Biodiversidade-Online\internal\ingest\pipeline.go`: função `Run(ctx, cfg Config, source string, dryRun bool, log *slog.Logger) (RunRecord, error)` orquestrando: download → open archive → ler eml → checar versão idêntica → iniciar runID → loop de leitura+upsert em lotes de `cfg.BulkBatchSize` → delete-not-seen → preencher RunRecord. Retorna RunRecord mesmo em erro (para auditoria)
+- [x] T025 Implementar `D:\git\Biodiversidade-Online\internal\ingest\schema.go`: enum `Source` (Fauna, Flora, Occurrences) com método `Collection() string` (`taxa` para fauna/flora; `occurrences` para occurrences) e `IDField() string` (`taxonID` ou `occurrenceID`); função `RowTypeForSource(source)` retorna o `rowType` DwC esperado no `meta.xml` core
 
 ### Tratamento de sinais
 
-- [ ] T026 Implementar `D:\git\Biodiversidade-Online\internal\verbose\signals.go`: função `WithCancellation(ctx)` retorna `(ctx, cancel)` onde SIGINT/SIGTERM chama `cancel()` e loga "interrupcao recebida"; usado pelos `main.go`
+- [x] T026 Implementar `D:\git\Biodiversidade-Online\internal\verbose\signals.go`: função `WithCancellation(ctx)` retorna `(ctx, cancel)` onde SIGINT/SIGTERM chama `cancel()` e loga "interrupcao recebida"; usado pelos `main.go`
 
 **Checkpoint**: Toda a infraestrutura compartilhada está implementada e testada. `go test ./internal/...` passa. Os pacotes `internal/dwca` e `internal/ingest` têm cobertura de teste para conversores e parser.
 
@@ -95,7 +95,7 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 
 ### Implementation for User Story 1
 
-- [ ] T027 [US1] Implementar `D:\git\Biodiversidade-Online\cmd\update-fauna\main.go`: parse flags (`--dry-run`, `--config`, `--log-level`, `--version`, `--help`); inicializar logger; carregar config para `source="fauna"`; conectar ao Mongo; chamar `ingest.Run(ctx, cfg, "fauna", dryRun, log)`; usar `defer` para gravar `RunRecord` em `ingest_runs` independente do resultado; mapear erros para exit codes do contrato CLI (`contracts/cli.md`)
+- [x] T027 [US1] Implementar `D:\git\Biodiversidade-Online\cmd\update-fauna\main.go`: parse flags (`--dry-run`, `--config`, `--log-level`, `--version`, `--help`); inicializar logger; carregar config para `source="fauna"`; conectar ao Mongo; chamar `ingest.Run(ctx, cfg, "fauna", dryRun, log)`; usar `defer` para gravar `RunRecord` em `ingest_runs` independente do resultado; mapear erros para exit codes do contrato CLI (`contracts/cli.md`)
 - [ ] T028 [US1] Validar manualmente em **Windows** (`GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-fauna`) e/ou **Linux** (`GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-fauna`); rodar com `.env` configurado e MongoDB acessível; checar logs verbosos em cada etapa; validar contagens em `mongosh` (`db.taxa.countDocuments({source: "fauna"})` > 0 e bate com `recordsRead` em `ingest_runs`)
 - [ ] T029 [US1] Validar idempotência: rodar `update-fauna.exe` duas vezes seguidas; confirmar mesmo `countDocuments` final, `recordsRemoved=0` na segunda run, e aviso "versão idêntica" no log
 
@@ -111,7 +111,7 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] Implementar `D:\git\Biodiversidade-Online\cmd\update-flora\main.go`: idêntico em estrutura ao update-fauna, mas chama `ingest.Run(ctx, cfg, "flora", dryRun, log)` e exige `IPT_FLORA_URL`. Recomendado: extrair função comum para `internal/cliboot/Boot()` se ficar duplicação visível entre os 3 mains
+- [x] T030 [US2] Implementar `D:\git\Biodiversidade-Online\cmd\update-flora\main.go`: idêntico em estrutura ao update-fauna, mas chama `ingest.Run(ctx, cfg, "flora", dryRun, log)` e exige `IPT_FLORA_URL`. Recomendado: extrair função comum para `internal/cliboot/Boot()` se ficar duplicação visível entre os 3 mains
 - [ ] T031 [US2] Validar manualmente: build, rodar com fauna já presente, confirmar isolamento entre `source:"fauna"` e `source:"flora"` (queries `db.taxa.aggregate([{$group:{_id:"$source", n:{$sum:1}}}])` retorna duas linhas com contagens corretas)
 - [ ] T032 [US2] Validar delete-not-seen escopado: simular registro removido do IPT (modificando fixture local em ambiente de teste); rodar update-flora; confirmar que apenas registros `source:"flora"` ausentes do DwC-A foram removidos, fauna intacta
 
@@ -127,8 +127,8 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implementar `D:\git\Biodiversidade-Online\cmd\update-occurrences\main.go`: idêntico aos anteriores, mas com `source` derivado de `OCCURRENCES_SOURCE_ID` (default `"occurrences"`) lido do `.env`; exige `IPT_OCCURRENCES_URL`
-- [ ] T034 [US3] Adicionar log de progresso periódico em `internal/ingest/pipeline.go`: a cada N (ex.: 50000) registros lidos, emite `INFO` com `records_processed`, `elapsed_sec`, `rate_per_sec` — específico para volumes altos. Verificar que NÃO duplica logs em fauna/flora (talvez emitir só se `total > threshold`)
+- [x] T033 [US3] Implementar `D:\git\Biodiversidade-Online\cmd\update-occurrences\main.go`: idêntico aos anteriores, mas com `source` derivado de `OCCURRENCES_SOURCE_ID` (default `"occurrences"`) lido do `.env`; exige `IPT_OCCURRENCES_URL`
+- [x] T034 [US3] Adicionar log de progresso periódico em `internal/ingest/pipeline.go`: a cada N (ex.: 50000) registros lidos, emite `INFO` com `records_processed`, `elapsed_sec`, `rate_per_sec` — específico para volumes altos. Verificar que NÃO duplica logs em fauna/flora (talvez emitir só se `total > threshold`)
 - [ ] T035 [US3] Validar performance contra SC-009: rodar com DwC-A real (>1M registros); medir tempo total e pico de RSS via PowerShell `(Get-Process update-occurrences).WorkingSet64`; confirmar streaming (RSS estável, não crescendo linearmente)
 - [ ] T036 [US3] Validar tratamento de coordenadas suspeitas: confirmar que registros com `decimalLatitude` fora de `[-90,90]` são gravados mas contabilizados em `recordsWithSuspectCoordinates` no `ingest_runs`; logs WARN aparecem (no nível DEBUG, não poluindo INFO)
 

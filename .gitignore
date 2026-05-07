@@ -35,6 +35,14 @@ tmp/
 # Bun lockfile
 bun.lock
 
+# Go artifacts
+*.exe
+bin/
+cache/
+*.test
+coverage.out
+vendor/
+
 # Cache files
 packages/web/.cache_served.json
 packages/web/.tmp_*.js

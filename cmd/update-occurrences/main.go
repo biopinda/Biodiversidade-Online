@@ -1,0 +1,127 @@
+package main
+
+import (
+	"context"
+	"flag"
+	"fmt"
+	"os"
+
+	"biodiversidade-online/internal/config"
+	"biodiversidade-online/internal/ingest"
+	"biodiversidade-online/internal/mongostore"
+	"biodiversidade-online/internal/verbose"
+	"biodiversidade-online/internal/version"
+)
+
+func main() {
+	os.Exit(run())
+}
+
+func run() int {
+	var (
+		dryRun   = flag.Bool("dry-run", false, "parse and validate without writing to MongoDB")
+		cfgPath  = flag.String("config", ".env", "path to .env config file")
+		logLevel = flag.String("log-level", "", "log level: debug, info, warn, error")
+		ver      = flag.Bool("version", false, "print version and exit")
+	)
+	flag.Parse()
+
+	if *ver {
+		fmt.Println(version.String())
+		return 0
+	}
+
+	cfg, err := config.Load(*cfgPath, "occurrences")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "configuration error: %v\n", err)
+		return 2
+	}
+
+	if *logLevel != "" {
+		cfg.LogLevel = *logLevel
+	}
+
+	log := verbose.New(cfg.LogLevel, cfg.LogFormat)
+	log.Info("iniciando script", "source", cfg.OccurrencesSourceID, "binary", "update-occurrences", "version", version.String())
+
+	ctx, cancel := verbose.WithCancellation(context.Background(), log)
+	defer cancel()
+
+	var store *mongostore.Store
+	if !*dryRun {
+		s, err := mongostore.Connect(ctx, cfg.MongoURI, cfg.MongoDatabase)
+		if err != nil {
+			log.Error("falha ao conectar ao MongoDB", "err", err)
+			return 5
+		}
+		defer s.Close(ctx)
+		store = s
+		log.Info("conectado ao MongoDB", "database", cfg.MongoDatabase)
+	}
+
+	rc := ingest.RunConfig{
+		Cfg:     cfg,
+		Source:  ingest.SourceOccurrences,
+		DryRun:  *dryRun,
+		Log:     log,
+		Store:   store,
+		Binary:  "update-occurrences",
+		Version: version.String(),
+	}
+
+	var runRecord mongostore.RunRecord
+	defer func() {
+		if store != nil && runRecord.ID != "" {
+			if err := store.WriteRun(context.Background(), runRecord); err != nil {
+				log.Error("falha ao gravar ingest_runs", "err", err)
+			} else {
+				log.Info("gravando ingest_runs", "status", runRecord.Status)
+			}
+		}
+	}()
+
+	runRecord, err = ingest.Run(ctx, rc)
+	if err != nil {
+		if runRecord.Status == "" {
+			runRecord.Status = "failed"
+		}
+		runRecord.ErrorMessage = err.Error()
+		log.Error("encerrando", "exit_code", exitCodeFromErr(err), "err", err)
+		return exitCodeFromErr(err)
+	}
+
+	return 0
+}
+
+func exitCodeFromErr(err error) int {
+	if err == nil {
+		return 0
+	}
+	switch err.(type) {
+	case *config.ConfigError:
+		return 2
+	}
+	msg := err.Error()
+	switch {
+	case contains(msg, "download", "network", "timeout", "dial"):
+		return 3
+	case contains(msg, "archive", "meta.xml", "zip"):
+		return 4
+	case contains(msg, "mongo", "auth", "write concern"):
+		return 5
+	}
+	return 1
+}
+
+func contains(s string, keywords ...string) bool {
+	for _, k := range keywords {
+		if len(s) >= len(k) {
+			for i := 0; i <= len(s)-len(k); i++ {
+				if s[i:i+len(k)] == k {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
