@@ -146,28 +146,28 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 
 ### Remoções (ordem indiferente, todas paralelizáveis)
 
-- [ ] T037 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\packages\web\` (Astro/React/Tailwind/ChatBB/Dashboard/API)
-- [ ] T038 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\packages\transform\` (loaders e enrichers)
-- [ ] T039 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\packages\ingest\` (TS — substituído por `cmd/` e `internal/`)
-- [ ] T040 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\packages\shared\` (utilitários TS)
-- [ ] T041 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\packages\` se ficar vazio
-- [ ] T042 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\.github\workflows\` (todos os workflows; manter `.github/` apenas se houver outros recursos relevantes)
-- [ ] T043 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\patches\` (patches de pacotes Bun)
-- [ ] T044 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\scripts\` (scripts Python utilitários)
-- [ ] T045 [P] [US4] Remover arquivos raiz: `D:\git\Biodiversidade-Online\bun.lock`, `D:\git\Biodiversidade-Online\package.json`, `D:\git\Biodiversidade-Online\tsconfig.json`, `D:\git\Biodiversidade-Online\tsconfig.base.json`
-- [ ] T046 [P] [US4] Avaliar `D:\git\Biodiversidade-Online\docs\`: mover histórico relevante para `specs/001-refactor-acquisition/historical/` se útil; senão remover. Histórico completo permanece em `git log`
+- [x] T037 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\packages\web\` (Astro/React/Tailwind/ChatBB/Dashboard/API)
+- [x] T038 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\packages\transform\` (loaders e enrichers)
+- [x] T039 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\packages\ingest\` (TS — substituído por `cmd/` e `internal/`)
+- [x] T040 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\packages\shared\` (utilitários TS)
+- [x] T041 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\packages\` se ficar vazio
+- [x] T042 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\.github\workflows\` (todos os workflows; manter `.github/` apenas se houver outros recursos relevantes)
+- [x] T043 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\patches\` (patches de pacotes Bun)
+- [x] T044 [P] [US4] Remover diretório `D:\git\Biodiversidade-Online\scripts\` (scripts Python utilitários)
+- [x] T045 [P] [US4] Remover arquivos raiz: `D:\git\Biodiversidade-Online\bun.lock`, `D:\git\Biodiversidade-Online\package.json`, `D:\git\Biodiversidade-Online\tsconfig.json`, `D:\git\Biodiversidade-Online\tsconfig.base.json`
+- [x] T046 [P] [US4] Avaliar `D:\git\Biodiversidade-Online\docs\`: mover histórico relevante para `specs/001-refactor-acquisition/historical/` se útil; senão remover. Histórico completo permanece em `git log`
 
 ### Reescrita de documentação
 
-- [ ] T047 [US4] Reescrever `D:\git\Biodiversidade-Online\README.md`: descrever a nova plataforma minimalista; instruções de bootstrap apontando para `specs/001-refactor-acquisition/quickstart.md`; lista dos 3 scripts; estrutura do repo; licença
-- [ ] T048 [US4] Reescrever `D:\git\Biodiversidade-Online\CLAUDE.md`: substituir conteúdo V6 (Bun/Astro/monorepo) pelo V7 (Go/CLI/aquisição apenas); incluir comandos `go build`, `go test`, layout de pacotes, regra de só-`main`, regra de credenciais em `.env` local
-- [ ] T049 [US4] Verificar `.gitignore` final cobre: `.env`, `*.exe`, `bin/`, `cache/`, `*.test`, `coverage.out`, e qualquer artefato Go que possa surgir (`vendor/` se aparecer)
+- [x] T047 [US4] Reescrever `D:\git\Biodiversidade-Online\README.md`: descrever a nova plataforma minimalista; instruções de bootstrap apontando para `specs/001-refactor-acquisition/quickstart.md`; lista dos 3 scripts; estrutura do repo; licença
+- [x] T048 [US4] Reescrever `D:\git\Biodiversidade-Online\CLAUDE.md`: substituir conteúdo V6 (Bun/Astro/monorepo) pelo V7 (Go/CLI/aquisição apenas); incluir comandos `go build`, `go test`, layout de pacotes, regra de só-`main`, regra de credenciais em `.env` local
+- [x] T049 [US4] Verificar `.gitignore` final cobre: `.env`, `*.exe`, `bin/`, `cache/`, `*.test`, `coverage.out`, e qualquer artefato Go que possa surgir (`vendor/` se aparecer)
 
 ### Validação da limpeza
 
-- [ ] T050 [US4] Rodar `git status` e `Get-ChildItem -Recurse | Measure-Object Length -Sum` antes/depois; documentar redução de tamanho em commit message (SC-008)
-- [ ] T051 [US4] Verificar `go build ./cmd/...` segue funcionando após a limpeza (regressão técnica)
-- [ ] T052 [US4] Inspeção final: nenhum arquivo `.tsx`, `.astro`, `Dockerfile`, `package.json`, `bun.lock` permanece (`Get-ChildItem -Recurse -Include *.tsx,*.astro,Dockerfile,package.json,bun.lock` retorna vazio)
+- [x] T050 [US4] Rodar `git status` e `Get-ChildItem -Recurse | Measure-Object Length -Sum` antes/depois; documentar redução de tamanho em commit message (SC-008)
+- [x] T051 [US4] Verificar `go build ./cmd/...` segue funcionando após a limpeza (regressão técnica)
+- [x] T052 [US4] Inspeção final: nenhum arquivo `.tsx`, `.astro`, `Dockerfile`, `package.json`, `bun.lock` permanece (`Get-ChildItem -Recurse -Include *.tsx,*.astro,Dockerfile,package.json,bun.lock` retorna vazio)
 
 **Checkpoint**: Repositório espelha a simplicidade do novo escopo. SC-004 e SC-008 atendidos.
 

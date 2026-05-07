@@ -1,19 +1,13 @@
 .env
-.temp
-settings.local.json
-tsconfig.tsbuildinfo
 
-# Playwright
-node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-
-# Build artifacts
-dist/
-build/
-coverage/
+# Go build artifacts
+*.exe
+bin/*
+!bin/HELP.md
+cache/
+*.test
+coverage.out
+vendor/
 
 # Logs & OS artifacts
 *.log
@@ -28,29 +22,5 @@ Thumbs.db
 *~
 
 # Temporary files
-.temp/
-tmp/
 *.tmp
-
-# Bun lockfile
-bun.lock
-
-# Go artifacts
-*.exe
-bin/*
-!bin/HELP.md
-cache/
-*.test
-coverage.out
-vendor/
-
-# Cache files
-packages/web/.cache_served.json
-packages/web/.tmp_*.js
-
-# Misplaced Claude config in source
-packages/web/src/pages/.claude/
-packages/web/src/pages/CLAUDE.md
-
-# Old Bun module cache
-node_modules/.old_modules-*/
+tmp/
