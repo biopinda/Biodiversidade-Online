@@ -79,4 +79,11 @@ IPT_FLORA_URL=https://...
 
 Este repositório implementa apenas o **Contexto de Aquisição** da suite Biodiversidade.Online. Os outros três contextos (Curadoria, Enriquecimento, Apresentação) serão repositórios ou módulos independentes no futuro.
 
-Ver `README.md` para os diagramas C4 completos.
+Ver `README.md` para os diagramas C4 completos. Ver `docs/funcionamento.md` para detalhes do pipeline e schemas das coleções.
+
+## Regras de transformação de `taxa` (fauna/flora)
+
+- **Filtro de rank**: aceitar somente `ESPECIE`, `SUB_ESPECIE`, `VARIEDADE`, `FORMA` (PT) ou `SPECIES`, `SUBSPECIES`, `VARIETY`, `FORM` (EN), case-insensitive. Grupos supra-específicos rejeitados (`internal/ingest/taxa_transform.go:shouldKeepTaxon`).
+- **Extensões mescladas**: `distribution.txt`, `vernacularname.txt`, `speciesprofile.txt`, `resourcerelationship.txt` (→ `othernames`), `reference.txt`, `typesandspecimen.txt`. Carregadas em RAM e agrupadas por `taxonID`.
+- **Campos computados**: `canonicalName` (`genus + specificEpithet [+ infraspecificEpithet]`), `flatScientificName` (`scientificName` lowercase + strip non-alphanum).
+- **Schema-alvo**: `docs/schema-dwc2json-taxa-mongoDBJSON.json` (gold standard V6 preservado).

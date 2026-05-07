@@ -187,11 +187,26 @@ CACHE_DIR=                                  # deixe vazio para não cachear
 
 | Coleção | Conteúdo | Chave de upsert |
 |---|---|---|
-| `taxa` | Registros taxonômicos (fauna + flora, passthrough DwC-A) | `taxonID` |
+| `taxa` | Espécie/sub-espécie/variedade/forma (fauna + flora) com extensões DwC-A mescladas | `taxonID` |
 | `occurrences` | Registros de ocorrência de 505+ IPTs | `occurrenceID` |
 | `ingest_runs` | Auditoria de cada execução (contadores, status, duração) | — |
 
 Campos injetados em todo documento: `_runId` (UUID v7), `source` (ex: `"fauna"`, `"inpa_acari"`), `ingestedAt` (timestamp UTC).
+
+> **Filtro de rank em `taxa`**: apenas táxons-folha (espécie, sub-espécie, variedade, forma — PT ou EN, case-insensitive) entram. Grupos supra-específicos (família, ordem, etc.) são rejeitados na ingestão.
+
+> **Extensões mescladas no documento `taxa`**: `distribution` (objeto), `vernacularname[]`, `speciesprofile`, `othernames[]` (sinonímias de `resourcerelationship`), `reference[]`, `typesandspecimen[]`. Campos computados: `canonicalName`, `flatScientificName`. Schema-alvo: [`docs/schema-dwc2json-taxa-mongoDBJSON.json`](docs/schema-dwc2json-taxa-mongoDBJSON.json).
+
+### Documentação
+
+| Arquivo | Descrição |
+|---|---|
+| [`docs/funcionamento.md`](docs/funcionamento.md) | Pipeline de ingestão V7 (visão geral, parsing, filtragem, normalização) |
+| [`docs/atualizacao.md`](docs/atualizacao.md) | Procedimento operacional de atualização |
+| [`docs/esquema.md`](docs/esquema.md) | Diagrama Mermaid das fontes IPT |
+| [`docs/schema-dwc2json-taxa-mongoDBJSON.json`](docs/schema-dwc2json-taxa-mongoDBJSON.json) | Schema-alvo da coleção `taxa` |
+| [`docs/schema-dwc2json-ocorrencias-mongoDBJSON.json`](docs/schema-dwc2json-ocorrencias-mongoDBJSON.json) | Schema-alvo da coleção `occurrences` |
+| [`docs/legacy/`](docs/legacy/) | Docs V6 de contextos futuros (chat, dashboard, GH Actions) — referência histórica |
 
 ### Estrutura do Repositório
 

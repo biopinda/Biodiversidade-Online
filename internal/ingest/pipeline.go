@@ -129,6 +129,20 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 
 	rc.Log.Info("iniciando ingestao", "runId", runID, "dry_run", rc.DryRun)
 
+	// Load taxon extensions into RAM (only for fauna/flora; occurrences don't use these).
+	var taxonExt map[string]*taxonExtensions
+	if rc.Source == SourceFauna || rc.Source == SourceFlora {
+		taxonExt, err = loadTaxonExtensions(zipPath, archive)
+		if err != nil {
+			run.ErrorMessage = err.Error()
+			return run, fmt.Errorf("load extensions: %w", err)
+		}
+		rc.Log.Info("extensoes carregadas",
+			"taxa_with_extensions", len(taxonExt),
+			"available_extensions", len(archive.Extensions),
+		)
+	}
+
 	reader, err := dwca.CoreReader(zipPath)
 	if err != nil {
 		run.ErrorMessage = err.Error()
@@ -188,6 +202,14 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 			)
 		}
 
+		// Filter taxa by rank: only species-level and below pass through.
+		if rc.Source == SourceFauna || rc.Source == SourceFlora {
+			if !shouldKeepTaxon(record["taxonRank"]) {
+				counters.RecordsRejected++
+				continue
+			}
+		}
+
 		// Build document
 		doc := coerceRecord(record, schema)
 
@@ -208,6 +230,12 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 				counters.RecordsRejected++
 				continue
 			}
+		}
+
+		// Enrich taxa documents with extensions and computed fields.
+		if rc.Source == SourceFauna || rc.Source == SourceFlora {
+			coreID := record["taxonID"]
+			enrichTaxonDoc(doc, taxonExt[coreID])
 		}
 
 		// Validate coordinates for occurrences
