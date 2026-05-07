@@ -1,1 +1,0 @@
-## Considerações sobre os dados
