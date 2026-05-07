@@ -177,10 +177,10 @@ description: 'Task list for Refatoração para Contexto de Aquisição Apenas'
 
 **Purpose**: Hardening, validação contra critérios mensuráveis, e preparação para uso recorrente.
 
-- [ ] T053 [P] Auditoria de segurança: rodar `go vet ./...` e `go run github.com/securego/gosec/v2/cmd/gosec@latest ./...`; resolver achados de severidade ≥ MEDIUM
-- [ ] T054 [P] Auditoria de dependências: `go list -json -m all` revisado manualmente; confirmar que `mongo-driver/v2` e `godotenv` são as únicas deps externas diretas; sem CVEs ativos via `govulncheck ./...`
+- [x] T053 [P] Auditoria de segurança: rodar `go vet ./...` e `go run github.com/securego/gosec/v2/cmd/gosec@latest ./...`; resolver achados de severidade ≥ MEDIUM
+- [x] T054 [P] Auditoria de dependências: `go list -json -m all` revisado manualmente; confirmar que `mongo-driver/v2` e `godotenv` são as únicas deps externas diretas; sem CVEs ativos via `govulncheck ./...`
 - [ ] T055 [P] Verificar SC-009 (alvos de tempo) com mensuração formal: rodar 3× cada binário em hardware típico em ambas as plataformas (Windows 11 e Linux x86), registrar tempos, anexar resultados a `specs/001-refactor-acquisition/perf-validation.md`
-- [ ] T056 [P] Verificar SC-007 (sem credenciais no histórico): rodar `git log -p --all | Select-String -Pattern "mongodb://"` e `gh secret-scanning` se disponível; resultado esperado: zero matches reais (apenas placeholders de `.env.example`)
+- [x] T056 [P] Verificar SC-007 (sem credenciais no histórico): rodar `git log -p --all | Select-String -Pattern "mongodb://"` e `gh secret-scanning` se disponível; resultado esperado: zero matches reais (apenas placeholders de `.env.example`)
 - [ ] T057 Executar quickstart.md ponta-a-ponta em ambiente limpo, idealmente em **ambas as plataformas** (VM Windows 11 e VM/container Linux x86): clone → build com flag de plataforma correta → `.env` → primeira execução; cronometrar para validar SC-005 (≤ 15 min por plataforma)
 - [ ] T058 [P] Adicionar arquivo `D:\git\Biodiversidade-Online\LICENSE` se ainda não existir (manter licença original do projeto se houver)
 - [ ] T059 Commit final em `main` agregando documentação refletindo o release V7; tag opcional `v7.0.0`
