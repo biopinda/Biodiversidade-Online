@@ -18,9 +18,9 @@ func NewRunID() string {
 		panic("crypto/rand unavailable: " + err.Error())
 	}
 
-	// Embed 48-bit millisecond timestamp in high bytes
-	binary.BigEndian.PutUint32(b[0:4], uint32(now>>16))
-	binary.BigEndian.PutUint16(b[4:6], uint16(now))
+	// Embed 48-bit millisecond timestamp in high bytes (intentional per UUID v7 spec).
+	binary.BigEndian.PutUint32(b[0:4], uint32(now>>16)) // #nosec G115 -- UUID v7 48-bit timestamp truncation is intentional
+	binary.BigEndian.PutUint16(b[4:6], uint16(now))     // #nosec G115 -- UUID v7 48-bit timestamp truncation is intentional
 
 	// Set version 7
 	b[6] = (b[6] & 0x0f) | 0x70

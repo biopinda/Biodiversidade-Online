@@ -20,7 +20,7 @@ func Download(ctx context.Context, rawURL, cacheDir string, timeoutMin int) (str
 	source := sourceFromURL(rawURL)
 	destPath := filepath.Join(cacheDir, source+".zip")
 
-	if err := os.MkdirAll(cacheDir, 0755); err != nil {
+	if err := os.MkdirAll(cacheDir, 0750); err != nil {
 		return "", fmt.Errorf("create cache dir: %w", err)
 	}
 
@@ -71,7 +71,7 @@ func tryDownload(ctx context.Context, client *http.Client, rawURL, destPath stri
 	}
 
 	tmp := destPath + ".tmp"
-	f, err := os.Create(tmp)
+	f, err := os.Create(tmp) // #nosec G304 -- path constructed from sanitized source slug, not end-user input
 	if err != nil {
 		return fmt.Errorf("create tmp file: %w", err)
 	}

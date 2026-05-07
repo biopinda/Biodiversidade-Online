@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -25,7 +26,8 @@ func (s IPTSource) DwCAURL() string {
 }
 
 func LoadIPTSources(csvPath string) ([]IPTSource, error) {
-	f, err := os.Open(csvPath)
+	csvPath = filepath.Clean(csvPath)
+	f, err := os.Open(csvPath) // #nosec G304 -- path from operator .env config, not end-user input
 	if err != nil {
 		return nil, fmt.Errorf("open IPT sources CSV %q: %w", csvPath, err)
 	}
