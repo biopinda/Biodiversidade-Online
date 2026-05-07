@@ -10,16 +10,16 @@ import (
 )
 
 type Config struct {
-	MongoURI         string
-	MongoDatabase    string
-	IPTFaunaURL      string
-	IPTFloraURL      string
+	MongoURI          string
+	MongoDatabase     string
+	IPTFaunaURL       string
+	IPTFloraURL       string
 	IPTOccurrencesCSV string
-	BulkBatchSize    int
-	LogLevel         string
-	LogFormat        string
-	HTTPTimeoutMin   int
-	CacheDir         string
+	BulkBatchSize     int
+	LogLevel          string
+	LogFormat         string
+	HTTPTimeoutMin    int
+	CacheDir          string
 }
 
 // ConfigError signals exit code 2 (configuration error).
@@ -29,7 +29,7 @@ type ConfigError struct {
 
 func (e *ConfigError) Error() string { return e.Msg }
 
-func Load(path, source string) (*Config, error) {
+func Load(path, source string, dryRun bool) (*Config, error) {
 	_ = godotenv.Load(path)
 
 	cfg := &Config{
@@ -66,7 +66,10 @@ func Load(path, source string) (*Config, error) {
 		cfg.CacheDir = v
 	}
 
-	return cfg, validateForSource(cfg, source)
+	if !dryRun {
+		return cfg, validateForSource(cfg, source)
+	}
+	return cfg, validateDryRun(cfg, source)
 }
 
 func validateForSource(cfg *Config, source string) error {
@@ -85,7 +88,30 @@ func validateForSource(cfg *Config, source string) error {
 		if cfg.IPTFloraURL == "" {
 			missing = append(missing, "IPT_FLORA_URL")
 		}
-	// occurrences uses IPT_OCCURRENCES_CSV with a default — no validation needed here
+	// occurrences: IPT_OCCURRENCES_CSV tem default, sem validação obrigatória
+	}
+
+	if len(missing) > 0 {
+		return &ConfigError{
+			Msg: fmt.Sprintf("required environment variables not set: %s", strings.Join(missing, ", ")),
+		}
+	}
+	return nil
+}
+
+// validateDryRun valida apenas variáveis obrigatórias para dry-run (sem MONGO_URI).
+func validateDryRun(cfg *Config, source string) error {
+	var missing []string
+
+	switch source {
+	case "fauna":
+		if cfg.IPTFaunaURL == "" {
+			missing = append(missing, "IPT_FAUNA_URL")
+		}
+	case "flora":
+		if cfg.IPTFloraURL == "" {
+			missing = append(missing, "IPT_FLORA_URL")
+		}
 	}
 
 	if len(missing) > 0 {

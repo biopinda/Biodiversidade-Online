@@ -19,10 +19,10 @@ func main() {
 
 func run() int {
 	var (
-		dryRun   = flag.Bool("dry-run", false, "parse and validate without writing to MongoDB")
-		cfgPath  = flag.String("config", ".env", "path to .env config file")
-		logLevel = flag.String("log-level", "", "log level: debug, info, warn, error")
-		ver      = flag.Bool("version", false, "print version and exit")
+		dryRun   = flag.Bool("dry-run", false, "parse e valida sem gravar no MongoDB")
+		cfgPath  = flag.String("config", ".env", "caminho para o arquivo .env")
+		logLevel = flag.String("log-level", "", "nível de log: debug, info, warn, error")
+		ver      = flag.Bool("version", false, "imprime versão e sai")
 	)
 	flag.Parse()
 
@@ -31,18 +31,27 @@ func run() int {
 		return 0
 	}
 
-	cfg, err := config.Load(*cfgPath, "fauna")
+	fmt.Printf("update-fauna %s  (dry-run=%v  config=%s)\n", version.String(), *dryRun, *cfgPath)
+
+	level := *logLevel
+	if level == "" {
+		level = "info"
+	}
+	log := verbose.New(level, "text")
+
+	cfg, err := config.Load(*cfgPath, "fauna", *dryRun)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "configuration error: %v\n", err)
+		fmt.Fprintf(os.Stdout, "ERRO configuracao: %v\n", err)
+		fmt.Fprintf(os.Stdout, "Dica: rode o binario da raiz do repositorio onde esta o .env\n")
 		return 2
 	}
 
 	if *logLevel != "" {
 		cfg.LogLevel = *logLevel
 	}
+	log = verbose.New(cfg.LogLevel, cfg.LogFormat)
 
-	log := verbose.New(cfg.LogLevel, cfg.LogFormat)
-	log.Info("iniciando script", "source", "fauna", "binary", "update-fauna", "version", version.String())
+	log.Info("configuracao carregada", "database", cfg.MongoDatabase, "dry_run", *dryRun)
 
 	ctx, cancel := verbose.WithCancellation(context.Background(), log)
 	defer cancel()
