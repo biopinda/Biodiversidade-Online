@@ -1,223 +1,251 @@
-# Biodiversidade.Online V7.0 - Aquisição de Dados da Biodiversidade Brasileira
+# Biodiversidade.Online — Suite de Aplicativos para a Biodiversidade Brasileira
 
-[Eduardo Dalcin](https://github.com/edalcin) e [Henrique Pinheiro](https://github.com/Phenome)
+[Eduardo Dalcin](https://github.com/edalcin) · [Henrique Pinheiro](https://github.com/Phenome)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18668804.svg)](https://doi.org/10.5281/zenodo.18668804)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-## Objetivo
+---
 
-Baixar, parsear e persistir dados da biodiversidade brasileira em um banco MongoDB (`dwc2json`). Três executáveis independentes para Windows 11 atualizam as coleções `taxa` (fauna e flora) e `occurrences` a partir de arquivos DwC-A publicados em IPTs.
+## Visão Geral
 
-## O que faz
+**Biodiversidade.Online** é uma suite de aplicativos independentes que integram, curiam, enriquecem e apresentam dados da biodiversidade brasileira. Cada contexto é um aplicativo autônomo que opera sobre um banco MongoDB compartilhado (`dwc2json`).
 
-| Executável               | Fonte         | Coleção       | Tempo esperado    |
-| ------------------------ | ------------- | ------------- | ----------------- |
-| `update-fauna.exe`       | IPT de Fauna  | `taxa`        | ≤ 2 min           |
-| `update-flora.exe`       | IPT de Flora  | `taxa`        | ≤ 2 min           |
-| `update-occurrences.exe` | IPT de Ocorr. | `occurrences` | ≤ 30 min (5M reg) |
+A suite segue a arquitetura **C4 Model** com quatro contextos funcionais:
 
-Cada script:
+| Contexto | Função | Status |
+|---|---|---|
+| **Aquisição** | Importa DwC-A de fontes IPT para MongoDB | ✅ V7.0 — Go CLI |
+| **Curadoria** | Valida, corrige e gerencia dados taxonômicos | 🔜 Planejado |
+| **Enriquecimento** | Adiciona status de ameaça, invasoras, UCs | 🔜 Planejado |
+| **Apresentação** | Dashboard, ChatBB e API REST pública | 🔜 Planejado |
 
-1. Baixa o DwC-A mais recente da URL configurada em `.env`.
-2. Lê `eml.xml` (versão/data do dataset) e loga os metadados.
-3. Faz **upsert por chave estável** de todos os campos do DwC-A (passthrough completo).
-4. Remove registros da mesma `source` que sumiram do IPT (**delete-not-seen**).
-5. Grava auditoria da execução em `ingest_runs`.
+---
 
-## Banco de Dados
+## Diagrama C4 — Contexto do Sistema (Nível 1)
 
-Banco MongoDB `dwc2json` com três coleções:
+```mermaid
+C4Context
+    title Biodiversidade.Online — Contexto do Sistema
 
-- **`taxa`** — Táxons de fauna e flora. Campo `source` identifica a origem (`"fauna"` ou `"flora"`). Chave estável: `taxonID`.
-- **`occurrences`** — Registros de ocorrência. Chave estável: `occurrenceID`.
-- **`ingest_runs`** — Auditoria de cada execução (início, fim, contadores, versão do DwC-A, status).
+    Person(operador, "Operador", "Executa as atualizações periódicas de dados")
+    Person(pesquisador, "Pesquisador / Público", "Consulta dados de biodiversidade")
 
-Schema **passthrough completo**: todos os termos Darwin Core do DwC-A são preservados. Normalização mínima: datas → ISO 8601, coordenadas → `double`, strings vazias → omitidas.
+    System_Boundary(suite, "Biodiversidade.Online Suite") {
+        System(aquisicao, "Aquisição", "Importa dados DwC-A de fontes IPT e persiste no MongoDB")
+        System(curadoria, "Curadoria", "Gerencia e valida dados taxonômicos [planejado]")
+        System(enriquecimento, "Enriquecimento", "Adiciona dados temáticos: ameaças, invasoras, UCs [planejado]")
+        System(apresentacao, "Apresentação", "Dashboard, ChatBB e REST API [planejado]")
+    }
 
-## Fontes de Dados
+    System_Ext(ipt_flora, "IPT Flora do Brasil", "Repositório DwC-A de flora — JBRJ/Reflora")
+    System_Ext(ipt_fauna, "IPT Fauna do Brasil", "Repositório DwC-A de fauna — JBRJ/CNCFlora")
+    System_Ext(ipt_occ, "505+ IPTs de Ocorrências", "INPA, MPEG, SIBBR, speciesLink e outros")
+    SystemDb(mongodb, "MongoDB dwc2json", "Banco principal compartilhado entre todos os contextos")
 
-- [Flora e Funga do Brasil](http://floradobrasil.jbrj.gov.br/) — Catálogo oficial de espécies vegetais e fúngicas (IPT de flora)
-- [Catálogo Taxonômico da Fauna do Brasil](http://fauna.jbrj.gov.br/) — Base oficial de espécies animais (IPT de fauna)
-- ~490 repositórios IPT com registros de ocorrência (IPT de ocorrências)
+    Rel(operador, aquisicao, "executa manualmente")
+    Rel(operador, enriquecimento, "executa manualmente")
+    Rel(aquisicao, ipt_flora, "baixa DwC-A via HTTP")
+    Rel(aquisicao, ipt_fauna, "baixa DwC-A via HTTP")
+    Rel(aquisicao, ipt_occ, "baixa DwC-A de 505+ fontes")
+    Rel(aquisicao, mongodb, "upsert em taxa e occurrences")
+    Rel(curadoria, mongodb, "lê · valida · corrige")
+    Rel(enriquecimento, mongodb, "lê · enriquece · grava")
+    Rel(apresentacao, mongodb, "lê somente")
+    Rel(pesquisador, apresentacao, "consulta via browser / API")
+```
 
-## Tecnologias
+---
 
-- **Linguagem**: Go 1.22+
-- **Banco de Dados**: MongoDB 6.x ou 7.x
-- **Dependências**: `go.mongodb.org/mongo-driver/v2`, `github.com/joho/godotenv`
-- **Plataformas**: Windows 11 (amd64), Linux x86 (amd64)
+## Diagrama C4 — Containers do Contexto de Aquisição (Nível 2)
 
-## Como Usar
+> Único contexto implementado na V7.0.
 
-### Pré-requisitos (uma vez por máquina)
+```mermaid
+C4Container
+    title Aquisição — Containers (V7.0)
 
-| Componente | Versão     | Link                                   |
-| ---------- | ---------- | -------------------------------------- |
-| Go         | 1.22+      | https://go.dev/dl/ (instalador `.msi`) |
-| Git        | 2.40+      | https://git-scm.com/download/win       |
-| MongoDB    | 6.x ou 7.x | MongoDB Community ou Atlas             |
+    Person(operador, "Operador", "Executa os binários no servidor")
 
-### Configuração (uma vez)
+    System_Ext(ipt_flora, "IPT Flora do Brasil", "DwC-A via HTTP")
+    System_Ext(ipt_fauna, "IPT Fauna do Brasil", "DwC-A via HTTP")
+    System_Ext(ipt_occ, "505+ IPTs de Ocorrências", "DwC-A via HTTP")
+    SystemDb_Ext(mongodb, "MongoDB dwc2json", "taxa · occurrences · ingest_runs")
 
-```powershell
+    System_Boundary(aquisicao, "Contexto de Aquisição") {
+        Container(fauna_bin, "update-fauna", "Go CLI binary", "Baixa DwC-A de Fauna, upsert em taxa{source:fauna}")
+        Container(flora_bin, "update-flora", "Go CLI binary", "Baixa DwC-A de Flora, upsert em taxa{source:flora}")
+        Container(occ_bin, "update-occurrences", "Go CLI binary", "Itera 505+ IPTs, upsert em occurrences por tag")
+
+        Container(dwca_pkg, "internal/dwca", "Go package", "Parser streaming de arquivos DwC-A (meta.xml, eml.xml, CSV)")
+        Container(ingest_pkg, "internal/ingest", "Go package", "Pipeline: download → parse → coerce → bulk upsert → delete-not-seen")
+        Container(mongostore_pkg, "internal/mongostore", "Go package", "BulkWrite, DeleteNotSeen, auditoria em ingest_runs")
+        Container(config_pkg, "internal/config", "Go package", "Carrega .env, valida variáveis obrigatórias por fonte")
+    }
+
+    Rel(operador, fauna_bin, "executa com flags")
+    Rel(operador, flora_bin, "executa com flags")
+    Rel(operador, occ_bin, "executa com flags")
+
+    Rel(fauna_bin, ipt_fauna, "GET archive.do HTTP")
+    Rel(flora_bin, ipt_flora, "GET archive.do HTTP")
+    Rel(occ_bin, ipt_occ, "GET archive.do?r={tag} para cada fonte")
+
+    Rel(fauna_bin, dwca_pkg, "usa")
+    Rel(flora_bin, dwca_pkg, "usa")
+    Rel(occ_bin, dwca_pkg, "usa")
+    Rel(fauna_bin, ingest_pkg, "usa")
+    Rel(flora_bin, ingest_pkg, "usa")
+    Rel(occ_bin, ingest_pkg, "usa")
+    Rel(ingest_pkg, mongostore_pkg, "usa")
+    Rel(fauna_bin, config_pkg, "usa")
+    Rel(flora_bin, config_pkg, "usa")
+    Rel(occ_bin, config_pkg, "usa")
+
+    Rel(mongostore_pkg, mongodb, "BulkWrite · DeleteMany · InsertOne")
+```
+
+---
+
+## Contexto de Aquisição — V7.0
+
+### O que faz
+
+Três binários Go independentes (Windows `.exe` ou Linux sem extensão) que atualizam o MongoDB com dados da biodiversidade brasileira:
+
+| Binário | Fonte IPT | Coleção MongoDB | Tempo esperado |
+|---|---|---|---|
+| `update-fauna` | IPT Fauna do Brasil | `taxa` (`source:"fauna"`) | ≤ 2 min |
+| `update-flora` | IPT Flora do Brasil | `taxa` (`source:"flora"`) | ≤ 2 min |
+| `update-occurrences` | 505+ IPTs (via CSV) | `occurrences` | ≤ 30 min (5M reg.) |
+
+Cada execução:
+1. Baixa o DwC-A mais recente da URL configurada no `.env`
+2. Lê `eml.xml` e registra versão/data do dataset nos logs
+3. Faz **upsert por chave estável** de todos os campos DwC-A (passthrough completo)
+4. Remove registros da mesma `source` ausentes do IPT (**delete-not-seen**)
+5. Grava auditoria em `ingest_runs` (contadores, duração, status)
+
+### Bootstrap rápido
+
+```bash
+# 1. Instalar Go 1.22+
+# 2. Clonar o repositório
 git clone https://github.com/biopinda/Biodiversidade-Online.git
 cd Biodiversidade-Online
 
-# Criar .env com suas credenciais (nunca commitar este arquivo)
-Copy-Item .env.example .env
-notepad .env
+# 3. Configurar .env
+cp .env.example .env
+# Editar .env com MONGO_URI, IPT_FAUNA_URL, IPT_FLORA_URL
+
+# 4. Compilar (Windows)
+go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-fauna
+go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-flora
+go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-occurrences
+
+# 4. Compilar (Linux)
+GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-fauna
+GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-flora
+GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-occurrences
+
+# 5. Executar
+./bin/update-fauna --log-level debug
+./bin/update-flora --log-level debug
+./bin/update-occurrences --dry-run
 ```
 
-Variáveis obrigatórias no `.env`:
+### Configuração (`.env`)
 
 ```dotenv
-MONGO_URI=mongodb://USUARIO:SENHA@HOST:27017/?authSource=admin
+# Obrigatório
+MONGO_URI=mongodb://user:pass@host:27017/?authSource=admin
+IPT_FAUNA_URL=https://ipt.jbrj.gov.br/fauna/
+IPT_FLORA_URL=https://ipt.jbrj.gov.br/reflora/
+
+# Opcional — defaults documentados
 MONGO_DATABASE=dwc2json
-IPT_FAUNA_URL=https://ipt.example.org/archive.do?r=fauna
-IPT_FLORA_URL=https://ipt.example.org/archive.do?r=flora
-IPT_OCCURRENCES_URL=https://ipt.example.org/archive.do?r=ocorrencias
+IPT_OCCURRENCES_CSV=data/occurrences.csv   # CSV com 505+ fontes IPT
+BULK_BATCH_SIZE=5000
+HTTP_TIMEOUT_MIN=30
+LOG_LEVEL=info                              # debug | info | warn | error
+LOG_FORMAT=text                             # text | json
+CACHE_DIR=                                  # deixe vazio para não cachear
 ```
 
-### Compilar
-
-**Windows 11:**
-
-```powershell
-$env:GOOS="windows"; $env:GOARCH="amd64"
-go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\...
-# Gera: bin\update-fauna.exe, bin\update-flora.exe, bin\update-occurrences.exe
-```
-
-**Linux x86:**
-
-```bash
-GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/...
-# Gera: bin/update-fauna, bin/update-flora, bin/update-occurrences
-```
-
-Recompile após `git pull`.
-
-### Executar
-
-**Windows:**
-
-```powershell
-.\bin\update-fauna.exe
-.\bin\update-flora.exe
-.\bin\update-occurrences.exe
-```
-
-**Linux:**
-
-```bash
-./bin/update-fauna
-./bin/update-flora
-./bin/update-occurrences
-```
-
-Flags opcionais (igual em ambas as plataformas):
-
-```bash
-update-fauna --dry-run            # Simula sem escrever no banco
-update-fauna --log-level debug    # Logs detalhados
-update-fauna --batch-size 10000   # Ajusta tamanho do lote
-```
-
-### Validar no MongoDB
-
-```javascript
-use dwc2json
-db.taxa.countDocuments({source: "fauna"})
-db.taxa.countDocuments({source: "flora"})
-db.occurrences.countDocuments()
-db.ingest_runs.find().sort({startedAt: -1}).limit(3).pretty()
-```
-
-### Provisionar Índices (uma vez)
-
-```javascript
-use dwc2json
-db.taxa.createIndex({source: 1})
-db.taxa.createIndex({scientificName: 1}, {collation: {locale: "pt", strength: 2}})
-db.taxa.createIndex({family: 1, genus: 1})
-db.taxa.createIndex({_runId: 1})
-
-db.occurrences.createIndex({source: 1})
-db.occurrences.createIndex({scientificName: 1})
-db.occurrences.createIndex({family: 1, genus: 1, scientificName: 1})
-db.occurrences.createIndex({country: 1, stateProvince: 1})
-db.occurrences.createIndex({eventDate: 1})
-db.occurrences.createIndex({_runId: 1})
-
-db.ingest_runs.createIndex({source: 1, startedAt: -1})
-db.ingest_runs.createIndex({status: 1})
-```
-
-## Estrutura do Projeto
+### Flags CLI comuns
 
 ```
+--dry-run          Processa e valida sem gravar no MongoDB
+--config <path>    Caminho alternativo para o .env (padrão: .env)
+--log-level <lvl>  Sobrescreve LOG_LEVEL do .env
+--version          Imprime versão e sai
+```
+
+> Documentação completa em `bin/HELP.md` após compilar.
+
+### Banco de Dados (`dwc2json`)
+
+| Coleção | Conteúdo | Chave de upsert |
+|---|---|---|
+| `taxa` | Registros taxonômicos (fauna + flora, passthrough DwC-A) | `taxonID` |
+| `occurrences` | Registros de ocorrência de 505+ IPTs | `occurrenceID` |
+| `ingest_runs` | Auditoria de cada execução (contadores, status, duração) | — |
+
+Campos injetados em todo documento: `_runId` (UUID v7), `source` (ex: `"fauna"`, `"inpa_acari"`), `ingestedAt` (timestamp UTC).
+
+### Estrutura do Repositório
+
+```
+/
 ├── cmd/
-│   ├── update-fauna/         # Entry point: atualiza taxa (fauna)
-│   ├── update-flora/         # Entry point: atualiza taxa (flora)
-│   └── update-occurrences/   # Entry point: atualiza occurrences
+│   ├── update-fauna/        # Entry point: fauna
+│   ├── update-flora/        # Entry point: flora
+│   └── update-occurrences/  # Entry point: occurrences (505+ fontes)
 ├── internal/
-│   ├── config/               # Carrega .env, valida variáveis obrigatórias
-│   ├── dwca/                 # Parser nativo de Darwin Core Archive (ZIP)
-│   ├── ingest/               # Pipeline: download → parse → transform → upsert → delete-not-seen
-│   ├── mongostore/           # Cliente MongoDB: upsert em lote, delete-not-seen, auditoria
-│   ├── verbose/              # Logger estruturado (slog)
-│   └── version/              # Versão do binário (injetada via ldflags)
-├── specs/                    # Especificações de features
-│   └── 001-refactor-acquisition/
-├── .env.example              # Placeholders (nunca commitar .env real)
-├── .gitignore                # .env, bin/, *.exe ignorados
-├── go.mod
-├── go.sum
-└── README.md
+│   ├── config/              # Carregamento e validação de .env
+│   ├── dwca/                # Parser DwC-A (streaming, sem deps externas)
+│   ├── ingest/              # Pipeline compartilhado + coerção de tipos
+│   ├── mongostore/          # Cliente MongoDB, upsert, delete-not-seen, auditoria
+│   ├── verbose/             # Logger (slog) + tratamento de sinais
+│   └── version/             # Versão injetável via ldflags
+├── data/
+│   └── occurrences.csv      # CSV com 505+ fontes IPT para ocorrências
+├── specs/
+│   └── 001-refactor-acquisition/   # Spec, plan, tasks e contratos da V7
+├── .env.example             # Template de configuração
+├── go.mod / go.sum          # Módulo Go
+└── LICENSE                  # GPL v3
 ```
 
-## Solução de Problemas
+### Dependências Externas
 
-| Sintoma                         | Causa provável                 | Ação                                        |
-| ------------------------------- | ------------------------------ | ------------------------------------------- |
-| `exit 2: MONGO_URI not set`     | `.env` ausente ou var faltando | `Copy-Item .env.example .env` e edite       |
-| `exit 3: download failed`       | IPT fora do ar ou URL errada   | Confira no navegador; tente novamente       |
-| `exit 4: invalid DwC-A`         | ZIP corrompido                 | Limpe o cache e re-execute                  |
-| `exit 5: authentication failed` | Credencial errada              | Verifique `authSource`, usuário, senha      |
-| Script mais lento que esperado  | MongoDB em rede lenta          | Ajuste `BULK_BATCH_SIZE=10000` no `.env`    |
-| "Versão idêntica à última"      | IPT sem nova publicação        | Normal; script processa mesmo assim e avisa |
+Apenas duas dependências diretas (FR-016):
 
-## Histórico de Versões
+| Pacote | Versão | Uso |
+|---|---|---|
+| `go.mongodb.org/mongo-driver/v2` | v2.6.0 | Cliente MongoDB oficial |
+| `github.com/joho/godotenv` | v1.5.1 | Carregamento de `.env` |
 
-- **V7.0** (2026): Refatoração completa para contexto de Aquisição apenas. Go 1.22+, 3 executáveis para Windows 11 e Linux x86, sem web/Docker/Actions.
-- **V6.1** (2026): Pipeline de enriquecimento in-place (CSV → loaders → enrich), arquitetura C4 consolidada
-- **V6.0** (2026): Reestruturação com arquitetura C4, foco em API e MCP
-- **V5.0** (2025): Integração com ChatBB e protocolo MCP
-- **V4.0** (2024): Integração de dados de ocorrência de ~490 IPTs
-- **V2.0** (2024): Agregação do Catálogo Taxonômico da Fauna do Brasil
-- **V1.0** (2023): Conversão de dados DwC-A para JSON (Flora e Funga do Brasil)
+### Testes
 
-## Projetos Relacionados
-
-O projeto [coletoresDWC2JSON](https://github.com/edalcin/coletoresDWC2JSON) complementa o Biodiversidade.Online fornecendo ferramentas de canonicalização de nomes de coletores.
-
-## Contribuições
-
-Dúvidas, sugestões e contribuições são bem-vindas através das [issues do projeto](https://github.com/biopinda/Biodiversidade-Online/issues).
-
-## Citação
-
-```bibtex
-@software{pinheiro_dalcin_2026,
-  title = {Biodiversidade.Online: Aquisição de Dados da Biodiversidade Brasileira},
-  author = {Pinheiro, Henrique and Dalcin, Eduardo},
-  year = {2026},
-  version = {7.0},
-  doi = {10.5281/zenodo.18668804},
-  url = {https://github.com/biopinda/Biodiversidade-Online}
-}
+```bash
+go test ./internal/...   # 11 testes unitários (dwca + ingest)
+go vet ./...             # análise estática
 ```
+
+---
+
+## Roadmap
+
+```
+V7.0  ✅  Aquisição — Go CLI (fauna, flora, 505+ ocorrências)
+V7.1  🔜  Curadoria — validação e correção taxonômica
+V7.2  🔜  Enriquecimento — status de ameaça, invasoras, UCs
+V7.3  🔜  Apresentação — Dashboard, ChatBB, REST API
+```
+
+---
 
 ## Licença
 
-Este projeto é desenvolvido como software livre para a comunidade científica brasileira.
+GPL v3 — ver [LICENSE](LICENSE).
