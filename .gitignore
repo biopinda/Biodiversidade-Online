@@ -2,8 +2,8 @@
 
 # Go build artifacts
 *.exe
-bin/*
-!bin/HELP.md
+contextos/aquisicao/bin/*
+!contextos/aquisicao/bin/HELP.md
 cache/
 *.test
 coverage.out

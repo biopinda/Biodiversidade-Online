@@ -14,7 +14,7 @@ V7 = pipeline integrado em **um único processo Go** por fonte. Não há etapa s
 
 ## Pré-requisitos
 
-1. `.env` na raiz do projeto (copiar de `.env.example`):
+1. `.env` em `contextos/aquisicao/` (copiar de `contextos/comum/.env.example`):
    ```dotenv
    MONGO_URI=mongodb://user:pass@host:27017/?authSource=admin
    MONGO_DB=dwc2json

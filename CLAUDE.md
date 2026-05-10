@@ -11,22 +11,31 @@ Repositório Go com três binários CLI que importam dados DwC-A de fontes IPT p
 ## Layout
 
 ```
-cmd/update-fauna/          # Entry point fauna
-cmd/update-flora/          # Entry point flora
-cmd/update-occurrences/    # Entry point 505+ fontes
-internal/config/           # .env loading + validação
-internal/dwca/             # Parser DwC-A streaming (sem deps externas)
-internal/ingest/           # Pipeline: download → parse → upsert → delete-not-seen
-internal/mongostore/       # BulkWrite, DeleteNotSeen, RunRecord
-internal/verbose/          # slog wrapper + signal handling
-internal/version/          # versão via ldflags
-data/occurrences.csv       # 505+ fontes IPT para ocorrências
-specs/001-refactor-acquisition/  # Spec, plan, tasks, contratos
+contextos/
+├── aquisicao/                        # Contexto de Aquisição (Go module)
+│   ├── cmd/update-fauna/             # Entry point fauna
+│   ├── cmd/update-flora/             # Entry point flora
+│   ├── cmd/update-occurrences/       # Entry point 505+ fontes
+│   ├── internal/config/              # .env loading + validação
+│   ├── internal/dwca/                # Parser DwC-A streaming (sem deps externas)
+│   ├── internal/ingest/              # Pipeline: download → parse → upsert → delete-not-seen
+│   ├── internal/mongostore/          # BulkWrite, DeleteNotSeen, RunRecord
+│   ├── internal/verbose/             # slog wrapper + signal handling
+│   ├── internal/version/             # versão via ldflags
+│   ├── data/occurrences.csv          # 505+ fontes IPT para ocorrências
+│   ├── docs/                         # Documentação de aquisição
+│   ├── specs/001-refactor-acquisition/  # Spec, plan, tasks, contratos
+│   └── go.mod / go.sum
+└── comum/
+    └── .env.example                  # Template de configuração compartilhado
 ```
 
 ## Comandos principais
 
 ```bash
+# Todos os comandos rodam a partir de contextos/aquisicao/
+cd contextos/aquisicao
+
 # Compilar todos (Windows)
 go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-fauna
 go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-flora
@@ -50,21 +59,21 @@ go vet ./...
 ## Regras obrigatórias
 
 - **Nunca criar branch** — todos os commits vão para `main` diretamente
-- **Nunca commitar credenciais** — usar `.env` local (gitignored); `.env.example` apenas com placeholders genéricos
+- **Nunca commitar credenciais** — usar `.env` local (gitignored); `contextos/comum/.env.example` apenas com placeholders genéricos
 - **Nunca adicionar dependências externas** sem justificativa forte — stdlib Go resolve a maior parte
-- **Sem Docker** neste contexto — os binários são distribuídos diretamente (`bin/`)
+- **Sem Docker** neste contexto — os binários são distribuídos diretamente (`contextos/aquisicao/bin/`)
 - **Sem workflows GitHub** — execução manual pelos operadores
 - **NEVER CANCEL** builds ou testes — todos completam em segundos
 
 ## Configuração
 
-Copiar `.env.example` → `.env` e preencher:
+Copiar `contextos/comum/.env.example` → `contextos/aquisicao/.env` e preencher:
 
 ```dotenv
 MONGO_URI=mongodb://user:pass@host:27017/?authSource=admin
 IPT_FAUNA_URL=https://...
 IPT_FLORA_URL=https://...
-# demais variáveis têm defaults em internal/config/config.go
+# demais variáveis têm defaults em contextos/aquisicao/internal/config/config.go
 ```
 
 ## Convenções de código
@@ -79,11 +88,11 @@ IPT_FLORA_URL=https://...
 
 Este repositório implementa apenas o **Contexto de Aquisição** da suite Biodiversidade.Online. Os outros três contextos (Curadoria, Enriquecimento, Apresentação) serão repositórios ou módulos independentes no futuro.
 
-Ver `README.md` para os diagramas C4 completos. Ver `docs/funcionamento.md` para detalhes do pipeline e schemas das coleções.
+Ver `README.md` para os diagramas C4 completos. Ver `contextos/aquisicao/docs/funcionamento.md` para detalhes do pipeline e schemas das coleções.
 
 ## Regras de transformação de `taxa` (fauna/flora)
 
-- **Filtro de rank**: aceitar somente `ESPECIE`, `SUB_ESPECIE`, `VARIEDADE`, `FORMA` (PT) ou `SPECIES`, `SUBSPECIES`, `VARIETY`, `FORM` (EN), case-insensitive. Grupos supra-específicos rejeitados (`internal/ingest/taxa_transform.go:shouldKeepTaxon`).
+- **Filtro de rank**: aceitar somente `ESPECIE`, `SUB_ESPECIE`, `VARIEDADE`, `FORMA` (PT) ou `SPECIES`, `SUBSPECIES`, `VARIETY`, `FORM` (EN), case-insensitive. Grupos supra-específicos rejeitados (`contextos/aquisicao/internal/ingest/taxa_transform.go:shouldKeepTaxon`).
 - **Extensões mescladas**: `distribution.txt`, `vernacularname.txt`, `speciesprofile.txt`, `resourcerelationship.txt` (→ `othernames`), `reference.txt`, `typesandspecimen.txt`. Carregadas em RAM e agrupadas por `taxonID`.
 - **Campos computados**: `canonicalName` (`genus + specificEpithet [+ infraspecificEpithet]`), `flatScientificName` (`scientificName` lowercase + strip non-alphanum).
-- **Schema-alvo**: `docs/schema-dwc2json-taxa-mongoDBJSON.json` (gold standard V6 preservado).
+- **Schema-alvo**: `contextos/aquisicao/docs/schema-dwc2json-taxa-mongoDBJSON.json` (gold standard V6 preservado).

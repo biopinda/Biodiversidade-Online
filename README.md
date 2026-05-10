@@ -134,16 +134,19 @@ Cada execução:
 git clone https://github.com/biopinda/Biodiversidade-Online.git
 cd Biodiversidade-Online
 
-# 3. Configurar .env
-cp .env.example .env
-# Editar .env com MONGO_URI, IPT_FAUNA_URL, IPT_FLORA_URL
+# 3. Configurar .env (copiando do template em comum/)
+cp contextos/comum/.env.example contextos/aquisicao/.env
+# Editar contextos/aquisicao/.env com MONGO_URI, IPT_FAUNA_URL, IPT_FLORA_URL
 
-# 4. Compilar (Windows)
+# 4. Compilar — executar a partir de contextos/aquisicao/
+cd contextos/aquisicao
+
+# Windows
 go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-fauna
 go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-flora
 go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-occurrences
 
-# 4. Compilar (Linux)
+# Linux
 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-fauna
 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-flora
 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-occurrences
@@ -164,7 +167,7 @@ IPT_FLORA_URL=https://ipt.jbrj.gov.br/reflora/
 
 # Opcional — defaults documentados
 MONGO_DATABASE=dwc2json
-IPT_OCCURRENCES_CSV=data/occurrences.csv   # CSV com 505+ fontes IPT
+IPT_OCCURRENCES_CSV=data/occurrences.csv   # relativo a contextos/aquisicao/
 BULK_BATCH_SIZE=5000
 HTTP_TIMEOUT_MIN=30
 LOG_LEVEL=info                              # debug | info | warn | error
@@ -181,7 +184,7 @@ CACHE_DIR=                                  # deixe vazio para não cachear
 --version          Imprime versão e sai
 ```
 
-> Documentação completa em `bin/HELP.md` após compilar.
+> Documentação completa em `contextos/aquisicao/bin/HELP.md` após compilar.
 
 ### Banco de Dados (`dwc2json`)
 
@@ -195,41 +198,45 @@ Campos injetados em todo documento: `_runId` (UUID v7), `source` (ex: `"fauna"`,
 
 > **Filtro de rank em `taxa`**: apenas táxons-folha (espécie, sub-espécie, variedade, forma — PT ou EN, case-insensitive) entram. Grupos supra-específicos (família, ordem, etc.) são rejeitados na ingestão.
 
-> **Extensões mescladas no documento `taxa`**: `distribution` (objeto), `vernacularname[]`, `speciesprofile`, `othernames[]` (sinonímias de `resourcerelationship`), `reference[]`, `typesandspecimen[]`. Campos computados: `canonicalName`, `flatScientificName`. Schema-alvo: [`docs/schema-dwc2json-taxa-mongoDBJSON.json`](docs/schema-dwc2json-taxa-mongoDBJSON.json).
+> **Extensões mescladas no documento `taxa`**: `distribution` (objeto), `vernacularname[]`, `speciesprofile`, `othernames[]` (sinonímias de `resourcerelationship`), `reference[]`, `typesandspecimen[]`. Campos computados: `canonicalName`, `flatScientificName`. Schema-alvo: [`contextos/aquisicao/docs/schema-dwc2json-taxa-mongoDBJSON.json`](contextos/aquisicao/docs/schema-dwc2json-taxa-mongoDBJSON.json).
 
 ### Documentação
 
 | Arquivo | Descrição |
 |---|---|
-| [`docs/funcionamento.md`](docs/funcionamento.md) | Pipeline de ingestão V7 (visão geral, parsing, filtragem, normalização) |
-| [`docs/atualizacao.md`](docs/atualizacao.md) | Procedimento operacional de atualização |
-| [`docs/esquema.md`](docs/esquema.md) | Diagrama Mermaid das fontes IPT |
-| [`docs/schema-dwc2json-taxa-mongoDBJSON.json`](docs/schema-dwc2json-taxa-mongoDBJSON.json) | Schema-alvo da coleção `taxa` |
-| [`docs/schema-dwc2json-ocorrencias-mongoDBJSON.json`](docs/schema-dwc2json-ocorrencias-mongoDBJSON.json) | Schema-alvo da coleção `occurrences` |
-| [`docs/legacy/`](docs/legacy/) | Docs V6 de contextos futuros (chat, dashboard, GH Actions) — referência histórica |
+| [`contextos/aquisicao/docs/funcionamento.md`](contextos/aquisicao/docs/funcionamento.md) | Pipeline de ingestão V7 (visão geral, parsing, filtragem, normalização) |
+| [`contextos/aquisicao/docs/atualizacao.md`](contextos/aquisicao/docs/atualizacao.md) | Procedimento operacional de atualização |
+| [`contextos/aquisicao/docs/esquema.md`](contextos/aquisicao/docs/esquema.md) | Diagrama Mermaid das fontes IPT |
+| [`contextos/aquisicao/docs/schema-dwc2json-taxa-mongoDBJSON.json`](contextos/aquisicao/docs/schema-dwc2json-taxa-mongoDBJSON.json) | Schema-alvo da coleção `taxa` |
+| [`contextos/aquisicao/docs/schema-dwc2json-ocorrencias-mongoDBJSON.json`](contextos/aquisicao/docs/schema-dwc2json-ocorrencias-mongoDBJSON.json) | Schema-alvo da coleção `occurrences` |
+| [`contextos/aquisicao/docs/legacy/`](contextos/aquisicao/docs/legacy/) | Docs V6 de contextos futuros (chat, dashboard, GH Actions) — referência histórica |
 
 ### Estrutura do Repositório
 
 ```
 /
-├── cmd/
-│   ├── update-fauna/        # Entry point: fauna
-│   ├── update-flora/        # Entry point: flora
-│   └── update-occurrences/  # Entry point: occurrences (505+ fontes)
-├── internal/
-│   ├── config/              # Carregamento e validação de .env
-│   ├── dwca/                # Parser DwC-A (streaming, sem deps externas)
-│   ├── ingest/              # Pipeline compartilhado + coerção de tipos
-│   ├── mongostore/          # Cliente MongoDB, upsert, delete-not-seen, auditoria
-│   ├── verbose/             # Logger (slog) + tratamento de sinais
-│   └── version/             # Versão injetável via ldflags
-├── data/
-│   └── occurrences.csv      # CSV com 505+ fontes IPT para ocorrências
-├── specs/
-│   └── 001-refactor-acquisition/   # Spec, plan, tasks e contratos da V7
-├── .env.example             # Template de configuração
-├── go.mod / go.sum          # Módulo Go
-└── LICENSE                  # GPL v3
+├── contextos/
+│   ├── aquisicao/                        # Contexto de Aquisição (Go module)
+│   │   ├── cmd/
+│   │   │   ├── update-fauna/             # Entry point: fauna
+│   │   │   ├── update-flora/             # Entry point: flora
+│   │   │   └── update-occurrences/       # Entry point: occurrences (505+ fontes)
+│   │   ├── internal/
+│   │   │   ├── config/                   # Carregamento e validação de .env
+│   │   │   ├── dwca/                     # Parser DwC-A (streaming, sem deps externas)
+│   │   │   ├── ingest/                   # Pipeline compartilhado + coerção de tipos
+│   │   │   ├── mongostore/               # Cliente MongoDB, upsert, delete-not-seen, auditoria
+│   │   │   ├── verbose/                  # Logger (slog) + tratamento de sinais
+│   │   │   └── version/                  # Versão injetável via ldflags
+│   │   ├── data/
+│   │   │   └── occurrences.csv           # CSV com 505+ fontes IPT para ocorrências
+│   │   ├── docs/                         # Documentação de aquisição
+│   │   ├── specs/
+│   │   │   └── 001-refactor-acquisition/ # Spec, plan, tasks e contratos da V7
+│   │   └── go.mod / go.sum              # Módulo Go
+│   └── comum/
+│       └── .env.example                  # Template de configuração compartilhado
+└── LICENSE                               # GPL v3
 ```
 
 ### Dependências Externas

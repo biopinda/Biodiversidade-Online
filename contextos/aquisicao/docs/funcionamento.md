@@ -33,21 +33,23 @@ Não há frontend, chat, dashboard ou workflows automáticos neste repositório 
 
 ```
 Biodiversidade-Online/
-├── cmd/
-│   ├── update-fauna/         # main.go — entry point fauna
-│   ├── update-flora/         # main.go — entry point flora
-│   └── update-occurrences/   # main.go — entry point ocorrências (505+ fontes)
-├── internal/
-│   ├── config/               # carrega .env + valida variáveis
-│   ├── dwca/                 # parser DwC-A (meta.xml, eml.xml, core, extensões)
-│   ├── ingest/               # pipeline: download → parse → transform → upsert
-│   ├── mongostore/           # BulkWrite, DeleteNotSeen, RunRecord
-│   ├── verbose/              # slog wrapper + signal handling
-│   └── version/              # versão via -ldflags
-├── data/
-│   └── occurrences.csv       # 505+ fontes IPT para ocorrências
-├── docs/                     # esta documentação
-└── specs/                    # spec, plan, tasks, contratos
+└── contextos/
+    └── aquisicao/                  # raiz do módulo Go
+        ├── cmd/
+        │   ├── update-fauna/       # main.go — entry point fauna
+        │   ├── update-flora/       # main.go — entry point flora
+        │   └── update-occurrences/ # main.go — entry point ocorrências (505+ fontes)
+        ├── internal/
+        │   ├── config/             # carrega .env + valida variáveis
+        │   ├── dwca/               # parser DwC-A (meta.xml, eml.xml, core, extensões)
+        │   ├── ingest/             # pipeline: download → parse → transform → upsert
+        │   ├── mongostore/         # BulkWrite, DeleteNotSeen, RunRecord
+        │   ├── verbose/            # slog wrapper + signal handling
+        │   └── version/            # versão via -ldflags
+        ├── data/
+        │   └── occurrences.csv     # 505+ fontes IPT para ocorrências
+        ├── docs/                   # esta documentação
+        └── specs/                  # spec, plan, tasks, contratos
 ```
 
 ### 2.2 Stack
@@ -367,5 +369,5 @@ db.runCommand({
 
 - [`atualizacao.md`](atualizacao.md) — Como executar atualizações (operador)
 - [`esquema.md`](esquema.md) — Diagrama Mermaid das fontes IPT
-- [`../README.md`](../README.md) — Diagramas C4 da suite
+- [`../../README.md`](../../README.md) — Diagramas C4 da suite
 - [`../specs/001-refactor-acquisition/`](../specs/001-refactor-acquisition/) — Spec, plan e tasks da V7
