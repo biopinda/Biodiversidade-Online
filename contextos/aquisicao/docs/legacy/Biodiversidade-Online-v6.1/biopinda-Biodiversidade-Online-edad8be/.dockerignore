@@ -1,0 +1,29 @@
+# Ignore dependencies and build artifacts to keep image contexts small
+node_modules
+
+# Git and local tooling metadata
+.git
+.gitignore
+.github
+.ruler/
+.claude
+.DS_Store
+*.md
+!packages/web/README.md
+
+# Local caches and build outputs
+dist
+.astro
+cache
+coverage
+
+# Environment and logs
+.env
+.env.*
+*.log
+
+# Scripts and tooling not needed in Docker
+scripts/
+packages/ingest/src/
+packages/ingest/chatbb/
+packages/ingest/referencias/

@@ -1,0 +1,100 @@
+---
+/**
+ * Admin Dashboard Page
+ * Protected route - requires authentication
+ */
+import Layout from '@/layouts/base.astro'
+import { getSessionIdFromCookies, validateSession } from '@/lib/auth'
+
+// Authentication check (defense in depth - also handled by middleware)
+const sessionId = getSessionIdFromCookies(Astro.request.headers.get('cookie'))
+
+if (!validateSession(sessionId)) {
+  return Astro.redirect('/admin/login')
+}
+---
+
+<Layout title="Admin - Biodiversidade.Online">
+  <div class="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <header class="border-b border-gray-200 bg-white shadow-sm">
+      <div
+        class="container mx-auto flex items-center justify-between px-4 py-4"
+      >
+        <div>
+          <h1 class="text-2xl font-bold text-green-700">
+            Biodiversidade do Brasil
+          </h1>
+          <p class="text-sm text-gray-600">Painel Administrativo</p>
+        </div>
+
+        <nav class="flex items-center gap-4">
+          <a
+            href="/"
+            class="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50"
+          >
+            Dashboard
+          </a>
+          <a
+            href="/chat"
+            class="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-all hover:bg-green-700"
+          >
+            ChatBB
+          </a>
+          <button
+            id="logoutBtn"
+            class="rounded-lg border border-red-300 px-4 py-2 text-red-600 transition-all hover:bg-red-50"
+          >
+            Sair
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16">
+      <div class="flex flex-col items-center justify-center text-center">
+        <div class="mb-6 text-6xl">🚧</div>
+        <h2 class="mb-4 text-3xl font-bold text-gray-800">Em Construção</h2>
+        <p class="max-w-md text-gray-600">
+          O painel administrativo está em desenvolvimento. Em breve você terá
+          acesso a funcionalidades de gerenciamento de dados e configurações do
+          sistema.
+        </p>
+
+        <div class="mt-12 grid grid-cols-1 gap-6 text-left md:grid-cols-3">
+          <div class="rounded-xl border bg-white p-6 shadow-sm">
+            <div class="mb-2 text-2xl">📊</div>
+            <h3 class="font-semibold text-gray-800">Estatísticas</h3>
+            <p class="mt-1 text-sm text-gray-600">
+              Métricas de uso e performance
+            </p>
+          </div>
+
+          <div class="rounded-xl border bg-white p-6 shadow-sm">
+            <div class="mb-2 text-2xl">🔄</div>
+            <h3 class="font-semibold text-gray-800">Sincronização</h3>
+            <p class="mt-1 text-sm text-gray-600">
+              Gerenciamento de dados e cache
+            </p>
+          </div>
+
+          <div class="rounded-xl border bg-white p-6 shadow-sm">
+            <div class="mb-2 text-2xl">⚙️</div>
+            <h3 class="font-semibold text-gray-800">Configurações</h3>
+            <p class="mt-1 text-sm text-gray-600">Parâmetros do sistema</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      window.location.href = '/admin/login'
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+  })
+</script>

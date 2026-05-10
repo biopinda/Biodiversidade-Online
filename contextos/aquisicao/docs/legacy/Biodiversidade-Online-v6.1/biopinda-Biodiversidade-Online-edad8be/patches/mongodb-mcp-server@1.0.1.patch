@@ -1,0 +1,26 @@
+diff --git a/dist/cjs/helpers/constants.js b/dist/cjs/helpers/constants.js
+index a1ef38bd88d7005a3133ae27a1918ff1725b571a..bcd06795421d1313370b2dbaa2b771947200f0d6 100644
+--- a/dist/cjs/helpers/constants.js
++++ b/dist/cjs/helpers/constants.js
+@@ -13,7 +13,7 @@ exports.QUERY_COUNT_MAX_TIME_MS_CAP = 10000;
+  * A cap for the maxTimeMS used for counting resulting documents of an
+  * aggregation.
+  */
+-exports.AGG_COUNT_MAX_TIME_MS_CAP = 60000;
++exports.AGG_COUNT_MAX_TIME_MS_CAP = 120000;
+ exports.ONE_MB = 1 * 1024 * 1024;
+ /**
+  * A map of applied limit on cursors to a text that is supposed to be sent as
+diff --git a/dist/esm/helpers/constants.js b/dist/esm/helpers/constants.js
+index 2e647120f9b05598346c116c8f272781862edc30..d6a7fc557fe636a7fa720de092790030a626bc9a 100644
+--- a/dist/esm/helpers/constants.js
++++ b/dist/esm/helpers/constants.js
+@@ -10,7 +10,7 @@ export const QUERY_COUNT_MAX_TIME_MS_CAP = 10000;
+  * A cap for the maxTimeMS used for counting resulting documents of an
+  * aggregation.
+  */
+-export const AGG_COUNT_MAX_TIME_MS_CAP = 60000;
++export const AGG_COUNT_MAX_TIME_MS_CAP = 120000;
+ export const ONE_MB = 1 * 1024 * 1024;
+ /**
+  * A map of applied limit on cursors to a text that is supposed to be sent as
