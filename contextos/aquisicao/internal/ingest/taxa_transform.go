@@ -83,8 +83,8 @@ func normalizeDistribution(rows []map[string]string) bson.M {
 		if v := strings.TrimSpace(r["locationID"]); v != "" {
 			occurrence.Add(v)
 		}
-		if v := strings.TrimSpace(r["countryCode"]); v != "" {
-			countryCodes.Add(v)
+		for _, code := range splitMulti(r["countryCode"]) {
+			countryCodes.Add(code)
 		}
 		if origin == "" {
 			if v := strings.TrimSpace(r["establishmentMeans"]); v != "" {
@@ -267,9 +267,52 @@ func normalizeTypes(rows []map[string]string) []bson.M {
 	return out
 }
 
+// ptToEnTaxonomicStatus maps Portuguese Flora/Fauna do Brasil values to DwC canonical English.
+var ptToEnTaxonomicStatus = map[string]string{
+	"NOME_ACEITO": "accepted",
+	"SINONIMO":    "synonym",
+}
+
+// ptToEnTaxonRank maps Portuguese Flora/Fauna do Brasil values to DwC canonical English.
+var ptToEnTaxonRank = map[string]string{
+	"ESPECIE":     "species",
+	"SUB_ESPECIE": "subspecies",
+	"SUBESPECIE":  "subspecies",
+	"VARIEDADE":   "variety",
+	"FORMA":       "form",
+}
+
+// normalizeTaxonomicStatus returns the DwC English canonical value when input is a known
+// Portuguese synonym; otherwise returns the original value unchanged.
+func normalizeTaxonomicStatus(s string) string {
+	if mapped, ok := ptToEnTaxonomicStatus[strings.ToUpper(strings.TrimSpace(s))]; ok {
+		return mapped
+	}
+	return s
+}
+
+// normalizeTaxonRank returns the DwC English canonical value when input is a known
+// Portuguese synonym; otherwise returns the original value unchanged.
+func normalizeTaxonRank(s string) string {
+	norm := strings.ToUpper(strings.TrimSpace(s))
+	norm = strings.ReplaceAll(norm, "-", "_")
+	if mapped, ok := ptToEnTaxonRank[norm]; ok {
+		return mapped
+	}
+	return s
+}
+
 // enrichTaxonDoc mutates doc in place: filters do not happen here, only enrichment.
 // Caller must have validated rank already.
 func enrichTaxonDoc(doc bson.M, te *taxonExtensions) {
+	// Harmonize PT→EN for DwC fields before storing.
+	if v, ok := doc["taxonomicStatus"].(string); ok && v != "" {
+		doc["taxonomicStatus"] = normalizeTaxonomicStatus(v)
+	}
+	if v, ok := doc["taxonRank"].(string); ok && v != "" {
+		doc["taxonRank"] = normalizeTaxonRank(v)
+	}
+
 	// Computed names
 	genus, _ := doc["genus"].(string)
 	species, _ := doc["specificEpithet"].(string)

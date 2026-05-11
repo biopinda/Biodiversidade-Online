@@ -210,3 +210,84 @@ func TestEnrichTaxonDoc_Computed(t *testing.T) {
 		t.Errorf("flatScientificName = %v", doc["flatScientificName"])
 	}
 }
+
+func TestNormalizeDistribution_CountryCodeMultiValue(t *testing.T) {
+	rows := []map[string]string{
+		{"countryCode": "AG;AI;AR;AW;BB;BM;BS;BZ;CA;CO"},
+		{"countryCode": "CU;CW;DM;DO"},
+		{"countryCode": "BR"}, // single value still works
+	}
+	got := normalizeDistribution(rows)
+	if got == nil {
+		t.Fatal("expected non-nil distribution")
+	}
+	codes, _ := got["countryCode"].([]string)
+	want := []string{"AG", "AI", "AR", "AW", "BB", "BM", "BS", "BZ", "CA", "CO", "CU", "CW", "DM", "DO", "BR"}
+	if !reflect.DeepEqual(codes, want) {
+		t.Errorf("countryCode = %v\nwant        %v", codes, want)
+	}
+}
+
+func TestNormalizeTaxonomicStatus(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"NOME_ACEITO", "accepted"},
+		{"nome_aceito", "accepted"},
+		{"Nome_Aceito", "accepted"},
+		{"SINONIMO", "synonym"},
+		{"sinonimo", "synonym"},
+		// passthrough: already English or unknown
+		{"accepted", "accepted"},
+		{"synonym", "synonym"},
+		{"DOUBTFUL", "DOUBTFUL"},
+		{"", ""},
+	}
+	for _, c := range cases {
+		if got := normalizeTaxonomicStatus(c.in); got != c.want {
+			t.Errorf("normalizeTaxonomicStatus(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}
+
+func TestNormalizeTaxonRank(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"ESPECIE", "species"},
+		{"especie", "species"},
+		{"Especie", "species"},
+		{"SUB_ESPECIE", "subspecies"},
+		{"sub-especie", "subspecies"},
+		{"SUBESPECIE", "subspecies"},
+		{"VARIEDADE", "variety"},
+		{"variedade", "variety"},
+		{"FORMA", "form"},
+		{"forma", "form"},
+		// passthrough: already English or unknown
+		{"species", "species"},
+		{"subspecies", "subspecies"},
+		{"variety", "variety"},
+		{"form", "form"},
+		{"GENUS", "GENUS"},
+		{"", ""},
+	}
+	for _, c := range cases {
+		if got := normalizeTaxonRank(c.in); got != c.want {
+			t.Errorf("normalizeTaxonRank(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}
+
+func TestEnrichTaxonDoc_Harmonize(t *testing.T) {
+	doc := map[string]interface{}{
+		"scientificName":  "Paubrasilia echinata (Lam.) Gagnon",
+		"genus":           "Paubrasilia",
+		"specificEpithet": "echinata",
+		"taxonomicStatus": "NOME_ACEITO",
+		"taxonRank":       "ESPECIE",
+	}
+	enrichTaxonDoc(doc, nil)
+	if doc["taxonomicStatus"] != "accepted" {
+		t.Errorf("taxonomicStatus = %v, want accepted", doc["taxonomicStatus"])
+	}
+	if doc["taxonRank"] != "species" {
+		t.Errorf("taxonRank = %v, want species", doc["taxonRank"])
+	}
+}
