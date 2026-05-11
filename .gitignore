@@ -4,6 +4,7 @@
 *.exe
 contextos/aquisicao/bin/*
 !contextos/aquisicao/bin/HELP.md
+!contextos/aquisicao/bin/help_ipt_compare.md
 cache/
 *.test
 coverage.out

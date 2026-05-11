@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -29,15 +30,59 @@ type ConfigError struct {
 
 func (e *ConfigError) Error() string { return e.Msg }
 
+// resolveEnvPath finds .env relative to the executable when CWD doesn't have it.
+func resolveEnvPath(path string) string {
+	if _, err := os.Stat(path); err == nil {
+		return path
+	}
+	execPath, err := os.Executable()
+	if err != nil {
+		return path
+	}
+	execPath, _ = filepath.EvalSymlinks(execPath)
+	execDir := filepath.Dir(execPath)
+	for _, candidate := range []string{
+		filepath.Join(execDir, filepath.Base(path)),
+		filepath.Join(execDir, "..", filepath.Base(path)),
+	} {
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+	return path
+}
+
+// resolveDataPath finds data files relative to the executable when CWD doesn't have them.
+func resolveDataPath(rel string) string {
+	if _, err := os.Stat(rel); err == nil {
+		return rel
+	}
+	execPath, err := os.Executable()
+	if err != nil {
+		return rel
+	}
+	execPath, _ = filepath.EvalSymlinks(execPath)
+	execDir := filepath.Dir(execPath)
+	for _, candidate := range []string{
+		filepath.Join(execDir, rel),
+		filepath.Join(execDir, "..", rel),
+	} {
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+	return rel
+}
+
 func Load(path, source string, dryRun bool) (*Config, error) {
-	_ = godotenv.Load(path)
+	_ = godotenv.Load(resolveEnvPath(path))
 
 	cfg := &Config{
 		MongoURI:          os.Getenv("MONGO_URI"),
 		MongoDatabase:     envOr("MONGO_DATABASE", "dwc2json"),
 		IPTFaunaURL:       os.Getenv("IPT_FAUNA_URL"),
 		IPTFloraURL:       os.Getenv("IPT_FLORA_URL"),
-		IPTOccurrencesCSV: envOr("IPT_OCCURRENCES_CSV", "data/occurrences.csv"),
+		IPTOccurrencesCSV: resolveDataPath(envOr("IPT_OCCURRENCES_CSV", "data/occurrences.csv")),
 		LogLevel:          envOr("LOG_LEVEL", "info"),
 		LogFormat:         envOr("LOG_FORMAT", "text"),
 	}
