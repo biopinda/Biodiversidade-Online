@@ -5,6 +5,9 @@
 contextos/aquisicao/bin/*
 !contextos/aquisicao/bin/HELP.md
 !contextos/aquisicao/bin/help_ipt_compare.md
+!contextos/aquisicao/bin/help_update_fauna.md
+!contextos/aquisicao/bin/help_update_flora.md
+!contextos/aquisicao/bin/help_update_occurrences.md
 cache/
 *.test
 coverage.out
