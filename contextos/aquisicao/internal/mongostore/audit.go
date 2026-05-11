@@ -28,6 +28,7 @@ type RunRecord struct {
 type DwCAInfo struct {
 	URL             string `bson:"url"`
 	DownloadedBytes int64  `bson:"downloadedBytes,omitempty"`
+	PackageID       string `bson:"packageId,omitempty"`
 	PubDate         string `bson:"pubDate,omitempty"`
 	Version         string `bson:"version,omitempty"`
 	Title           string `bson:"title,omitempty"`
@@ -36,6 +37,8 @@ type DwCAInfo struct {
 type Counters struct {
 	RecordsRead                   int64 `bson:"recordsRead"`
 	RecordsRejected               int64 `bson:"recordsRejected"`
+	RecordsInserted               int64 `bson:"recordsInserted,omitempty"`
+	RecordsUpdated                int64 `bson:"recordsUpdated,omitempty"`
 	RecordsUpserted               int64 `bson:"recordsUpserted"`
 	RecordsRemoved                int64 `bson:"recordsRemoved"`
 	RecordsWithSuspectCoordinates int64 `bson:"recordsWithSuspectCoordinates,omitempty"`

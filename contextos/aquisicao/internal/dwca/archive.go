@@ -92,24 +92,26 @@ func parseEmlXML(zr *zip.ReadCloser, archive *Archive) error {
 
 func parseEml(data []byte) EmlMetadata {
 	var eml struct {
-		PubDate string `xml:"dataset>pubDate"`
-		Title   string `xml:"dataset>title"`
-		Version string `xml:"additionalMetadata>metadata>gbif>dateStamp"`
+		PackageID string `xml:"packageId,attr"`
+		PubDate   string `xml:"dataset>pubDate"`
+		Title     string `xml:"dataset>title"`
+		Version   string `xml:"additionalMetadata>metadata>gbif>dateStamp"`
 	}
 	_ = xml.Unmarshal(data, &eml)
 
 	meta := EmlMetadata{
-		PubDate: strings.TrimSpace(eml.PubDate),
-		Title:   strings.TrimSpace(eml.Title),
-		Version: strings.TrimSpace(eml.Version),
+		PackageID: strings.TrimSpace(eml.PackageID),
+		PubDate:   strings.TrimSpace(eml.PubDate),
+		Title:     strings.TrimSpace(eml.Title),
+		Version:   strings.TrimSpace(eml.Version),
 	}
 
-	// Try alternate version location
 	if meta.Version == "" {
 		var alt struct {
 			Version string `xml:"additionalMetadata>metadata>gbif>resourceLogoUrl"`
 		}
 		_ = xml.Unmarshal(data, &alt)
+		meta.Version = strings.TrimSpace(alt.Version)
 	}
 
 	return meta

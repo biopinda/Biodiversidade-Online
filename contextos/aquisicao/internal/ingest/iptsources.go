@@ -25,6 +25,15 @@ func (s IPTSource) DwCAURL() string {
 	return base + "archive.do?r=" + s.Tag
 }
 
+// ResourceURL returns the IPT resource page URL for this source.
+func (s IPTSource) ResourceURL() string {
+	base := s.BaseURL
+	if !strings.HasSuffix(base, "/") {
+		base += "/"
+	}
+	return base + "resource?r=" + s.Tag
+}
+
 func LoadIPTSources(csvPath string) ([]IPTSource, error) {
 	csvPath = filepath.Clean(csvPath)
 	f, err := os.Open(csvPath) // #nosec G304 -- path from operator .env config, not end-user input

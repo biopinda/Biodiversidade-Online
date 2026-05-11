@@ -46,7 +46,8 @@ type Field struct {
 }
 
 type EmlMetadata struct {
-	PubDate string
-	Version string
-	Title   string
+	PackageID string
+	PubDate   string
+	Version   string
+	Title     string
 }

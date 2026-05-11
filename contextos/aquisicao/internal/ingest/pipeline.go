@@ -87,11 +87,13 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 		return run, fmt.Errorf("open archive: %w", err)
 	}
 
+	run.DwCA.PackageID = archive.Metadata.PackageID
 	run.DwCA.PubDate = archive.Metadata.PubDate
 	run.DwCA.Version = archive.Metadata.Version
 	run.DwCA.Title = archive.Metadata.Title
 
 	rc.Log.Info("lendo eml.xml",
+		"packageId", archive.Metadata.PackageID,
 		"pubDate", archive.Metadata.PubDate,
 		"version", archive.Metadata.Version,
 		"title", archive.Metadata.Title,
@@ -102,14 +104,20 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 		"extensions", len(archive.Extensions),
 	)
 
-	// Check for identical version
+	// Skip if dataset version unchanged since last successful ingest.
+	// Uses packageId (EML root attribute) as primary version fingerprint.
 	if !rc.DryRun && rc.Store != nil {
 		if last, err := rc.Store.LastSuccessfulRun(ctx, sourceStr); err == nil {
-			if last.DwCA.PubDate == archive.Metadata.PubDate && last.DwCA.Version == archive.Metadata.Version {
-				rc.Log.Warn("versao identica a ultima execucao bem-sucedida",
+			curPkg := archive.Metadata.PackageID
+			if curPkg != "" && curPkg == last.DwCA.PackageID {
+				rc.Log.Info("versao identica, fonte ignorada",
+					"packageId", curPkg,
 					"last_run_at", last.FinishedAt,
-					"dwca_pubDate", archive.Metadata.PubDate,
 				)
+				run.Status = "skipped"
+				run.FinishedAt = time.Now()
+				run.DurationSec = time.Since(started).Seconds()
+				return run, nil
 			}
 		}
 	}
@@ -168,6 +176,8 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 			if err != nil {
 				return fmt.Errorf("bulk upsert batch %d: %w", batchNum, err)
 			}
+			counters.RecordsInserted += res.Upserted
+			counters.RecordsUpdated += res.Modified
 			counters.RecordsUpserted += res.Upserted + res.Modified
 			rc.Log.Info("lote gravado",
 				"batch", batchNum,

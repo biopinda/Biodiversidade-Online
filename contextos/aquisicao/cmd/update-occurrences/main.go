@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"biodiversidade-online/internal/config"
 	"biodiversidade-online/internal/ingest"
@@ -12,6 +14,12 @@ import (
 	"biodiversidade-online/internal/verbose"
 	"biodiversidade-online/internal/version"
 )
+
+type sourceResult struct {
+	src ingest.IPTSource
+	run mongostore.RunRecord
+	err error
+}
 
 func main() {
 	os.Exit(run())
@@ -72,7 +80,10 @@ func run() int {
 		log.Info("conectado ao MongoDB", "database", cfg.MongoDatabase)
 	}
 
+	started := time.Now()
+	results := make([]sourceResult, 0, len(sources))
 	exitCode := 0
+
 	for i, src := range sources {
 		if ctx.Err() != nil {
 			log.Warn("interrupcao detectada, parando processamento")
@@ -99,7 +110,7 @@ func run() int {
 			Version:        version.String(),
 		}
 
-		runRecord, err := ingest.Run(ctx, rc)
+		runRecord, runErr := ingest.Run(ctx, rc)
 
 		if store != nil && runRecord.ID != "" {
 			if werr := store.WriteRun(context.Background(), runRecord); werr != nil {
@@ -107,17 +118,82 @@ func run() int {
 			}
 		}
 
-		if err != nil {
+		results = append(results, sourceResult{src: src, run: runRecord, err: runErr})
+
+		if runErr != nil {
 			if ctx.Err() != nil {
 				exitCode = 130
 				break
 			}
-			log.Error("fonte falhou, continuando para proxima", "source", src.Tag, "err", err)
-			exitCode = exitCodeFromErr(err)
+			log.Error("fonte falhou, continuando para proxima", "source", src.Tag, "err", runErr)
+			if code := exitCodeFromErr(runErr); code > exitCode {
+				exitCode = code
+			}
 		}
 	}
 
+	printReport(results, started)
+
 	return exitCode
+}
+
+func printReport(results []sourceResult, started time.Time) {
+	var nSuccess, nSkipped, nError int
+	for _, r := range results {
+		switch {
+		case r.run.Status == "skipped":
+			nSkipped++
+		case r.err != nil:
+			nError++
+		default:
+			nSuccess++
+		}
+	}
+
+	elapsed := time.Since(started).Round(time.Second)
+
+	fmt.Printf("\n## Relatório — update-occurrences\n")
+	fmt.Printf("Data: %s | Fontes: %d | Sucesso: %d | Ignoradas: %d | Erros: %d | Duração: %s\n\n",
+		started.Format("2006-01-02 15:04:05"),
+		len(results), nSuccess, nSkipped, nError, elapsed,
+	)
+
+	fmt.Println("| # | Fonte | Status | Lidos | Inseridos | Atualizados | Removidos | Erro |")
+	fmt.Println("|---|-------|--------|-------|-----------|-------------|-----------|------|")
+
+	for i, r := range results {
+		link := fmt.Sprintf("[%s](%s)", r.src.Nome, r.src.ResourceURL())
+
+		var status, lidos, inserted, updated, removed, errMsg string
+
+		switch {
+		case r.run.Status == "skipped":
+			status = "ignorada"
+			lidos, inserted, updated, removed = "—", "—", "—", "—"
+		case r.err != nil:
+			status = "erro"
+			lidos, inserted, updated, removed = "—", "—", "—", "—"
+			errMsg = truncate(strings.ReplaceAll(r.err.Error(), "\n", " "), 80)
+		default:
+			status = "sucesso"
+			lidos = fmt.Sprintf("%d", r.run.Counters.RecordsRead)
+			inserted = fmt.Sprintf("%d", r.run.Counters.RecordsInserted)
+			updated = fmt.Sprintf("%d", r.run.Counters.RecordsUpdated)
+			removed = fmt.Sprintf("%d", r.run.Counters.RecordsRemoved)
+		}
+
+		fmt.Printf("| %d | %s | %s | %s | %s | %s | %s | %s |\n",
+			i+1, link, status, lidos, inserted, updated, removed, errMsg)
+	}
+
+	fmt.Println()
+}
+
+func truncate(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	return s[:n-1] + "…"
 }
 
 func exitCodeFromErr(err error) int {
