@@ -74,6 +74,12 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 		return run, fmt.Errorf("download: %w", err)
 	}
 
+	defer func() {
+		if err := os.Remove(zipPath); err != nil && !os.IsNotExist(err) {
+			rc.Log.Warn("falha ao deletar cache", "path", zipPath, "err", err)
+		}
+	}()
+
 	info, _ := os.Stat(zipPath)
 	if info != nil {
 		run.DwCA.DownloadedBytes = info.Size()
