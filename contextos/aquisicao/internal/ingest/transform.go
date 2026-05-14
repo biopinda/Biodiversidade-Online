@@ -79,6 +79,19 @@ type CollectionSchema struct {
 	Fields []FieldSchema
 }
 
+// maxFieldBytes is the maximum byte length for a single string field.
+// Prevents BSONObjectTooLarge errors from fields like associatedMedia
+// that may contain thousands of image URLs in herbarium datasets.
+const maxFieldBytes = 32 * 1024 // 32 KB
+
+func truncateLargeFields(doc bson.M) {
+	for k, v := range doc {
+		if s, ok := v.(string); ok && len(s) > maxFieldBytes {
+			doc[k] = s[:maxFieldBytes]
+		}
+	}
+}
+
 func coerceRecord(record map[string]string, schema CollectionSchema) bson.M {
 	doc := bson.M{}
 

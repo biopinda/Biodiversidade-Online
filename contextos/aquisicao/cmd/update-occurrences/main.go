@@ -255,6 +255,7 @@ func trunc(s string, n int) string {
 
 func printReport(results []sourceResult, started time.Time) {
 	var nSuccess, nSkipped, nError int
+	var totalRead, totalIns, totalUpd, totalRem, totalRej int64
 	for _, r := range results {
 		switch {
 		case r.run.Status == "skipped":
@@ -264,45 +265,68 @@ func printReport(results []sourceResult, started time.Time) {
 		default:
 			nSuccess++
 		}
+		totalRead += r.run.Counters.RecordsRead
+		totalIns += r.run.Counters.RecordsInserted
+		totalUpd += r.run.Counters.RecordsUpdated
+		totalRem += r.run.Counters.RecordsRemoved
+		totalRej += r.run.Counters.RecordsRejected
 	}
 
 	elapsed := time.Since(started).Round(time.Second)
 
-	fmt.Printf("## Relatorio — update-occurrences\n")
-	fmt.Printf("Data: %s | Fontes: %d | Sucesso: %d | Ignoradas: %d | Erros: %d | Duracao: %s\n\n",
-		started.Format("2006-01-02 15:04:05"),
-		len(results), nSuccess, nSkipped, nError, elapsed,
-	)
+	sep := strings.Repeat("=", 72)
+	fmt.Printf("\n%s\n", sep)
+	fmt.Printf("RELATORIO FINAL — update-occurrences %s\n", version.String())
+	fmt.Printf("%s\n\n", sep)
 
-	fmt.Println("| # | Fonte | Status | Lidos | Inseridos | Atualizados | Removidos | Erro |")
-	fmt.Println("|---|-------|--------|-------|-----------|-------------|-----------|------|")
+	fmt.Printf("Data inicio : %s\n", started.Format("2006-01-02 15:04:05"))
+	fmt.Printf("Duracao     : %s\n", elapsed)
+	fmt.Printf("Fontes      : %d  (sucesso: %d | ignoradas: %d | erros: %d)\n",
+		len(results), nSuccess, nSkipped, nError)
+	fmt.Printf("Registros   : %s lidos | %s inseridos | %s atualizados | %s removidos | %s rejeitados\n\n",
+		fmtN(totalRead), fmtN(totalIns), fmtN(totalUpd), fmtN(totalRem), fmtN(totalRej))
+
+	fmt.Println("| # | Fonte | IPT | Status | Lidos | Inseridos | Atualizados | Removidos | Rejeitados | Erro |")
+	fmt.Println("|---|-------|-----|--------|-------|-----------|-------------|-----------|------------|------|")
 
 	for i, r := range results {
 		link := fmt.Sprintf("[%s](%s)", r.src.Nome, r.src.ResourceURL())
+		repo := r.src.Repositorio
 
-		var status, lidos, inserted, updated, removed, errMsg string
+		var status, lidos, inserted, updated, removed, rejected, errMsg string
 
 		switch {
 		case r.run.Status == "skipped":
 			status = "ignorada"
-			lidos, inserted, updated, removed = "—", "—", "—", "—"
+			lidos, inserted, updated, removed, rejected = "—", "—", "—", "—", "—"
 		case r.err != nil:
 			status = "erro"
-			lidos, inserted, updated, removed = "—", "—", "—", "—"
+			c := r.run.Counters
+			if c.RecordsRead > 0 {
+				lidos = fmt.Sprintf("%d", c.RecordsRead)
+				inserted = fmt.Sprintf("%d", c.RecordsInserted)
+				updated = fmt.Sprintf("%d", c.RecordsUpdated)
+				removed = fmt.Sprintf("%d", c.RecordsRemoved)
+				rejected = fmt.Sprintf("%d", c.RecordsRejected)
+			} else {
+				lidos, inserted, updated, removed, rejected = "—", "—", "—", "—", "—"
+			}
 			errMsg = truncErr(strings.ReplaceAll(r.err.Error(), "\n", " "), 80)
 		default:
 			status = "sucesso"
-			lidos = fmt.Sprintf("%d", r.run.Counters.RecordsRead)
-			inserted = fmt.Sprintf("%d", r.run.Counters.RecordsInserted)
-			updated = fmt.Sprintf("%d", r.run.Counters.RecordsUpdated)
-			removed = fmt.Sprintf("%d", r.run.Counters.RecordsRemoved)
+			c := r.run.Counters
+			lidos = fmt.Sprintf("%d", c.RecordsRead)
+			inserted = fmt.Sprintf("%d", c.RecordsInserted)
+			updated = fmt.Sprintf("%d", c.RecordsUpdated)
+			removed = fmt.Sprintf("%d", c.RecordsRemoved)
+			rejected = fmt.Sprintf("%d", c.RecordsRejected)
 		}
 
-		fmt.Printf("| %d | %s | %s | %s | %s | %s | %s | %s |\n",
-			i+1, link, status, lidos, inserted, updated, removed, errMsg)
+		fmt.Printf("| %d | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+			i+1, link, repo, status, lidos, inserted, updated, removed, rejected, errMsg)
 	}
 
-	fmt.Println()
+	fmt.Printf("\n%s\n", sep)
 }
 
 func truncErr(s string, n int) string {

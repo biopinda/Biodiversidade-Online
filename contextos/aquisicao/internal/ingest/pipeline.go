@@ -2,6 +2,7 @@ package ingest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -194,17 +195,36 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 
 		if !rc.DryRun && coll != nil {
 			res, err := mongostore.BulkUpsert(ctx, coll, batch, runID, sourceStr)
-			if err != nil {
-				return fmt.Errorf("bulk upsert batch %d: %w", batchNum, err)
-			}
+			// Always accumulate partial counts — BulkUpsert returns them even on BulkWriteException.
 			counters.RecordsInserted += res.Upserted
 			counters.RecordsUpdated += res.Modified
 			counters.RecordsUpserted += res.Upserted + res.Modified
-			logVerbose("lote gravado",
-				"batch", batchNum,
-				"inserted", res.Upserted,
-				"updated", res.Modified,
-			)
+			counters.RecordsRejected += res.WriteErrors
+			if err != nil {
+				var bwe mongo.BulkWriteException
+				if errors.As(err, &bwe) {
+					// Partial failure: some documents in this batch were rejected
+					// (likely BSONObjectTooLarge). Log as warnings and continue.
+					for _, we := range bwe.WriteErrors {
+						if len(warnings) < maxWarnings {
+							warnings = append(warnings, fmt.Sprintf("batch %d doc %d rejected: %s", batchNum, we.Index, we.Message))
+						}
+					}
+					logVerbose("lote com erros parciais",
+						"batch", batchNum,
+						"rejected", len(bwe.WriteErrors),
+						"written", res.Upserted+res.Modified,
+					)
+				} else {
+					return fmt.Errorf("bulk upsert batch %d: %w", batchNum, err)
+				}
+			} else {
+				logVerbose("lote gravado",
+					"batch", batchNum,
+					"inserted", res.Upserted,
+					"updated", res.Modified,
+				)
+			}
 		}
 		batch = batch[:0]
 		return nil
@@ -246,6 +266,7 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 
 		// Build document
 		doc := coerceRecord(record, schema)
+		truncateLargeFields(doc) // guard against BSONObjectTooLarge
 
 		// Set _id
 		id, hasID := resolveID(doc, idField, sourceStr, record)
