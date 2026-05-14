@@ -30,6 +30,8 @@ type RunConfig struct {
 	Store          *mongostore.Store
 	Binary         string
 	Version        string
+	ProgressFn     func(read, total int64) // progress callback; nil = disabled
+	SilentPipeline bool                    // route verbose INFO logs to DEBUG
 }
 
 func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
@@ -51,6 +53,12 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 		DryRun:    rc.DryRun,
 	}
 
+	// logVerbose routes to DEBUG when SilentPipeline is set (progress bars replace INFO output).
+	logVerbose := rc.Log.Info
+	if rc.SilentPipeline {
+		logVerbose = rc.Log.Debug
+	}
+
 	iptURL := rc.IPTURLOverride
 	if iptURL == "" {
 		iptURL = iptURLForSource(rc.Cfg, rc.Source)
@@ -67,7 +75,7 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 	}
 
 	// Download
-	rc.Log.Info("baixando DwC-A", "url", iptURL)
+	logVerbose("baixando DwC-A", "url", iptURL)
 	zipPath, err := dwca.Download(ctx, iptURL, cacheDir, rc.Cfg.HTTPTimeoutMin)
 	if err != nil {
 		run.ErrorMessage = err.Error()
@@ -83,7 +91,7 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 	info, _ := os.Stat(zipPath)
 	if info != nil {
 		run.DwCA.DownloadedBytes = info.Size()
-		rc.Log.Info("DwC-A baixado", "bytes", info.Size(), "cache", zipPath)
+		logVerbose("DwC-A baixado", "bytes", info.Size(), "cache", zipPath)
 	}
 
 	// Open archive
@@ -98,13 +106,13 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 	run.DwCA.Version = archive.Metadata.Version
 	run.DwCA.Title = archive.Metadata.Title
 
-	rc.Log.Info("lendo eml.xml",
+	logVerbose("lendo eml.xml",
 		"packageId", archive.Metadata.PackageID,
 		"pubDate", archive.Metadata.PubDate,
 		"version", archive.Metadata.Version,
 		"title", archive.Metadata.Title,
 	)
-	rc.Log.Info("lendo meta.xml",
+	logVerbose("lendo meta.xml",
 		"core_rowtype", archive.Core.RowType,
 		"fields", len(archive.Core.Fields),
 		"extensions", len(archive.Extensions),
@@ -116,7 +124,7 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 		if last, err := rc.Store.LastSuccessfulRun(ctx, sourceStr); err == nil {
 			curPkg := archive.Metadata.PackageID
 			if curPkg != "" && curPkg == last.DwCA.PackageID {
-				rc.Log.Info("versao identica, fonte ignorada",
+				logVerbose("versao identica, fonte ignorada",
 					"packageId", curPkg,
 					"last_run_at", last.FinishedAt,
 				)
@@ -141,7 +149,7 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 		}
 	}
 
-	rc.Log.Info("iniciando ingestao", "runId", runID, "dry_run", rc.DryRun)
+	logVerbose("iniciando ingestao", "runId", runID, "dry_run", rc.DryRun)
 
 	// Load taxon extensions into RAM (only for fauna/flora; occurrences don't use these).
 	var taxonExt map[string]*taxonExtensions
@@ -151,7 +159,7 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 			run.ErrorMessage = err.Error()
 			return run, fmt.Errorf("load extensions: %w", err)
 		}
-		rc.Log.Info("extensoes carregadas",
+		logVerbose("extensoes carregadas",
 			"taxa_with_extensions", len(taxonExt),
 			"available_extensions", len(archive.Extensions),
 		)
@@ -164,6 +172,13 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 	}
 	defer reader.Close()
 
+	// Count total records and signal start of processing phase.
+	var totalRecords int64
+	if rc.ProgressFn != nil {
+		totalRecords = dwca.CountCoreLines(zipPath, archive)
+		rc.ProgressFn(0, totalRecords)
+	}
+
 	batch := make([]bson.M, 0, rc.Cfg.BulkBatchSize)
 	batchNum := 0
 	var counters mongostore.Counters
@@ -175,7 +190,7 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 			return nil
 		}
 		batchNum++
-		rc.Log.Info("processando lote", "batch", batchNum, "size", len(batch))
+		logVerbose("processando lote", "batch", batchNum, "size", len(batch))
 
 		if !rc.DryRun && coll != nil {
 			res, err := mongostore.BulkUpsert(ctx, coll, batch, runID, sourceStr)
@@ -185,7 +200,7 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 			counters.RecordsInserted += res.Upserted
 			counters.RecordsUpdated += res.Modified
 			counters.RecordsUpserted += res.Upserted + res.Modified
-			rc.Log.Info("lote gravado",
+			logVerbose("lote gravado",
 				"batch", batchNum,
 				"inserted", res.Upserted,
 				"updated", res.Modified,
@@ -207,8 +222,11 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 
 		counters.RecordsRead++
 
-		// Progress logging for high-volume sources
-		if rc.Source == SourceOccurrences && counters.RecordsRead%progressLogThreshold == 0 {
+		if rc.ProgressFn != nil {
+			if counters.RecordsRead%1000 == 0 {
+				rc.ProgressFn(counters.RecordsRead, totalRecords)
+			}
+		} else if rc.Source == SourceOccurrences && counters.RecordsRead%progressLogThreshold == 0 {
 			elapsed := time.Since(started).Seconds()
 			rate := float64(counters.RecordsRead) / elapsed
 			rc.Log.Info("progresso",
@@ -281,14 +299,14 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 
 	// Delete-not-seen
 	if !rc.DryRun && coll != nil {
-		rc.Log.Info("delete-not-seen iniciado", "source", sourceStr)
+		logVerbose("delete-not-seen iniciado", "source", sourceStr)
 		removed, err := mongostore.DeleteNotSeen(ctx, coll, sourceStr, runID)
 		if err != nil {
 			run.ErrorMessage = err.Error()
 			return run, fmt.Errorf("delete-not-seen: %w", err)
 		}
 		counters.RecordsRemoved = removed
-		rc.Log.Info("delete-not-seen concluido", "removed", removed)
+		logVerbose("delete-not-seen concluido", "removed", removed)
 	}
 
 	run.FinishedAt = time.Now()
@@ -298,7 +316,7 @@ func Run(ctx context.Context, rc RunConfig) (mongostore.RunRecord, error) {
 	run.Counters = counters
 	run.Warnings = warnings
 
-	rc.Log.Info("concluido",
+	logVerbose("concluido",
 		"duration_sec", int(run.DurationSec),
 		"records_read", counters.RecordsRead,
 		"records_upserted", counters.RecordsUpserted,

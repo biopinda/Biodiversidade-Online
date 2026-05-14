@@ -39,10 +39,9 @@ func run() int {
 		return 0
 	}
 
-	level := *logLevel
-	if level == "" {
-		level = "info"
-	}
+	// Default to warn — progress bars replace INFO output.
+	// Override via --log-level flag or LOG_LEVEL env var.
+	level := "warn"
 	log := verbose.New(level, "text")
 
 	cfg, err := config.Load(*cfgPath, "occurrences", *dryRun)
@@ -52,11 +51,13 @@ func run() int {
 	}
 
 	if *logLevel != "" {
-		cfg.LogLevel = *logLevel
+		level = *logLevel
+	} else if v := os.Getenv("LOG_LEVEL"); v != "" {
+		level = cfg.LogLevel
 	}
-	log = verbose.New(cfg.LogLevel, cfg.LogFormat)
+	log = verbose.New(level, cfg.LogFormat)
 
-	log.Info("iniciando script", "binary", "update-occurrences", "version", version.String())
+	fmt.Printf("update-occurrences %s\n\n", version.String())
 
 	ctx, cancel := verbose.WithCancellation(context.Background(), log)
 	defer cancel()
@@ -66,7 +67,7 @@ func run() int {
 		log.Error("falha ao carregar CSV de fontes IPT", "path", cfg.IPTOccurrencesCSV, "err", err)
 		return 2
 	}
-	log.Info("fontes IPT carregadas", "count", len(sources), "csv", cfg.IPTOccurrencesCSV)
+	fmt.Printf("Fontes IPT: %d  |  CSV: %s\n", len(sources), cfg.IPTOccurrencesCSV)
 
 	var store *mongostore.Store
 	if !*dryRun {
@@ -77,26 +78,58 @@ func run() int {
 		}
 		defer s.Close(ctx)
 		store = s
-		log.Info("conectado ao MongoDB", "database", cfg.MongoDatabase)
+		fmt.Printf("MongoDB: %s\n", cfg.MongoDatabase)
+	} else {
+		fmt.Println("Modo: dry-run (sem gravacao no MongoDB)")
 	}
+	fmt.Println()
 
 	started := time.Now()
 	results := make([]sourceResult, 0, len(sources))
 	exitCode := 0
+	totalSrcs := len(sources)
 
 	for i, src := range sources {
 		if ctx.Err() != nil {
-			log.Warn("interrupcao detectada, parando processamento")
+			clearStatus()
 			exitCode = 130
 			break
 		}
 
-		log.Info("processando fonte",
-			"index", i+1,
-			"total", len(sources),
-			"source", src.Tag,
-			"nome", src.Nome,
+		idx := i + 1
+		prefix := fmt.Sprintf("[%3d/%d]", idx, totalSrcs)
+
+		setStatus(fmt.Sprintf("%s  Baixando: %s [%s]", prefix, trunc(src.Nome, 52), src.Repositorio))
+
+		var (
+			srcTotal   int64
+			procStart  time.Time
+			lastRender time.Time
 		)
+
+		progressFn := func(read, total int64) {
+			srcTotal = total
+			if read == 0 {
+				procStart = time.Now()
+				lastRender = time.Time{}
+				setStatus(fmt.Sprintf("%s  %s [%s]  |  %s registros",
+					prefix, trunc(src.Nome, 42), src.Repositorio, fmtN(total)))
+				return
+			}
+			now := time.Now()
+			if now.Sub(lastRender) < 100*time.Millisecond {
+				return
+			}
+			lastRender = now
+			elapsed := now.Sub(procStart).Seconds()
+			rate := int64(0)
+			if elapsed > 0 {
+				rate = int64(float64(read) / elapsed)
+			}
+			bar := progBar(read, srcTotal, 22)
+			setStatus(fmt.Sprintf("%s  %s  %s/%s (%s%%)  |  %s/s",
+				prefix, bar, fmtN(read), fmtN(srcTotal), fmtPct(read, srcTotal), fmtN(rate)))
+		}
 
 		rc := ingest.RunConfig{
 			Cfg:            cfg,
@@ -108,6 +141,8 @@ func run() int {
 			Store:          store,
 			Binary:         "update-occurrences",
 			Version:        version.String(),
+			ProgressFn:     progressFn,
+			SilentPipeline: true,
 		}
 
 		runRecord, runErr := ingest.Run(ctx, rc)
@@ -120,22 +155,103 @@ func run() int {
 
 		results = append(results, sourceResult{src: src, run: runRecord, err: runErr})
 
-		if runErr != nil {
+		clearStatus()
+
+		name := trunc(src.Nome, 48)
+		repo := src.Repositorio
+
+		switch {
+		case runRecord.Status == "skipped":
+			fmt.Printf("%s  ->  %s [%s]  IGNORADO (versao identica no MongoDB)\n",
+				prefix, name, repo)
+		case runErr != nil:
+			fmt.Printf("%s  !!  %s [%s]  ERRO: %s\n",
+				prefix, name, repo, trunc(runErr.Error(), 60))
 			if ctx.Err() != nil {
 				exitCode = 130
-				break
-			}
-			log.Error("fonte falhou, continuando para proxima", "source", src.Tag, "err", runErr)
-			if code := exitCodeFromErr(runErr); code > exitCode {
+			} else if code := exitCodeFromErr(runErr); code > exitCode {
 				exitCode = code
 			}
+		default:
+			c := runRecord.Counters
+			dur := runRecord.FinishedAt.Sub(runRecord.StartedAt).Round(time.Second)
+			_ = srcTotal
+			fmt.Printf("%s  OK  %s [%s]  |  %s lidos | %s ins | %s upd | %s rem | %s\n",
+				prefix, name, repo,
+				fmtN(c.RecordsRead), fmtN(c.RecordsInserted), fmtN(c.RecordsUpdated),
+				fmtN(c.RecordsRemoved), dur)
+		}
+
+		if exitCode == 130 {
+			break
 		}
 	}
 
+	fmt.Println()
 	printReport(results, started)
 
 	return exitCode
 }
+
+// --- progress display ---
+
+var statusLen int
+
+func setStatus(s string) {
+	pad := statusLen - len(s)
+	if pad > 0 {
+		s += strings.Repeat(" ", pad)
+	}
+	statusLen = len(s)
+	fmt.Printf("\r%s", s)
+}
+
+func clearStatus() {
+	if statusLen > 0 {
+		fmt.Printf("\r%s\r", strings.Repeat(" ", statusLen))
+		statusLen = 0
+	}
+}
+
+func progBar(done, total int64, width int) string {
+	if total <= 0 {
+		return "[" + strings.Repeat("-", width) + "]"
+	}
+	filled := int(float64(done) / float64(total) * float64(width))
+	if filled > width {
+		filled = width
+	}
+	return "[" + strings.Repeat("=", filled) + strings.Repeat(" ", width-filled) + "]"
+}
+
+func fmtN(n int64) string {
+	orig := fmt.Sprintf("%d", n)
+	out := make([]byte, 0, len(orig)+len(orig)/3)
+	for i := 0; i < len(orig); i++ {
+		pos := len(orig) - i
+		if pos%3 == 0 && i > 0 {
+			out = append(out, '.')
+		}
+		out = append(out, orig[i])
+	}
+	return string(out)
+}
+
+func fmtPct(done, total int64) string {
+	if total == 0 {
+		return "??"
+	}
+	return fmt.Sprintf("%.1f", float64(done)/float64(total)*100)
+}
+
+func trunc(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	return s[:n-1] + "~"
+}
+
+// --- final report ---
 
 func printReport(results []sourceResult, started time.Time) {
 	var nSuccess, nSkipped, nError int
@@ -152,8 +268,8 @@ func printReport(results []sourceResult, started time.Time) {
 
 	elapsed := time.Since(started).Round(time.Second)
 
-	fmt.Printf("\n## Relatório — update-occurrences\n")
-	fmt.Printf("Data: %s | Fontes: %d | Sucesso: %d | Ignoradas: %d | Erros: %d | Duração: %s\n\n",
+	fmt.Printf("## Relatorio — update-occurrences\n")
+	fmt.Printf("Data: %s | Fontes: %d | Sucesso: %d | Ignoradas: %d | Erros: %d | Duracao: %s\n\n",
 		started.Format("2006-01-02 15:04:05"),
 		len(results), nSuccess, nSkipped, nError, elapsed,
 	)
@@ -173,7 +289,7 @@ func printReport(results []sourceResult, started time.Time) {
 		case r.err != nil:
 			status = "erro"
 			lidos, inserted, updated, removed = "—", "—", "—", "—"
-			errMsg = truncate(strings.ReplaceAll(r.err.Error(), "\n", " "), 80)
+			errMsg = truncErr(strings.ReplaceAll(r.err.Error(), "\n", " "), 80)
 		default:
 			status = "sucesso"
 			lidos = fmt.Sprintf("%d", r.run.Counters.RecordsRead)
@@ -189,7 +305,7 @@ func printReport(results []sourceResult, started time.Time) {
 	fmt.Println()
 }
 
-func truncate(s string, n int) string {
+func truncErr(s string, n int) string {
 	if len(s) <= n {
 		return s
 	}

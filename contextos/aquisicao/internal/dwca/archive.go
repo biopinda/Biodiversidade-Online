@@ -181,3 +181,44 @@ func findFile(zr *zip.ReadCloser, name string) *zip.File {
 	}
 	return nil
 }
+
+// CountCoreLines returns the number of data records in the core CSV (lines minus header).
+// Returns 0 on any error so callers can degrade gracefully.
+func CountCoreLines(zipPath string, archive *Archive) int64 {
+	zr, err := zip.OpenReader(zipPath)
+	if err != nil {
+		return 0
+	}
+	defer zr.Close()
+
+	f := findFile(zr, archive.Core.Files.Location)
+	if f == nil {
+		return 0
+	}
+
+	rc, err := f.Open()
+	if err != nil {
+		return 0
+	}
+	defer rc.Close()
+
+	var n int64
+	buf := make([]byte, 64*1024)
+	for {
+		nr, readErr := rc.Read(buf)
+		for i := range nr {
+			if buf[i] == '\n' {
+				n++
+			}
+		}
+		if readErr != nil {
+			break
+		}
+	}
+
+	n -= int64(archive.Core.IgnoreHeaderLines)
+	if n < 0 {
+		return 0
+	}
+	return n
+}
