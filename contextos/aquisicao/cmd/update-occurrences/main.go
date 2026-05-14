@@ -4,7 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -188,7 +190,13 @@ func run() int {
 	}
 
 	fmt.Println()
-	printReport(results, started)
+	printReport(os.Stdout, results, started)
+
+	if path, err := saveReport(results, started); err != nil {
+		log.Warn("nao foi possivel salvar relatorio", "err", err)
+	} else {
+		fmt.Printf("Relatorio salvo: %s\n", path)
+	}
 
 	return exitCode
 }
@@ -253,7 +261,46 @@ func trunc(s string, n int) string {
 
 // --- final report ---
 
-func printReport(results []sourceResult, started time.Time) {
+func saveReport(results []sourceResult, started time.Time) (string, error) {
+	dir := resolveReportsDir()
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return "", err
+	}
+	filename := fmt.Sprintf("report_%s.md", started.Format("20060102_150405"))
+	path := filepath.Join(dir, filename)
+	f, err := os.Create(path) // #nosec G304 -- path built from internal config, not user input
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	printReport(f, results, started)
+	return path, nil
+}
+
+// resolveReportsDir finds the reports directory relative to CWD or the executable.
+func resolveReportsDir() string {
+	const rel = "reports"
+	if fi, err := os.Stat(rel); err == nil && fi.IsDir() {
+		return rel
+	}
+	execPath, err := os.Executable()
+	if err != nil {
+		return rel
+	}
+	execPath, _ = filepath.EvalSymlinks(execPath)
+	execDir := filepath.Dir(execPath)
+	for _, candidate := range []string{
+		filepath.Join(execDir, rel),
+		filepath.Join(execDir, "..", rel),
+	} {
+		if fi, err := os.Stat(candidate); err == nil && fi.IsDir() {
+			return candidate
+		}
+	}
+	return rel
+}
+
+func printReport(w io.Writer, results []sourceResult, started time.Time) {
 	var nSuccess, nSkipped, nError int
 	var totalRead, totalIns, totalUpd, totalRem, totalRej int64
 	for _, r := range results {
@@ -275,19 +322,19 @@ func printReport(results []sourceResult, started time.Time) {
 	elapsed := time.Since(started).Round(time.Second)
 
 	sep := strings.Repeat("=", 72)
-	fmt.Printf("\n%s\n", sep)
-	fmt.Printf("RELATORIO FINAL — update-occurrences %s\n", version.String())
-	fmt.Printf("%s\n\n", sep)
+	fmt.Fprintf(w, "\n%s\n", sep)
+	fmt.Fprintf(w, "RELATORIO FINAL — update-occurrences %s\n", version.String())
+	fmt.Fprintf(w, "%s\n\n", sep)
 
-	fmt.Printf("Data inicio : %s\n", started.Format("2006-01-02 15:04:05"))
-	fmt.Printf("Duracao     : %s\n", elapsed)
-	fmt.Printf("Fontes      : %d  (sucesso: %d | ignoradas: %d | erros: %d)\n",
+	fmt.Fprintf(w, "Data inicio : %s\n", started.Format("2006-01-02 15:04:05"))
+	fmt.Fprintf(w, "Duracao     : %s\n", elapsed)
+	fmt.Fprintf(w, "Fontes      : %d  (sucesso: %d | ignoradas: %d | erros: %d)\n",
 		len(results), nSuccess, nSkipped, nError)
-	fmt.Printf("Registros   : %s lidos | %s inseridos | %s atualizados | %s removidos | %s rejeitados\n\n",
+	fmt.Fprintf(w, "Registros   : %s lidos | %s inseridos | %s atualizados | %s removidos | %s rejeitados\n\n",
 		fmtN(totalRead), fmtN(totalIns), fmtN(totalUpd), fmtN(totalRem), fmtN(totalRej))
 
-	fmt.Println("| # | Fonte | IPT | Status | Lidos | Inseridos | Atualizados | Removidos | Rejeitados | Erro |")
-	fmt.Println("|---|-------|-----|--------|-------|-----------|-------------|-----------|------------|------|")
+	fmt.Fprintln(w, "| # | Fonte | IPT | Status | Lidos | Inseridos | Atualizados | Removidos | Rejeitados | Erro |")
+	fmt.Fprintln(w, "|---|-------|-----|--------|-------|-----------|-------------|-----------|------------|------|")
 
 	for i, r := range results {
 		link := fmt.Sprintf("[%s](%s)", r.src.Nome, r.src.ResourceURL())
@@ -322,11 +369,11 @@ func printReport(results []sourceResult, started time.Time) {
 			rejected = fmt.Sprintf("%d", c.RecordsRejected)
 		}
 
-		fmt.Printf("| %d | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+		fmt.Fprintf(w, "| %d | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
 			i+1, link, repo, status, lidos, inserted, updated, removed, rejected, errMsg)
 	}
 
-	fmt.Printf("\n%s\n", sep)
+	fmt.Fprintf(w, "\n%s\n", sep)
 }
 
 func truncErr(s string, n int) string {
