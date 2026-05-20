@@ -1,9 +1,0 @@
-packages/ingest/referencias/filtros/**
-node_modules/
-dist/
-build/
-coverage/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-bun.lockb
