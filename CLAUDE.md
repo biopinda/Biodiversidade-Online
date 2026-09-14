@@ -1,98 +1,116 @@
-# Biodiversidade.Online — Contexto de Aquisição (V7)
+# Biodiversidade.Online — Base DuckDB de Espécies e Ocorrências
 
-Repositório Go com três binários CLI que importam dados DwC-A de fontes IPT para MongoDB. Sem frontend, sem Bun, sem TypeScript.
+Script Go único que baixa DwC-A de fontes IPT (taxa + ocorrências) e grava um arquivo DuckDB local, harmonizado em Darwin Core. Sem frontend, sem Bun, sem TypeScript, sem MongoDB, sem Docker/CI.
+
+## OpenWiki
+
+This repository has documentation located in the /openwiki directory.
+
+Start here:
+- [OpenWiki quickstart](openwiki/quickstart.md)
+
+OpenWiki includes repository overview, architecture notes, workflows, domain concepts, operations, integrations, testing guidance, and source maps.
+
+When working in this repository, read the OpenWiki quickstart first, then follow its links to the relevant architecture, workflow, domain, operation, and testing notes.
 
 ## Stack
 
-- **Go 1.22+** — único runtime necessário
-- **MongoDB** — banco `dwc2json` (coleções `taxa`, `occurrences`, `ingest_runs`)
-- **Dependências diretas**: `mongo-driver/v2` e `godotenv` apenas (FR-016)
+- **Go 1.25+** — único runtime necessário
+- **DuckDB** — arquivo local único (`biodiversidade.duckdb`, gitignored), via `github.com/marcboeker/go-duckdb` (CGO — exige compilador C no PATH)
+- **Dependências diretas**: `go-duckdb` e `godotenv` apenas
 
 ## Layout
 
 ```
-contextos/
-├── aquisicao/                        # Contexto de Aquisição (Go module)
-│   ├── cmd/update-fauna/             # Entry point fauna
-│   ├── cmd/update-flora/             # Entry point flora
-│   ├── cmd/update-occurrences/       # Entry point 505+ fontes
-│   ├── internal/config/              # .env loading + validação
-│   ├── internal/dwca/                # Parser DwC-A streaming (sem deps externas)
-│   ├── internal/ingest/              # Pipeline: download → parse → upsert → delete-not-seen
-│   ├── internal/mongostore/          # BulkWrite, DeleteNotSeen, RunRecord
-│   ├── internal/verbose/             # slog wrapper + signal handling
-│   ├── internal/version/             # versão via ldflags
-│   ├── data/occurrences.csv          # 505+ fontes IPT para ocorrências
-│   ├── docs/                         # Documentação de aquisição
-│   ├── specs/001-refactor-acquisition/  # Spec, plan, tasks, contratos
-│   └── go.mod / go.sum
-└── comum/
-    └── .env.example                  # Template de configuração compartilhado
+/
+├── main.go                # Único ponto de entrada (fauna+flora, depois ocorrências, sequencial)
+├── ipt_sources.csv        # Registro único de fontes IPT (coluna tipo: taxa | ocorrencias)
+├── internal/
+│   ├── config/             # .env loading + validação
+│   ├── dwca/                # Parser DwC-A streaming (sem deps externas)
+│   ├── ingest/               # Harmonização: filtro rank, PT→EN, coerção, merge de extensões
+│   ├── duckstore/             # Upsert idempotente, delete-not-seen, auditoria (ingest_runs)
+│   ├── verbose/                # slog wrapper + signal handling
+│   └── version/                 # versão via ldflags
+├── docs/adr/               # Decisões de arquitetura
+├── openwiki/                # Documentação interna navegável
+├── CONTEXT.md                 # Glossário de domínio
+└── go.mod / go.sum
 ```
 
 ## Comandos principais
 
 ```bash
-# Todos os comandos rodam a partir de contextos/aquisicao/
-cd contextos/aquisicao
+# CGO é obrigatório (driver DuckDB) — defina CC se necessário no Windows
+export CGO_ENABLED=1
 
-# Compilar todos (Windows)
-go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-fauna
-go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-flora
-go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-occurrences
-
-# Compilar todos (Linux)
-GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-fauna
-GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-flora
-GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-occurrences
+# Compilar
+go build -trimpath -ldflags="-s -w" -o bin/ .
 
 # Testes e análise estática
-go test ./internal/...
+go test ./...
 go vet ./...
 
-# Dry run (sem MongoDB necessário para fauna/flora se URLs configuradas)
-./bin/update-fauna --dry-run
-./bin/update-flora --dry-run
-./bin/update-occurrences --dry-run
+# Dry run (sem gravação no DuckDB)
+go run . --dry-run
 ```
 
 ## Regras obrigatórias
 
 - **Nunca criar branch** — todos os commits vão para `main` diretamente
-- **Nunca commitar credenciais** — usar `.env` local (gitignored); `contextos/comum/.env.example` apenas com placeholders genéricos
+- **Nunca commitar credenciais** — usar `.env` local (gitignored); `.env.example` apenas com placeholders/defaults
 - **Nunca adicionar dependências externas** sem justificativa forte — stdlib Go resolve a maior parte
-- **Sem Docker** neste contexto — os binários são distribuídos diretamente (`contextos/aquisicao/bin/`)
-- **Sem workflows GitHub** — execução manual pelos operadores
+- **Sem Docker, sem workflows GitHub** — execução manual/agendada pelo operador
+- **Nunca versionar `biodiversidade.duckdb`** — gerado pela execução, gitignored
 - **NEVER CANCEL** builds ou testes — todos completam em segundos
 
 ## Configuração
 
-Copiar `contextos/comum/.env.example` → `contextos/aquisicao/.env` e preencher:
+Todas as variáveis têm defaults sensatos (ver `.env.example`):
 
 ```dotenv
-MONGO_URI=mongodb://user:pass@host:27017/?authSource=admin
-IPT_FAUNA_URL=https://...
-IPT_FLORA_URL=https://...
-# demais variáveis têm defaults em contextos/aquisicao/internal/config/config.go
+DB_PATH=./biodiversidade.duckdb
+IPT_SOURCES_CSV=./ipt_sources.csv
+# demais variáveis têm defaults em internal/config/config.go
 ```
 
 ## Convenções de código
 
-- Pacotes em `internal/` são compartilhados pelos 3 binários
-- `cmd/<binary>/main.go` apenas: parse flags → config.Load → mongostore.Connect → ingest.Run → exit code
+- Pacotes em `internal/` são compartilhados por todo o pipeline (um único binário agora, não mais três)
+- `main.go`: parse flags → config.Load → duckstore.Connect → LoadIPTSources → ingest.Run por fonte → exit code
 - Logging via `log/slog` com handler configurável (text/json); usar `log.Info/Warn/Error` com campos estruturados
-- Erros tipados: `*config.ConfigError` → exit 2; download → exit 3; archive → exit 4; mongo → exit 5
-- Testes unitários em `internal/dwca/` e `internal/ingest/` usando stdlib `testing`; sem mocks de MongoDB
+- Erros tipados: `*config.ConfigError` → exit 2; download → exit 3; archive → exit 4; duckdb → exit 5
+- Testes unitários em `internal/dwca/` e `internal/ingest/` usando stdlib `testing`; sem mocks de banco
 
-## Arquitetura C4 — Posição atual
+## Arquitetura — Posição atual
 
-Este repositório implementa apenas o **Contexto de Aquisição** da suite Biodiversidade.Online. Os outros três contextos (Curadoria, Enriquecimento, Apresentação) serão repositórios ou módulos independentes no futuro.
+Este repositório é de propósito único: baixar, harmonizar e gravar dados de espécies e ocorrências num único arquivo DuckDB. Não há mais suite multi-contexto (Curadoria/Enriquecimento/Apresentação foram removidos do escopo).
 
-Ver `README.md` para os diagramas C4 completos. Ver `contextos/aquisicao/docs/funcionamento.md` para detalhes do pipeline e schemas das coleções.
+Ver `README.md` para os diagramas C4. Ver `docs/adr/` para as decisões de arquitetura (DuckDB, script único, esquema fixo, tabelas de extensão).
 
-## Regras de transformação de `taxa` (fauna/flora)
+## Regras de transformação de `taxon` (fauna/flora)
 
-- **Filtro de rank**: aceitar somente `ESPECIE`, `SUB_ESPECIE`, `VARIEDADE`, `FORMA` (PT) ou `SPECIES`, `SUBSPECIES`, `VARIETY`, `FORM` (EN), case-insensitive. Grupos supra-específicos rejeitados (`contextos/aquisicao/internal/ingest/taxa_transform.go:shouldKeepTaxon`).
-- **Extensões mescladas**: `distribution.txt`, `vernacularname.txt`, `speciesprofile.txt`, `resourcerelationship.txt` (→ `othernames`), `reference.txt`, `typesandspecimen.txt`. Carregadas em RAM e agrupadas por `taxonID`.
+- **Filtro de rank**: aceitar somente `ESPECIE`, `SUB_ESPECIE`, `VARIEDADE`, `FORMA` (PT) ou `SPECIES`, `SUBSPECIES`, `VARIETY`, `FORM` (EN), case-insensitive. Grupos supra-específicos rejeitados (`internal/ingest/taxa_transform.go:shouldKeepTaxon`).
+- **Extensões normalizadas**: `distribution.txt`, `vernacularname.txt`, `speciesprofile.txt`, `resourcerelationship.txt`, `reference.txt`, `typesandspecimen.txt` viram tabelas próprias (`taxon_*`), FK `taxonID`, com a mesma lógica de merge/dedup de antes.
 - **Campos computados**: `canonicalName` (`genus + specificEpithet [+ infraspecificEpithet]`), `flatScientificName` (`scientificName` lowercase + strip non-alphanum).
-- **Schema-alvo**: `contextos/aquisicao/docs/schema-dwc2json-taxa-mongoDBJSON.json` (gold standard V6 preservado).
+- **Schema-alvo**: colunas fixas Darwin Core em `internal/duckstore/schema.go` (ver [ADR 0003](docs/adr/0003-esquema-fixo-darwin-core.md)).
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as GitHub issues, managed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context layout (`CONTEXT.md` + `docs/adr/` at the repo root). See `docs/agents/domain.md`.

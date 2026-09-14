@@ -1,0 +1,3 @@
+# Esquema fixo Darwin Core em vez de passthrough
+
+A versão anterior gravava qualquer campo que a fonte IPT trouxesse (passthrough), variando livremente entre as 505+ fontes de ocorrência. Um banco relacional pede colunas definidas, e o objetivo explícito deste projeto é harmonizar — não apenas armazenar — os dados. As tabelas `taxon` e `occurrence` usam por isso um conjunto fixo de colunas correspondendo aos termos padrão do Darwin Core Taxon/Occurrence Core; campos fora do padrão são descartados na harmonização e reportados como aviso na tabela `ingest_runs`, em vez de virarem colunas esparsas incompatíveis entre fontes.

@@ -1,4 +1,4 @@
-# Biodiversidade.Online — Suite de Aplicativos para a Biodiversidade Brasileira
+# Biodiversidade.Online — Base DuckDB de Espécies e Ocorrências
 
 [Eduardo Dalcin](https://github.com/edalcin) · [Henrique Pinheiro](https://github.com/Phenome)
 
@@ -9,261 +9,177 @@
 
 ## Visão Geral
 
-**Biodiversidade.Online** é uma suite de aplicativos independentes que integram, curiam, enriquecem e apresentam dados da biodiversidade brasileira. Cada contexto é um aplicativo autônomo que opera sobre um banco MongoDB compartilhado (`dwc2json`).
+**Biodiversidade.Online** é uma ferramenta de linha de comando, de propósito único: um script Go que baixa Darwin Core Archives (DwC-A) publicados por fontes IPT — fauna, flora e 512 coleções de ocorrências — e grava um único arquivo [DuckDB](https://duckdb.org/) local, com dados harmonizados e nomeados segundo o padrão Darwin Core.
 
-A suite segue a arquitetura **C4 Model** com quatro contextos funcionais:
-
-| Contexto | Função | Status |
-|---|---|---|
-| **Aquisição** | Importa DwC-A de fontes IPT para MongoDB | ✅ V7.0 — Go CLI |
-| **Curadoria** | Valida, corrige e gerencia dados taxonômicos | 🔜 Planejado |
-| **Enriquecimento** | Adiciona status de ameaça, invasoras, UCs | 🔜 Planejado |
-| **Apresentação** | Dashboard, ChatBB e API REST pública | 🔜 Planejado |
+Não há mais suite multi-contexto, banco compartilhado ou serviço hospedado: é um binário que você executa manualmente (ou agenda como preferir) e que produz um arquivo `.duckdb` pronto para consulta via SQL.
 
 ---
 
-## Diagrama C4 — Contexto do Sistema (Nível 1)
+## Diagrama C4 — Contexto do Sistema
 
 ```mermaid
 C4Context
     title Biodiversidade.Online — Contexto do Sistema
 
-    Person(operador, "Operador", "Executa as atualizações periódicas de dados")
-    Person(pesquisador, "Pesquisador / Público", "Consulta dados de biodiversidade")
+    Person(operador, "Operador", "Executa o script manualmente ou via agendador próprio")
 
-    System_Boundary(suite, "Biodiversidade.Online Suite") {
-        System(aquisicao, "Aquisição", "Importa dados DwC-A de fontes IPT e persiste no MongoDB")
-        System(curadoria, "Curadoria", "Gerencia e valida dados taxonômicos [planejado]")
-        System(enriquecimento, "Enriquecimento", "Adiciona dados temáticos: ameaças, invasoras, UCs [planejado]")
-        System(apresentacao, "Apresentação", "Dashboard, ChatBB e REST API [planejado]")
-    }
+    System(script, "main.go", "Script único: baixa, harmoniza e grava dados de biodiversidade")
 
-    System_Ext(ipt_flora, "IPT Flora do Brasil", "Repositório DwC-A de flora — JBRJ/Reflora")
-    System_Ext(ipt_fauna, "IPT Fauna do Brasil", "Repositório DwC-A de fauna — JBRJ/CNCFlora")
-    System_Ext(ipt_occ, "505+ IPTs de Ocorrências", "INPA, MPEG, SIBBR, speciesLink e outros")
-    SystemDb(mongodb, "MongoDB dwc2json", "Banco principal compartilhado entre todos os contextos")
+    System_Ext(ipt_taxa, "IPTs de Táxons", "Flora e Funga do Brasil · Catálogo Taxonômico da Fauna do Brasil")
+    System_Ext(ipt_occ, "512 IPTs de Ocorrências", "INPA, MPEG, SIBBR, speciesLink e outros")
+    SystemDb(duckdb, "biodiversidade.duckdb", "Arquivo local único, harmonizado em Darwin Core")
 
-    Rel(operador, aquisicao, "executa manualmente")
-    Rel(operador, enriquecimento, "executa manualmente")
-    Rel(aquisicao, ipt_flora, "baixa DwC-A via HTTP")
-    Rel(aquisicao, ipt_fauna, "baixa DwC-A via HTTP")
-    Rel(aquisicao, ipt_occ, "baixa DwC-A de 505+ fontes")
-    Rel(aquisicao, mongodb, "upsert em taxa e occurrences")
-    Rel(curadoria, mongodb, "lê · valida · corrige")
-    Rel(enriquecimento, mongodb, "lê · enriquece · grava")
-    Rel(apresentacao, mongodb, "lê somente")
-    Rel(pesquisador, apresentacao, "consulta via browser / API")
+    Rel(operador, script, "executa")
+    Rel(script, ipt_taxa, "baixa DwC-A via HTTP")
+    Rel(script, ipt_occ, "baixa DwC-A via HTTP, uma fonte por vez")
+    Rel(script, duckdb, "grava com conexão única de escrita")
+    Rel(operador, duckdb, "consulta via SQL (DuckDB CLI / driver)")
 ```
 
----
-
-## Diagrama C4 — Containers do Contexto de Aquisição (Nível 2)
-
-> Único contexto implementado na V7.0.
+## Diagrama C4 — Pacotes Internos
 
 ```mermaid
 C4Container
-    title Aquisição — Containers (V7.0)
+    title main.go — Fluxo de Pacotes Internos
 
-    Person(operador, "Operador", "Executa os binários no servidor")
+    Person(operador, "Operador")
 
-    System_Ext(ipt_flora, "IPT Flora do Brasil", "DwC-A via HTTP")
-    System_Ext(ipt_fauna, "IPT Fauna do Brasil", "DwC-A via HTTP")
-    System_Ext(ipt_occ, "505+ IPTs de Ocorrências", "DwC-A via HTTP")
-    SystemDb_Ext(mongodb, "MongoDB dwc2json", "taxa · occurrences · ingest_runs")
+    System_Ext(ipt, "Fontes IPT", "514 fontes listadas em ipt_sources.csv")
+    SystemDb_Ext(duckdb, "biodiversidade.duckdb", "taxon · occurrence · 6 tabelas de extensão · ingest_runs")
 
-    System_Boundary(aquisicao, "Contexto de Aquisição") {
-        Container(fauna_bin, "update-fauna", "Go CLI binary", "Baixa DwC-A de Fauna, upsert em taxa{source:fauna}")
-        Container(flora_bin, "update-flora", "Go CLI binary", "Baixa DwC-A de Flora, upsert em taxa{source:flora}")
-        Container(occ_bin, "update-occurrences", "Go CLI binary", "Itera 505+ IPTs, upsert em occurrences por tag")
-
-        Container(dwca_pkg, "internal/dwca", "Go package", "Parser streaming de arquivos DwC-A (meta.xml, eml.xml, CSV)")
-        Container(ingest_pkg, "internal/ingest", "Go package", "Pipeline: download → parse → coerce → bulk upsert → delete-not-seen")
-        Container(mongostore_pkg, "internal/mongostore", "Go package", "BulkWrite, DeleteNotSeen, auditoria em ingest_runs")
-        Container(config_pkg, "internal/config", "Go package", "Carrega .env, valida variáveis obrigatórias por fonte")
+    System_Boundary(app, "Script único") {
+        Container(main_bin, "main", "Go entrypoint", "Lê ipt_sources.csv; processa todas as fontes taxa e depois todas as ocorrências, sequencialmente")
+        Container(config_pkg, "internal/config", "Go package", "Carrega .env e variáveis de ambiente")
+        Container(dwca_pkg, "internal/dwca", "Go package", "Download e parsing streaming de DwC-A (meta.xml, eml.xml, core + extensões)")
+        Container(ingest_pkg, "internal/ingest", "Go package", "Harmonização: filtro de rank-folha, normalização PT→EN, coerção de tipos, merge de extensões")
+        Container(duckstore_pkg, "internal/duckstore", "Go package", "Escrita DuckDB: upsert idempotente, delete-not-seen, auditoria em ingest_runs")
+        Container(verbose_pkg, "internal/verbose", "Go package", "Logging estruturado e tratamento de sinais")
+        Container(version_pkg, "internal/version", "Go package", "Versão injetável via ldflags")
     }
 
-    Rel(operador, fauna_bin, "executa com flags")
-    Rel(operador, flora_bin, "executa com flags")
-    Rel(operador, occ_bin, "executa com flags")
-
-    Rel(fauna_bin, ipt_fauna, "GET archive.do HTTP")
-    Rel(flora_bin, ipt_flora, "GET archive.do HTTP")
-    Rel(occ_bin, ipt_occ, "GET archive.do?r={tag} para cada fonte")
-
-    Rel(fauna_bin, dwca_pkg, "usa")
-    Rel(flora_bin, dwca_pkg, "usa")
-    Rel(occ_bin, dwca_pkg, "usa")
-    Rel(fauna_bin, ingest_pkg, "usa")
-    Rel(flora_bin, ingest_pkg, "usa")
-    Rel(occ_bin, ingest_pkg, "usa")
-    Rel(ingest_pkg, mongostore_pkg, "usa")
-    Rel(fauna_bin, config_pkg, "usa")
-    Rel(flora_bin, config_pkg, "usa")
-    Rel(occ_bin, config_pkg, "usa")
-
-    Rel(mongostore_pkg, mongodb, "BulkWrite · DeleteMany · InsertOne")
+    Rel(operador, main_bin, "executa")
+    Rel(main_bin, config_pkg, "usa")
+    Rel(main_bin, dwca_pkg, "usa")
+    Rel(main_bin, ingest_pkg, "usa")
+    Rel(main_bin, duckstore_pkg, "usa")
+    Rel(dwca_pkg, ipt, "GET archive.do?r={tag}")
+    Rel(ingest_pkg, dwca_pkg, "consome registros")
+    Rel(duckstore_pkg, duckdb, "conexão única de escrita")
 ```
 
 ---
 
-## Contexto de Aquisição — V7.0
+## O que faz
 
-### O que faz
+Uma única execução de `main.go`:
 
-Três binários Go independentes (Windows `.exe` ou Linux sem extensão) que atualizam o MongoDB com dados da biodiversidade brasileira:
+1. Lê `ipt_sources.csv` (registro único de todas as fontes IPT).
+2. Processa, em sequência, todas as fontes do tipo `taxa` e depois todas do tipo `ocorrencias` — nessa ordem, numa única conexão de escrita DuckDB (ver [ADR 0002](docs/adr/0002-script-unico-sequencial.md)).
+3. Para cada fonte: baixa o DwC-A mais recente, lê `meta.xml`/`eml.xml`, e pula a fonte se a versão do pacote não mudou desde a última execução bem-sucedida.
+4. Harmoniza cada registro para o vocabulário Darwin Core: mantém apenas táxons-folha (espécie/sub-espécie/variedade/forma), normaliza valores PT→EN, corrige tipos (datas, floats, ints), sinaliza (sem descartar) coordenadas suspeitas, e deduplica/mescla as extensões de táxon antes de gravar.
+5. Grava com upsert idempotente nas tabelas `taxon`/`occurrence` e nas tabelas de extensão, removendo (delete-not-seen) registros da mesma fonte ausentes na execução atual.
+6. Registra a execução na tabela de auditoria `ingest_runs` (contadores, avisos, status).
 
-| Binário | Fonte IPT | Coleção MongoDB | Tempo esperado |
-|---|---|---|---|
-| `update-fauna` | IPT Fauna do Brasil | `taxa` (`source:"fauna"`) | ≤ 2 min |
-| `update-flora` | IPT Flora do Brasil | `taxa` (`source:"flora"`) | ≤ 2 min |
-| `update-occurrences` | 505+ IPTs (via CSV) | `occurrences` | ≤ 30 min (5M reg.) |
+## Pré-requisitos
 
-Cada execução:
-1. Baixa o DwC-A mais recente da URL configurada no `.env`
-2. Lê `eml.xml` e registra versão/data do dataset nos logs
-3. Faz **upsert por chave estável** de todos os campos DwC-A (passthrough completo)
-4. Remove registros da mesma `source` ausentes do IPT (**delete-not-seen**)
-5. Grava auditoria em `ingest_runs` (contadores, duração, status)
+- **Go 1.25+**
+- **Um compilador C no `PATH`** — o driver DuckDB (`github.com/marcboeker/go-duckdb`) exige CGO.
+  - Windows: instale uma distribuição MinGW-w64, por exemplo `winget install -e --id BrechtSanders.WinLibs.POSIX.UCRT`.
+  - Linux/macOS: o gcc/clang padrão do sistema normalmente já é suficiente.
 
-### Bootstrap rápido
+## Bootstrap rápido
 
 ```bash
-# 1. Instalar Go 1.22+
-# 2. Clonar o repositório
+# 1. Clonar o repositório
 git clone https://github.com/biopinda/Biodiversidade-Online.git
 cd Biodiversidade-Online
 
-# 3. Configurar .env (copiando do template em comum/)
-cp contextos/comum/.env.example contextos/aquisicao/.env
-# Editar contextos/aquisicao/.env com MONGO_URI, IPT_FAUNA_URL, IPT_FLORA_URL
+# 2. (Opcional) copiar/editar variáveis de ambiente — todas têm defaults sensatos
+export LOG_LEVEL=debug
 
-# 4. Compilar — executar a partir de contextos/aquisicao/
-cd contextos/aquisicao
+# 3. Compilar
+go build -trimpath -ldflags="-s -w" -o bin/ .
 
-# Windows
-go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-fauna
-go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-flora
-go build -trimpath -ldflags="-s -w" -o bin\ .\cmd\update-occurrences
-
-# Linux
-GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-fauna
-GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-flora
-GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ ./cmd/update-occurrences
-
-# 5. Executar
-./bin/update-fauna --log-level debug
-./bin/update-flora --log-level debug
-./bin/update-occurrences --dry-run
+# 4. Executar
+./bin/biodiversidade-online
+# ou, sem compilar:
+go run .
 ```
 
-### Configuração (`.env`)
+Ao final, o arquivo `biodiversidade.duckdb` (por padrão, na raiz do repositório) contém todos os dados harmonizados.
+
+## Configuração (variáveis de ambiente)
+
+Todas opcionais, com defaults documentados:
 
 ```dotenv
-# Obrigatório
-MONGO_URI=mongodb://user:pass@host:27017/?authSource=admin
-IPT_FAUNA_URL=https://ipt.jbrj.gov.br/fauna/
-IPT_FLORA_URL=https://ipt.jbrj.gov.br/reflora/
-
-# Opcional — defaults documentados
-MONGO_DATABASE=dwc2json
-IPT_OCCURRENCES_CSV=data/occurrences.csv   # relativo a contextos/aquisicao/
-BULK_BATCH_SIZE=5000
-HTTP_TIMEOUT_MIN=30
-LOG_LEVEL=info                              # debug | info | warn | error
-LOG_FORMAT=text                             # text | json
-CACHE_DIR=                                  # deixe vazio para não cachear
+DB_PATH=./biodiversidade.duckdb     # caminho do arquivo DuckDB gerado
+IPT_SOURCES_CSV=./ipt_sources.csv   # registro único de fontes IPT
+BULK_BATCH_SIZE=5000                # tamanho de lote para escrita em massa
+HTTP_TIMEOUT_MIN=30                 # timeout HTTP por download, em minutos
+LOG_LEVEL=info                      # debug | info | warn | error
+LOG_FORMAT=text                     # text | json
+CACHE_DIR=                          # opcional — deixe vazio para não cachear downloads
 ```
 
-### Flags CLI comuns
+Não há mais `MONGO_URI`, `MONGO_DATABASE`, `IPT_FAUNA_URL`, `IPT_FLORA_URL` nem `IPT_OCCURRENCES_CSV`: o par fauna/flora e as 512 coleções de ocorrências vivem agora num único registro (`ipt_sources.csv`).
 
-```
---dry-run          Processa e valida sem gravar no MongoDB
---config <path>    Caminho alternativo para o .env (padrão: .env)
---log-level <lvl>  Sobrescreve LOG_LEVEL do .env
---version          Imprime versão e sai
-```
+## Fontes IPT (`ipt_sources.csv`)
 
-> Documentação completa em `contextos/aquisicao/bin/HELP.md` após compilar.
+Registro único na raiz do repositório, colunas `tipo,nome,repositorio,kingdom,tag,url`, onde `tipo` é `taxa` ou `ocorrencias`. Contagem atual (verificada em 2026-09-14): **514 fontes** — 2 do tipo `taxa` (Flora e Funga do Brasil, Catálogo Taxonômico da Fauna do Brasil) e 512 do tipo `ocorrencias` (INPA, MPEG, SIBBR, speciesLink e outras instituições).
 
-### Banco de Dados (`dwc2json`)
+## Banco de Dados (`biodiversidade.duckdb`)
 
-| Coleção | Conteúdo | Chave de upsert |
+Arquivo DuckDB local, gerado pela execução do script e **não versionado** (veja `.gitignore`). Esquema fixo em Darwin Core, não passthrough (ver [ADR 0003](docs/adr/0003-esquema-fixo-darwin-core.md)):
+
+| Tabela | Conteúdo | Chave |
 |---|---|---|
-| `taxa` | Espécie/sub-espécie/variedade/forma (fauna + flora) com extensões DwC-A mescladas | `taxonID` |
-| `occurrences` | Registros de ocorrência de 505+ IPTs | `occurrenceID` |
-| `ingest_runs` | Auditoria de cada execução (contadores, status, duração) | — |
+| `taxon` | Táxons-folha (fauna + flora) com colunas DwC fixas, `canonicalName`/`flatScientificName` computados, e colunas de proveniência (`datasetID`, `datasetName`, `ingestRunId`, `ingestedAt`) | `taxonID` |
+| `occurrence` | Registros de ocorrência das 512 fontes | `occurrenceID` |
+| `taxon_vernacular_name`, `taxon_distribution`, `taxon_species_profile`, `taxon_reference`, `taxon_types_and_specimen`, `taxon_resource_relationship` | Extensões DwC-A do táxon, normalizadas em tabelas próprias (ver [ADR 0004](docs/adr/0004-tabelas-normalizadas-para-extensoes.md)) | FK `taxonID` |
+| `ingest_runs` | Auditoria de cada execução por fonte: contadores, status, avisos, bookkeeping de versão para pular execuções repetidas | — |
 
-Campos injetados em todo documento: `_runId` (UUID v7), `source` (ex: `"fauna"`, `"inpa_acari"`), `ingestedAt` (timestamp UTC).
+Por que DuckDB em vez de SQLite: [ADR 0001](docs/adr/0001-duckdb-sobre-sqlite.md). Glossário de domínio completo em [`CONTEXT.md`](CONTEXT.md).
 
-> **Filtro de rank em `taxa`**: apenas táxons-folha (espécie, sub-espécie, variedade, forma — PT ou EN, case-insensitive) entram. Grupos supra-específicos (família, ordem, etc.) são rejeitados na ingestão.
-
-> **Extensões mescladas no documento `taxa`**: `distribution` (objeto), `vernacularname[]`, `speciesprofile`, `othernames[]` (sinonímias de `resourcerelationship`), `reference[]`, `typesandspecimen[]`. Campos computados: `canonicalName`, `flatScientificName`. Schema-alvo: [`contextos/aquisicao/docs/schema-dwc2json-taxa-mongoDBJSON.json`](contextos/aquisicao/docs/schema-dwc2json-taxa-mongoDBJSON.json).
-
-### Documentação
+## Documentação
 
 | Arquivo | Descrição |
 |---|---|
-| [`contextos/aquisicao/docs/funcionamento.md`](contextos/aquisicao/docs/funcionamento.md) | Pipeline de ingestão V7 (visão geral, parsing, filtragem, normalização) |
-| [`contextos/aquisicao/docs/atualizacao.md`](contextos/aquisicao/docs/atualizacao.md) | Procedimento operacional de atualização |
-| [`contextos/aquisicao/docs/esquema.md`](contextos/aquisicao/docs/esquema.md) | Diagrama Mermaid das fontes IPT |
-| [`contextos/aquisicao/docs/schema-dwc2json-taxa-mongoDBJSON.json`](contextos/aquisicao/docs/schema-dwc2json-taxa-mongoDBJSON.json) | Schema-alvo da coleção `taxa` |
-| [`contextos/aquisicao/docs/schema-dwc2json-ocorrencias-mongoDBJSON.json`](contextos/aquisicao/docs/schema-dwc2json-ocorrencias-mongoDBJSON.json) | Schema-alvo da coleção `occurrences` |
-| [`contextos/aquisicao/docs/legacy/`](contextos/aquisicao/docs/legacy/) | Docs V6 de contextos futuros (chat, dashboard, GH Actions) — referência histórica |
+| [`openwiki/quickstart.md`](openwiki/quickstart.md) | Ponto de entrada da wiki interna do repositório |
+| [`openwiki/architecture/pipeline.md`](openwiki/architecture/pipeline.md) | Modelo de execução do script único e seus pacotes internos |
+| [`openwiki/domain/data-flow.md`](openwiki/domain/data-flow.md) | Domínios de negócio, inventário de fontes e regras de harmonização |
+| [`openwiki/data-model/duckdb.md`](openwiki/data-model/duckdb.md) | Esquema DuckDB, semântica de upsert e auditoria |
+| [`openwiki/operations/cli.md`](openwiki/operations/cli.md) | Execução, variáveis de ambiente e build |
+| [`openwiki/testing.md`](openwiki/testing.md) | Cobertura de testes e verificação |
+| [`docs/adr/`](docs/adr) | Decisões de arquitetura registradas (DuckDB, script único, esquema fixo, tabelas de extensão) |
+| [`CONTEXT.md`](CONTEXT.md) | Glossário de domínio |
 
-### Estrutura do Repositório
+## Estrutura do Repositório
 
 ```
 /
-├── contextos/
-│   ├── aquisicao/                        # Contexto de Aquisição (Go module)
-│   │   ├── cmd/
-│   │   │   ├── update-fauna/             # Entry point: fauna
-│   │   │   ├── update-flora/             # Entry point: flora
-│   │   │   └── update-occurrences/       # Entry point: occurrences (505+ fontes)
-│   │   ├── internal/
-│   │   │   ├── config/                   # Carregamento e validação de .env
-│   │   │   ├── dwca/                     # Parser DwC-A (streaming, sem deps externas)
-│   │   │   ├── ingest/                   # Pipeline compartilhado + coerção de tipos
-│   │   │   ├── mongostore/               # Cliente MongoDB, upsert, delete-not-seen, auditoria
-│   │   │   ├── verbose/                  # Logger (slog) + tratamento de sinais
-│   │   │   └── version/                  # Versão injetável via ldflags
-│   │   ├── data/
-│   │   │   └── occurrences.csv           # CSV com 505+ fontes IPT para ocorrências
-│   │   ├── docs/                         # Documentação de aquisição
-│   │   ├── specs/
-│   │   │   └── 001-refactor-acquisition/ # Spec, plan, tasks e contratos da V7
-│   │   └── go.mod / go.sum              # Módulo Go
-│   └── comum/
-│       └── .env.example                  # Template de configuração compartilhado
-└── LICENSE                               # GPL v3
+├── main.go                    # Único ponto de entrada
+├── ipt_sources.csv            # Registro único de fontes IPT (taxa + ocorrências)
+├── biodiversidade.duckdb      # Gerado pela execução — não versionado
+├── internal/
+│   ├── config/                 # Carregamento e validação de variáveis de ambiente
+│   ├── dwca/                   # Download e parsing streaming de DwC-A
+│   ├── ingest/                 # Harmonização Darwin Core (filtro, normalização, coerção, merge)
+│   ├── duckstore/               # Escrita DuckDB: upsert, delete-not-seen, auditoria
+│   ├── verbose/                 # Logger + tratamento de sinais
+│   └── version/                 # Versão injetável via ldflags
+├── docs/
+│   └── adr/                    # Decisões de arquitetura (ADRs)
+├── openwiki/                   # Documentação interna navegável
+├── CONTEXT.md                  # Glossário de domínio
+└── go.mod / go.sum             # Módulo Go
 ```
 
-### Dependências Externas
-
-Apenas duas dependências diretas (FR-016):
-
-| Pacote | Versão | Uso |
-|---|---|---|
-| `go.mongodb.org/mongo-driver/v2` | v2.6.0 | Cliente MongoDB oficial |
-| `github.com/joho/godotenv` | v1.5.1 | Carregamento de `.env` |
-
-### Testes
+## Testes
 
 ```bash
-go test ./internal/...   # 11 testes unitários (dwca + ingest)
-go vet ./...             # análise estática
-```
-
----
-
-## Roadmap
-
-```
-V7.0  ✅  Aquisição — Go CLI (fauna, flora, 505+ ocorrências)
-V7.1  🔜  Curadoria — validação e correção taxonômica
-V7.2  🔜  Enriquecimento — status de ameaça, invasoras, UCs
-V7.3  🔜  Apresentação — Dashboard, ChatBB, REST API
+go test ./...    # testes unitários (dwca, ingest, duckstore)
+go vet ./...     # análise estática
 ```
 
 ---

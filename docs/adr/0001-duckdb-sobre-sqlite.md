@@ -1,0 +1,3 @@
+# DuckDB em vez de SQLite
+
+A diretriz global do autor prioriza SQLite, com exceção justificada para "volume/consultas que o SQLite não atenda bem". Este projeto grava e consulta dezenas de milhões de registros de ocorrência com padrão de acesso predominantemente analítico (agregações por táxon, filtros geográficos/temporais, joins taxa↔ocorrência). O motor colunar e vetorizado do DuckDB é sensivelmente mais rápido que o motor de linhas do SQLite para esse padrão, suporta tipos aninhados nativos (LIST) úteis para campos multivalorados das extensões de táxon, e continua sendo um único arquivo embarcado sem servidor — mesma simplicidade operacional do SQLite. Decisão tomada em sessão de grill com o autor em 2026-09-14.

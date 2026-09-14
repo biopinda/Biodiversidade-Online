@@ -1,0 +1,3 @@
+# Script único e sequencial em vez de três binários
+
+A versão anterior (V7, MongoDB) rodava três binários independentes (`update-fauna`, `update-flora`, `update-occurrences`) que podiam ser executados concorrentemente porque escreviam em um banco com múltiplos processos-escritores. Um arquivo DuckDB aceita apenas uma conexão de escrita por vez; execução concorrente contra o mesmo arquivo falharia ou corromperia o estado. Por isso o projeto passa a ter um único ponto de entrada (`main.go` na raiz) que processa fauna, flora e ocorrências em sequência, numa única conexão de escrita, com log verboso de progresso em cada etapa.
