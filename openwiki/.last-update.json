@@ -1,6 +1,0 @@
-{
-  "updatedAt": "2026-09-14T13:15:44.000Z",
-  "command": "docs-rewrite: single-context DuckDB pipeline (replaces MongoDB multi-context docs)",
-  "gitHead": "452dc284bc78a086b6372c1e20ba94dbdb0d0864",
-  "model": "openai/gpt-5.4-mini"
-}
