@@ -324,7 +324,6 @@ ocorrencias,ZUEC-POL - Coleção de Polychaeta do Museu de Zoologia da UNICAMP,s
 ocorrencias,ZUEC-POP - Coleção de Polyplacophora do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-pop,http://ipt1.cria.org.br/ipt/
 ocorrencias,ZUEC-POR - Coleção de Porifera do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-por,http://ipt1.cria.org.br/ipt/
 ocorrencias,ZUEC-REP - Coleção de Répteis do Museu de Zoologia da UNICAMP,speciesLink,Animalia,zuec-rep,http://ipt1.cria.org.br/ipt/
-ocorrencias,Acervo de Estruturas Calcificadas de Peixes - Collection of Fish Calcified Structures,taxonline,Animalia,ufpr_palotina_fishcast_001,https://ipt.sibbr.gov.br/taxonline/
 ocorrencias,Coleção Científica de Mastozoologia da UFPR,taxonline,Animalia,ufpr_mastologia_01,https://ipt.sibbr.gov.br/taxonline/
 ocorrencias,Coleção de Ascidiacea da Universidade Federal do Paraná,taxonline,Animalia,dzup_ascidiacea_01,https://ipt.sibbr.gov.br/taxonline/
 ocorrencias,Coleção de Carcinologia do Museu de Zoologia da UEL,taxonline,Animalia,mzuel_carcinologia_01,https://ipt.sibbr.gov.br/taxonline/
@@ -401,24 +400,19 @@ ocorrencias,Base de dados da Coleção Ictiológica do LEP-UFRRJ,sibbr,Animalia,
 ocorrencias,Coleção Acarológica do Instituto Butantan (IBSP),sibbr,Animalia,acarosibsp,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção Biológica do CEPSUL,sibbr,Animalia,cepsul_01,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Artropodofauna do Museu de Ciências Univates,sibbr,Animalia,univates_artropodofauna_01,https://ipt.sibbr.gov.br/sibbr/
-ocorrencias,Coleção de Aves da Unisinos,sibbr,Animalia,unisinos_aves_01,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Aves Heretiano Zenaide,sibbr,Animalia,aves_cahz_ufpb01,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Avifauna da UNIR,sibbr,Animalia,unir_avi01,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Herpetofauna do Museu de Ciências Univates,sibbr,Animalia,herpetologia_univates,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Ictiofauna do Museu de Ciências Univates,sibbr,Animalia,univates_ictiologia,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Ictiofauna Universidade Federal de Rondônia Brasil,sibbr,Animalia,ufro_ictiofauna,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Ictiologia ABAM do Campus Sinop da UFMT,sibbr,Animalia,ictiologia_abam,https://ipt.sibbr.gov.br/sibbr/
-ocorrencias,Coleção de Mamíferos da Unisinos,sibbr,Animalia,unisinos_mammalia_01,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Mamíferos da Universidade Estadual do Norte Fluminense,sibbr,Animalia,uenfmz,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Mamíferos da Universidade Federal de Lavras,sibbr,Animalia,ufla_mamiferos_01,https://ipt.sibbr.gov.br/sibbr/
-ocorrencias,Coleção de Mamíferos da Universidade Federal de Mato Grosso (UFMT) - Mammalia (via seca),sibbr,Animalia,mammalia_via_seca,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Mamíferos da Universidade Federal de Mato Grosso (UFMT) - Mammalia (via úmida),sibbr,Animalia,mammaliaumida,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Mamíferos da Universidade Federal do Espírito Santo (UFES-MAM),sibbr,Animalia,ufes_mam_01,https://ipt.sibbr.gov.br/sibbr/
-ocorrencias,Coleção de Mamíferos do Museu de Ciências Naturais da Universidade de Caxias do Sul,sibbr,Animalia,mamiferos_mucs,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Mastofauna do Museu de Ciências Univates,sibbr,Animalia,univates_mastologia_01,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Ornitofauna do Museu de Ciências Univates,sibbr,Animalia,univates_ornitologia,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Peixes da Universidade Federal do Tocantins,sibbr,Animalia,uft_unt_peixes_01,https://ipt.sibbr.gov.br/sibbr/
-ocorrencias,Coleção de Peixes do Museu de Ciências Naturais da Universidade de Caxias do Sul,sibbr,Animalia,ucs_peixes_01,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Tecidos Animais da Universidade Federal do Espírito Santo,sibbr,Animalia,ufes_tec_01,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção de Vertebrados da Universidade Federal de Mato Grosso (UFMT) - Lissamphibia,sibbr,Animalia,lissamphibia,https://ipt.sibbr.gov.br/sibbr/
 ocorrencias,Coleção Entomológica do Laboratório de Entomologia Integrativa (CELEI),sibbr,Animalia,unicamp_celei_01,https://ipt.sibbr.gov.br/sibbr/
@@ -513,3 +507,280 @@ ocorrencias,EFC - Escola de Florestas Curitiba - UFPR. JABOT - Banco de Dados da
 ocorrencias,MFS - Carpoteca - Fruto não Associado -  Herbário Profª. Drª. Marlene Freitas da Silva da Universidade Estadual do Pará. Jabot - Banco de Dados da Flora Brasileira,jabot,,mfsfrna,https://ipt.jbrj.gov.br/jabot/
 ocorrencias,GCPP - Herbário Prof. Geraldo Carlos Pereira Pinto. JABOT - Banco de Dados da Flora Brasileira.,jabot,,gcpp,https://ipt.jbrj.gov.br/jabot/
 ocorrencias,UFG - Herbário da Universidade Federal de Goiás - UFG. JABOT - Banco de Dados da Flora Brasileira.,jabot,,ufg,https://ipt.jbrj.gov.br/jabot/
+ocorrencias,Museu Paraense Emílio Goeldi - Paleoinvertebrate Collection,goeldi,,museu_paraense_emilio_goeldi-paleoinvertebrate_collection,https://ipt.sibbr.gov.br/goeldi/
+ocorrencias,Museu Paraense Emílio Goeldi - Paleovertebrate Collection,goeldi,,museu_paraense_emilio_goeldi-paleovertebrate_collection,https://ipt.sibbr.gov.br/goeldi/
+ocorrencias,Museu_Paraense_Emilio_Goeldi_Microfosseis_Collection,goeldi,,museu_paraense_emilio_goeldi_microfosseis_collection,https://ipt.sibbr.gov.br/goeldi/
+ocorrencias,R-Tipos - Herbário do Museu Nacional - Tipos,mnrj,,r_tipos,https://ipt.sibbr.gov.br/mnrj/
+ocorrencias,Base de dados de Fungi do Herbário R do Museu Nacional,mnrj,,herbarior_fungi,https://ipt.sibbr.gov.br/mnrj/
+ocorrencias,Base de dados de Algae do Herbário R do Museu Nacional,mnrj,,herbarior_algae,https://ipt.sibbr.gov.br/mnrj/
+ocorrencias,R-Bryophyta - Herbário do Museu Nacional - Bryophyta,mnrj,,mnrj_herbarior_briophyta,https://ipt.sibbr.gov.br/mnrj/
+ocorrencias,R-Criptogamos - Herbário do Museu Nacional - Criptogamos,mnrj,,r_criptogamos,https://ipt.sibbr.gov.br/mnrj/
+ocorrencias,Herbário do Museu Nacional,mnrj,,mnrj_herbarior,https://ipt.sibbr.gov.br/mnrj/
+ocorrencias,R - Herbário do Museu Nacional,mnrj,,r_herbario,https://ipt.sibbr.gov.br/mnrj/
+ocorrencias,Coleção de virus do IDR - Paraná,taxonline,,idr_pr_virologia_01,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,Coleção de Insetos do Museu de Zoologia da UEL,taxonline,,mzuel_insetos_01,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,Coleção de Vírus de Batata Doce do laboratório de virologia do IDR-PR,taxonline,,batatadoce,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,Coleção de Foramíniferos do Museu de Ciências Naturais da UFPR,taxonline,,ufpr_lafma_01,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,Coleção de Cultura de Microrganismos de Importância Biotecnológica e Ambiental da Unila,taxonline,,unila_ccmiba_01,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,Coleção de CABMV do laboratório de virologia do IDR-PR,taxonline,,virologia_idr_cabmv,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,Coleção de MRFV de virologia do IDR-PR,taxonline,,virologiaidr_mrfv_2022,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,Coleção de Vírus de Uva do laboratório de virologia do IDR-PR,taxonline,,uva,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,Coleção de Tomate Virus do laboratório de virologia do IDR-PR,taxonline,,catalogotomatevirus,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,Coleção de Curtobacterium do laboratório de Micologia do IDR-PR,taxonline,,cffeijao,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,Coleção de Paleontologia do Museu de História Natural Capão da Imbuia,taxonline,,paleontologia_mhnci_01,https://ipt.sibbr.gov.br/taxonline/
+ocorrencias,CAJ | Plano de Ação para a Biodiversidade - Estação de Tratamento de Água (ETA) Piraí Sul,sibbr,,pabps,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,ESALQ | Dados da espécie do gênero Dactylomys,sibbr,,dactylomys_lama_esalq_usp,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"Coleção Zoológica do IBGE, Sub-Coleção de Aves",sibbr,,ibge-aves,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Culturas de Bactérias do LACOMEN - CCBL,sibbr,,ccbroa,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Uropygi da Universidade do Amapá,sibbr,,uropygi07dejulhode2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,GBIF | Dados repatriados do Brasil sob licença CC0,sibbr,,repatriados_brasil_cco_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Phasmatodea da Universidade Federal do Amapá,sibbr,,colearthro_phasmatodea,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Zooplâncton Marinho da ColBIO (IOUSP),sibbr,,zooplancton_colbio_iousp_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Jarivatuba Abril 2026,sibbr,,fauna_aquatica_etejarivatuba_abril2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"FIOCRUZ | Levantamento de flebotomíneos da Terra Indígena Wajãpi, Amazônia Oriental, Brasil",sibbr,,fiocruz_sf_wajapi,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Avifauna - ETE Vila Nova - Junho 2026,sibbr,,avifauna_etevilanova_junho2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos dados sobre a Biodiversidade Brasileira 2022  - Anfíbios,sibbr,,ibge_anfibios_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Monitoramento de fauna da Rede Nacional de Vigilância de vírus em animais silvestres (PREVIR-MCTI). Observatório de Aves e Morcegos em Pernambuco (PE-1),sibbr,,mcti_previr_pernambuco_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica | Levantamento intensivo da biodiversidade por sequenciamento de DNA Ambiental (eDNA),sibbr,,edna_conexao_mata_atlantica_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"IVB | Coleção de Repteis do Projeto Biota Rio Herpetofauna de Nova Friburgo, Rio de Janeiro - Brasil",sibbr,,reptillia_instituto_vital_brazil,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE ESPINHEIROS - Julho 2024,sibbr,,caj_monitoramento_espinheiros_julho24,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Malacofauna do Museu de Ciências naturais da UCS,sibbr,,ucs_malacologia_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Inventário florestal Reservatório R7 out 2025,sibbr,,cajreservatorior7out2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UNIFESP | Aranhas de teia-orbicular do Parque ecologico Imigrantes,sibbr,,teia_orbicular_pei,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"ENGIE | Fauna's Rescue Program - Santo Agostinho Wind Farm, Rio Grande do Norte - Brazil",sibbr,,prima_ambiental_cear_resgate_fauna_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IHUMANIZE | Amostragem de mamiferos não voadores fazenda Bananal no Rio de Janeiro – Brasil,sibbr,,ihumanize_butantan_mamiferos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Dados de ocorrência da herpetofauna (exceto quelônios) ameaçada de extinção no estado de Pernambuco (Avaliação nacional e estadual),sibbr,,cprh_pe_ameaca_herpetofauna_2017_occs,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,INPA | Inventário florístico de 20 parcelas permanentes estabelecidas em áreas de savana do norte da Amazônia brasileira,sibbr,,savana_floristica,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UFSCar | Odonata survey in Atlantic Forest Conservation Units in southeastern Brazil,sibbr,,ufscar_lea_odonata_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Rio de Janeiro - Campanha 05,sibbr,,conexao_rj_05,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Rio de Janeiro - Campanha 06,sibbr,,conexao_rj_06,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Rio de Janeiro - Campanha 03,sibbr,,conexao_rj_03,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Rio de Janeiro - Campanha 04,sibbr,,conexao_rj_04,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Rio de Janeiro - Campanha 01,sibbr,,conexao_rj_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Rio de Janeiro - Campanha 02,sibbr,,conexao_rj_02,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Anfíbios da Universidade Federal de Juiz de Fora,sibbr,,ufjf_anfibios_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"DNA metabarcoding of soil eDNA samples for monitoring plant diversity in the Amazon canga of Serra dos Carajás (Pará, Brazil).",sibbr,,soil-plants-metabarcoding-canga,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos Dados sobre a Biodiversidade Brasileira 2022  - Plantas Vasculares (Parte 4 de 4),sibbr,,ibge_plantas_vasc_04,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos Dados sobre a Biodiversidade Brasileira 2022  - Plantas Vasculares (Parte 3 de 4),sibbr,,ibge_plantas_vasc_03,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos Dados sobre a Biodiversidade Brasileira 2022  - Plantas Vasculares (Parte 2 de 4),sibbr,,ibge_plantas_vasc_02,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos Dados sobre a Biodiversidade Brasileira 2022  - Plantas Vasculares (Parte 1 de 4),sibbr,,ibge_plantas_vasc_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Psocoptera da Universidade Federal do Amapá,sibbr,,colearthro_psocoptera,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Jardim Paraíso - Abril 2026,sibbr,,fauna_aquatica_ete_jardim_paraiso_abril2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Plano de Ação para a Biodiversidade na Estação de Tratamento de Esgoto (ETE) Vila Nova,sibbr,,pab-vila,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Espinheiros - Janeiro 2026,sibbr,,fauna_aquatica_espinheiros_jan2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Amphipoda da Universidade do Amapá,sibbr,,amphipoda07dejulhode2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Araneae da Universidade Federal do Amapá,sibbr,,colearthro_araneae-unifap,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Cladocera da Universidade Federal do Amapá,sibbr,,colearthro_cladocera_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Unimontes | Host plants of galling insects of the Brazilian Cerrado,sibbr,,unimontes_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"FIOCRUZ | Accessing the sand fly diversity in caves of Tocantins, Northern Brazil: species delimitation using COI DNA barcoding",sibbr,,sf_tocantins,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção Ecológica de Entomologia do ICTBio,sibbr,,ictbio_cee_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Spider Webs as eDNA Biosensors: Detection of Potential Disease Reservoir Hosts in Tropical Regions,sibbr,,metabarcoding_of_bulk_samples_and_edna_from_vertebrate_spider_webs,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"FIOCRUZ | Sand fly (Diptera: Psychodidae: Phlebotominae) records in Acre, Brazil: A literature Review",sibbr,,literature_review_sandflies_acre,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Ictioplâncton Marinho da ColBIO (IOUSP) - Ordem Elopiformes,sibbr,,colbio,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Jardim Paraíso - Julho 2026,sibbr,,fauna_aquatica_etejardimparaisojul2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,MATI | Amostragem de vegetação alagável nas áreas de piracema monitoradas pelas comunidades Ribeirinhas da VGX,sibbr,,mati_vegetacao_alagavel_riberinhos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos dados sobre a Biodiversidade Brasileira 2022  - Répteis,sibbr,,ibge_repteis_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Ictioplâncton Marinho da ColBIO (IOUSP) - Ordem Notacanthiformes,sibbr,,notachantiformes,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UnB | Conteúdo intestinal de coccinelídeos em áreas de plantio orgânico de brássicas do DF,sibbr,,unb_lecoi_coccinelidae,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UFMG | Hybrid manatee genomics 2026 -01,sibbr,,ufmg_hyb_manatees_2026_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"Biota | American Manatee (Trichechus manatus) strandings in Alagoas, Brazil",sibbr,,biota_manatee_strandings,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Inventário Florestal da Estação de Tratamento de Água Piraí -  Julho/2025,sibbr,,inventariopiraijulho,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Vila Nova - Jan 2026,sibbr,,fauna_aquatica_ete_vila_nova_jan_2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Agência Pick-upau | Avifauna do Projeto Aves da Agência Pick-upau,sibbr,,pick_upau_aves_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Palpygradi da Universidade Federal do Amapá,sibbr,,colearthro_palpygradi,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Terrestre - ETA PIRAÍ SUL - MARÇO 2026,sibbr,,cajmonitoramentodefaunaetapiraisulmarco2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Inventário Florestal da Estação de Tratamento de Água Piraí,sibbr,,inventario_florestal_eta_pirai,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"UCR | Sampling of Agonostomus monticola (Mugilidae) and Brycon behreae (Characidae) from the Térraba river, Costa Rica",sibbr,,costarica_terraba01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,DGGE analysis of the structure of fungal communities associated to leaf litter and the gut of larvae of Triplectides (Trichoptera: Leptoceridae) in Atlantic Forest streams,sibbr,,uft_dggeofguttriplectides_atlanticforest_brazil,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção Micológica do Herbário UB da Universidade de Brasília,sibbr,,unb_micologia_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de  Isopoda da Universidade Federal do Amapá,sibbr,,colearthro_isopoda,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Akodon cursor individuals involved in experimental crosses at the Animal Genetics Laboratory (LGA) of the Federal University of Espírito Santo (UFES),sibbr,,ufes_akodon_2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Pseudoescorpionida da Universidade Federal do Amapá,sibbr,,colearthro_pseudoescorpionida,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção Entomológica Alfred R Wallace do IFRS - Campus Rolante,sibbr,,ifrs_entomologia_rolante_02,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Diplopoda da Universidade Federal do Amapá,sibbr,,colearthro_diplopoda,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Collembola da Universidade Federal do Amapá,sibbr,,colearthro_collembola_unifap_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção Acarológica do CCT UFMG,sibbr,,ufmg_cct_ac_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,iNaturalist | Observações com Nível de Pesquisa do Brasil - Licença CC BY-NC,sibbr,,brasil_inaturalist_01_ccbync,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,SEAPI- Coleção SEMIA de Rizóbios,sibbr,,seapi_semia,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Aves da UNISINOS,sibbr,,colecao_aves_unisinos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - Espinheiros - Setembro 2025,sibbr,,fauna_aquatica_espinheiros_set2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"INPA | Tree species composition in ecotone forests of the eastern Maracá Island, Roraima, northern Brazilian Amazonia: preliminary data",sibbr,,maraca_comp_floristic,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,NEOTROPICAL XENARTHRANS: a data set of occurrence of xenarthran species in the Neotropics,sibbr,,neotropical-xenarthrans,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - Fitoplâncton - 2023 - [ 2024 (01/24 - 07/24) ],sibbr,,cajfitomoni,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UnB | Registros de mastofauna do PPG-Ciências Ambientais,sibbr,,rfppgca_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento de Avifauna - ETA PIRAÍ - Julho de 2026,sibbr,,avifauna_ete_vilanova_06_2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Avifauna - ETE Vila Nova - Dezembro 2025,sibbr,,caj_monitoramento_da_avifauna_ete_vila_nova_dezembro_de_2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Avifauna - ETA PIRAÍ - Setembro 2025,sibbr,,avifauna_setembro_set2025_pirai,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"ENGIE | Fauna's Rescue Program – Serra do Assuruá Wind Complex, Bahia - Brazil",sibbr,,prima_ambiental_cear_resgate_fauna,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Inventário da Fauna do Município de Araraquara,sibbr,,fauna_do_municipio_de_araraquara-sp,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,ATLANTIC-CAMTRAPS: a dataset of medium and large terrestrial mammal communities in the Atlantic Forest of South America,sibbr,,atlantic-camtraps,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Jardim Paraíso - Janeiro 2026,sibbr,,fauna_aquatica_jardimparaiso_jan2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Monitoramento de fauna da Rede Nacional de Vigilância de vírus em animais silvestres (PREVIR-MCTI). Observatório de Morcegos no Pantanal (MT-1),sibbr,,mcti_previr_mt_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Monitoramento de fauna da Rede Nacional de Vigilância de vírus em animais silvestres (PREVIR-MCTI). Observatório de Aves no Pantanal (MT-2),sibbr,,mcti_previr_mt_02,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Onçafari | Registros de felinos de médio e grande porte da fazenda Caiman (MS) de Janeiro de 2025 a Maio de 2026,sibbr,,caiman_felids,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,ProBiodiversa | Espécies arbóreas raras e ameaçadas da Bacia do Rio Doce: seleção e caracterização funcional para estratégias de conservação e translocação,sibbr,,ufv_especies_veg_rio_doce_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,FMA | Released American manatees (Trichechus manatus) in Brazil,sibbr,,fma_telemetry_reab_release,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos Dados sobre a Biodiversidade Brasileira 2022  - Aves (Parte 2 de 5),sibbr,,ibge_aves_02,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos Dados sobre a Biodiversidade Brasileira 2022  - Aves (Parte 3 de 5),sibbr,,ibge_aves_03,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos Dados sobre a Biodiversidade Brasileira 2022  - Aves (Parte 1 de 5),sibbr,,ibge_aves_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Herpetologia do Museu de Fauna da UNIVASF,sibbr,,univasf_mfch_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos dados sobre a Biodiversidade Brasileira 2022  - Peixes Ósseos,sibbr,,ibge_peixes_osseos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos Dados sobre a Biodiversidade Brasileira 2022  - Aves (Parte 4 de 5),sibbr,,ibge_aves_04,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos Dados sobre a Biodiversidade Brasileira 2022  - Aves (Parte 5 de 5),sibbr,,ibge_aves_05,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,MATI | Amostragem de vegetação alagável nas áreas de piracema monitoradas pelos indígenas da terra indígena Paquiçamba da VGX,sibbr,,mati_vegetacao_alagavel_indigenas_03,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"ENGIE | Flora's Rescue Program - Santo Agostinho Wind Farm, Rio Grande do Norte - Brazil",sibbr,,prima_ambiental_cear_resgate_flora_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos dados sobre a Biodiversidade Brasileira 2022  - Artrópodes,sibbr,,ibge_artropodes_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"Base de dados repatriados do tropicos,org",sibbr,,tropicos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de chilopoda da Universidade Federal do Amapá,sibbr,,colearthro_chilopoda,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Opiliones da Universidade Federal do Amapá,sibbr,,colearthro_opiliones,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Mamíferos da Universidade Estadual de Goiás,sibbr,,colecao_mamiferos_ueg,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Monitoramento de fauna da Rede Nacional de Vigilância de vírus em animais silvestres (PREVIR-MCTI). Observatório de Aves e Morcegos em Rondônia (RO-2),sibbr,,mcti_previr_rondonia_02,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Monitoramento de fauna da Rede Nacional de Vigilância de vírus em animais silvestres (PREVIR-MCTI). Observatório de Aves e Morcegos em Rondônia (RO-1),sibbr,,mcti_previr_rondonia_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"ENGIE | Fauna's Surveillance Program - Santo Agostinho Wind Farm, Rio Grande do Norte - Brazil",sibbr,,prima_ambiental_cear_monitoramento_fauna_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Decapoda da Universidade Federal do Amapá,sibbr,,colearthro_decapoda,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos dados sobre a Biodiversidade Brasileira 2022  - Mamíferos,sibbr,,ibge_mamiferos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Referência de Fauna de Solo,sibbr,,crfs-ibs,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"Conexão Mata Atlântica | Registro de Mamíferos, Aves e Répteis com Câmera Trap (2018-2019) - São Paulo",sibbr,,conexao_mata_atlantica_camera_trap_sp,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento Da Avifauna ETE Vila Nova - Campanha 2 - Dezembro de 2024,sibbr,,avifauna_etevilanova,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,FIOCRUZ | Cryptic taxa in the morphospecies Bichromomyia flaviscutellata uncovered by expanded geographic sampling and COI DNA barcodes,sibbr,,fiocruz-flaviscutellata-taxonomy,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Embrapa Pecuária Sul - Herbário CNPO,sibbr,,embrapacppsul_herbariocnpo,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"UFPA | Inventory of Fish Taxa Based on Bulk Fish Diet Samples from the Capim River Basin (Pará, Brazil)",sibbr,,edna-diet-samples,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Inventário Florestal para os acessos aos pontos de captação de água bruta - ETA Piraí,sibbr,,inv_florestal_acesso_captacao_pirai,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Herbário Delta  Do ParnaÍba (HDELTA) - UFPI,sibbr,,hdelta_28,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - Macrofauna Bentônica - 2023 - [ 2024 (01/24 - 07/24) ],sibbr,,macrofaunacaj,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - Vila Nova - Abril 2026,sibbr,,fauna_aquatica_ete_vilanova_abril2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Vila Nova - Julho 2026,sibbr,,fauna_aquatica_ete_vila_nova_jul2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"Coleção Zoológica do IBGE, Sub-Coleção de Mamíferos",sibbr,,mamiferos-ibge,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,BioMA | Strandings of manatee calves found in news reports from Pará State,sibbr,,bioma_peixeboi_newsreport,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"UFPR | Sciopemyia sordellii in the Neotropical region: distribution, biology, and ecology",sibbr,,sciopemyia_sordellii_dataset_distribution,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos dados sobre a Biodiversidade Brasileira 2022  - Moluscos,sibbr,,ibge_moluscos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"IVB | Coleção de Anfíbios do Projeto Biota Rio Herpetofauna de Nova Friburgo, Rio de Janeiro - Brasil",sibbr,,amphibia_nova_friburgo_1,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Siphonaptera da Universidade do Amapá,sibbr,,siphonaptera07dejulhode2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Updated Species List of Medium and Large Mammals in Itatiaia National Park - Rio de Janeiro - Brazil,sibbr,,itatiaia_mammals,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Herbário Campus Floresta da UFAC,sibbr,,herbario_campusfloresta_ufac_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Agência Pick-upau | Coleção de Exsicatas da Pick-upau,sibbr,,pick_upau_exsicatas_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Symphyla da Universidade do Amapá,sibbr,,symphyla07dejulhode2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"AMAZONIA CAMTRAP: a dataset of mammal, bird and reptile species recorded with camera traps in the Amazon forest",sibbr,,amazonia-camtrap-mammal-bird-and-reptile,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Mamíferos da UNISINOS,sibbr,,colecao_mamiferos_unisinos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Avifauna - ETA PIRAÍ - ABRIL 2026,sibbr,,avifauna_etapiraiabr2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Jaguar Movement Database: a GPS-based movement dataset of the apex predator in Neotropics,sibbr,,rede_felinos_felidae_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UEL - Coleção Ficológica da Universidade Estadual de Londrina (FUEL-Algae),sibbr,,uel_fuel_algae,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento Da Avifauna ETA Piraí - Campanha 1 - Outubro de 2024,sibbr,,avifauna_pirai,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - São Paulo - Campanha 06,sibbr,,conexao_sp_06,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - São Paulo - Campanha 05,sibbr,,conexao_sp_05,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - São Paulo - Campanha 04,sibbr,,conexao_sp_04,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - São Paulo - Campanha 03,sibbr,,conexao_sp_03,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - São Paulo - Campanha 02,sibbr,,conexao_sp_02,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - São Paulo - Campanha 01,sibbr,,conexao_sp_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento de fauna aquática ETE VILA NOVA - outubro 2025,sibbr,,fauna_aquatica_ete_vila_nova_out_2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UFMG | Morphometric measures from birds in the Serra do Cipo National Park (1999-2009) - Minas Gerais,sibbr,,morphometris_measures_birds,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,GBIF | Dados repatriados do Brasil sob licença CC BY - NC,sibbr,,repatriados_brasil_ccbync_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Ictioplâncton Marinho da ColBIO (IOUSP) - Ordem Anguilliformes,sibbr,,colbio_ip,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Minas Gerais - Campanha 06,sibbr,,conexao_mg_06,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Minas Gerais - Campanha 05,sibbr,,conexao_mg_05,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"Coleção Zoológica do IBGE, Sub-Coleção de Insetos",sibbr,,ibge_entomo,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Minas Gerais - Campanha 04,sibbr,,conexao_mg_04,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Minas Gerais - Campanha 03,sibbr,,conexao_mg_03,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UMC | Coleções Formigas de Galhos do Laboratório de Abelhas e Mirmecologia do Alto Tietê Formigas de Galhos do Laboratório de Abelhas e Mirmecologia do Alto Tietê,sibbr,,formigas_lamat_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Minas Gerais - Campanha 02,sibbr,,conexao_mg_02,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Conexão Mata Atlântica - Monitoramento Ecossistêmico - Fauna e Flora - Minas Gerais - Campanha 01,sibbr,,conexao_mg_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,TNE | Dados do Programa de Resgate e Afugentamento de Fauna da Linha de Transmissão 500 kV Manaus – Boa Vista,sibbr,,transnorte_resgate_afugentamento,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Acari da Universidade Federal do Amapá,sibbr,,unifap_acari_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Anelídeos Poliquetas do Instituto Oceanográfico da USP (ColBIO),sibbr,,annelida_colbio_iousp_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Monitoramento de fauna da Rede Nacional de Vigilância de vírus em animais silvestres (PREVIR-MCTI). Observatório de Aves e Morcegos em Santa Catarina (SC-1),sibbr,,mcti_previr_santa_catarina_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento de Avifauna - ETA PIRAÍ - Julho 2025,sibbr,,fauna_aquatica_pirai_jul2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,BioMA | Strandings of manatee calves reported by local people in Pará State,sibbr,,bioma_peixeboi_localpeople,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Répteis da Universidade Federal de Juiz de Fora,sibbr,,ufjf_repteis_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,MATI | Monitoramento Participativo dos Tracajás pelas Comunidades Indígenas da VGX,sibbr,,mati_tracaja_indigena_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"FIOCRUZ | Geographical distribution of American cutaneous leishmaniasis and its phlebotomine vectors (Diptera: Psychodidae) in the state of São Paulo, Brazil",sibbr,,fiocruz_sf_sp,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Thysanura da Universidade Federal do Amapá,sibbr,,thysanura10dejulhode2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"ENGIE | Fauna's Surveillance Program – Assú Sol Photovoltaic Complex, Rio Grande do Norte - Brazil",sibbr,,prima_ambiental_asl_monitoramento_fauna,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Projeto Abrace o Boto Cinza,sibbr,,ibc_projeto_abrace_o_boto_cinza,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,FIOCRUZ | Ecological study of phlebotomine sand flies (Diptera: Psychodidae) collected in the region of the São Manoel hydroelectric power plant,sibbr,,fiocruz_sf_hydroelectric_amz,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETA PIRAI SUL - JAN 2026,sibbr,,fauna_aquatica_etapiraisul_jan_2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Culturas de Fungos Xilófagos,sibbr,,fungos_xiolofagos_lpf,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Ephemeroptera da Universidade Federal do Amapá,sibbr,,ephemeroptera_unifap30dejaneirode2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Agência Pick-upau | Coleção de sementes da Pick-upau,sibbr,,pick-upau_sementes_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Jarivatuba - Outubro 2025,sibbr,,faunaaquaticajarivatubaoutubro2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Cirripedia da Universidade Federal Fluminense,sibbr,,colecao_cirripedia_uff,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Paleobotânica do Museu de Ciências Univates,sibbr,,paleontobotanica_univates,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE espinheiros - Novembro 2024,sibbr,,fauna_aquatica_espinheiros_nov2024,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Espinheiros - Novembro 2025,sibbr,,fauna_aquatica_espinheiros_nov2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,TRADITION Project | Brazilian Zooarch Database (ZooarchBR) - Fish,sibbr,,tradition_peixes_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Sessilia da Universidade Federal do Amapá,sibbr,,colearthro_sessilia,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Plano de Ação para a Biodiversidade na Estação de Tratamento de Água (ETA) Piraí,sibbr,,pab-eta-pirai,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"ENGIE | Flora's Rescue Program – Assú Sol Photovoltaic Complex, Rio Grande do Norte - Brazil",sibbr,,prima_ambiental_asl_resgate_flora,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento Da Avifauna ETE Vila Nova - Campanha 1 - Setembro de 2024,sibbr,,avifaunavn,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Organismos Bentônicos Antárticos da ColBIO - IOUSP,sibbr,,org_bentonicos_antarticos_colbio_iousp_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Monitoramento de fauna da Rede Nacional de Vigilância de vírus em animais silvestres (PREVIR-MCTI). Observatório de Aves e Morcegos no Amazonas (AM-1),sibbr,,mcti_previr_amazonia_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Ictioplâncton Marinho do Instituto Oceanográfico da USP (ColBIO) - Albuliformes,sibbr,,iousp_colbio_ictioplancton_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Inventário Florestal do Emissário da Estação de Tratamento de Esgoto Vila Nova,sibbr,,inv_vn_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"FIOCRUZ | Levantamento de flebotomíneos da Terra Indígena Suruwaha, Sul do Amazonas, Brasil",sibbr,,fiocruz_sf_suruwaha,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Inventario Florestal - ETA PIRAI SUL - Novembro 2025,sibbr,,caj_etapiraisul_inventarioflorestal_novembro2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,INPA | Tree species composition of natural forest islands in a savanna matrix in the northern Brazilian Amazonia,sibbr,,forest-island_floristic,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,iNaturalist | Observações com Nível de Pesquisa do Brasil - Licença CC-BY,sibbr,,brasil_inaturalist_01_ccby,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Copepoda da Universidade Federal do Amapá,sibbr,,colearthro_copepoda,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Agência Pick-upau | Coleção de madeiras (Xiloteca) do Projeto Darwin,sibbr,,pick_upau_xiloteca_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Dermaptera da Universidade Federal do Amapá,sibbr,,colearthro_dermaptera,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Avifauna ETA Piraí - Abril 2025,sibbr,,avifauna_eta_pirai_abril_2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Phtiraptera da Universidade Federal do Amapá,sibbr,,phtiraptera01dejulhode2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Espinheiros - 2024 - Campanha XI - Setembro,sibbr,,ete_espinheiros_fauna_aquatica,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,iNaturalist | Observações com Nível de Pesquisa do Brasil - Licença CC0,sibbr,,brasil_inaturalist_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Aves do Museu de Ciências da Universidade de Caxias do Sul,sibbr,,ucs_aves_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Microrganismos Funcionais de Biomas Brasileiros,sibbr,,biotrop_cmfbb_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Scorpiones da Universidade Federal do Amapá,sibbr,,scorpiones-13-de-janeiro-de-2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,MATI | Monitoramento Participativo da caça pelas Comunidades Indígenas da VGX,sibbr,,mati_captura_indigena_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Blattodea da Universidade Federal do Amapá,sibbr,,colearthro_blattodea,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção Entomológica UFFS-RE,sibbr,,uffs-re_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Coleoptera da Universidade Federal do Amapá,sibbr,,coleoptera11dejulhode2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,MATI | Monitoramento Participativo da Pesca Ribeirinhos da VGX,sibbr,,mati_pesca_ribeirinhos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"Aquasis | American manatees strandings in Ceará State, Brazil",sibbr,,aquasis_americanmanatee_strandings,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Vila Nova - 2024 - Campanha VIII - Outubro,sibbr,,vilanova_ictio,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,BRAZIL ROAD-KILL: a dataset of wildlife terrestrial vertebrate road-kills,sibbr,,brazil-road-kill,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Jardim Paraíso - Outubro 2025,sibbr,,faunaaquatica_jardimparaiso_outubro2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"Coleção Entomológica Mítia Heusi Silveira, Universidade Federal de Santa Catarina - Acervo Diptera",sibbr,,diptera_ufsc_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UFBA | Monitoramento da macrofauna bentônica dos estuários da Baía de Todos os Santos,sibbr,,ufba_leb_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Jarivatuba - 2024 - Campanha VIII - Outubro,sibbr,,etejarivatubaictio,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UFS | Coleção de Paleontologia,sibbr,,colecao_paleontologia_lpufs,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Monitoramento fauna e flora Mineração Vale Verde do Brasil Ltda.,sibbr,,vale_verde_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Orthoptera da Universidade Federal do Amapá,sibbr,,colearthro_orthoptera,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"ENGIE | Flora's Rescue Program - Serra do Assuruá Wind Complex, Bahia - Brazil",sibbr,,prima_ambiental_cear_resgate_flora,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Mamíferos da Universidade Federal de Mato Grosso (UFMT) - Mammalia (via seca),sibbr,,ufmt_mamalia_seca_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UnB | Pólen de ninhos de Melipona quadrifasciata em áreas de plantio orgânico de tomate do DF,sibbr,,unb_lecoi_polen_mquadrifasciata,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,NEOTROPICAL ALIEN MAMMALS: a data set of occurrence and abundance of alien mammals in the Neotropics,sibbr,,neotropical-alien-mammals,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,INPA | Coleção de Macrofungos do grupo de Pesquisa Cogumelos da Amazônia,sibbr,,colecao_macrofungo_inpa,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,MATI | Monitoramento Participativo da pesca pelas Comunidades Indígenas da VGX,sibbr,,mati_pesca_indigena_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"FIOCRUZ | Phlebotomine sand flies (Diptera, Psychodidae) of the world",sibbr,,sf_world_checklist,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Ictiofauna do Museu de Ciências Naturais da Universidade de Caxias do Sul,sibbr,,ucs_colecao_peixes,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - Zooplâncton - 2023 - [ 2024 (01/24 - 07/24) ],sibbr,,cajzoomoni,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETA Piraí Sul - Outubro 2025,sibbr,,fauna_aquatica_piraisul_out2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Amblypygi da Universidade Federal do Amapá,sibbr,,colearthro_amblypygi,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UFSC | NONATObase: a database for Polychaeta (Annelida) from the Southwestern Atlantic Ocean,sibbr,,nonatobase,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Inventário Florestal SES Morro Do Meio dez 2025,sibbr,,inventarioflorestalsesmorrodomeiodez2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE ESPINHEIROS JUL 2026,sibbr,,fauna_aquatica_espinheiros_jul2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"Biota | American Manatee (Trichechus manatus) sightings in Alagoas, Brazil",sibbr,,biota_manatee_sightings,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - Ictiofauna - 2023 - [ 2024 (01/24 - 07/24) ],sibbr,,ictiocajmoni,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Avifauna - ETA PIRAÍ - JANEIRO 2026,sibbr,,avifauna_etapiraijan2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Inventário Florestal da Estação de Tratamento de Água Piraí Sul,sibbr,,invpsul,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Aquasis | American manatee (Trichechus manatus) sightings in Northeastern Brazil,sibbr,,aquasis_manateesightingsnebrazil,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Jarivatuba - Julho 2026,sibbr,,fauna_aquatica_jarivatuba_junho2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,IBGE | Avaliação dos dados sobre a Biodiversidade Brasileira 2022  - Fungos,sibbr,,ibge_fungos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção ANIME da Fundação de Medicina Tropical Doutor Heitor Vieira Dourado,sibbr,,fmt_hvd_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção Entomológica da Embrapa Florestas,sibbr,,embrapa_florestas_entomo_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Hymenoptera Formicidae da Universidade Federal do Amapá,sibbr,,hymenoptera_formicidae10dejulhode2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,GBIF | Dados repatriados do Brasil sob licença CC BY,sibbr,,repatriados_brasil_ccby_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,NEOTROPICAL CARNIVORES: a data set on carnivore distribution in the Neotropics,sibbr,,felinos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Ornitologia do Museu de Fauna da UNIVASF,sibbr,,univasf_mfco_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Herpetofauna do Museu de Ciências da Universidade de Caxias do Sul,sibbr,,ucs_herpetologia_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"FIOCRUZ | Bartonella spp. in sand flies (Diptera, Psychodidae, Phlebotominae) from Brazil",sibbr,,bartonella_detection_sf,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento Da Avifauna ETE Vila Nova Julho de 2025,sibbr,,avifauna_eta_pirai_julho_2025,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,FIOCRUZ | Molecular and morphometric study of Brazilian populations of Psychodopygus davisi,sibbr,,fiocruz_sf_davisi,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Mamíferos do Museu de Ciências Naturais da Universidade de Caxias do Sul,sibbr,,ucs_mamiferos_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UNIFAP | Coleção de Apidae da UNIFAP,sibbr,,apidaeunifap04demaiode2026,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"BaMBa | Fish biodiversity of the Vitória-Trindade Seamount Chain, Southwestern Atlantic: an updated database",sibbr,,bamba_fish_seamount,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,UFPA | Coleção de Invertebrados Marinhos da UFPA,sibbr,,colecao_invertebrados_marinho,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,"Inventory of Fish Taxa from Water eDNA Samples in the Capim River Basin (Pará, Brazil)",sibbr,,edna-water-samples,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,INPA | Tree species composition in different habitats of savanna used by indigenous in the Northern Brazilian Amazonia,sibbr,,darora_floristic_rr,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Coleção de Peixes da Universidade Estadual do Piaui (UESPIPHB),sibbr,,uespi_col_peixes_01,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,CAJ | Monitoramento da Fauna Aquática - ETE Jardim Paraíso - 2024 - Campanha VIII - Outubro,sibbr,,jardimparaiso_ictio,https://ipt.sibbr.gov.br/sibbr/
+ocorrencias,Monitoramento de fauna da Rede Nacional de Vigilância de vírus em animais silvestres (PREVIR-MCTI). Observatório de Aves e Morcegos em São Paulo (SP-1),sibbr,,mcti_previr_sudeste_01,https://ipt.sibbr.gov.br/sibbr/

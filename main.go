@@ -31,10 +31,11 @@ func main() {
 
 func run() int {
 	var (
-		dryRun   = flag.Bool("dry-run", false, "parse e valida sem gravar no DuckDB")
-		cfgPath  = flag.String("config", ".env", "caminho para o arquivo .env")
-		logLevel = flag.String("log-level", "", "nível de log: debug, info, warn, error")
-		ver      = flag.Bool("version", false, "imprime versão e sai")
+		dryRun        = flag.Bool("dry-run", false, "parse e valida sem gravar no DuckDB (ou, com -update-sources, mostra o plano sem gravar o CSV)")
+		cfgPath       = flag.String("config", ".env", "caminho para o arquivo .env")
+		logLevel      = flag.String("log-level", "", "nível de log: debug, info, warn, error")
+		ver           = flag.Bool("version", false, "imprime versão e sai")
+		updateSources = flag.Bool("update-sources", false, "sincroniza ipt_sources.csv com o inventário de cada IPT (core=OCCURRENCE) e sai, sem ingerir")
 	)
 	flag.Parse()
 
@@ -70,6 +71,9 @@ func run() int {
 	if err != nil {
 		log.Error("falha ao carregar CSV de fontes IPT", "path", cfg.IPTSourcesCSV, "err", err)
 		return 2
+	}
+	if *updateSources {
+		return runUpdateSources(ctx, sources, cfg.IPTSourcesCSV, *dryRun)
 	}
 	ordered := orderSources(sources)
 	fmt.Printf("Fontes IPT: %d  |  CSV: %s\n", len(ordered), cfg.IPTSourcesCSV)
@@ -202,6 +206,46 @@ func run() int {
 	printReport(os.Stdout, results, started)
 
 	return exitCode
+}
+
+// runUpdateSources syncs ipt_sources.csv against each distinct IPT host's
+// inventory (core=OCCURRENCE only) and reports the result per host. It never
+// touches the DuckDB file and never runs the ingestion pipeline.
+func runUpdateSources(ctx context.Context, sources []ingest.IPTSource, csvPath string, dryRun bool) int {
+	hosts := make(map[string]bool)
+	for _, s := range sources {
+		hosts[s.BaseURL] = true
+	}
+	fmt.Printf("Sincronizando fontes IPT (core=OCCURRENCE) em %d hosts...\n\n", len(hosts))
+
+	outcome := ingest.SyncSources(ctx, sources)
+
+	var totalAdded, totalRemoved, failed int
+	for _, h := range outcome.Hosts {
+		if h.Err != nil {
+			failed++
+			fmt.Printf("  %-45s ERRO: %s\n", h.BaseURL, trunc(h.Err.Error(), 60))
+			continue
+		}
+		totalAdded += h.Added
+		totalRemoved += h.Removed
+		fmt.Printf("  %-45s +%d novos, -%d removidos, %d inalterados\n", h.BaseURL, h.Added, h.Removed, h.Unchanged)
+	}
+
+	fmt.Printf("\nTotal: +%d novos, -%d removidos  (%d/%d hosts com falha)\n",
+		totalAdded, totalRemoved, failed, len(outcome.Hosts))
+
+	if dryRun {
+		fmt.Println("\nModo: dry-run (ipt_sources.csv nao foi gravado)")
+		return 0
+	}
+
+	if err := ingest.WriteIPTSources(csvPath, outcome.Sources); err != nil {
+		fmt.Printf("\nfalha ao gravar %s: %v\n", csvPath, err)
+		return 2
+	}
+	fmt.Printf("\n%s atualizado (%d fontes).\n", csvPath, len(outcome.Sources))
+	return 0
 }
 
 // orderSources returns taxa sources first, then ocorrencias sources, each

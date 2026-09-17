@@ -95,3 +95,25 @@ func LoadIPTSources(csvPath string) ([]IPTSource, error) {
 
 	return sources, nil
 }
+
+// WriteIPTSources overwrites csvPath with sources, in order, using the same
+// column layout LoadIPTSources reads.
+func WriteIPTSources(csvPath string, sources []IPTSource) error {
+	f, err := os.Create(csvPath) // #nosec G304 -- path from operator .env config, not end-user input
+	if err != nil {
+		return fmt.Errorf("create IPT sources CSV %q: %w", csvPath, err)
+	}
+	defer f.Close()
+
+	w := csv.NewWriter(f)
+	if err := w.Write([]string{"tipo", "nome", "repositorio", "kingdom", "tag", "url"}); err != nil {
+		return fmt.Errorf("write CSV header: %w", err)
+	}
+	for _, s := range sources {
+		if err := w.Write([]string{s.Tipo, s.Nome, s.Repositorio, s.Kingdom, s.Tag, s.BaseURL}); err != nil {
+			return fmt.Errorf("write source %q: %w", s.Tag, err)
+		}
+	}
+	w.Flush()
+	return w.Error()
+}

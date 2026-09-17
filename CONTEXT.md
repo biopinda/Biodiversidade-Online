@@ -8,6 +8,10 @@ Ferramenta de linha de comando que baixa dados de fauna, flora e ocorrências pu
 Um repositório publicado via IPT (Integrated Publishing Toolkit) que expõe um Darwin Core Archive baixável por HTTP. Cada fonte tem uma `tag` (identificador estável) e um `tipo` (`taxa` ou `ocorrencias`).
 _Avoid_: "dataset" ou "repositório" isolado sem deixar claro que é uma fonte IPT.
 
+**Inventário do IPT**:
+A lista de recursos publicados por um IPT, obtida do endpoint `inventory/v2/dataset?type=dwca` daquele host. Usada para descobrir e atualizar as linhas de `ipt_sources.csv` (uma por recurso `core=OCCURRENCE`), nunca para preencher campos que a API não fornece (`kingdom`, `repositorio` continuam curados à mão).
+_Avoid_: "catálogo" isolado sem indicar que é por host IPT, não um catálogo global.
+
 **Harmonização**:
 O processo de normalizar um registro bruto de uma Fonte IPT para o vocabulário, os tipos e a estrutura do Darwin Core antes da gravação no banco — inclui coerção de tipos, tradução PT→EN de valores canônicos, filtragem de táxons não-folha, e descarte de campos fora do padrão DwC.
 _Avoid_: "limpeza" sozinho (é mais amplo que limpeza: também envolve tradução e enriquecimento).
