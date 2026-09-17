@@ -98,7 +98,8 @@ func isRetryable(err error) bool {
 	return strings.Contains(msg, "server error") ||
 		strings.Contains(msg, "timeout") ||
 		strings.Contains(msg, "connection refused") ||
-		strings.Contains(msg, "i/o timeout")
+		strings.Contains(msg, "i/o timeout") ||
+		strings.Contains(msg, "no such host")
 }
 
 func sourceFromURL(rawURL string) string {
